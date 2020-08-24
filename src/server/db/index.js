@@ -75,7 +75,6 @@ function upload(id) {
 }
 
 function accessToken(passcode) {
-  console.log("passcode:", passcode);
   return knex("access_tokens")
     .select("*")
     .where("passcode", passcode)
