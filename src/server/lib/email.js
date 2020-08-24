@@ -9,8 +9,8 @@ function sendPasscode(email, passcode) {
   const msg = {
     to: email,
     from: fromEmail,
-    subject: "Cares Reporter Access Link",
-    html: `<p>Your link to access the grant reporter is
+    subject: "CARES Reporter Access Link",
+    html: `<p>Your link to access the CARES Reporter is
      <a href="${siteUrl}/api/sessions?passcode=${passcode}">${siteUrl}/api/sessions/?passcode=${passcode}</a>.
      It expires in ${expiryMinutes} minutes</p>`
   };
