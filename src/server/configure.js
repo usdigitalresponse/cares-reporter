@@ -17,6 +17,7 @@ module.exports = app => {
   app.use("/api/sessions", require("./routes/sessions"));
   app.use("/api/uploads", require("./routes/uploads"));
   app.use("/api/imports", require("./routes/imports"));
+  app.use("/api/exports", require("./routes/exports"));
   if (process.env.NODE_ENV != "development") {
     const staticMiddleware = express.static(publicPath, staticConf);
     app.use(staticMiddleware);

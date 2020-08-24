@@ -54,6 +54,13 @@ function templates() {
     .orderBy("name");
 }
 
+function template(id) {
+  return knex("configurations")
+    .select("*")
+    .where({ type: "templates", id })
+    .then(r => r[0]);
+}
+
 function uploads() {
   return knex("uploads")
     .select("*")
@@ -141,6 +148,7 @@ module.exports = {
   documents,
   roles,
   tables,
+  template,
   templates,
   upload,
   uploads,

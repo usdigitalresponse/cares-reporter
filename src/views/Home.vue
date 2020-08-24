@@ -27,7 +27,8 @@
           <tr>
             <th>Id</th>
             <th>Name</th>
-            <th></th>
+            <th>Upload</th>
+            <th>Download</th>
           </tr>
         </thead>
         <tbody>
@@ -36,6 +37,9 @@
             <td>{{ template.name }}</td>
             <td>
               <router-link :to="newUploadUrl(template)">Upload</router-link>
+            </td>
+            <td>
+              <a :href="downloadUrl(template)">Download</a>
             </td>
           </tr>
         </tbody>
@@ -101,6 +105,9 @@ export default {
     },
     newUploadUrl(template) {
       return `/new_upload/${template.id}`;
+    },
+    downloadUrl(template) {
+      return `/api/exports/${template.id}`;
     },
     uploadUrl(upload) {
       return `/uploads/${upload.id}`;
