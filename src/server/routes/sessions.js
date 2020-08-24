@@ -1,6 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { user, userAndRole, accessToken, createAccessToken } = require("../db");
+const {
+  userAndRole,
+  accessToken,
+  createAccessToken,
+  markAccessTokenUsed
+} = require("../db");
+const { sendPasscode } = require("../lib/email");
 
 router.get("/", function(req, res) {
   const { passcode } = req.query;
@@ -10,10 +16,8 @@ router.get("/", function(req, res) {
         console.log("invalid passcode");
         res.redirect("/login");
       } else {
-        // mark token as used, or just delete it
-        user(token.user_id).then(u => {
-          console.log("login successful", u);
-          res.cookie("userId", u.id, { signed: true });
+        markAccessTokenUsed(passcode).then(() => {
+          res.cookie("userId", token.user_id, { signed: true });
           res.redirect("/");
         });
       }
@@ -38,10 +42,8 @@ router.post("/", function(req, res) {
     res.end();
   } else {
     createAccessToken(email)
-      .then(passcode => {
-        console.log(
-          `${process.env.SITE_URL}/api/sessions?passcode=${passcode}`
-        );
+      .then(passcode => sendPasscode(email, passcode))
+      .then(() => {
         res.json({
           success: true,
           message: `Email sent to ${email}. Check your inbox`

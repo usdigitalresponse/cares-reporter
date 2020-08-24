@@ -82,6 +82,12 @@ function accessToken(passcode) {
     .then(r => r[0]);
 }
 
+function markAccessTokenUsed(passcode) {
+  return knex("access_tokens")
+    .where("passcode", passcode)
+    .update({ used: true });
+}
+
 function generatePasscode(email) {
   console.log("generatePasscode for :", email);
   return new Promise((resolve, reject) => {
@@ -146,6 +152,7 @@ module.exports = {
   createDocument,
   createUpload,
   documents,
+  markAccessTokenUsed,
   roles,
   tables,
   template,
