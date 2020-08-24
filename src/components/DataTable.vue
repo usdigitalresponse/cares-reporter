@@ -148,6 +148,9 @@ const component = {
     },
     changeView(e) {
       e.preventDefault();
+      const viewName = e.target.value;
+      this.viewName = viewName;
+      this.groupBy = this.getGroupBy(viewName);
     }
   }
 };

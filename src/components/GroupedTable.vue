@@ -11,10 +11,13 @@
       <template v-for="(groupRows, key) in groups">
         <tr :key="`${keyPrefix}-${key}`">
           <td :colspan="columns.length">
-            {{ titleize(groupBy) }}: <b>{{ key }}</b>
+            {{ titleize(groupBy) }}: <b>{{ key == "undefined" ? "" : key }}</b>
           </td>
         </tr>
-        <tr :key="`${groupBy}-${search}-${m}`" v-for="(row, m) in groupRows">
+        <tr
+          :key="`${groupBy}-${key}-${search}-${m}`"
+          v-for="(row, m) in groupRows"
+        >
           <td :key="n" v-for="(column, n) in columns" :style="style(column)">
             <span v-if="column.primaryKey">
               <a :href="documentUrl(row)">{{ row[column.name] }}</a>
