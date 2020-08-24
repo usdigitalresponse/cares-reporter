@@ -22,7 +22,7 @@ router.get("/:id", requireUser, function(req, res) {
         );
         console.log(`Found ${_.keys(groups).length} groups`);
         const attachmentData = makeSpreadsheet(template.content, groups);
-        const filename = "spreadsheet.xlsx";
+        const filename = `${template.name}.xlsx`;
         res.header("Content-Disposition", `attachment; filename="${filename}"`);
         res.header("Content-Type", "application/octet-stream");
         res.end(Buffer.from(attachmentData, "binary"));
