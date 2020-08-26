@@ -87,26 +87,26 @@ function markAccessTokenUsed(passcode) {
     .update({ used: true });
 }
 
-function generatePasscode(email) {
+async function generatePasscode(email) {
   console.log("generatePasscode for :", email);
-  return new Promise((resolve, reject) => {
-    knex("users")
-      .select("*")
-      .where("email", email)
-      .then(users => {
-        if (users.length == 0) {
-          return reject(new Error(`User '${email}' not found`));
-        }
-        const passcode = v4();
-        const used = false;
-        const expiryMinutes = 30;
-        var expires = new Date();
-        expires.setMinutes(expires.getMinutes() + expiryMinutes);
-        knex("access_tokens")
-          .insert({ user_id: users[0].id, passcode, expires, used })
-          .then(() => resolve(passcode));
-      });
+  const users = await knex("users")
+    .select("*")
+    .where("email", email);
+  if (users.length === 0) {
+    throw new Error(`User '${email}' not found`);
+  }
+  const passcode = v4();
+  const used = false;
+  const expiryMinutes = 30;
+  const expires = new Date();
+  expires.setMinutes(expires.getMinutes() + expiryMinutes);
+  await knex("access_tokens").insert({
+    user_id: users[0].id,
+    passcode,
+    expires,
+    used
   });
+  return passcode;
 }
 
 function createAccessToken(email) {

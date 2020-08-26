@@ -42,6 +42,10 @@ export default {
         "Content-Type": "application/json"
       };
       fetch("/api/sessions", { method: "POST", headers, body })
+        .then(r => {
+          if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`);
+          return r;
+        })
         .then(r => r.json())
         .then(r => {
           this.email = "";
