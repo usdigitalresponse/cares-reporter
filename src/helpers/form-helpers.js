@@ -26,10 +26,10 @@ function makeValidationMessage(column, defaultMessage) {
 
 export function validate(columns, record) {
   return new Promise(resolve => {
-    var validationMessages = [];
-    var result = {};
+    const validationMessages = [];
+    const result = {};
     columns.forEach(column => {
-      var value = record[column.name];
+      let value = record[column.name];
       if (column.required && _.isEmpty(value) && !_.isNumber(value)) {
         validationMessages.push(makeValidationMessage(column, "is required"));
       }

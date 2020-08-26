@@ -123,8 +123,8 @@ const component = {
       if (!this.search) {
         return this.rows;
       }
+      const search = this.search.toLowerCase();
       const result = this.rows.filter(row => {
-        const search = this.search.toLowerCase();
         const match = _.some(this.columns, column => {
           const value = `${row[column.name]}`;
           return value.toLowerCase().indexOf(search) >= 0;
