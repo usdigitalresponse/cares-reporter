@@ -3,6 +3,7 @@
 ## Project setup
 
 Copy `.env.example` to `.env` and customize as appropriate.
+In particular you'll want to enter your initial admin email addresses.
 
 ```
 yarn install
@@ -10,13 +11,14 @@ yarn knex migrate:latest
 yarn knex seed:run
 ```
 
-Then navigate to the app home page (probably http://localhost:8080), and submit your email address.
-This first email address will be the initial "admin" user for site.
-
 ### Compiles and hot-reloads for development
 ```
 yarn serve
 ```
+
+Then navigate to the specified app home page (probably http://localhost:8080)
+
+This will initially redirect to a login page and you will be prompted for an email address. A one time use access code link will be sent to your email address. Clicking the link will store an access token as a cookie which will enable access to the app.
 
 ### Compiles and minifies for production
 ```

@@ -89,26 +89,11 @@ function markAccessTokenUsed(passcode) {
 
 async function generatePasscode(email) {
   console.log("generatePasscode for :", email);
-  let user_id;
   const users = await knex("users")
     .select("*")
     .where("email", email);
   if (users.length === 0) {
-    const usersCount = await knex("users").count("id");
-    if (parseInt(usersCount[0].count, 10) !== 0) {
-      throw new Error(`User '${email}' not found`);
-    }
-    // Set up the first user as "admin".
-    const idList = await knex("users")
-      .insert({
-        email,
-        name: "admin",
-        role: "admin"
-      })
-      .returning("id");
-    user_id = idList[0];
-  } else {
-    user_id = users[0].id;
+    throw new Error(`User '${email}' not found`);
   }
   const passcode = v4();
   const used = false;
@@ -116,7 +101,7 @@ async function generatePasscode(email) {
   const expires = new Date();
   expires.setMinutes(expires.getMinutes() + expiryMinutes);
   await knex("access_tokens").insert({
-    user_id,
+    user_id: users[0].id,
     passcode,
     expires,
     used
