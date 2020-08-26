@@ -95,7 +95,6 @@ async function generatePasscode(email) {
     .where("email", email);
   if (users.length === 0) {
     const usersCount = await knex("users").count("id");
-    console.log("usersCount", usersCount);
     if (parseInt(usersCount[0].count, 10) !== 0) {
       throw new Error(`User '${email}' not found`);
     }
