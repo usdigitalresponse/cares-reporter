@@ -1,7 +1,11 @@
 <template>
   <div>
     <form class="form" @submit="doSubmit">
-      <FormGroups :columns="columns" :record="record" />
+      <FormGroups
+        :columns="columns"
+        :record="editorRecord"
+        :foreignKeyValues="foreignKeyValues"
+      />
       <div class="form-group">
         <button
           class="btn btn-primary"
@@ -42,7 +46,9 @@ export default {
     id: Number,
     isNew: Boolean,
     onSave: Function,
-    onCancel: Function
+    onCancel: Function,
+    onDone: Function,
+    foreignKeyValues: Function
   },
   components: {
     FormGroups
@@ -51,10 +57,15 @@ export default {
     const buttonLabel = `${this.isNew ? "Create" : "Update"} ${titleize(
       singular(this.type)
     )}`;
+    const editorRecord = {
+      ...this.record,
+      settings: JSON.stringify(this.record.settings, null, "  ")
+    };
     return {
       buttonLabel,
       validationMessages: [],
-      saving: false
+      saving: false,
+      editorRecord
     };
   },
   watch: {},
@@ -68,11 +79,11 @@ export default {
       this.buttonLabel = `${this.isNew ? "Creating" : "Updating"} ${titleize(
         singular(this.type)
       )}...`;
-      this.validate(this.columns, this.record)
-        .then(messages => {
+      this.validate(this.columns, this.editorRecord)
+        .then(([validatedRecord, messages]) => {
           this.validationMessages = messages;
           if (_.isEmpty(messages)) {
-            return this.saveRecord();
+            return this.saveRecord(validatedRecord);
           } else {
             return false;
           }
@@ -85,10 +96,15 @@ export default {
           this.saving = false;
         });
     },
-    saveRecord() {
-      const path = this.nextPath();
+    saveRecord(record) {
       if (_.isFunction(this.onSave)) {
-        return this.onSave(this.record).then(() => this.$router.push({ path }));
+        return this.onSave(record).then(() => {
+          if (_.isFunction(this.onDone)) {
+            return this.onDone();
+          } else {
+            this.$router.push({ path: this.nextPath() });
+          }
+        });
       }
     },
     nextPath() {

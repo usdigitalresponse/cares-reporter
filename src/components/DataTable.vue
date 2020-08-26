@@ -32,10 +32,16 @@
           :rows="filteredRows()"
           :groupBy="groupBy"
           :search="search"
+          :lookup="lookup"
         />
       </div>
       <div v-else>
-        <BasicTable :name="name" :columns="columns" :rows="filteredRows()" />
+        <BasicTable
+          :name="name"
+          :columns="columns"
+          :rows="filteredRows()"
+          :lookup="lookup"
+        />
       </div>
     </div>
   </div>
@@ -54,14 +60,15 @@ const component = {
   },
   props: {
     table: Object,
-    rows: Array
+    rows: Array,
+    user: Object
   },
   data: function() {
     const name = this.table ? this.table.name : "";
     const viewName = "Standard View";
     const groupBy = null;
     const createNewLabel = `Create New ${titleize(singular(name))}`;
-    const d = {
+    return {
       name,
       createUrl: `/create/${name}`,
       search: "",
@@ -69,12 +76,8 @@ const component = {
       viewName,
       groupBy
     };
-    return d;
   },
   computed: {
-    user: function() {
-      return this.$store.state.user;
-    },
     columns: function() {
       if (!this.table) {
         return [];
@@ -88,7 +91,7 @@ const component = {
       });
     },
     views: function() {
-      return this.table ? this.table.views : [];
+      return _.get(this.table, "views", []);
     },
     hasViews: function() {
       return this.views && this.views.length > 0;
@@ -120,7 +123,7 @@ const component = {
       if (!this.search) {
         return this.rows;
       }
-      return this.rows.filter(row => {
+      const result = this.rows.filter(row => {
         const search = this.search.toLowerCase();
         const match = _.some(this.columns, column => {
           const value = `${row[column.name]}`;
@@ -128,18 +131,19 @@ const component = {
         });
         return match;
       });
+      return result;
     },
     documentUrl(row) {
       return `/documents/${this.table.name}/${row.id}`;
     },
     lookup(column, row) {
       const id = parseInt(row[column.name]);
-      const related = _.find(
-        this.$store.state.tables[column.foreignKey.table],
-        r => r.id === id
+      const related = this.$store.getters.documentByTypeAndId(
+        column.foreignKey.table,
+        id
       );
       if (related) {
-        return `${related[column.foreignKey.show]} (${row[column.name]})`;
+        return `${related.content[column.foreignKey.show]}`;
       }
       return row[column.name];
     },

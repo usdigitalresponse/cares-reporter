@@ -27,8 +27,9 @@ function makeValidationMessage(column, defaultMessage) {
 export function validate(columns, record) {
   return new Promise(resolve => {
     var validationMessages = [];
+    var result = {};
     columns.forEach(column => {
-      const value = record[column.name];
+      var value = record[column.name];
       if (column.required && _.isEmpty(value) && !_.isNumber(value)) {
         validationMessages.push(makeValidationMessage(column, "is required"));
       }
@@ -67,9 +68,17 @@ export function validate(columns, record) {
             );
           }
         }
+        if (column.json) {
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            validationMessages.push(makeValidationMessage(column, e.message));
+          }
+        }
       }
+      result[column.name] = value;
     });
-    return resolve(_.uniq(validationMessages));
+    resolve([result, _.uniq(validationMessages)]);
   });
 }
 
