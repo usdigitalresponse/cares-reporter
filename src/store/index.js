@@ -132,6 +132,18 @@ export default new Vuex.Store({
     },
     documentGroups: state => {
       return _.groupBy(state.documents, "type");
+    },
+    foreignKeyValues: state => column => {
+      const ds = _.filter(
+        state.documents,
+        d => d.type === column.foreignKey.table
+      );
+      return _.map(ds, e => {
+        return { value: e.id, name: e.content[column.foreignKey.show] };
+      });
+    },
+    documentByTypeAndId: state => (type, id) => {
+      return _.find(state.documents, { type, id });
     }
   }
 });

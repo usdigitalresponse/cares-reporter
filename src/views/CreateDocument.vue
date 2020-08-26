@@ -8,6 +8,7 @@
       :isNew="true"
       :onSave="createDocument"
       :onCancel="cancelCreateDocument"
+      :foreignKeyValues="foreignKeyValues"
     />
   </div>
 </template>
@@ -79,17 +80,8 @@ export default {
         {}
       );
     },
-    foreignKeyValues() {
-      //foreignKeyValues(column) {
-      //const lookup = _.get(
-      //  this.$store,
-      //  `state.tables.${column.foreignKey.table}`,
-      //  []
-      //);
-      //return _.map(lookup, e => {
-      //  return { value: e.id, name: e[column.foreignKey.show] };
-      //});
-      return []; // FIXME
+    foreignKeyValues(column) {
+      return this.$store.getters.foreignKeyValues(column);
     },
     createDocument(record) {
       return this.$store.dispatch("createDocument", {
