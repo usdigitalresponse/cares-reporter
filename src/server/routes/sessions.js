@@ -1,4 +1,5 @@
 const express = require("express");
+const _ = require("lodash-checkit");
 const router = express.Router();
 const {
   userAndRole,
@@ -34,26 +35,22 @@ router.get("/logout", function(req, res) {
   res.redirect("/login");
 });
 
-router.post("/", function(req, res) {
+router.post("/", async function(req, res, next) {
   console.log(req.body);
   const { email } = req.body;
-  if (!email) {
-    res.sendStatus(400);
-    res.end();
-  } else {
-    createAccessToken(email)
-      .then(passcode => sendPasscode(email, passcode))
-      .then(() => {
-        res.json({
-          success: true,
-          message: `Email sent to ${email}. Check your inbox`
-        });
-        res.end();
-      })
-      .catch(e => {
-        res.json({ success: false, message: e.message });
-        res.end();
-      });
+  if (!_.isEmail(email)) {
+    res.statusMessage = "Invalid Email Address";
+    return res.sendStatus(400);
+  }
+  try {
+    const passcode = await createAccessToken(email);
+    await sendPasscode(email, passcode, req.headers.origin);
+    res.json({
+      success: true,
+      message: `Email sent to ${email}. Check your inbox`
+    });
+  } catch (e) {
+    next(e);
   }
 });
 
