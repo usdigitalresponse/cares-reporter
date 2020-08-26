@@ -25,61 +25,59 @@ function makeValidationMessage(column, defaultMessage) {
 }
 
 export function validate(columns, record) {
-  return new Promise(resolve => {
-    const validationMessages = [];
-    const result = {};
-    columns.forEach(column => {
-      let value = record[column.name];
-      if (column.required && _.isEmpty(value) && !_.isNumber(value)) {
-        validationMessages.push(makeValidationMessage(column, "is required"));
+  const validationMessages = [];
+  const result = {};
+  columns.forEach(column => {
+    let value = record[column.name];
+    if (column.required && _.isEmpty(value) && !_.isNumber(value)) {
+      validationMessages.push(makeValidationMessage(column, "is required"));
+    }
+    if (!_.isEmpty(value)) {
+      if (column.minimumLength && value.length < column.minimumLength) {
+        validationMessages.push(
+          makeValidationMessage(
+            column,
+            `must be at least ${column.minimumLength} characters long`
+          )
+        );
       }
-      if (!_.isEmpty(value)) {
-        if (column.minimumLength && value.length < column.minimumLength) {
+      if (column.maximumLength && value.length > column.maximumLength) {
+        validationMessages.push(
+          makeValidationMessage(
+            column,
+            `must be no more than ${column.maximumLength} characters long`
+          )
+        );
+      }
+      if (column.pattern) {
+        const re = new RegExp(column.pattern);
+        if (!value.match(re)) {
           validationMessages.push(
             makeValidationMessage(
               column,
-              `must be at least ${column.minimumLength} characters long`
+              `does not match the pattern "${column.pattern}"`
             )
           );
-        }
-        if (column.maximumLength && value.length > column.maximumLength) {
-          validationMessages.push(
-            makeValidationMessage(
-              column,
-              `must be no more than ${column.maximumLength} characters long`
-            )
-          );
-        }
-        if (column.pattern) {
-          const re = new RegExp(column.pattern);
-          if (!value.match(re)) {
-            validationMessages.push(
-              makeValidationMessage(
-                column,
-                `does not match the pattern "${column.pattern}"`
-              )
-            );
-          }
-        }
-        if (column.numeric) {
-          if (numeral(value).value() === null) {
-            validationMessages.push(
-              makeValidationMessage(column, "should be numeric")
-            );
-          }
-        }
-        if (column.json) {
-          try {
-            value = JSON.parse(value);
-          } catch (e) {
-            validationMessages.push(makeValidationMessage(column, e.message));
-          }
         }
       }
-      result[column.name] = value;
-    });
-    resolve([result, _.uniq(validationMessages)]);
+      if (column.numeric) {
+        if (numeral(value).value() === null) {
+          validationMessages.push(
+            makeValidationMessage(column, "should be numeric")
+          );
+        }
+      }
+      if (column.json) {
+        try {
+          value = JSON.parse(value);
+        } catch (e) {
+          validationMessages.push(makeValidationMessage(column, e.message));
+        }
+      }
+    }
+    result[column.name] = value;
   });
+  return [result, _.uniq(validationMessages)];
 }
 
 export function canWriteToTable(user, tableName) {

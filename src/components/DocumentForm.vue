@@ -79,7 +79,7 @@ export default {
       this.buttonLabel = `${this.isNew ? "Creating" : "Updating"} ${titleize(
         singular(this.type)
       )}...`;
-      this.validate(this.columns, this.editorRecord)
+      Promise.resolve(this.validate(this.columns, this.editorRecord))
         .then(([validatedRecord, messages]) => {
           this.validationMessages = messages;
           if (_.isEmpty(messages)) {
