@@ -11,7 +11,7 @@
           <option
             :key="n"
             :value="option.value"
-            v-for="(option, n) in foreignKeyValues(column)"
+            v-for="(option, n) in getForeignKeyValues(column)"
             >{{ option.name }}</option
           >
         </select>
@@ -27,10 +27,10 @@
           }}</option>
         </select>
       </div>
-      <div v-else-if="column.rows > 0">
+      <div v-else-if="column.rows > 0 || column.json">
         <textarea
           class="form-control"
-          :rows="column.rows"
+          :rows="column.rows ? column.rows : 10"
           :name="column.name"
           v-model="record[column.name]"
         />
@@ -49,22 +49,21 @@
 
 <script>
 import { columnTitle } from "../helpers/form-helpers";
-//import _ from "lodash";
+import _ from "lodash";
 export default {
   name: "FormGroups",
   props: {
     columns: Array,
-    record: Object
+    record: Object,
+    foreignKeyValues: Function
   },
   methods: {
     columnTitle,
-    foreignKeyValues() {
-      //foreignKeyValues(column) {
-      //const lookup = _.chain(this.$store, `state.documents.${column.foreignKey.table}`, [])
-      //return _.map(lookup, (e) => {
-      //    return { value: e.id, name: e[column.foreignKey.show] }
-      //})
-      return []; // FIXME
+    getForeignKeyValues(column) {
+      if (_.isFunction(this.foreignKeyValues)) {
+        return this.foreignKeyValues(column);
+      }
+      return [];
     }
   }
 };

@@ -23,7 +23,9 @@
               <a :href="documentUrl(row)">{{ row[column.name] }}</a>
             </span>
             <span v-else-if="column.foreignKey">
-              <a :href="lookupLink(column, row)">{{ lookup(column, row) }}</a>
+              <a :href="lookupLink(column, row)">{{
+                lookupValue(column, row)
+              }}</a>
             </span>
             <span v-else-if="column.format">
               {{ format(row[column.name], column.format) }}
@@ -49,7 +51,8 @@ export default {
     columns: Array,
     rows: Array,
     groupBy: String,
-    search: String
+    search: String,
+    lookup: Function
   },
   data: function() {
     const groups = _.groupBy(this.rows, this.groupBy);
@@ -75,14 +78,9 @@ export default {
     documentUrl(row) {
       return `/#/documents/${this.name}/${row.id}`;
     },
-    lookup(column, row) {
-      const id = parseInt(row[column.name]);
-      const related = _.find(
-        this.$store.state.tables[column.foreignKey.table],
-        r => r.id === id
-      );
-      if (related) {
-        return `${related[column.foreignKey.show]} (${row[column.name]})`;
+    lookupValue(column, row) {
+      if (_.isFunction(this.lookup)) {
+        return this.lookup(column, row);
       }
       return row[column.name];
     },

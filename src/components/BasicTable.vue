@@ -17,7 +17,7 @@
           </span>
           <span v-else-if="column.foreignKey">
             <router-link :to="lookupLink(column, row)">{{
-              lookup(column, row)
+              lookupValue(column, row)
             }}</router-link>
           </span>
           <span v-else-if="column.format">
@@ -34,14 +34,15 @@
 
 <script>
 import { titleize } from "../helpers/form-helpers";
-import _ from "lodash";
 import numeral from "numeral";
+import _ from "lodash";
 export default {
   name: "BasicTable",
   props: {
     name: String,
     columns: Array,
-    rows: Array
+    rows: Array,
+    lookup: Function
   },
   methods: {
     columnTitle(column) {
@@ -51,14 +52,9 @@ export default {
     documentUrl(row) {
       return `/documents/${this.name}/${row.id}`;
     },
-    lookup(column, row) {
-      const id = parseInt(row[column.name]);
-      const related = _.find(
-        this.$store.state.documents[column.foreignKey.table],
-        r => r.id === id
-      );
-      if (related) {
-        return `${related[column.foreignKey.show]} (${row[column.name]})`;
+    lookupValue(column, row) {
+      if (_.isFunction(this.lookup)) {
+        return this.lookup(column, row);
       }
       return row[column.name];
     },

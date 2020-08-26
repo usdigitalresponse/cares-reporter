@@ -1,7 +1,7 @@
 <template>
   <div class="data">
     <h1>{{ titleize(type) }}</h1>
-    <DataTable v-if="table" :table="table" :rows="documents" />
+    <DataTable v-if="table" :table="table" :rows="documents" :user="user" />
   </div>
 </template>
 
@@ -17,9 +17,11 @@ export default {
   data: function() {
     const { type } = this.$route.params;
     const table = this.getTable(type);
+    const user = this.$store.state.user;
     return {
       type,
-      table
+      table,
+      user
     };
   },
   watch: {
