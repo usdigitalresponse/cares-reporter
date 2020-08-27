@@ -8,7 +8,7 @@ router.get("/", requireUser, function(req, res) {
   uploads().then(uploads => res.json({ uploads }));
 });
 
-router.post("/", requireUser, function(req, res) {
+router.post("/", requireUser, function(req, res, next) {
   console.log("POST /api/uploads");
   const { configuration_id } = req.body;
   let spreadsheet = req.files.spreadsheet;
@@ -18,10 +18,9 @@ router.post("/", requireUser, function(req, res) {
     console.log(spreadsheet.name, destination);
     spreadsheet.mv(destination, err => {
       if (err) {
-        console.log(err.message);
-        res.sendStatus(500);
+        next(err);
       } else {
-        var upload = {
+        const upload = {
           filename: spreadsheet.name,
           configuration_id,
           created_by: user.email
@@ -31,7 +30,7 @@ router.post("/", requireUser, function(req, res) {
             res.json({ success: true, upload: result });
           })
           .catch(e => {
-            res.json({ success: false, message: e.message });
+            next(e);
           });
       }
     });
