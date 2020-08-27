@@ -63,7 +63,7 @@ export function validate(columns, record) {
       if (column.numeric) {
         if (numeral(value).value() === null) {
           validationMessages.push(
-            makeValidationMessage(column, "should be numeric")
+            makeValidationMessage(column, "must be numeric")
           );
         }
       }
@@ -77,7 +77,7 @@ export function validate(columns, record) {
     }
     result[column.name] = value;
   });
-  return [result, _.uniq(validationMessages)];
+  return { validatedRecord: result, messages: _.uniq(validationMessages) };
 }
 
 export function canWriteToTable(user, tableName) {

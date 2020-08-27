@@ -80,7 +80,7 @@ export default {
         singular(this.type)
       )}...`;
       Promise.resolve(this.validate(this.columns, this.editorRecord))
-        .then(([validatedRecord, messages]) => {
+        .then(({ validatedRecord, messages }) => {
           this.validationMessages = messages;
           if (_.isEmpty(messages)) {
             return this.saveRecord(validatedRecord);
