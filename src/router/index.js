@@ -1,5 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import AgencyHome from "../views/AgencyHome.vue";
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import Documents from "../views/Documents.vue";
@@ -19,6 +20,12 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/agency",
+    name: "AgencyHome",
+    component: AgencyHome,
     meta: { requiresLogin: true }
   },
   {

@@ -1,8 +1,16 @@
 <template>
   <div class="home">
-    <h1>Home</h1>
+    <h1>Dashboard</h1>
     <div>
-      <h2 class="mt-3">Records</h2>
+      <div v-if="template">
+        <h2 class="mt-3">Download</h2>
+        <div>
+          <a :href="downloadUrl()" class="btn btn-primary"
+            >Download Spreadsheet</a
+          >
+        </div>
+      </div>
+      <h2 class="mt-3">Record Summary</h2>
       <table class="table table-striped">
         <thead>
           <tr>
@@ -21,30 +29,7 @@
           </tr>
         </tbody>
       </table>
-      <h2 class="mt-3">Templates</h2>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Upload</th>
-            <th>Download</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr :key="template.id" v-for="template in templates">
-            <td>{{ template.id }}</td>
-            <td>{{ template.name }}</td>
-            <td>
-              <router-link :to="newUploadUrl(template)">Upload</router-link>
-            </td>
-            <td>
-              <a :href="downloadUrl(template)">Download</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <h2 class="mt-3">Uploads</h2>
+      <h2 class="mt-3">Upload History</h2>
       <table class="table table-striped">
         <thead>
           <tr>
@@ -52,8 +37,7 @@
             <th>Filename</th>
             <th>Template</th>
             <th>Uploaded By</th>
-            <th>Uploaded At</th>
-            <th>From Now</th>
+            <th>Uploaded</th>
           </tr>
         </thead>
         <tbody>
@@ -64,7 +48,6 @@
             <td>{{ upload.filename }}</td>
             <td>{{ templateName(upload) }}</td>
             <td>{{ upload.created_by }}</td>
-            <td>{{ upload.created_at }}</td>
             <td>{{ fromNow(upload.created_at) }}</td>
           </tr>
         </tbody>
@@ -81,11 +64,13 @@ export default {
   name: "Home",
   components: {},
   computed: {
+    template: function() {
+      return _.find(this.$store.state.configuration.templates, t =>
+        t.name.match(/agency/i)
+      );
+    },
     tables: function() {
       return this.$store.state.configuration.tables;
-    },
-    templates: function() {
-      return this.$store.state.configuration.templates;
     },
     uploads: function() {
       return this.$store.state.uploads;
@@ -96,6 +81,9 @@ export default {
   },
   methods: {
     titleize,
+    downloadUrl() {
+      return `/api/exports/${this.template.id}`;
+    },
     documentCount(tableName) {
       const records = this.groups[tableName];
       return _.filter(records, r => r.type === tableName).length;
@@ -103,20 +91,12 @@ export default {
     dataUrl(table) {
       return `/documents/${table.name}`;
     },
-    newUploadUrl(template) {
-      return `/new_upload/${template.id}`;
-    },
-    downloadUrl(template) {
-      return `/api/exports/${template.id}`;
-    },
     uploadUrl(upload) {
       return `/uploads/${upload.id}`;
     },
-    importUrl(upload) {
-      return `/imports/${upload.id}`;
-    },
-    templateName() {
-      return "Agency Template";
+    templateName(t) {
+      const template = this.$store.getters.template(t.configuration_id);
+      return template ? template.name : "";
     },
     fromNow: function(t) {
       return moment(t).fromNow();
