@@ -6,7 +6,7 @@
         <h2 class="mt-3">Download</h2>
         <div>
           <a :href="downloadUrl()" class="btn btn-primary"
-            >Download Spreadsheet</a
+            >Download Treasury Report</a
           >
         </div>
       </div>
