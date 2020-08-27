@@ -65,7 +65,7 @@ export default {
       const file = _.get(this.$refs, "files.files[0]");
       if (file) {
         this.message = null;
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append("configuration_id", this.id);
         formData.append("spreadsheet", file);
         try {
