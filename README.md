@@ -9,6 +9,7 @@ In particular you'll want to enter your initial admin email addresses.
 yarn install
 yarn knex migrate:latest
 yarn knex seed:run
+mkdir uploads ## (a gitignored folder for uploaded files)
 ```
 
 ### Compiles and hot-reloads for development

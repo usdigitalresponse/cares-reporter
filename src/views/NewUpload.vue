@@ -60,7 +60,7 @@ export default {
     }
   },
   methods: {
-    uploadFile: function(e) {
+    uploadFile: async function(e) {
       e.preventDefault();
       const file = _.get(this.$refs, "files.files[0]");
       if (file) {
@@ -68,13 +68,12 @@ export default {
         var formData = new FormData();
         formData.append("configuration_id", this.id);
         formData.append("spreadsheet", file);
-        this.$store.dispatch("createUpload", formData).then(r => {
-          if (r.success) {
-            this.$router.push({ path: `/imports/${r.upload.id}` });
-          } else {
-            this.message = r.message;
-          }
-        });
+        try {
+          const r = await this.$store.dispatch("createUpload", formData)
+          this.$router.push({ path: `/imports/${r.upload.id}` });
+        } catch (e) {
+            this.message = e.message;
+        }
       }
     },
     cancelUpload(e) {
