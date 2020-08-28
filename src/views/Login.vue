@@ -1,6 +1,7 @@
 <template>
   <div class="login">
-    <h1>Login</h1>
+    <h1>CARES Reporter</h1>
+    <h4>Login</h4>
     <form @submit="login">
       <div class="form-group">
         <input
@@ -66,7 +67,10 @@ export default {
 
 <style scoped>
 .login {
-  margin: 100px auto;
   width: 90%;
+  margin: 44px auto;
+}
+h4 {
+  margin: 100px 0 20px 0;
 }
 </style>

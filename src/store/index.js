@@ -59,7 +59,7 @@ export default new Vuex.Store({
       state.documents = [...state.documents, ...documents];
     },
     addUpload(state, upload) {
-      state.uploads = [...state.uploads, upload];
+      state.uploads = [upload, ...state.uploads];
     }
   },
   actions: {

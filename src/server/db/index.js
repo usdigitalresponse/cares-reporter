@@ -64,7 +64,7 @@ function template(id) {
 function uploads() {
   return knex("uploads")
     .select("*")
-    .orderBy("created_at");
+    .orderBy("created_at", "desc");
 }
 
 function upload(id) {
