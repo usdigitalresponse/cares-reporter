@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const history = require("connect-history-api-fallback");
-const fileUpload = require("express-fileupload");
 const { resolve } = require("path");
 
 const publicPath = resolve(__dirname, "../../dist");
@@ -12,7 +11,6 @@ const staticConf = { maxAge: "1y", etag: false };
 module.exports = app => {
   app.use(bodyParser.json());
   app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.use(fileUpload());
   app.use("/api/documents", require("./routes/documents"));
   app.use("/api/configuration", require("./routes/configuration"));
   app.use("/api/sessions", require("./routes/sessions"));
