@@ -69,10 +69,10 @@ export default {
         formData.append("configuration_id", this.id);
         formData.append("spreadsheet", file);
         try {
-          const r = await this.$store.dispatch("createUpload", formData)
+          const r = await this.$store.dispatch("createUpload", formData);
           this.$router.push({ path: `/imports/${r.upload.id}` });
         } catch (e) {
-            this.message = e.message;
+          this.message = e.message;
         }
       }
     },

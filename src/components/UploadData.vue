@@ -163,7 +163,7 @@ export default {
       }
     },
     validate() {
-      let messages = [];
+      const messages = [];
       let selected = 0;
       this.data.forEach(sheet => {
         if (this.settings.names[sheet.name] != "ignore") {
@@ -237,7 +237,7 @@ export default {
       this.settings = this.buildSettings(id);
     },
     buildSettings(id) {
-      let result = {
+      const result = {
         names: this.initializeNames(),
         columns: this.initializeColumns(),
         tableColumns: {}
