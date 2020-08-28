@@ -18,7 +18,7 @@ function uploadFilename(filename) {
 
 function makeSpreadsheet(template, groups) {
   console.log("template:", template);
-  let workbook = XLSX.utils.book_new();
+  const workbook = XLSX.utils.book_new();
   template.settings.forEach(s => {
     const input = groups[s.tableName];
     const rows = _.map(input, row => {
