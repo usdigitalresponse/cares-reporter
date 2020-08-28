@@ -97,11 +97,11 @@ export default new Vuex.Store({
       commit("addDocuments", documents);
     },
     createUpload({ commit }, formData) {
-      console.log("postForm", formData);
       return postForm("/api/uploads", formData)
         .then(r => {
-          if (!r.ok) throw new Error(`createUpload: ${r.statusText} (${r.status})`);
-          return r.json()
+          if (!r.ok)
+            throw new Error(`createUpload: ${r.statusText} (${r.status})`);
+          return r.json();
         })
         .then(response => {
           if (response.upload) {
