@@ -158,8 +158,7 @@ export default {
           .then(() => {
             this.uploading = false;
             this.buttonLabel = "Import";
-            const firstTableName = sheets[0].type;
-            this.$router.push({ path: `/documents/${firstTableName}` });
+            this.$router.push({ path: "/agency" });
           });
       }
     },

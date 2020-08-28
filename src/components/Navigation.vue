@@ -1,7 +1,8 @@
 <template>
   <div>
     <nav v-if="loggedIn">
-      <router-link to="/">Home</router-link> |
+      <router-link to="/">Dashboard</router-link> |
+      <router-link to="/agency">Agency Dashboard</router-link> |
       <template v-for="name in tableNames">
         <router-link :key="name" :to="`/documents/${name}`">{{
           titleize(name)
