@@ -1,41 +1,40 @@
 const express = require("express");
+
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
 const { user, upload, uploads, createUpload } = require("../db");
 const { uploadFilename, loadSpreadsheet } = require("../lib/spreadsheet");
+const multer = require("multer");
+const multerUpload = multer({ storage: multer.memoryStorage() });
+const FileInterface = require("../lib/serverDiskInterface");
+const fileInterface = new FileInterface();
 
 router.get("/", requireUser, function(req, res) {
   uploads().then(uploads => res.json({ uploads }));
 });
 
-router.post("/", requireUser, function(req, res, next) {
-  console.log("POST /api/uploads");
-  const { configuration_id } = req.body;
-  let spreadsheet = req.files.spreadsheet;
-  user(req.signedCookies.userId).then(user => {
-    // FIXME verify name exists and has xlsx extension
-    const destination = uploadFilename(spreadsheet.name);
-    console.log(spreadsheet.name, destination);
-    spreadsheet.mv(destination, err => {
-      if (err) {
-        next(err);
-      } else {
-        const upload = {
-          filename: spreadsheet.name,
-          configuration_id,
-          created_by: user.email
-        };
-        return createUpload(upload)
-          .then(result => {
-            res.json({ success: true, upload: result });
-          })
-          .catch(e => {
-            next(e);
-          });
-      }
-    });
-  });
-});
+router.post(
+  "/",
+  requireUser,
+  multerUpload.single("spreadsheet"),
+  async function(req, res, next) {
+    console.log("POST /api/uploads");
+    try {
+      const { configuration_id } = req.body;
+      await fileInterface.writeFile(req.file.originalname, req.file.buffer);
+      const currentUser = await user(req.signedCookies.userId);
+      const upload = {
+        filename: req.file.originalname,
+        configuration_id,
+        created_by: currentUser.email
+      };
+      const result = await createUpload(upload);
+      res.json({ success: true, upload: result });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 
 router.get("/:id", requireUser, (req, res) => {
   const { id } = req.params;
