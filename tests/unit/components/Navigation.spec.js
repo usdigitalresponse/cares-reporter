@@ -10,11 +10,9 @@ describe("Navigation.vue", () => {
   let store;
   beforeEach(() => {
     store = new Vuex.Store({
-      state: {
-        user: { email: "user@example.com" }
-      },
       getters: {
-        tableNames: () => ["Products", "Product Type"]
+        tableNames: () => ["Products", "Product Type"],
+        user: () => ({ email: "user@example.com", role: "admin" })
       }
     });
   });

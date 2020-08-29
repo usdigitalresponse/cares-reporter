@@ -148,6 +148,9 @@ export default new Vuex.Store({
     },
     documentByTypeAndId: state => (type, id) => {
       return _.find(state.documents, { type, id });
+    },
+    user: state => {
+      return state.user || {};
     }
   }
 });
