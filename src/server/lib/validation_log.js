@@ -27,7 +27,7 @@ class ValidationLog {
   }
 
   success() {
-    return this.log.length > 0;
+    return this.log.length === 0;
   }
 }
 

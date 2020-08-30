@@ -32,7 +32,9 @@
           <a class="ml-5" href="#" @click="cancelUpload">Cancel</a>
         </div>
       </form>
-      <div class="mt-3 alert alert-danger" v-if="message">{{ message }}</div>
+      <div class="mt-3 alert alert-danger" v-if="message">
+        <pre>{{ message }}</pre>
+      </div>
     </div>
   </div>
 </template>
@@ -70,7 +72,11 @@ export default {
         formData.append("spreadsheet", file);
         try {
           const r = await this.$store.dispatch("createUpload", formData);
-          this.$router.push({ path: `/imports/${r.upload.id}` });
+          if ((r.errors || []).length > 0) {
+            this.message = JSON.stringify(r.errors, null, 2);
+          } else {
+            this.$router.push({ path: `/imports/${r.upload.id}` });
+          }
         } catch (e) {
           this.message = e.message;
         }
