@@ -12,7 +12,7 @@ const processUpload = async ({ filename, configuration_id, user_id, data }) => {
   }
   await fileInterface.writeFile(filename, data);
   const current_user = await user(user_id);
-  const upload = createUpload({
+  const upload = await createUpload({
     filename,
     configuration_id,
     created_by: current_user.email
