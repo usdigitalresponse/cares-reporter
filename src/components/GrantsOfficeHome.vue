@@ -30,39 +30,21 @@
         </tbody>
       </table>
       <h2 class="mt-3">Upload History</h2>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Filename</th>
-            <th>Template</th>
-            <th>Uploaded By</th>
-            <th>Uploaded</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr :key="upload.id" v-for="upload in uploads">
-            <td>
-              <router-link :to="uploadUrl(upload)">{{ upload.id }}</router-link>
-            </td>
-            <td>{{ upload.filename }}</td>
-            <td>{{ templateName(upload) }}</td>
-            <td>{{ upload.created_by }}</td>
-            <td>{{ fromNow(upload.created_at) }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <UploadHistory :uploads="uploads" />
     </div>
   </div>
 </template>
 
 <script>
+import UploadHistory from "../components/UploadHistory";
 import { titleize } from "../helpers/form-helpers";
 import moment from "moment";
 import _ from "lodash";
 export default {
   name: "GrantsOfficeHome",
-  components: {},
+  components: {
+    UploadHistory
+  },
   computed: {
     template: function() {
       return _.find(this.$store.state.configuration.templates, t =>
