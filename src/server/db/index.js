@@ -1,11 +1,5 @@
-const db = process.env.POSTGRES_URL;
 const { v4 } = require("uuid");
-
-console.log("Connecting to database:", db);
-const knex = require("knex")({
-  client: "pg",
-  connection: db
-});
+const knex = require("./connection");
 
 function users() {
   return knex("users")

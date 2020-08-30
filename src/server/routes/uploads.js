@@ -19,13 +19,17 @@ router.post(
   async (req, res, next) => {
     console.log("POST /api/uploads");
     try {
-      const result = await processUpload({
+      const { valog, upload } = await processUpload({
         filename: req.file.originalname,
         configuration_id: req.body.configuration_id,
         user_id: req.signedCookies.userId,
         data: req.file.buffer
       });
-      res.json({ success: true, upload: result });
+      res.json({
+        success: valog.success(),
+        errors: valog.getLog(),
+        upload
+      });
     } catch (e) {
       next(e);
     }
