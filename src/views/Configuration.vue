@@ -1,6 +1,23 @@
 <template>
   <div class="configuration">
     <h1>Configuration</h1>
+    <h2>Reporting Periods</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :key="period.id" v-for="period in reportingPeriods">
+          <td>{{ period.name }}</td>
+          <td>{{ period.start_date }}</td>
+          <td>{{ period.end_date }}</td>
+        </tr>
+      </tbody>
+    </table>
     <h2>Tables</h2>
     <table class="table table-striped">
       <thead>
@@ -89,6 +106,9 @@ export default {
     templates: function() {
       const { templates } = this.$store.state.configuration;
       return templates;
+    },
+    reportingPeriods: function() {
+      return this.$store.state.reportingPeriods;
     }
   },
   methods: {
