@@ -1,14 +1,17 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
-import Login from "../views/Login.vue";
-import Documents from "../views/Documents.vue";
-import Document from "../views/Document.vue";
+
+import Agencies from "../views/Agencies.vue";
 import Configuration from "../views/Configuration.vue";
 import CreateDocument from "../views/CreateDocument.vue";
+import Document from "../views/Document.vue";
+import Documents from "../views/Documents.vue";
+import Home from "../views/Home.vue";
 import ImportFile from "../views/ImportFile.vue";
+import Login from "../views/Login.vue";
 import NewUpload from "../views/NewUpload.vue";
 import Upload from "../views/Upload.vue";
+
 import store from "../store";
 
 Vue.use(VueRouter);
@@ -61,6 +64,12 @@ const routes = [
     path: "/imports/:id",
     name: "ImportFile",
     component: ImportFile,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/agencies",
+    name: "Agemcies",
+    component: Agencies,
     meta: { requiresLogin: true }
   }
 ];

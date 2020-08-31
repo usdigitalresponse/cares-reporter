@@ -11,12 +11,14 @@ const staticConf = { maxAge: "1y", etag: false };
 module.exports = app => {
   app.use(bodyParser.json());
   app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.use("/api/documents", require("./routes/documents"));
+  app.use("/api/agencies", require("./routes/agencies"));
   app.use("/api/configuration", require("./routes/configuration"));
+  app.use("/api/documents", require("./routes/documents"));
+  app.use("/api/exports", require("./routes/exports"));
+  app.use("/api/imports", require("./routes/imports"));
+  app.use("/api/reporting_periods", require("./routes/reporting_periods"));
   app.use("/api/sessions", require("./routes/sessions"));
   app.use("/api/uploads", require("./routes/uploads"));
-  app.use("/api/imports", require("./routes/imports"));
-  app.use("/api/exports", require("./routes/exports"));
   if (process.env.NODE_ENV != "development") {
     const staticMiddleware = express.static(publicPath, staticConf);
     app.use(staticMiddleware);
