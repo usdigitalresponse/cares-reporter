@@ -37,7 +37,9 @@ export default new Vuex.Store({
     user: null,
     documents: {},
     configuration: {},
-    uploads: []
+    uploads: [],
+    agencies: [],
+    reportingPeriods: []
   },
   mutations: {
     setUser(state, user) {
@@ -48,6 +50,12 @@ export default new Vuex.Store({
     },
     setConfiguration(state, configuration) {
       state.configuration = configuration;
+    },
+    setAgencies(state, agencies) {
+      state.agencies = agencies;
+    },
+    setReportingPeriods(state, reportingPeriods) {
+      state.reportingPeriods = reportingPeriods;
     },
     setUploads(state, uploads) {
       state.uploads = uploads;
@@ -65,21 +73,19 @@ export default new Vuex.Store({
   actions: {
     login({ commit }, user) {
       commit("setUser", user);
-      fetch("/api/documents", { credentials: "include" })
-        .then(r => r.json())
-        .then(({ documents }) => {
-          commit("setDocuments", documents);
-        });
-      fetch("/api/configuration", { credentials: "include" })
-        .then(r => r.json())
-        .then(configuration => {
-          commit("setConfiguration", configuration);
-        });
-      fetch("/api/uploads", { credentials: "include" })
-        .then(r => r.json())
-        .then(({ uploads }) => {
-          commit("setUploads", uploads);
-        });
+      const doFetch = attr => {
+        fetch(`/api/${attr}`, { credentials: "include" })
+          .then(r => r.json())
+          .then(data => {
+            const mutation = _.camelCase(`set_${attr}`);
+            commit(mutation, data[attr]);
+          });
+      };
+      doFetch("documents");
+      doFetch("configuration");
+      doFetch("uploads");
+      doFetch("agencies");
+      doFetch("reporting_periods");
     },
     logout({ commit }) {
       fetch("/api/sessions/logout").then(() => commit("setUser", null));

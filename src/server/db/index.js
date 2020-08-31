@@ -139,13 +139,27 @@ function createUpload(upload) {
     });
 }
 
+function agencies() {
+  return knex("agencies")
+    .select("*")
+    .orderBy("name");
+}
+
+function reportingPeriods() {
+  return knex("reporting_periods")
+    .select("*")
+    .orderBy("end_date", "desc");
+}
+
 module.exports = {
   accessToken,
+  agencies,
   createAccessToken,
   createDocument,
   createUpload,
   documents,
   markAccessTokenUsed,
+  reportingPeriods,
   roles,
   tables,
   template,

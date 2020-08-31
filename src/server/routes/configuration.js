@@ -6,7 +6,7 @@ const { users, roles, tables, templates } = require("../db");
 router.get("/", requireUser, function(req, res) {
   const ps = [users(), roles(), tables(), templates()];
   Promise.all(ps).then(([users, roles, tables, templates]) => {
-    res.json({ users, roles, tables, templates });
+    res.json({ configuration: { users, roles, tables, templates } });
   });
 });
 
