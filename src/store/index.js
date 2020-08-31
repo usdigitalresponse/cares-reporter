@@ -73,22 +73,19 @@ export default new Vuex.Store({
   actions: {
     login({ commit }, user) {
       commit("setUser", user);
-      const doFetch = (url, mutation, attr) => {
-        fetch(url, { credentials: "include" })
+      const doFetch = attr => {
+        fetch(`/api/${attr}`, { credentials: "include" })
           .then(r => r.json())
           .then(data => {
+            const mutation = _.camelCase(`set_${attr}`);
             commit(mutation, data[attr]);
           });
       };
-      doFetch("/api/documents", "setDocuments", "documents");
-      doFetch("/api/configuration", "setConfiguration", "configuration");
-      doFetch("/api/uploads", "setUploads", "uploads");
-      doFetch("/api/agencies", "setAgencies", "agencies");
-      doFetch(
-        "/api/reporting_periods",
-        "setReportingPeriods",
-        "reporting_periods"
-      );
+      doFetch("documents");
+      doFetch("configuration");
+      doFetch("uploads");
+      doFetch("agencies");
+      doFetch("reporting_periods");
     },
     logout({ commit }) {
       fetch("/api/sessions/logout").then(() => commit("setUser", null));
