@@ -2,14 +2,15 @@
   <div>
     <nav v-if="loggedIn">
       <router-link to="/">Dashboard</router-link> |
-      <router-link to="/agency">Agency Dashboard</router-link> |
-      <template v-for="name in tableNames">
+      <template v-for="(name, i) in tableNames">
+        <span :key="i" v-if="i > 0"> | </span>
         <router-link :key="name" :to="`/documents/${name}`">{{
           titleize(name)
         }}</router-link>
-        |
       </template>
-      <router-link to="/configuration">Configuration</router-link>
+      <span v-if="role === 'admin'">
+        | <router-link to="/configuration">Configuration</router-link>
+      </span>
       <span class="float-right">
         {{ email }}
         <a href="#" @click="logout">Logout</a>
@@ -26,7 +27,10 @@ export default {
   name: "Logout",
   computed: {
     email: function() {
-      return this.$store.state.user ? this.$store.state.user.email : "";
+      return this.$store.getters.user.email;
+    },
+    role: function() {
+      return this.$store.getters.user.role;
     },
     loggedIn: function() {
       return this.$store.state.user !== null;
