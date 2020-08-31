@@ -2,12 +2,11 @@ const express = require("express");
 
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
-const { user, upload, uploads, createUpload } = require("../db");
+const { upload, uploads } = require("../db");
 const { uploadFilename, loadSpreadsheet } = require("../lib/spreadsheet");
+const { processUpload } = require("../services/process_upload");
 const multer = require("multer");
 const multerUpload = multer({ storage: multer.memoryStorage() });
-const FileInterface = require("../lib/serverDiskInterface");
-const fileInterface = new FileInterface();
 
 router.get("/", requireUser, function(req, res) {
   uploads().then(uploads => res.json({ uploads }));
@@ -17,19 +16,20 @@ router.post(
   "/",
   requireUser,
   multerUpload.single("spreadsheet"),
-  async function(req, res, next) {
+  async (req, res, next) => {
     console.log("POST /api/uploads");
     try {
-      const { configuration_id } = req.body;
-      await fileInterface.writeFile(req.file.originalname, req.file.buffer);
-      const currentUser = await user(req.signedCookies.userId);
-      const upload = {
+      const { valog, upload } = await processUpload({
         filename: req.file.originalname,
-        configuration_id,
-        created_by: currentUser.email
-      };
-      const result = await createUpload(upload);
-      res.json({ success: true, upload: result });
+        configuration_id: req.body.configuration_id,
+        user_id: req.signedCookies.userId,
+        data: req.file.buffer
+      });
+      res.json({
+        success: valog.success(),
+        errors: valog.getLog(),
+        upload
+      });
     } catch (e) {
       next(e);
     }

@@ -26,10 +26,18 @@ This will initially redirect to a login page and you will be prompted for an ema
 yarn build
 ```
 
-### Run your unit tests
+### Run tests'=
+
+#### Unit  
 ```
 yarn test:unit
 ```
+
+#### Server Unit and Integration
+```
+yarn test:server
+```
+
 
 ### Lints and fixes files
 ```
