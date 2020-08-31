@@ -1,7 +1,11 @@
 module.exports = {
   root: true,
+  globals: {
+    requireSrc: "writable"
+  },
   env: {
-    node: true
+    node: true,
+    mocha: true
   },
   extends: ["plugin:vue/essential", "eslint:recommended", "@vue/prettier"],
   parserOptions: {
