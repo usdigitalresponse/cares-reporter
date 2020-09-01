@@ -18,11 +18,6 @@
           placeholder="Search..."
         />
       </div>
-      <div class="col-3 float-right" v-if="canWriteToTable(user, name)">
-        <router-link class="btn btn-primary" :to="createUrl">{{
-          createNewLabel
-        }}</router-link>
-      </div>
     </div>
     <div class="row">
       <div v-if="groupBy">
