@@ -157,6 +157,10 @@ export default new Vuex.Store({
     },
     user: state => {
       return state.user || {};
+    },
+    agencyName: state => id => {
+      const agency = _.find(state.agencies, { id });
+      return agency ? agency.name : "";
     }
   }
 });

@@ -5,6 +5,7 @@
         <th>Id</th>
         <th>Filename</th>
         <th>Uploaded By</th>
+        <th>Agency</th>
         <th>Uploaded</th>
       </tr>
     </thead>
@@ -15,6 +16,7 @@
         </td>
         <td>{{ upload.filename }}</td>
         <td>{{ upload.created_by }}</td>
+        <td>{{ agencyName(upload.agency_id) }}</td>
         <td>{{ fromNow(upload.created_at) }}</td>
       </tr>
     </tbody>
@@ -34,6 +36,9 @@ export default {
     },
     fromNow: function(t) {
       return moment(t).fromNow();
+    },
+    agencyName(id) {
+      return this.$store.getters.agencyName(id);
     }
   }
 };

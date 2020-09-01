@@ -18,6 +18,42 @@
         </tr>
       </tbody>
     </table>
+    <h2>Users</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Agency</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :key="user.email" v-for="user in users">
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td>{{ agencyName(user.agency_id) }}</td>
+          <td>{{ user.created_at }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Roles</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Rules</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :key="role.name" v-for="role in roles">
+          <td>{{ role.name }}</td>
+          <td>{{ role.rules }}</td>
+          <td>{{ role.created_at }}</td>
+        </tr>
+      </tbody>
+    </table>
     <h2>Tables</h2>
     <table class="table table-striped">
       <thead>
@@ -45,42 +81,6 @@
         <tr :key="template.name" v-for="template in templates">
           <td>{{ template.name }}</td>
           <td>{{ preview(template.content) }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Users</h2>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Role</th>
-          <th>Tags</th>
-          <th>Created At</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr :key="user.email" v-for="user in users">
-          <td>{{ user.email }}</td>
-          <td>{{ user.role }}</td>
-          <td>{{ preview(user.tags) }}</td>
-          <td>{{ user.created_at }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Roles</h2>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Rules</th>
-          <th>Created At</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr :key="role.name" v-for="role in roles">
-          <td>{{ role.name }}</td>
-          <td>{{ role.rules }}</td>
-          <td>{{ role.created_at }}</td>
         </tr>
       </tbody>
     </table>
@@ -122,6 +122,9 @@ export default {
         return s;
       }
       return `${s.slice(0, maxLength)}...`;
+    },
+    agencyName(id) {
+      return this.$store.getters.agencyName(id);
     }
   }
 };
