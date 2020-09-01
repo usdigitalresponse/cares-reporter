@@ -2,14 +2,22 @@ const express = require("express");
 
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
-const { upload, uploads } = require("../db");
+const { user: getUser, upload, uploads, uploadsForAgency } = require("../db");
 const { uploadFilename, loadSpreadsheet } = require("../lib/spreadsheet");
 const { processUpload } = require("../services/process_upload");
 const multer = require("multer");
 const multerUpload = multer({ storage: multer.memoryStorage() });
 
-router.get("/", requireUser, function(req, res) {
-  uploads().then(uploads => res.json({ uploads }));
+router.get("/", requireUser, async function(req, res) {
+  const user = await getUser(req.signedCookies.userId);
+  console.log("get /api/uploads", user);
+  if (user.agency_id) {
+    return uploadsForAgency(user.agency_id).then(uploads =>
+      res.json({ uploads })
+    );
+  } else {
+    return uploads().then(uploads => res.json({ uploads }));
+  }
 });
 
 router.post(
