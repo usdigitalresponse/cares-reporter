@@ -1,10 +1,21 @@
 import { expect } from "chai";
-import { shallowMount } from "@vue/test-utils";
+import { shallowMount, createLocalVue } from "@vue/test-utils";
 import UploadHistory from "@/components/UploadHistory.vue";
+import Vuex from "vuex";
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
 
 describe("UploadHistory.vue", () => {
   it("renders", () => {
+    let store = new Vuex.Store({
+      getters: {
+        agencyName: () => () => "Test Agency"
+      }
+    });
     const wrapper = shallowMount(UploadHistory, {
+      store,
+      localVue,
       stubs: ["router-link"],
       propsData: {
         uploads: [{ filename: "one.xlsx" }, { filename: "two.xlsx" }]
