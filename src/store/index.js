@@ -35,6 +35,7 @@ export function postForm(url, formData) {
 export default new Vuex.Store({
   state: {
     user: null,
+    applicationSettings: {},
     documents: {},
     configuration: {},
     uploads: [],
@@ -56,6 +57,9 @@ export default new Vuex.Store({
     },
     setReportingPeriods(state, reportingPeriods) {
       state.reportingPeriods = reportingPeriods;
+    },
+    setApplicationSettings(state, applicationSettings) {
+      state.applicationSettings = applicationSettings;
     },
     setUploads(state, uploads) {
       state.uploads = uploads;
@@ -81,6 +85,7 @@ export default new Vuex.Store({
             commit(mutation, data[attr]);
           });
       };
+      doFetch("application_settings");
       doFetch("documents");
       doFetch("configuration");
       doFetch("uploads");
@@ -161,6 +166,11 @@ export default new Vuex.Store({
     agencyName: state => id => {
       const agency = _.find(state.agencies, { id });
       return agency ? agency.name : "";
+    },
+    applicationTitle: state => {
+      console.log(state.applicationSettings);
+      const title = _.get(state, "applicationSettings[0].title", "");
+      return _.isEmpty(title) ? "CARES Reporter" : `CARES Reporter: ${title}`;
     }
   }
 });

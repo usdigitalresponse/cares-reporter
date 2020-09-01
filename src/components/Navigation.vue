@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="title">{{ applicationTitle }}</div>
     <nav v-if="loggedIn">
       <router-link to="/">Dashboard</router-link> |
       <template v-for="(name, i) in tableNames">
@@ -38,6 +39,9 @@ export default {
     },
     tableNames: function() {
       return this.$store.getters.tableNames;
+    },
+    applicationTitle: function() {
+      return this.$store.getters.applicationTitle;
     }
   },
   methods: {
@@ -53,6 +57,11 @@ export default {
 </script>
 
 <style scoped>
+.title {
+  font-size: 24px;
+  text-align: center;
+  margin-top: 10px;
+}
 nav {
   margin: 10px auto;
   width: 90%;
