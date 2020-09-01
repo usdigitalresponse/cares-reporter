@@ -32,8 +32,9 @@
           <a class="ml-5" href="#" @click="cancelUpload">Cancel</a>
         </div>
       </form>
-      <div class="mt-3 alert alert-danger" v-if="message">
-        <pre>{{ message }}</pre>
+      <div class="mt-3 alert alert-danger" v-if="message">{{ message }}</div>
+      <div :key="n" v-for="(error, n) in errors">
+        <div class="mt-3 alert alert-danger">{{ error.message }}</div>
       </div>
     </div>
   </div>
@@ -47,7 +48,8 @@ export default {
     const id = parseInt(this.$route.params.id);
     return {
       id,
-      message: null
+      message: null,
+      errors: []
     };
   },
   computed: {
@@ -67,13 +69,14 @@ export default {
       const file = _.get(this.$refs, "files.files[0]");
       if (file) {
         this.message = null;
+        this.errors = [];
         let formData = new FormData();
         formData.append("configuration_id", this.id);
         formData.append("spreadsheet", file);
         try {
           const r = await this.$store.dispatch("createUpload", formData);
           if ((r.errors || []).length > 0) {
-            this.message = JSON.stringify(r.errors, null, 2);
+            this.errors = r.errors;
           } else {
             this.$router.push({ path: `/imports/${r.upload.id}` });
           }

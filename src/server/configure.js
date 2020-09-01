@@ -12,6 +12,10 @@ module.exports = app => {
   app.use(bodyParser.json());
   app.use(cookieParser(process.env.COOKIE_SECRET));
   app.use("/api/agencies", require("./routes/agencies"));
+  app.use(
+    "/api/application_settings",
+    require("./routes/application_settings")
+  );
   app.use("/api/configuration", require("./routes/configuration"));
   app.use("/api/documents", require("./routes/documents"));
   app.use("/api/exports", require("./routes/exports"));
