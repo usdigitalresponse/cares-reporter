@@ -151,9 +151,14 @@ function reportingPeriods() {
     .orderBy("end_date", "desc");
 }
 
+function applicationSettings() {
+  return knex("application_settings").select("*");
+}
+
 module.exports = {
   accessToken,
   agencies,
+  applicationSettings,
   createAccessToken,
   createDocument,
   createUpload,
