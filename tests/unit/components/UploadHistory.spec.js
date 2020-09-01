@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { shallowMount, createLocalVue } from "@vue/test-utils";
+import { mount, createLocalVue } from "@vue/test-utils";
 import UploadHistory from "@/components/UploadHistory.vue";
 import Vuex from "vuex";
 
@@ -13,7 +13,7 @@ describe("UploadHistory.vue", () => {
         agencyName: () => () => "Test Agency"
       }
     });
-    const wrapper = shallowMount(UploadHistory, {
+    const wrapper = mount(UploadHistory, {
       store,
       localVue,
       stubs: ["router-link"],
@@ -22,7 +22,7 @@ describe("UploadHistory.vue", () => {
       }
     });
     expect(wrapper.text()).to.include("Upload");
-    const history = wrapper.findAll("table#upload-history tr");
+    const history = wrapper.findAll("table tr");
     expect(history.length).to.equal(3);
     expect(history.at(1).text()).to.include("one.xlsx");
     expect(history.at(2).text()).to.include("two.xlsx");
