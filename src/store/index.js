@@ -168,8 +168,7 @@ export default new Vuex.Store({
       return agency ? agency.name : "";
     },
     applicationTitle: state => {
-      console.log(state.applicationSettings);
-      const title = _.get(state, "applicationSettings[0].title", "");
+      const title = _.get(state, "applicationSettings.title", "");
       return _.isEmpty(title) ? "CARES Reporter" : `CARES Reporter: ${title}`;
     }
   }

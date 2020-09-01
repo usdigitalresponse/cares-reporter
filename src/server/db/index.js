@@ -152,7 +152,9 @@ function reportingPeriods() {
 }
 
 function applicationSettings() {
-  return knex("application_settings").select("*");
+  return knex("application_settings")
+    .select("*")
+    .then(r => r[0]);
 }
 
 module.exports = {
