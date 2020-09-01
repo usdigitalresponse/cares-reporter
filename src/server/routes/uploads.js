@@ -10,7 +10,6 @@ const multerUpload = multer({ storage: multer.memoryStorage() });
 
 router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
-  console.log("get /api/uploads", user);
   if (user.agency_id) {
     return uploadsForAgency(user.agency_id).then(uploads =>
       res.json({ uploads })
