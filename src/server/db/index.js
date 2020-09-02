@@ -121,6 +121,12 @@ function documents() {
     .limit(1000);
 }
 
+function documentsForAgency(agency_id) {
+  return knex("documents")
+    .select("*")
+    .where("agency_id", agency_id);
+}
+
 function createDocument(document) {
   return knex
     .insert(document)
@@ -173,6 +179,7 @@ module.exports = {
   createDocument,
   createUpload,
   documents,
+  documentsForAgency,
   markAccessTokenUsed,
   reportingPeriods,
   roles,
