@@ -170,6 +170,13 @@ export default new Vuex.Store({
     applicationTitle: state => {
       const title = _.get(state, "applicationSettings.title", "");
       return _.isEmpty(title) ? "CARES Reporter" : `CARES Reporter: ${title}`;
+    },
+    currentReportingPeriod: state => {
+      const id = state.applicationSettings.current_reporting_period_id;
+      if (!id) {
+        return null;
+      }
+      return _.find(state.reportingPeriods, { id });
     }
   }
 });
