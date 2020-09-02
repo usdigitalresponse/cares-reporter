@@ -55,7 +55,7 @@ router.post("/", async function(req, res, next) {
         message: e.message
       });
     } else {
-      next();
+      next(e);
     }
   }
 });
