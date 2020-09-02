@@ -1,11 +1,68 @@
 const { ValidationItem } = require("../lib/validation_log");
 
 const validateFilename = filename => {
-  if (/\d{3,}-\d{8}-\w+-v\d+\.xlsx?/.test(filename)) return null;
+  const valog = [];
+  const [, name, ext] = filename.match(/^(.*)\.([^.]+)$/) || [];
+  if (ext !== "xlsx") {
+    valog.push(
+      new ValidationItem({
+        message: `Uploaded file must have ".xlsx" extension`
+      })
+    );
+  }
+  const nameParts = (name || "").split("-");
 
-  return new ValidationItem({
-    message: `Uploaded file name must match pattern NNN-YYYYMMDD-short_name-vN.xlsx (ex. 013-20200523-ppe-v2.xlsx)`
-  });
+  const agency = nameParts.shift();
+  // TODO: specific rules for agency abbreviation
+  if (!agency) {
+    valog.push(
+      new ValidationItem({
+        message: `First part of file name must be an agency abbreviation.`
+      })
+    );
+  }
+
+  const projectId = nameParts.shift();
+  // TODO: specific rules for project id
+  if (!projectId) {
+    valog.push(
+      new ValidationItem({
+        message: `Second part of file name must be a project id.`
+      })
+    );
+  }
+
+  const reportingDate = nameParts.shift();
+  // TODO: match against expected reporting date from config instead of hard coded.
+  const expectedEndReportDate = "06302020";
+  if (reportingDate !== expectedEndReportDate) {
+    valog.push(
+      new ValidationItem({
+        message: `Third part of filename must match the reporting period end date (${expectedEndReportDate})`
+      })
+    );
+  }
+
+  const version = nameParts.pop();
+  if (!/^v\d+/.test(version)) {
+    valog.push(
+      new ValidationItem({
+        message: `Last part of filename must be a version number (e.g. _v3)`
+      })
+    );
+  }
+
+  if (valog.length) {
+    valog.push(
+      new ValidationItem({
+        message: `Uploaded file name must match pattern
+      <agency abbrev>-<project id>-<reporting due date>-v<version number>.xlsx
+      Example: EOH-013-06302020-v1.xlsx
+      `
+      })
+    );
+  }
+  return valog;
 };
 
 module.exports = {
