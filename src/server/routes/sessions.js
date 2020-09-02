@@ -36,7 +36,6 @@ router.get("/logout", function(req, res) {
 });
 
 router.post("/", async function(req, res, next) {
-  console.log(req.body);
   const { email } = req.body;
   if (!_.isEmail(email)) {
     res.statusMessage = "Invalid Email Address";
@@ -50,7 +49,14 @@ router.post("/", async function(req, res, next) {
       message: `Email sent to ${email}. Check your inbox`
     });
   } catch (e) {
-    next(e);
+    if (e.message.match(/User .* not found/)) {
+      res.json({
+        success: false,
+        message: e.message
+      });
+    } else {
+      next(e);
+    }
   }
 });
 
