@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import _ from "lodash-checkit";
 export default {
   name: "Login",
   data: function() {
@@ -36,6 +37,16 @@ export default {
   methods: {
     login: function(e) {
       e.preventDefault();
+      if (!this.email) {
+        this.message = "Email cannot be blank";
+        this.messageClass = "alert alert-danger";
+        return;
+      }
+      if (!_.isEmail(this.email)) {
+        this.message = `'${this.email}' is not a valid email address`;
+        this.messageClass = "alert alert-danger";
+        return;
+      }
       const body = JSON.stringify({
         email: this.email
       });
