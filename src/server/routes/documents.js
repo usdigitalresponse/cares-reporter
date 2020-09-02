@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
-const { user: getUser } = require("../db");
 const {
-  user,
+  user: getUser,
   documents,
   documentsForAgency,
   createDocument
@@ -23,7 +22,7 @@ router.get("/", requireUser, async function(req, res) {
 router.post("/:type", requireUser, function(req, res) {
   console.log("POST /documents/:type", req.params.type, req.body);
   console.log("userId:", req.signedCookies.userId);
-  user(req.signedCookies.userId).then(user => {
+  getUser(req.signedCookies.userId).then(user => {
     const document = {
       type: req.params.type,
       content: req.body,
