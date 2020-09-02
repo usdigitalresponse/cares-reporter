@@ -10,7 +10,7 @@ const validateFilename = filename => {
       })
     );
   }
-  const nameParts = (name || "").split("_");
+  const nameParts = (name || "").split("-");
 
   const agency = nameParts.shift();
   // TODO: specific rules for agency abbreviation
@@ -32,8 +32,18 @@ const validateFilename = filename => {
     );
   }
 
+  const reportingDate = nameParts.shift();
+  // TODO: match against expected reporting date from config instead of hard coded.
+  const expectedEndReportDate = "06302020";
+  if (reportingDate !== expectedEndReportDate) {
+    valog.push(
+      new ValidationItem({
+        message: `Third part of filename must match the reporting period end date (${expectedEndReportDate})`
+      })
+    );
+  }
+
   const version = nameParts.pop();
-  console.log("version", version);
   if (!/^v\d+/.test(version)) {
     valog.push(
       new ValidationItem({
@@ -42,23 +52,12 @@ const validateFilename = filename => {
     );
   }
 
-  const reportingDate = nameParts.pop();
-  // TODO: match against expected reporting date from config instead of hard coded.
-  const expectedEndReportDate = "06302020";
-  if (reportingDate !== expectedEndReportDate) {
-    valog.push(
-      new ValidationItem({
-        message: `Second to last part of filename must be the end report date (${expectedEndReportDate})`
-      })
-    );
-  }
-
   if (valog.length) {
     valog.push(
       new ValidationItem({
         message: `Uploaded file name must match pattern
-      <agency abbrev>_<project id>_<short project name>_<reporting due date>_v<version number>.xlsx
-      Example: EOH_Covid-Supp-013_ppe_06302020_v1.xlsx
+      <agency abbrev>-<project id>-<reporting due date>-v<version number>.xlsx
+      Example: EOH-013-06302020-v1.xlsx
       `
       })
     );
