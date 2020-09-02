@@ -1,34 +1,48 @@
 <template>
-  <table class="table table-striped" id="upload-history">
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>Filename</th>
-        <th>Uploaded By</th>
-        <th>Agency</th>
-        <th>Uploaded</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr :key="upload.id" v-for="upload in uploads">
-        <td>
-          <router-link :to="uploadUrl(upload)">{{ upload.id }}</router-link>
-        </td>
-        <td>{{ upload.filename }}</td>
-        <td>{{ upload.created_by }}</td>
-        <td>{{ agencyName(upload.agency_id) }}</td>
-        <td>{{ fromNow(upload.created_at) }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <DataTable v-if="uploads" :table="table" :rows="rows" :user="user" />
 </template>
 
 <script>
+import DataTable from "../components/DataTable";
 import moment from "moment";
 export default {
   name: "UploadHistory",
   props: {
     uploads: Array
+  },
+  components: {
+    DataTable
+  },
+  data: function() {
+    const user = this.$store.state.user;
+    return {
+      user,
+      table: {
+        views: [
+          {
+            name: "Group by Agency",
+            groupBy: "agency"
+          }
+        ],
+        columns: [
+          { name: "filename" },
+          { name: "agency" },
+          { name: "created_by" },
+          { name: "uploaded" }
+        ]
+      }
+    };
+  },
+  computed: {
+    rows: function() {
+      return this.uploads.map(u => {
+        return {
+          ...u,
+          agency: this.agencyName(u.agency_id),
+          uploaded: this.fromNow(u.created_at)
+        };
+      });
+    }
   },
   methods: {
     uploadUrl(upload) {

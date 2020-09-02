@@ -11,7 +11,7 @@
           </select>
         </div>
       </div>
-      <div class="col-6">
+      <div class="col-9">
         <input
           class="form-control"
           @input="onSearchChange"
@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="row">
-      <div v-if="groupBy">
+      <div class="col-12" v-if="groupBy">
         <GroupedTable
           :name="name"
           :columns="columns"
@@ -30,7 +30,7 @@
           :lookup="lookup"
         />
       </div>
-      <div v-else>
+      <div class="col-12" v-else>
         <BasicTable
           :name="name"
           :columns="columns"

@@ -61,6 +61,14 @@ function uploads() {
     .orderBy("created_at", "desc");
 }
 
+function uploadsForAgency(agency_id) {
+  console.log("uploadsForAgency:", agency_id);
+  return knex("uploads")
+    .select("*")
+    .where("agency_id", agency_id)
+    .orderBy("created_at", "desc");
+}
+
 function upload(id) {
   return knex("uploads")
     .select("*")
@@ -173,6 +181,7 @@ module.exports = {
   templates,
   upload,
   uploads,
+  uploadsForAgency,
   user,
   userAndRole,
   users
