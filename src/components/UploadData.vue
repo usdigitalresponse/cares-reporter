@@ -158,7 +158,7 @@ export default {
           .then(() => {
             this.uploading = false;
             this.buttonLabel = "Import";
-            this.$router.push({ path: "/agency" });
+            this.$router.push({ path: "/" });
           });
       }
     },

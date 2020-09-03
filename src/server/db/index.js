@@ -62,7 +62,6 @@ function uploads() {
 }
 
 function uploadsForAgency(agency_id) {
-  console.log("uploadsForAgency:", agency_id);
   return knex("uploads")
     .select("*")
     .where("agency_id", agency_id)
@@ -121,6 +120,13 @@ function documents() {
     .limit(1000);
 }
 
+function documentsForAgency(agency_id) {
+  return knex("documents")
+    .select("*")
+    .join("users", { "documents.user_id": "users.id" })
+    .where("users.agency_id", agency_id);
+}
+
 function createDocument(document) {
   return knex
     .insert(document)
@@ -173,6 +179,7 @@ module.exports = {
   createDocument,
   createUpload,
   documents,
+  documentsForAgency,
   markAccessTokenUsed,
   reportingPeriods,
   roles,
