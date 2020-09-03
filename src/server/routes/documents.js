@@ -10,13 +10,10 @@ const {
 
 router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
-  if (user.agency_id) {
-    return documentsForAgency(user.agency_id).then(documents =>
-      res.json({ documents })
-    );
-  } else {
-    return documents().then(documents => res.json({ documents }));
-  }
+  const docs = user.agency_id
+    ? await documentsForAgency(user.agency_id)
+    : await documents();
+  return res.json({ documents: docs });
 });
 
 router.post("/:type", requireUser, function(req, res) {

@@ -62,7 +62,6 @@ function uploads() {
 }
 
 function uploadsForAgency(agency_id) {
-  console.log("uploadsForAgency:", agency_id);
   return knex("uploads")
     .select("*")
     .where("agency_id", agency_id)
