@@ -8,8 +8,7 @@ exports.up = function(knex) {
     .table('documents', function(table) {
       table.integer('user_id').unsigned()
       table.foreign('user_id').references('users.id')
-      table.integer('agency_id').unsigned()
-      table.foreign('agency_id').references('agencies.id')
+      table.dropColumn('created_by')
     })
 };
 
@@ -20,6 +19,6 @@ exports.down = function(knex) {
     })
     .table('documents', function(table) {
       table.dropColumn('user_id')
-      table.dropColumn('agency_id')
+      table.text('created_by')
     })
 };

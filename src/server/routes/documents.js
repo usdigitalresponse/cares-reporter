@@ -26,9 +26,7 @@ router.post("/:type", requireUser, function(req, res) {
     const document = {
       type: req.params.type,
       content: req.body,
-      created_by: user.email,
-      user_id: user.id,
-      agency_id: user.agency_id
+      user_id: user.id
     };
     createDocument(document).then(result => res.json({ document: result }));
   });

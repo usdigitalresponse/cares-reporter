@@ -46,9 +46,7 @@ router.post("/:id", requireUser, function(req, res) {
               type,
               content,
               upload_id: id,
-              created_by: user.email,
-              user_id: user.id,
-              agency_id: user.agency_id
+              user_id: user.id
             };
             console.log("creating document:", document);
             return createDocument(document);

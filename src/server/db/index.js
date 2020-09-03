@@ -124,7 +124,8 @@ function documents() {
 function documentsForAgency(agency_id) {
   return knex("documents")
     .select("*")
-    .where("agency_id", agency_id);
+    .join("users", { "documents.user_id": "users.id" })
+    .where("users.agency_id", agency_id);
 }
 
 function createDocument(document) {
