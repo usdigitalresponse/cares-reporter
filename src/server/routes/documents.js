@@ -1,20 +1,29 @@
 const express = require("express");
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
-const { user, documents, createDocument } = require("../db");
+const {
+  user: getUser,
+  documents,
+  documentsForAgency,
+  createDocument
+} = require("../db");
 
-router.get("/", requireUser, function(req, res) {
-  documents().then(documents => res.json({ documents }));
+router.get("/", requireUser, async function(req, res) {
+  const user = await getUser(req.signedCookies.userId);
+  const docs = user.agency_id
+    ? await documentsForAgency(user.agency_id)
+    : await documents();
+  return res.json({ documents: docs });
 });
 
 router.post("/:type", requireUser, function(req, res) {
   console.log("POST /documents/:type", req.params.type, req.body);
   console.log("userId:", req.signedCookies.userId);
-  user(req.signedCookies.userId).then(user => {
+  getUser(req.signedCookies.userId).then(user => {
     const document = {
       type: req.params.type,
       content: req.body,
-      created_by: user.email
+      user_id: user.id
     };
     createDocument(document).then(result => res.json({ document: result }));
   });
