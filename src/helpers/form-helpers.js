@@ -79,17 +79,3 @@ export function validate(columns, record) {
   });
   return { validatedRecord: result, messages: _.uniq(validationMessages) };
 }
-
-export function canWriteToTable(user, tableName) {
-  const rules = _.get(user, "rules.tables");
-  if (!rules) {
-    return true;
-  }
-  if (rules["*"] && rules["*"].readOnly) {
-    return false;
-  }
-  if (rules[tableName] && rules[tableName].readOnly) {
-    return false;
-  }
-  return true;
-}
