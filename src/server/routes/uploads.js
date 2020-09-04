@@ -4,7 +4,7 @@ const router = express.Router();
 const { requireUser } = require("../access-helpers");
 const { user: getUser, upload, uploads, uploadsForAgency } = require("../db");
 const { uploadFilename, loadSpreadsheet } = require("../lib/spreadsheet");
-const { processUpload } = require("../services/process_upload");
+const { processUpload } = require("../services/process-upload");
 const multer = require("multer");
 const multerUpload = multer({ storage: multer.memoryStorage() });
 
