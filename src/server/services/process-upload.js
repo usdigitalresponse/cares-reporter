@@ -1,5 +1,7 @@
+const xlsx = require("xlsx");
 const { user, createUpload } = require("../db");
-const { validateFilename } = require("./validate_upload");
+const { validateFilename } = require("./validate-upload");
+const { validateFileStructure } = require("./validate-file-structure");
 const FileInterface = require("../lib/server_disk_interface");
 const { ValidationLog } = require("../lib/validation_log");
 const fileInterface = new FileInterface();
@@ -16,6 +18,15 @@ const processUpload = async ({
   if (!valog.success()) {
     return { valog, upload: {} };
   }
+  let parsedXlsx;
+  try {
+    parsedXlsx = xlsx.read(data);
+  } catch (e) {
+    console.log("error", e);
+    valog.append(`Can't parse xlsx file ${filename}`);
+    return { valog, upload: {} };
+  }
+  valog.append(await validateFileStructure(parsedXlsx));
   await fileInterface.writeFile(filename, data);
   const current_user = await user(user_id);
   const upload = await createUpload({
