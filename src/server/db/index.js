@@ -7,6 +7,20 @@ function users() {
     .orderBy("email");
 }
 
+function createUser(user) {
+  return knex
+    .insert(user)
+    .into("users")
+    .returning(["id", "created_at"])
+    .then(response => {
+      return {
+        ...user,
+        id: response[0].id,
+        created_at: response[0].created_at
+      };
+    });
+}
+
 function user(id) {
   return knex("users")
     .select("*")
@@ -178,6 +192,7 @@ module.exports = {
   createAccessToken,
   createDocument,
   createUpload,
+  createUser,
   documents,
   documentsForAgency,
   markAccessTokenUsed,

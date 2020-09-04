@@ -10,7 +10,9 @@ import Home from "../views/Home.vue";
 import ImportFile from "../views/ImportFile.vue";
 import Login from "../views/Login.vue";
 import NewUpload from "../views/NewUpload.vue";
+import NewUser from "../views/NewUser.vue";
 import Upload from "../views/Upload.vue";
+import Users from "../views/Users.vue";
 
 import store from "../store";
 
@@ -70,6 +72,18 @@ const routes = [
     path: "/agencies",
     name: "Agemcies",
     component: Agencies,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/users",
+    name: "Users",
+    component: Users,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/new_user",
+    name: "NewUser",
+    component: NewUser,
     meta: { requiresLogin: true }
   }
 ];
