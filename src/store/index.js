@@ -72,6 +72,12 @@ export default new Vuex.Store({
     },
     addUpload(state, upload) {
       state.uploads = [upload, ...state.uploads];
+    },
+    addUser(state, user) {
+      state.configuration.users = _.sortBy(
+        [...state.configuration.users, user],
+        "email"
+      );
     }
   },
   actions: {
@@ -106,6 +112,13 @@ export default new Vuex.Store({
     },
     importDocuments({ commit }, { documents }) {
       commit("addDocuments", documents);
+    },
+    createUser({ commit }, user) {
+      return post("/api/users", user)
+        .then(r => r.json())
+        .then(response => {
+          commit("addUser", response.user);
+        });
     },
     createUpload({ commit }, formData) {
       return postForm("/api/uploads", formData)
