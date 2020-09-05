@@ -20,6 +20,7 @@ module.exports = app => {
   app.use("/api/documents", require("./routes/documents"));
   app.use("/api/exports", require("./routes/exports"));
   app.use("/api/imports", require("./routes/imports"));
+  app.use("/api/projects", require("./routes/projects"));
   app.use("/api/reporting_periods", require("./routes/reporting_periods"));
   app.use("/api/sessions", require("./routes/sessions"));
   app.use("/api/uploads", require("./routes/uploads"));
