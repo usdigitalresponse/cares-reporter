@@ -173,6 +173,12 @@ function agencies() {
     .orderBy("name");
 }
 
+function projects() {
+  return knex("projects")
+    .select("*")
+    .orderBy("name");
+}
+
 function reportingPeriods() {
   return knex("reporting_periods")
     .select("*")
@@ -196,6 +202,7 @@ module.exports = {
   documents,
   documentsForAgency,
   markAccessTokenUsed,
+  projects,
   reportingPeriods,
   roles,
   tables,
