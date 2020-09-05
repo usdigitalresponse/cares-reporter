@@ -151,7 +151,6 @@ export default {
           .value();
 
         post(`/api/imports/${this.id}`, { sheets })
-          .then(r => r.json())
           .then(({ documents }) => {
             this.$store.dispatch("importDocuments", { documents });
           })

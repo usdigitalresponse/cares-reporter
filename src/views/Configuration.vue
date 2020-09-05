@@ -18,25 +18,6 @@
         </tr>
       </tbody>
     </table>
-    <h2>Users</h2>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Role</th>
-          <th>Agency</th>
-          <th>Created At</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr :key="user.email" v-for="user in users">
-          <td>{{ user.email }}</td>
-          <td>{{ user.role }}</td>
-          <td>{{ agencyName(user.agency_id) }}</td>
-          <td>{{ user.created_at }}</td>
-        </tr>
-      </tbody>
-    </table>
     <h2>Roles</h2>
     <table class="table table-striped">
       <thead>
@@ -91,10 +72,6 @@
 export default {
   name: "Configuration",
   computed: {
-    users: function() {
-      const { users } = this.$store.state.configuration;
-      return users;
-    },
     roles: function() {
       const { roles } = this.$store.state.configuration;
       return roles;

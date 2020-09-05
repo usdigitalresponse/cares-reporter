@@ -11,6 +11,7 @@
       </template>
       <span v-if="role === 'admin'">
         | <router-link to="/agencies">Agencies</router-link> |
+        <router-link to="/users">Users</router-link> |
         <router-link to="/configuration">Configuration</router-link>
       </span>
       <span class="float-right">
