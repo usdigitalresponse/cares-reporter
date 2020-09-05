@@ -80,9 +80,15 @@ export default {
         if (this.user.agency_id === "None") {
           delete newUser.agency_id;
         }
-        this.$store.dispatch("createUser", newUser).then(() => {
-          this.$router.push("/users");
-        });
+        this.$store
+          .dispatch("createUser", newUser)
+          .then(() => {
+            this.$router.push("/users");
+          })
+          .catch(e => {
+            this.validationMessages = [e.message];
+            this.creating = false;
+          });
       }
     },
     validate() {
