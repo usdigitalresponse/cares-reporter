@@ -20,7 +20,14 @@ export function post(url, body) {
     },
     body: JSON.stringify(body)
   };
-  return fetch(url, options);
+  return fetch(url, options).then(r => {
+    if (r.ok) {
+      return r.json();
+    }
+    return r
+      .text()
+      .then(text => Promise.reject(new Error(text ? text : r.statusText)));
+  });
 }
 
 export function postForm(url, formData) {
@@ -72,6 +79,12 @@ export default new Vuex.Store({
     },
     addUpload(state, upload) {
       state.uploads = [upload, ...state.uploads];
+    },
+    addUser(state, user) {
+      state.configuration.users = _.sortBy(
+        [...state.configuration.users, user],
+        "email"
+      );
     }
   },
   actions: {
@@ -96,16 +109,19 @@ export default new Vuex.Store({
       fetch("/api/sessions/logout").then(() => commit("setUser", null));
     },
     createDocument({ commit }, { type, content }) {
-      return post(`/api/documents/${type}`, content)
-        .then(r => r.json())
-        .then(({ document }) => {
-          if (document) {
-            commit("addDocument", document);
-          }
-        });
+      return post(`/api/documents/${type}`, content).then(({ document }) => {
+        if (document) {
+          commit("addDocument", document);
+        }
+      });
     },
     importDocuments({ commit }, { documents }) {
       commit("addDocuments", documents);
+    },
+    createUser({ commit }, user) {
+      return post("/api/users", user).then(response => {
+        commit("addUser", response.user);
+      });
     },
     createUpload({ commit }, formData) {
       return postForm("/api/uploads", formData)
