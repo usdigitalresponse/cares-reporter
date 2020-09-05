@@ -45,7 +45,7 @@
 <script>
 import BasicTable from "./BasicTable.vue";
 import GroupedTable from "./GroupedTable.vue";
-import { titleize, singular, canWriteToTable } from "../helpers/form-helpers";
+import { titleize, singular } from "../helpers/form-helpers";
 import _ from "lodash";
 const component = {
   name: "Table",
@@ -101,7 +101,6 @@ const component = {
     }
   },
   methods: {
-    canWriteToTable,
     columnTitle(column) {
       return column.label ? column.label : titleize(column.name);
     },
