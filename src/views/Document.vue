@@ -29,13 +29,6 @@
           </tr>
         </tbody>
       </table>
-      <a
-        href="#"
-        @click="editDocument"
-        class="btn btn-primary"
-        v-if="canWriteToTable(user, type)"
-        >Edit</a
-      >
       <div :key="n" v-for="(child, n) in childTables()">
         <ChildDocuments :child="child" :parent="type" :id="id" />
       </div>
@@ -94,9 +87,6 @@ const component = {
     }
   },
   methods: {
-    canWriteToTable: function() {
-      return false; // TODO
-    },
     pageTitle(type, id) {
       return `${titleize(type)} ${id}`;
     },
