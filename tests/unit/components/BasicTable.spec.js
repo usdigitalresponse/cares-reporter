@@ -1,11 +1,11 @@
 import { expect } from "chai";
 import Vue from "vue";
-import { shallowMount, mount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import BasicTable from "@/components/BasicTable.vue";
 
 describe("BasicTable.vue", () => {
   it("renders column titles", () => {
-    const wrapper = shallowMount(BasicTable, {
+    const wrapper = mount(BasicTable, {
       propsData: {
         name: "records",
         columns: [{ name: "name" }, { name: "description" }],
@@ -17,7 +17,7 @@ describe("BasicTable.vue", () => {
     expect(text).to.include("Description");
   });
   it("renders row values", () => {
-    const wrapper = shallowMount(BasicTable, {
+    const wrapper = mount(BasicTable, {
       propsData: {
         name: "records",
         columns: [{ name: "name" }],
@@ -30,7 +30,7 @@ describe("BasicTable.vue", () => {
     expect(text).to.include("Curley");
   });
   it("can lookup foreign key values", () => {
-    const wrapper = shallowMount(BasicTable, {
+    const wrapper = mount(BasicTable, {
       stubs: ["router-link"],
       propsData: {
         name: "records",
