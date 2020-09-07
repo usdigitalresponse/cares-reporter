@@ -23,6 +23,9 @@
           <span v-else-if="column.format">
             {{ format(row[column.name], column.format) }}
           </span>
+          <span v-else-if="column.component">
+            <component :is="column.component" :row="row" />
+          </span>
           <span v-else>
             {{ row[column.name] }}
           </span>
