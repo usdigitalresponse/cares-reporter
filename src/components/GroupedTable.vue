@@ -18,22 +18,13 @@
           :key="`${groupBy}-${key}-${search}-${m}`"
           v-for="(row, m) in groupRows"
         >
-          <td :key="n" v-for="(column, n) in columns" :style="style(column)">
-            <span v-if="column.primaryKey">
-              <a :href="documentUrl(row)">{{ row[column.name] }}</a>
-            </span>
-            <span v-else-if="column.foreignKey">
-              <a :href="lookupLink(column, row)">{{
-                lookupValue(column, row)
-              }}</a>
-            </span>
-            <span v-else-if="column.format">
-              {{ format(row[column.name], column.format) }}
-            </span>
-            <span v-else>
-              {{ row[column.name] }}
-            </span>
-          </td>
+          <DataTableColumn
+            :key="n"
+            v-for="(column, n) in columns"
+            :column="column"
+            :row="row"
+            :lookup="lookup"
+          />
         </tr>
       </template>
     </tbody>
@@ -41,8 +32,8 @@
 </template>
 
 <script>
+import DataTableColumn from "./DataTableColumn";
 import { titleize } from "../helpers/form-helpers";
-import numeral from "numeral";
 import _ from "lodash";
 export default {
   name: "GroupedTable",
@@ -53,6 +44,9 @@ export default {
     groupBy: String,
     search: String,
     lookup: Function
+  },
+  components: {
+    DataTableColumn
   },
   data: function() {
     const groups = _.groupBy(this.rows, this.groupBy);
@@ -74,28 +68,7 @@ export default {
     columnTitle(column) {
       return column.label ? column.label : titleize(column.name);
     },
-    titleize,
-    documentUrl(row) {
-      return `/#/documents/${this.name}/${row.id}`;
-    },
-    lookupValue(column, row) {
-      if (_.isFunction(this.lookup)) {
-        return this.lookup(column, row);
-      }
-      return row[column.name];
-    },
-    lookupLink(column, row) {
-      return `/#/documents/${column.foreignKey.table}/${row[column.name]}`;
-    },
-    format(value, fmt) {
-      return numeral(value).format(fmt);
-    },
-    style(column) {
-      if (column.format) {
-        return "text-align: right";
-      }
-      return "";
-    }
+    titleize
   }
 };
 </script>
