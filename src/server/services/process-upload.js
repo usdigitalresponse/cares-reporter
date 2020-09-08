@@ -14,7 +14,7 @@ const processUpload = async ({
   data
 }) => {
   const valog = new ValidationLog();
-  valog.append(validateFilename(filename));
+  valog.append(await validateFilename(filename));
   if (!valog.success()) {
     return { valog, upload: {} };
   }
