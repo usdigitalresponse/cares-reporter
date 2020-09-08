@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
@@ -52,6 +53,25 @@ router.get("/:id", requireUser, (req, res) => {
       const filename = uploadFilename(upload.filename);
       const data = loadSpreadsheet(filename);
       res.json({ id, filename, data });
+    }
+  });
+});
+
+router.get("/download/:id", requireUser, (req, res) => {
+  const { id } = req.params;
+  upload(id).then(upload => {
+    if (!upload) {
+      res.sendStatus(404);
+      res.end();
+    } else {
+      const filename = uploadFilename(upload.filename);
+      const attachmentData = fs.readFileSync(filename);
+      res.header(
+        "Content-Disposition",
+        `attachment; filename="${upload.filename}"`
+      );
+      res.header("Content-Type", "application/octet-stream");
+      res.end(Buffer.from(attachmentData, "binary"));
     }
   });
 });
