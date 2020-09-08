@@ -173,6 +173,13 @@ function agencies() {
     .orderBy("name");
 }
 
+function agencyByCode(code) {
+  return knex("agencies")
+    .select("*")
+    .where({ code })
+    .orderBy("name");
+}
+
 function reportingPeriods() {
   return knex("reporting_periods")
     .select("*")
@@ -188,6 +195,7 @@ function applicationSettings() {
 module.exports = {
   accessToken,
   agencies,
+  agencyByCode,
   applicationSettings,
   createAccessToken,
   createDocument,
