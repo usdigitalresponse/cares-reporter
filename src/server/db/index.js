@@ -173,6 +173,12 @@ function agencies() {
     .orderBy("name");
 }
 
+function agencyByCode(code) {
+  return knex("agencies")
+    .select("*")
+    .where({ code })
+}
+
 function projects() {
   return knex("projects")
     .select("*")
@@ -194,6 +200,7 @@ function applicationSettings() {
 module.exports = {
   accessToken,
   agencies,
+  agencyByCode,
   applicationSettings,
   createAccessToken,
   createDocument,

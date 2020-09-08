@@ -4,6 +4,7 @@
 
 <script>
 import DataTable from "../components/DataTable";
+import DownloadIcon from "./DownloadIcon";
 import moment from "moment";
 export default {
   name: "UploadHistory",
@@ -28,7 +29,8 @@ export default {
           { name: "filename" },
           { name: "agency" },
           { name: "created_by" },
-          { name: "uploaded" }
+          { name: "uploaded" },
+          { component: DownloadIcon }
         ]
       }
     };
