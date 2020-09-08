@@ -1,6 +1,7 @@
 const { ValidationItem } = require("../lib/validation_log");
+const { agencyByCode } = require("../db");
 
-const validateFilename = filename => {
+const validateFilename = async filename => {
   const valog = [];
   const [, name, ext] = filename.match(/^(.*)\.([^.]+)$/) || [];
   if (ext !== "xlsx") {
@@ -12,14 +13,23 @@ const validateFilename = filename => {
   }
   const nameParts = (name || "").split("-");
 
-  const agency = nameParts.shift();
-  // TODO: specific rules for agency abbreviation
-  if (!agency) {
+  const agencyCode = nameParts.shift();
+
+  if (!agencyCode) {
     valog.push(
       new ValidationItem({
-        message: `First part of file name must be an agency abbreviation.`
+        message: `First part of file name must be an agency code.`
       })
     );
+  } else {
+    const result = await agencyByCode(agencyCode);
+    if (result.length < 1) {
+      valog.push(
+        new ValidationItem({
+          message: `First part of file name "${agencyCode}" is not a valid agency code.`
+        })
+      );
+    }
   }
 
   const projectId = nameParts.shift();
