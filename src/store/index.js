@@ -47,6 +47,7 @@ export default new Vuex.Store({
     configuration: {},
     uploads: [],
     agencies: [],
+    projects: [],
     reportingPeriods: []
   },
   mutations: {
@@ -61,6 +62,9 @@ export default new Vuex.Store({
     },
     setAgencies(state, agencies) {
       state.agencies = agencies;
+    },
+    setProjects(state, projects) {
+      state.projects = projects;
     },
     setReportingPeriods(state, reportingPeriods) {
       state.reportingPeriods = reportingPeriods;
@@ -103,6 +107,7 @@ export default new Vuex.Store({
       doFetch("configuration");
       doFetch("uploads");
       doFetch("agencies");
+      doFetch("projects");
       doFetch("reporting_periods");
     },
     logout({ commit }) {

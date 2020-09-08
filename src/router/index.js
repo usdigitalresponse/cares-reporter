@@ -11,6 +11,7 @@ import ImportFile from "../views/ImportFile.vue";
 import Login from "../views/Login.vue";
 import NewUpload from "../views/NewUpload.vue";
 import NewUser from "../views/NewUser.vue";
+import Projects from "../views/Projects.vue";
 import Upload from "../views/Upload.vue";
 import Users from "../views/Users.vue";
 
@@ -70,8 +71,14 @@ const routes = [
   },
   {
     path: "/agencies",
-    name: "Agemcies",
+    name: "Agencies",
     component: Agencies,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/projects",
+    name: "Projects",
+    component: Projects,
     meta: { requiresLogin: true }
   },
   {

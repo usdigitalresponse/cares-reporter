@@ -177,6 +177,11 @@ function agencyByCode(code) {
   return knex("agencies")
     .select("*")
     .where({ code })
+}
+
+function projects() {
+  return knex("projects")
+    .select("*")
     .orderBy("name");
 }
 
@@ -204,6 +209,7 @@ module.exports = {
   documents,
   documentsForAgency,
   markAccessTokenUsed,
+  projects,
   reportingPeriods,
   roles,
   tables,
