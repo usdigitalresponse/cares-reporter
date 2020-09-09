@@ -1,6 +1,6 @@
 require("dotenv").config();
 const knex = require("../../src/server/db/connection");
-const { setupAgencies } = require("./fixtures/setup-test-db");
+const { setupAgencies } = require("./fixtures/add-dummy-data");
 
 // `requireSrc(__filename)` is a convenience that performs a
 // `require` of the corresponding source file to the current `spec` file.
