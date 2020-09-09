@@ -66,7 +66,7 @@ describe("services/process_upload", () => {
     const dir = `${dirRoot}file-structure/`;
     it("fails missing tab", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}OMB-000-06302020-missing_subrecipients-v1.xlsx`
+        `${dir}GOV-1020-06302020-missingContractsTab-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       expect(result.valog.getLog()[0].message).to.match(/Missing tab/);
@@ -74,7 +74,7 @@ describe("services/process_upload", () => {
 
     it("fails missing column", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}OMB-000-06302020-missing_contract_desc-v1.xlsx`
+        `${dir}GOV-1020-06302020-missingContractDate-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       expect(result.valog.getLog()[0].message).to.match(/Missing column/);
