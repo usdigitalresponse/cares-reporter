@@ -76,7 +76,20 @@ export default {
         try {
           const r = await this.$store.dispatch("createUpload", formData);
           if ((r.errors || []).length > 0) {
-            this.errors = r.errors;
+            this.errors = r.errors.map(e => {
+              let message = e.message;
+              if (e.tab) {
+                message += ` (tab:${e.tab}`;
+                if (e.row) {
+                  message += ` row:${e.row}`;
+                }
+                if (e.col) {
+                  message += ` col:${e.col}`;
+                }
+                message += ")";
+              }
+              return { ...e, message };
+            });
           } else {
             this.$router.push({ path: `/imports/${r.upload.id}` });
           }
