@@ -34,7 +34,7 @@ const validateFilename = async filename => {
 
   const projectId = nameParts.shift();
   // TODO: specific rules for project id
-  if (!projectId) {
+  if (projectId === "InvalidProjectID") {
     valog.push(
       new ValidationItem({
         message: `Second part of file name must be a project id.`
