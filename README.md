@@ -12,6 +12,16 @@ yarn knex seed:run
 mkdir uploads ## (a gitignored folder for uploaded files)
 ```
 
+Additional dummy data can be added with
+```
+node ./tests/servers/fixtures/add-dummy-data.js
+```
+
+And the whole local testing database can be reset with:
+```
+./tests/server/reset-db.sh
+```
+
 ### Compiles and hot-reloads for development
 ```
 yarn serve
@@ -35,7 +45,7 @@ yarn test:unit
 
 #### Server Unit and Integration
 ```
-yarn test:server
+yarn test:server [specific test file]
 ```
 
 
@@ -44,5 +54,5 @@ yarn test:server
 yarn lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Customize Vue configuration
+See [Vue Configuration Reference](https://cli.vuejs.org/config/).
