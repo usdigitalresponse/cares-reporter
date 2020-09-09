@@ -52,7 +52,7 @@ function tables() {
   return knex("configurations")
     .select("*")
     .where("type", "tables")
-    .orderBy("name");
+    .orderBy("sort_order");
 }
 
 function templates() {
