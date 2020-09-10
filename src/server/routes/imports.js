@@ -35,13 +35,16 @@ router.post("/:id", requireUser, function(req, res) {
             const content = _.reduce(
               columns,
               (acc, choice, index) => {
-                if (choice != "ignore") {
+                if (choice != "ignore" && row[index]) {
                   acc[choice] = row[index];
                 }
                 return acc;
               },
               {}
             );
+            if (_.isEmpty(content)) {
+              return null;
+            }
             const document = {
               type,
               content,
@@ -53,6 +56,7 @@ router.post("/:id", requireUser, function(req, res) {
           });
         });
         Promise.all(ps)
+          .then(_.compact)
           .then(documents => {
             res.json({ documents });
           })
