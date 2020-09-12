@@ -1,5 +1,7 @@
 const XLSX = require("xlsx");
 const _ = require("lodash");
+const { ValidationItem } = require("../lib/validation_log");
+const { getTemplate } = require("../services/get-template");
 
 function loadSpreadsheet(filename) {
   const workbook = XLSX.readFile(filename);
@@ -10,6 +12,81 @@ function loadSpreadsheet(filename) {
       data: XLSX.utils.sheet_to_json(sheet, { header: 1 })
     };
   });
+}
+
+function parseSpreadsheet(workbook, templateSheets) {
+  const valog = [];
+  const parsedWorkbook = _.mapValues(workbook.Sheets || {}, sheet => {
+    return XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  });
+  _.forIn(templateSheets, (templateSheet, sheetName) => {
+    const workbookSheet = parsedWorkbook[sheetName];
+    if (!workbookSheet) {
+      return valog.push(
+        new ValidationItem({
+          message: `Missing tab "${sheetName}"`
+        })
+      );
+    }
+    // get rid of pesky hidden spaces on column headings
+    const templateColumns = templateSheet[0].map(s => s.trim());
+    workbookSheet[0] = (workbookSheet[0] || []).map(s => s.trim());
+    const workbookColumns = workbookSheet[0];
+    const missingColumns = _.difference(templateColumns, workbookColumns);
+    if (missingColumns.length === 1) {
+      return valog.push(
+        new ValidationItem({
+          message: `Missing column "${missingColumns[0]}"`,
+          tab: sheetName
+        })
+      );
+    } else if (missingColumns.length > 1) {
+      return valog.push(
+        new ValidationItem({
+          message: `Missing columns "${missingColumns.join('", "')}"`,
+          tab: sheetName
+        })
+      );
+    }
+  });
+  return { spreadsheet: parsedWorkbook, valog };
+}
+
+function spreadsheetToDocuments(spreadsheet, user_id, templateSheets) {
+  const valog = [];
+  const documents = [];
+  _.forIn(templateSheets, (templateSheet, type) => {
+    const sheet = spreadsheet[type];
+    // This case noted as a validation error in `parseSpreadsheet`
+    // but allow for checking of additional errors.
+    if (!sheet) return;
+    // These two are never needed for uploads.
+    if (["Summary", "Dropdowns"].includes(type)) return;
+    // These are mostly ignored, but may have some specific validations.
+    if (type === "Cover") return;
+    if (type === "Projects") return;
+    if (type === "Agencies") return;
+
+    if (type === "Subrecipient") {
+      // placeholder for deduplication
+    }
+    if (type === "Subrecipients") {
+      // placeholder for deduplication
+    }
+    // Mark any columns not in the template to be ignored
+    const cols = sheet[0].map(col =>
+      templateSheet[0].includes(col) ? col : "ignore"
+    );
+    sheet.slice(1).forEach(row => {
+      if (row.length === 0) return;
+      documents.push({
+        type,
+        user_id,
+        content: _.omit(_.zipObject(cols, row), ["ignore"])
+      });
+    });
+  });
+  return { documents, valog };
 }
 
 function uploadFilename(filename) {
@@ -36,4 +113,10 @@ function makeSpreadsheet(template, groups) {
   return XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
 }
 
-module.exports = { loadSpreadsheet, uploadFilename, makeSpreadsheet };
+module.exports = {
+  loadSpreadsheet,
+  parseSpreadsheet,
+  spreadsheetToDocuments,
+  uploadFilename,
+  makeSpreadsheet
+};
