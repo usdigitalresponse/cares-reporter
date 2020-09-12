@@ -155,8 +155,12 @@ function createDocument(document) {
     });
 }
 
-function createUpload(upload) {
-  return knex
+function createDocuments(documents, queryBuilder = knex) {
+  return queryBuilder.insert(documents).into("documents");
+}
+
+function createUpload(upload, queryBuilder = knex) {
+  return queryBuilder
     .insert(upload)
     .into("uploads")
     .returning(["id", "created_at"])
@@ -176,7 +180,7 @@ function agencies() {
 function agencyByCode(code) {
   return knex("agencies")
     .select("*")
-    .where({ code })
+    .where({ code });
 }
 
 function projects() {
@@ -197,6 +201,14 @@ function applicationSettings() {
     .then(r => r[0]);
 }
 
+async function transact(callback) {
+  let result;
+  await knex.transaction(async queryBuilder => {
+    result = await callback(queryBuilder);
+  });
+  return result;
+}
+
 module.exports = {
   accessToken,
   agencies,
@@ -204,6 +216,7 @@ module.exports = {
   applicationSettings,
   createAccessToken,
   createDocument,
+  createDocuments,
   createUpload,
   createUser,
   documents,
@@ -215,6 +228,7 @@ module.exports = {
   tables,
   template,
   templates,
+  transact,
   upload,
   uploads,
   uploadsForAgency,
