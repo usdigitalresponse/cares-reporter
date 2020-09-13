@@ -65,6 +65,9 @@ const processUpload = async ({
         },
         trx
       );
+      // Enhance the documents with the resulting upload.id. Note this needs
+      // to be done here to get the upload and document insert operations into
+      // the same transaction.
       documents.forEach(doc => (doc.upload_id = upload.id));
       return createDocuments(documents, trx);
     });
