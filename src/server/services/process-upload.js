@@ -3,7 +3,7 @@ const { user, createUpload, createDocuments, transact } = require("../db");
 const { getTemplate } = require("./get-template");
 const { validateFilename } = require("./validate-upload");
 const FileInterface = require("../lib/server-disk-interface");
-const { ValidationLog } = require("../lib/validation_log");
+const { ValidationLog } = require("../lib/validation-log");
 const {
   parseSpreadsheet,
   spreadsheetToDocuments
@@ -31,11 +31,13 @@ const processUpload = async ({
     valog.append(`Can't parse xlsx file ${filename}`);
     return { valog, upload: {} };
   }
+
   const { spreadsheet, valog: parseValog } = parseSpreadsheet(
     workbookXlsx,
     templateSheets
   );
   valog.append(parseValog);
+
   const { documents, valog: docValog } = spreadsheetToDocuments(
     spreadsheet,
     user_id,
@@ -43,12 +45,23 @@ const processUpload = async ({
   );
   valog.append(docValog);
 
-  // validate data
   if (!valog.success()) {
     return { valog, upload: {} };
   }
 
-  await fileInterface.writeFile(filename, data);
+  try {
+    await fileInterface.writeFileCarefully(filename, data);
+  } catch (e) {
+    valog.append(
+      e.code === "EEXIST"
+        ? `The file ${filename} is already in the database. Should this be a new version?`
+        : e.message
+    );
+  }
+
+  if (!valog.success()) {
+    return { valog, upload: {} };
+  }
 
   let upload;
   let result;
@@ -69,14 +82,14 @@ const processUpload = async ({
       // to be done here to get the upload and document insert operations into
       // the same transaction.
       documents.forEach(doc => (doc.upload_id = upload.id));
-      return createDocuments(documents, trx);
+      const createResult = createDocuments(documents, trx);
+      return createResult;
     });
+    console.log(`Inserted ${(result || {}).rowCount} documents.`);
   } catch (e) {
     fileInterface.rmFile(filename);
     valog.append("Upload and import failed. " + e.message);
   }
-  console.log(`Inserted ${result.rowCount} documents.`);
-
   return { valog, upload, spreadsheet };
 };
 
