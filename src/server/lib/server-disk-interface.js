@@ -23,6 +23,14 @@ class ServerDiskInterface {
     return fs.writeFile(path.join(this.uploadDirectory, fname), data);
   }
 
+  // Write only if file doesn't exist.
+  async writeFileCarefully(fname, data) {
+    const fh = await fs.open(path.join(this.uploadDirectory, fname), "wx");
+    const written = await fh.write(data);
+    await fh.close();
+    return written;
+  }
+
   async rmFile(fname) {
     return fs.unlink(path.join(this.uploadDirectory, fname));
   }

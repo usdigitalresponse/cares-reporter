@@ -15,7 +15,7 @@ DONE
 dbname=${1:-postgres}
 
 mkdir -p $UPLOAD_DIRECTORY
-rm -rf "$UPLOAD_DIRECTORY/*"
+rm -rf $UPLOAD_DIRECTORY/*
 
 if [[ $dbname = postgres ]]
 then

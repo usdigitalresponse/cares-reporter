@@ -91,7 +91,7 @@ export default {
               return { ...e, message };
             });
           } else {
-            this.$router.push({ path: `/imports/${r.upload.id}` });
+            this.$router.push({ path: `/` });
           }
         } catch (e) {
           this.message = e.message;

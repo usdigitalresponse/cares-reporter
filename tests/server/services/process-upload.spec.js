@@ -63,6 +63,18 @@ describe("services/process_upload", () => {
         expect(result.valog.getLog()[0].message).to.match(ftest.expects);
       });
     });
+
+    it("fails when a duplicate file is uploaded", async () => {
+      const uploadArgs = makeUploadArgs(
+        `${dir}/DOH-013-06302020-for_dup_fname-v1.xlsx`
+      );
+      const successResult = await processUpload(uploadArgs);
+      expect(successResult.valog.getLog()).to.be.empty;
+      const dupUploadResult = await processUpload(uploadArgs);
+      expect(dupUploadResult.valog.getLog()[0].message).to.match(
+        /The file .* is already in the database/
+      );
+    });
   });
 
   describe("file structure failures", () => {
