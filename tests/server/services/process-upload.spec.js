@@ -18,7 +18,10 @@ describe("services/process_upload", () => {
   describe("baseline success", () => {
     const dir = `${dirRoot}file-success/`;
     it("processes without error", async () => {
-      const uploadArgs = makeUploadArgs(`${dir}DOH-013-06302020-v1.xlsx`);
+      // const uploadArgs = makeUploadArgs(`${dir}DOH-013-06302020-v1.xlsx`);
+      const uploadArgs = makeUploadArgs(
+        `${dir}GOV-000-06302020-laurie_test-v2.xlsx`
+      );
       const result = await processUpload(uploadArgs);
       return result;
     });
