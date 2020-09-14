@@ -31,7 +31,6 @@ const validateFilename = async filename => {
       );
     }
   }
-
   const projectId = nameParts.shift();
   // TODO: specific rules for project id
   if (projectId === "InvalidProjectID") {
