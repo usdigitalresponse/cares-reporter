@@ -1,7 +1,7 @@
 const xlsx = require("xlsx");
 const { user, createUpload, createDocuments, transact } = require("../db");
 const { getTemplate } = require("./get-template");
-const { validateFilename } = require("./validate-upload");
+const { parseFilename } = require("./parse-filename");
 const FileInterface = require("../lib/server-disk-interface");
 const { ValidationLog } = require("../lib/validation_log");
 const {
@@ -18,7 +18,9 @@ const processUpload = async ({
   data
 }) => {
   let valog = new ValidationLog();
-  valog.append(await validateFilename(filename));
+  const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
+  console.log("fileParts", fileParts);
+  valog.append(filenameValog);
   const templateSheets = await getTemplate();
   if (!valog.success()) {
     return { valog, upload: {} };
