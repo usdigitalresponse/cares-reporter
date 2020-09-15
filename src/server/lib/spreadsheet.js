@@ -1,7 +1,6 @@
 const XLSX = require("xlsx");
 const _ = require("lodash");
-const { ValidationItem } = require("../lib/validation_log");
-const { getTemplate } = require("../services/get-template");
+const { ValidationItem } = require("./validation-log");
 
 function loadSpreadsheet(filename) {
   const workbook = XLSX.readFile(filename);

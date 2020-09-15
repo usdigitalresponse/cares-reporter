@@ -1,4 +1,4 @@
-const { ValidationItem } = require("../lib/validation_log");
+const { ValidationItem } = require("../lib/validation-log");
 const { agencyByCode } = require("../db");
 
 const validateFilename = async filename => {
