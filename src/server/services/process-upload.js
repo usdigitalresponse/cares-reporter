@@ -103,7 +103,6 @@ const processUpload = async ({
     }
     valog.append("Upload and import failed. " + e.message);
   }
-  console.log(`Inserted ${(result || {}).rowCount} documents.`);
 
   return { valog, upload, spreadsheet };
 };
