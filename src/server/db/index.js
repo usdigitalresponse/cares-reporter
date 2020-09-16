@@ -1,9 +1,11 @@
 const { v4 } = require("uuid");
 const knex = require("./connection");
+const _ = require("lodash");
 
 const {
   createDocument,
   createDocuments,
+  deleteDocuments,
   documents,
   documentsForAgency
 } = require("./documents");
@@ -135,16 +137,34 @@ function createAccessToken(email) {
   return generatePasscode(email);
 }
 
-function createUpload(upload, queryBuilder = knex) {
-  return queryBuilder
-    .insert(upload)
-    .into("uploads")
-    .returning(["id", "created_at"])
-    .then(id => {
-      upload.id = id[0].id;
-      upload.created_at = id[0].created_at;
-      return upload;
-    });
+async function createUpload(upload, queryBuilder = knex) {
+  // The CONFLICT should never happen, because the file upload should stop
+  // if there is an existing `filename` in the upload directory.
+  // However if `filename` gets deleted for some reason without deleting
+  // the DB record, it's better to update this record than mysteriously fail.
+
+  const timestamp = new Date().toISOString();
+  const qResult = await queryBuilder.raw(
+    `INSERT INTO uploads
+      (configuration_id, created_by, filename, user_id, created_at)
+      VALUES
+      (:configuration_id, :created_by, :filename, :user_id, '${timestamp}')
+      ON CONFLICT (filename) DO UPDATE
+        SET 
+          configuration_id = :configuration_id,
+          created_by = :created_by,
+          filename = :filename,
+          user_id = :user_id,
+          created_at = '${timestamp}'
+      RETURNING "id", "created_at"`,
+    upload
+  );
+  const inserted = _.get(qResult, "rows[0]");
+  // This should also never happen, but better to know if it does.
+  if (!inserted) throw new Error("Unknown error inserting into uploads table");
+  upload.id = inserted.id;
+  upload.created_at = inserted.created_at;
+  return upload;
 }
 
 function agencies() {
@@ -195,6 +215,7 @@ module.exports = {
   createDocuments,
   createUpload,
   createUser,
+  deleteDocuments,
   documents,
   documentsForAgency,
   markAccessTokenUsed,
