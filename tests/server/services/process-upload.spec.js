@@ -1,6 +1,8 @@
 const fs = require("fs");
 const { processUpload } = requireSrc(__filename);
 const expect = require("chai").expect;
+const util = require("util");
+const setTimeoutPromise = util.promisify(setTimeout);
 
 const makeUploadArgs = fixtureFile => {
   const filename = fixtureFile.match(/[^/]+$/)[0];
@@ -94,5 +96,41 @@ describe("services/process_upload", () => {
       const result = await processUpload(uploadArgs);
       expect(result.valog.getLog()[0].message).to.match(/Missing column/);
     });
+  });
+
+  describe("database checks", () => {
+    it("replaces upload record on re-upload when the file is lost", async () => {
+      const dir = `${dirRoot}file-success/`;
+      const testFile = "GOV-000-06302020-laurie_test-v2.xlsx";
+      const uploadArgs = makeUploadArgs(`${dir}${testFile}`);
+
+      // first upload
+      const result1 = await processUpload(uploadArgs);
+      const originalDate = result1.upload.created_at;
+      fs.unlinkSync(`${process.env.UPLOAD_DIRECTORY}/${testFile}`);
+
+      // second upload
+      await setTimeoutPromise(10);
+      const result2 = await processUpload(uploadArgs);
+      const replacedDate = result2.upload.created_at;
+      expect(replacedDate).to.not.equal(originalDate);
+      expect(result2.valog.getLog()).to.have.length(0);
+    });
+
+    // WIP
+    // it("deletes old documents", async () => {
+    //   const dir = `${dirRoot}file-success/`;
+    //   const uploadArgs1 = makeUploadArgs(
+    //     `${dir}GOV-000-06302020-laurie_test-v2.xlsx`
+    //   );
+    //   const uploadArgs2 = makeUploadArgs(
+    //     `${dir}GOV-000-06302020-laurie_test-v3.xlsx`
+    //   );
+    //   const result1 = await processUpload(uploadArgs1);
+    //   // console.log("result1", result1);
+    //   console.log("valog1", result1.valog.getLog());
+    //   const result2 = await processUpload(uploadArgs2);
+    //   // console.log("result2", result2);
+    // });
   });
 });

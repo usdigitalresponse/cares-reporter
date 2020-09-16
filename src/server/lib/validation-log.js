@@ -16,8 +16,10 @@ class ValidationLog {
       if (_.isString(infoListOrNull)) {
         this.log.push(new ValidationItem({ message: infoListOrNull }));
       } else if (_.isArrayLike(infoListOrNull)) {
+        // assuming this is a list of validationItems
         this.log.push(...infoListOrNull);
       } else {
+        // assuming this is a single validationItem
         this.log.push(infoListOrNull);
       }
     }

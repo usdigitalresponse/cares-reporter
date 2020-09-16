@@ -31,9 +31,21 @@ function createDocuments(documents, queryBuilder = knex) {
   return queryBuilder.insert(documents).into("documents");
 }
 
+async function deleteDocuments({ agencyCode, projectId, reportingDate }) {
+  // WIP
+  // const uploads = await knex("uploads").where(
+  //   "filename",
+  //   "like",
+  //   `${agencyCode}-${projectId}-${reportingDate}-%`
+  // );
+  // console.log("uploads to delete", uploads);
+  // return uploads;
+}
+
 module.exports = {
   createDocument,
   createDocuments,
+  deleteDocuments,
   documents,
   documentsForAgency
 };
