@@ -1,7 +1,9 @@
 const { ValidationItem } = require("../lib/validation-log");
 const { agencyByCode } = require("../db");
 
-const validateFilename = async filename => {
+const expectedEndReportDate = process.env.END_REPORTING_DATE;
+
+const parseFilename = async filename => {
   const valog = [];
   const [, name, ext] = filename.match(/^(.*)\.([^.]+)$/) || [];
   if (ext !== "xlsx") {
@@ -42,8 +44,6 @@ const validateFilename = async filename => {
   }
 
   const reportingDate = nameParts.shift();
-  // TODO: match against expected reporting date from config instead of hard coded.
-  const expectedEndReportDate = "06302020";
   if (reportingDate !== expectedEndReportDate) {
     valog.push(
       new ValidationItem({
@@ -52,11 +52,12 @@ const validateFilename = async filename => {
     );
   }
 
-  const version = nameParts.pop();
-  if (!/^v\d+/.test(version)) {
+  const version_str = ((nameParts.pop() || "").match(/^v(\d+)$/) || [])[1];
+  const version = parseInt(version_str, 10);
+  if (!version) {
     valog.push(
       new ValidationItem({
-        message: `Last part of filename must be a version number (e.g. _v3)`
+        message: `Last part of filename must be a version number (e.g. -v3)`
       })
     );
   }
@@ -71,9 +72,9 @@ const validateFilename = async filename => {
       })
     );
   }
-  return valog;
+  return { agencyCode, projectId, reportingDate, version, valog };
 };
 
 module.exports = {
-  validateFilename
+  parseFilename
 };
