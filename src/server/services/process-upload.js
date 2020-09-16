@@ -1,7 +1,13 @@
 const xlsx = require("xlsx");
-const { user, createUpload, createDocuments, transact } = require("../db");
+const {
+  user,
+  createUpload,
+  createDocuments,
+  deleteDocuments,
+  transact
+} = require("../db");
 const { getTemplate } = require("./get-template");
-const { validateFilename } = require("./validate-upload");
+const { parseFilename } = require("./parse-filename");
 const FileInterface = require("../lib/server-disk-interface");
 const { ValidationLog } = require("../lib/validation-log");
 const {
@@ -18,7 +24,8 @@ const processUpload = async ({
   data
 }) => {
   let valog = new ValidationLog();
-  valog.append(await validateFilename(filename));
+  const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
+  valog.append(filenameValog);
   const templateSheets = await getTemplate();
   if (!valog.success()) {
     return { valog, upload: {} };
@@ -78,6 +85,7 @@ const processUpload = async ({
         },
         trx
       );
+      await deleteDocuments(fileParts);
       // Enhance the documents with the resulting upload.id. Note this needs
       // to be done here to get the upload and document insert operations into
       // the same transaction.
@@ -87,9 +95,15 @@ const processUpload = async ({
     });
     console.log(`Inserted ${(result || {}).rowCount} documents.`);
   } catch (e) {
-    fileInterface.rmFile(filename);
+    try {
+      fileInterface.rmFile(filename);
+    } catch (rmErr) {
+      // This should never happen.
+      console.error("rmFile error:", rmErr.message);
+    }
     valog.append("Upload and import failed. " + e.message);
   }
+
   return { valog, upload, spreadsheet };
 };
 
