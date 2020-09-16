@@ -1,5 +1,6 @@
 const fs = require("fs");
 const { processUpload } = requireSrc(__filename);
+const knex = requireSrc(`${__dirname}/../db/connection`);
 const expect = require("chai").expect;
 const util = require("util");
 const setTimeoutPromise = util.promisify(setTimeout);
@@ -99,6 +100,12 @@ describe("services/process_upload", () => {
   });
 
   describe("database checks", () => {
+    beforeEach(async () => {
+      fs.rmdirSync(process.env.UPLOAD_DIRECTORY, { recursive: true });
+      fs.mkdirSync(process.env.UPLOAD_DIRECTORY);
+      await knex("documents").truncate();
+      await knex("uploads").truncate();
+    });
     it("replaces upload record on re-upload when the file is lost", async () => {
       const dir = `${dirRoot}file-success/`;
       const testFile = "GOV-000-06302020-laurie_test-v2.xlsx";
@@ -117,20 +124,38 @@ describe("services/process_upload", () => {
       expect(result2.valog.getLog()).to.have.length(0);
     });
 
-    // WIP
-    // it("deletes old documents", async () => {
-    //   const dir = `${dirRoot}file-success/`;
-    //   const uploadArgs1 = makeUploadArgs(
-    //     `${dir}GOV-000-06302020-laurie_test-v2.xlsx`
-    //   );
-    //   const uploadArgs2 = makeUploadArgs(
-    //     `${dir}GOV-000-06302020-laurie_test-v3.xlsx`
-    //   );
-    //   const result1 = await processUpload(uploadArgs1);
-    //   // console.log("result1", result1);
-    //   console.log("valog1", result1.valog.getLog());
-    //   const result2 = await processUpload(uploadArgs2);
-    //   // console.log("result2", result2);
-    // });
+    it("deletes old documents when new version is uploaded", async () => {
+      // Do two uploads
+      const dir = `${dirRoot}file-success/`;
+      const uploadArgs1 = makeUploadArgs(
+        `${dir}GOV-000-06302020-laurie_test-v2.xlsx`
+      );
+      const result1 = await processUpload(uploadArgs1);
+      const uploadArgs2 = makeUploadArgs(
+        `${dir}DOH-000-06302020-laurie_test-v2.xlsx`
+      );
+      const result2 = await processUpload(uploadArgs2);
+
+      // Check the first two uploads
+      expect(result1.valog.getLog()).to.have.length(0);
+      expect(result2.valog.getLog()).to.have.length(0);
+      const beforeReplace = await knex("documents")
+        .distinct("upload_id")
+        .orderBy("upload_id");
+      expect(beforeReplace).to.deep.equal([{ upload_id: 1 }, { upload_id: 2 }]);
+
+      // Do the replacement of upload 1.
+      const uploadArgs3 = makeUploadArgs(
+        `${dir}GOV-000-06302020-laurie_test-v3.xlsx`
+      );
+      const result3 = await processUpload(uploadArgs3);
+
+      // Check that there are new docs for upload 3 and upload 1 docs are gone.
+      expect(result3.valog.getLog()).to.have.length(0);
+      const afterReplace = await knex("documents")
+        .distinct("upload_id")
+        .orderBy("upload_id");
+      expect(afterReplace).to.deep.equal([{ upload_id: 2 }, { upload_id: 3 }]);
+    });
   });
 });
