@@ -1,7 +1,7 @@
 const { ValidationItem } = require("../lib/validation-log");
 const { agencyByCode } = require("../db");
-
-const expectedEndReportDate = process.env.END_REPORTING_DATE;
+const { currentReportingPeriod } = require("../db/settings");
+const { format } = require("date-fns");
 
 const parseFilename = async filename => {
   const valog = [];
@@ -43,6 +43,10 @@ const parseFilename = async filename => {
     );
   }
 
+  const currentPeriod = await currentReportingPeriod();
+  const endDate = (currentPeriod || {}).end_date;
+  if (!endDate) throw new Error(`Error finding currentReportingPeriod`);
+  const expectedEndReportDate = format(endDate, "MMddyyyy");
   const reportingDate = nameParts.shift();
   if (reportingDate !== expectedEndReportDate) {
     valog.push(
