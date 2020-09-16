@@ -1,4 +1,5 @@
 const knex = require("./connection");
+const _ = require("lodash");
 
 function documents() {
   return knex("documents")
@@ -32,14 +33,14 @@ function createDocuments(documents, queryBuilder = knex) {
 }
 
 async function deleteDocuments({ agencyCode, projectId, reportingDate }) {
-  // WIP
-  // const uploads = await knex("uploads").where(
-  //   "filename",
-  //   "like",
-  //   `${agencyCode}-${projectId}-${reportingDate}-%`
-  // );
-  // console.log("uploads to delete", uploads);
-  // return uploads;
+  const uploads = await knex("uploads")
+    .select("id")
+    .where("filename", "like", `${agencyCode}-${projectId}-${reportingDate}-%`);
+  const uploadIds = _.map(uploads, "id");
+  const delResult = await knex("documents")
+    .del()
+    .whereIn("upload_id", uploadIds);
+  return delResult;
 }
 
 module.exports = {
