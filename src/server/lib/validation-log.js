@@ -13,10 +13,10 @@ class ValidationLog {
 
   append(infoListOrNull) {
     if (infoListOrNull) {
-      if (_.isArrayLike(infoListOrNull)) {
+      if (_.isString(infoListOrNull)) {
+        this.log.push(new ValidationItem({ message: infoListOrNull }));
+      } else if (_.isArrayLike(infoListOrNull)) {
         this.log.push(...infoListOrNull);
-      } else if (_.isString(infoListOrNull)) {
-        this.log.push(new ValidationItem({ infoListOrNull }));
       } else {
         this.log.push(infoListOrNull);
       }
