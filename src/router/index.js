@@ -45,7 +45,7 @@ const routes = [
     meta: { requiresLogin: true }
   },
   {
-    path: "/new_upload/:id",
+    path: "/new_upload",
     name: "NewUpload",
     component: NewUpload,
     meta: { requiresLogin: true }

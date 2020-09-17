@@ -31,12 +31,11 @@ async function createUpload(upload, queryBuilder = knex) {
   const timestamp = new Date().toISOString();
   const qResult = await queryBuilder.raw(
     `INSERT INTO uploads
-      (configuration_id, created_by, filename, user_id, created_at)
+      (created_by, filename, user_id, created_at)
       VALUES
-      (:configuration_id, :created_by, :filename, :user_id, '${timestamp}')
+      (:created_by, :filename, :user_id, '${timestamp}')
       ON CONFLICT (filename) DO UPDATE
         SET 
-          configuration_id = :configuration_id,
           created_by = :created_by,
           filename = :filename,
           user_id = :user_id,

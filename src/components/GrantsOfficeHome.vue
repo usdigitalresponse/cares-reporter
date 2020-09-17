@@ -110,10 +110,6 @@ export default {
     uploadUrl(upload) {
       return `/uploads/${upload.id}`;
     },
-    templateName(t) {
-      const template = this.$store.getters.template(t.configuration_id);
-      return template ? template.name : "";
-    },
     fromNow: function(t) {
       return moment(t).fromNow();
     },
