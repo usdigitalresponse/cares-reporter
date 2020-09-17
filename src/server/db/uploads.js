@@ -9,9 +9,10 @@ function uploads() {
 
 function uploadsForAgency(agency_id) {
   return knex("uploads")
-    .select("*")
-    .where("agency_id", agency_id)
-    .orderBy("created_at", "desc");
+    .join("users", "uploads.user_id", "=", "users.id")
+    .select("uploads.*")
+    .where("users.agency_id", agency_id)
+    .orderBy("uploads.created_at", "desc");
 }
 
 function upload(id) {
