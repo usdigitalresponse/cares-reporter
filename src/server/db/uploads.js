@@ -4,13 +4,15 @@ const _ = require("lodash");
 function uploads() {
   return knex("uploads")
     .select("*")
-    .orderBy("created_at", "desc");
+    .join("users", "uploads.user_id", "=", "users.id")
+    .select("uploads.*", "users.agency_id")
+    .orderBy("uploads.created_at", "desc");
 }
 
 function uploadsForAgency(agency_id) {
   return knex("uploads")
     .join("users", "uploads.user_id", "=", "users.id")
-    .select("uploads.*")
+    .select("uploads.*", "users.agency_id")
     .where("users.agency_id", agency_id)
     .orderBy("uploads.created_at", "desc");
 }
