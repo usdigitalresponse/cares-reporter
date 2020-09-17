@@ -98,7 +98,7 @@ export default {
   methods: {
     titleize,
     downloadUrl() {
-      return `/api/exports/${this.template.id}`;
+      return `/api/exports`;
     },
     documentCount(tableName) {
       const records = this.groups[tableName];
