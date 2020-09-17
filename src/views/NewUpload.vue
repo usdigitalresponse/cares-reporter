@@ -6,17 +6,6 @@
       <h2>{{ uploadConfiguration.name }}</h2>
       <form method="post" encType="multipart/form-data" @submit="uploadFile">
         <div class="form-group">
-          <label>Type of Upload</label>
-          <select class="form-control" v-model="id">
-            <option
-              :key="template.id"
-              v-for="template in templates"
-              :value="template.id"
-              >{{ template.name }}</option
-            >
-          </select>
-        </div>
-        <div class="form-group">
           <input
             class="form-control"
             type="file"
@@ -45,22 +34,14 @@ import _ from "lodash";
 export default {
   name: "NewUpload",
   data: function() {
-    const id = parseInt(this.$route.params.id);
     return {
-      id,
       message: null,
       errors: []
     };
   },
   computed: {
-    templates: function() {
-      return this.$store.getters.templates;
-    },
     uploadConfiguration: function() {
-      return _.find(
-        this.$store.state.configuration.templates,
-        u => u.id === this.id
-      );
+      return this.$store.getters.template;
     }
   },
   methods: {
@@ -71,7 +52,6 @@ export default {
         this.message = null;
         this.errors = [];
         let formData = new FormData();
-        formData.append("configuration_id", this.id);
         formData.append("spreadsheet", file);
         try {
           const r = await this.$store.dispatch("createUpload", formData);
