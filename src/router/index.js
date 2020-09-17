@@ -2,7 +2,6 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import Agencies from "../views/Agencies.vue";
-import Configuration from "../views/Configuration.vue";
 import CreateDocument from "../views/CreateDocument.vue";
 import Document from "../views/Document.vue";
 import Documents from "../views/Documents.vue";
@@ -37,12 +36,6 @@ const routes = [
     path: "/documents/:type/:id",
     name: "Document",
     component: Document,
-    meta: { requiresLogin: true }
-  },
-  {
-    path: "/configuration",
-    name: "Config",
-    component: Configuration,
     meta: { requiresLogin: true }
   },
   {
