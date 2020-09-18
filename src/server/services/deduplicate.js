@@ -9,23 +9,15 @@ function log() {
   }
 }
 
-function indexDocuments(documents, key) {
-  return _.reduce(
-    documents,
-    (acc, document) => {
-      acc[document.content[key]] = document;
-      return acc;
-    },
-    {}
-  );
-}
-
 async function removeDuplicates(getFn, type, keyAttribute, documents) {
   // this does an eager load of all documents of a certain type
   // need to test this with realistic datasets
-  // it may better to do a lazy query for each record, or perhaps batche them
+  // it may better to do a lazy query for each record, or perhaps batch them
   // but this is a good first pass
-  const existingDocuments = indexDocuments(await getFn(type), keyAttribute);
+  const existingDocuments = _.keyBy(
+    await getFn(type),
+    o => o.content[keyAttribute]
+  );
   log(
     `Scanning ${documents.length} documents for duplicate ${type} by ${keyAttribute}`
   );
