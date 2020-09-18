@@ -9,9 +9,7 @@ describe("services/removeDuplicates", () => {
       { type: "test", content: { id: "1003" } }
     ];
     const mockGetFn = () => Promise.resolve([]);
-    const results = await (await removeDuplicates(mockGetFn, "test", "id"))(
-      documents
-    );
+    const results = await removeDuplicates(mockGetFn, "test", "id", documents);
     expect(results.length).to.equal(3);
   });
   it("finds all duplicates", async () => {
@@ -21,9 +19,7 @@ describe("services/removeDuplicates", () => {
       { type: "test", content: { id: "1003" } }
     ];
     const mockGetFn = () => Promise.resolve(documents);
-    const results = await (await removeDuplicates(mockGetFn, "test", "id"))(
-      documents
-    );
+    const results = await removeDuplicates(mockGetFn, "test", "id", documents);
     expect(results.length).to.equal(0);
   });
   it("finds some duplicates", async () => {
@@ -33,9 +29,7 @@ describe("services/removeDuplicates", () => {
       { type: "test", content: { id: "1003" } }
     ];
     const mockGetFn = () => Promise.resolve(documents.slice(1));
-    const results = await (await removeDuplicates(mockGetFn, "test", "id"))(
-      documents
-    );
+    const results = await removeDuplicates(mockGetFn, "test", "id", documents);
     expect(results.length).to.equal(1);
   });
 });

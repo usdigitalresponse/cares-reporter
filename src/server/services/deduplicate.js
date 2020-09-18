@@ -20,44 +20,42 @@ function indexDocuments(documents, key) {
   );
 }
 
-async function removeDuplicates(getFn, type, keyAttribute) {
+async function removeDuplicates(getFn, type, keyAttribute, documents) {
   // this does an eager load of all documents of a certain type
   // need to test this with realistic datasets
   // it may better to do a lazy query for each record, or perhaps batche them
   // but this is a good first pass
   const existingDocuments = indexDocuments(await getFn(type), keyAttribute);
-  return function(documents) {
-    log(
-      `Scanning ${documents.length} documents for duplicate ${type} by ${keyAttribute}`
-    );
-    return _.chain(documents)
-      .map(document => {
-        if (document.type !== type) {
-          return document;
-        }
-        if (_.isEmpty(document.content)) {
-          return null;
-        }
-        const key = document.content[keyAttribute];
-        if (existingDocuments[key]) {
-          log("Duplicate:", type, keyAttribute, key);
-          return null;
-        }
-        log("New document:", type, keyAttribute, key);
+  log(
+    `Scanning ${documents.length} documents for duplicate ${type} by ${keyAttribute}`
+  );
+  return _.chain(documents)
+    .map(document => {
+      if (document.type !== type) {
         return document;
-      })
-      .compact()
-      .value();
-  };
+      }
+      if (_.isEmpty(document.content)) {
+        return null;
+      }
+      const key = document.content[keyAttribute];
+      if (existingDocuments[key]) {
+        log("Duplicate:", type, keyAttribute, key);
+        return null;
+      }
+      log("New document:", type, keyAttribute, key);
+      return document;
+    })
+    .compact()
+    .value();
 }
 
 async function deduplicate(documents) {
-  const fn = await removeDuplicates(
+  return await removeDuplicates(
     documentsOfType,
     "Subrecipient",
-    "Identification Number"
+    "Identification Number",
+    documents
   );
-  return await fn(documents);
 }
 
 module.exports = {
