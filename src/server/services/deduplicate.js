@@ -30,22 +30,24 @@ async function removeDuplicates(getFn, type, keyAttribute) {
     log(
       `Scanning ${documents.length} documents for duplicate ${type} by ${keyAttribute}`
     );
-    const ps = _.map(documents, document => {
-      if (document.type !== type) {
+    return _.chain(documents)
+      .map(document => {
+        if (document.type !== type) {
+          return document;
+        }
+        if (_.isEmpty(document.content)) {
+          return null;
+        }
+        const key = document.content[keyAttribute];
+        if (existingDocuments[key]) {
+          log("Duplicate:", type, keyAttribute, key);
+          return null;
+        }
+        log("New document:", type, keyAttribute, key);
         return document;
-      }
-      if (_.isEmpty(document.content)) {
-        return null;
-      }
-      const key = document.content[keyAttribute];
-      if (existingDocuments[key]) {
-        log("Duplicate:", type, keyAttribute, key);
-        return null;
-      }
-      log("New document:", type, keyAttribute, key);
-      return document;
-    });
-    return Promise.all(ps).then(_.compact);
+      })
+      .compact()
+      .value();
   };
 }
 
