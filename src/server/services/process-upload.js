@@ -15,6 +15,7 @@ const {
   spreadsheetToDocuments
 } = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
+const { deduplicate } = require("../services/deduplicate");
 
 const processUpload = async ({
   filename,
@@ -45,16 +46,17 @@ const processUpload = async ({
   );
   valog.append(parseValog);
 
-  const { documents, valog: docValog } = spreadsheetToDocuments(
-    spreadsheet,
-    user_id,
-    templateSheets
-  );
+  const {
+    documents: spreadsheetDocuments,
+    valog: docValog
+  } = spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
   valog.append(docValog);
 
   if (!valog.success()) {
     return { valog, upload: {} };
   }
+
+  const documents = await deduplicate(spreadsheetDocuments);
 
   try {
     await fileInterface.writeFileCarefully(filename, data);
