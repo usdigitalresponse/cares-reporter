@@ -2,11 +2,14 @@ const knex = require("./connection");
 const _ = require("lodash");
 
 function documents() {
-  return knex("documents")
-    .select("*")
-    .limit(1000);
+  return knex("documents").select("*");
 }
 
+function documentsOfType(type) {
+  return knex("documents")
+    .select("*")
+    .where("type", type);
+}
 function documentsForAgency(agency_id) {
   return knex("documents")
     .select("*")
@@ -48,5 +51,6 @@ module.exports = {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsForAgency
+  documentsForAgency,
+  documentsOfType
 };
