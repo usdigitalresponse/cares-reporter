@@ -114,7 +114,9 @@ export default {
       return moment(t).fromNow();
     },
     dateFormat: function(d) {
-      return moment(d).format("MM-DD-YYYY");
+      return moment(d)
+        .utc()
+        .format("MM-DD-YYYY");
     }
   }
 };
