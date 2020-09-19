@@ -10,8 +10,7 @@ const _ = require("lodash");
 router.get("/", requireUser, function(req, res) {
   const template = makeTemplate(makeConfig(getTemplate()));
   if (!template) {
-    res.sendStatus(404);
-    res.end();
+    res.sendStatus(500);
   } else {
     getDocuments().then(documents => {
       console.log(`Found ${documents.length} documents`);
@@ -21,7 +20,7 @@ router.get("/", requireUser, function(req, res) {
       const filename = `${template.name}.xlsx`;
       res.header("Content-Disposition", `attachment; filename="${filename}"`);
       res.header("Content-Type", "application/octet-stream");
-      res.end(Buffer.from(attachmentData, "binary"));
+      res.send(Buffer.from(attachmentData, "binary"));
     });
   }
 });
