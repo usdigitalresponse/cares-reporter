@@ -136,7 +136,7 @@ export default new Vuex.Store({
           return r.json();
         })
         .then(response => {
-          if (response.upload) {
+          if (response.success && response.upload) {
             commit("addUpload", response.upload);
           }
           return response;
