@@ -69,27 +69,6 @@ function roles() {
     .orderBy("name");
 }
 
-function tables() {
-  return knex("configurations")
-    .select("*")
-    .where("type", "tables")
-    .orderBy("sort_order");
-}
-
-function templates() {
-  return knex("configurations")
-    .select("*")
-    .where("type", "templates")
-    .orderBy("name");
-}
-
-function template(id) {
-  return knex("configurations")
-    .select("*")
-    .where({ type: "templates", id })
-    .then(r => r[0]);
-}
-
 function accessToken(passcode) {
   return knex("access_tokens")
     .select("*")
@@ -173,9 +152,6 @@ module.exports = {
   projects,
   reportingPeriods,
   roles,
-  tables,
-  template,
-  templates,
   transact,
   upload,
   uploads,

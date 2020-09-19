@@ -35,7 +35,7 @@ export default {
   methods: {
     startUpload(e) {
       e.preventDefault();
-      this.$router.push({ path: `/new_upload/${this.template.id}` });
+      this.$router.push({ path: "/new_upload" });
     }
   }
 };

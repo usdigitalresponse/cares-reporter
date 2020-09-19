@@ -163,8 +163,10 @@ export default new Vuex.Store({
     templates: state => {
       return state.configuration.templates;
     },
-    template: state => id => {
-      return _.find(state.configuration.templates, t => t.id == id);
+    template: state => {
+      return state.configuration.templates
+        ? state.configuration.templates[0]
+        : {};
     },
     documentGroups: state => {
       return _.groupBy(state.documents, "type");

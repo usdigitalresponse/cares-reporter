@@ -34,7 +34,7 @@ describe("UploadData.vue", () => {
             ]
           }
         ],
-        upload: { configuration_id: 1 }
+        upload: { name: "Agency Template" }
       }
     });
     const f = wrapper.findAll("form");

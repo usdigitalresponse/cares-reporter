@@ -12,19 +12,6 @@
       </div>
       <div class="form-group">
         <label>Settings</label>
-        <select
-          class="form-control"
-          @change="changeConfiguration"
-          v-model="configurationId"
-        >
-          <option value="0">None</option>
-          <option
-            :key="option.name"
-            v-for="option in uploadConfigurations"
-            :value="option.id"
-            >{{ option.name }}</option
-          >
-        </select>
       </div>
       <div class="mt-4">
         <button
@@ -107,8 +94,7 @@ export default {
   },
   components: {},
   data: function() {
-    const configurationId = this.upload ? this.upload.configuration_id : 0;
-    const settings = this.buildSettings(configurationId);
+    const settings = this.buildSettings();
     const rowsToShow = this.initializeRowsToShow();
     const view = this.data ? this.data[0].name : "All Tabs";
     return {
@@ -117,8 +103,7 @@ export default {
       uploading: false,
       validationMessages: [],
       rowsToShow,
-      view,
-      configurationId
+      view
     };
   },
   computed: {
@@ -227,21 +212,13 @@ export default {
       e.preventDefault();
       this.view = e.target.value;
     },
-    changeConfiguration(e) {
-      e.preventDefault();
-      this.setConfiguration(e.target.value);
-    },
-    setConfiguration(id) {
-      this.configurationId = id;
-      this.settings = this.buildSettings(id);
-    },
-    buildSettings(id) {
+    buildSettings() {
       const result = {
         names: this.initializeNames(),
         columns: this.initializeColumns(),
         tableColumns: {}
       };
-      const configuration = this.$store.getters.template(id);
+      const configuration = this.$store.getters.template();
       const settings = _.get(configuration, "content.settings");
       if (settings) {
         settings.forEach(s => {
