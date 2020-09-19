@@ -27,7 +27,6 @@ router.post(
     try {
       const { valog, upload } = await processUpload({
         filename: req.file.originalname,
-        configuration_id: req.body.configuration_id,
         user_id: req.signedCookies.userId,
         agency_id: user.agency_id,
         data: req.file.buffer

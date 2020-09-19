@@ -1,21 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
-const {
-  user: getUser,
-  users: getUsers,
-  roles,
-  tables,
-  templates
-} = require("../db");
+const { user: getUser, users: getUsers, roles: getRoles } = require("../db");
+const { getTemplate } = require("../services/get-template");
+const { makeConfig, makeTables, makeTemplate } = require("../lib/config");
 
 router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
   const users = user.role === "admin" ? await getUsers() : [user];
-  const ps = [roles(), tables(), templates()];
-  Promise.all(ps).then(([roles, tables, templates]) => {
-    res.json({ configuration: { users, roles, tables, templates } });
-  });
+  const roles = await getRoles();
+  const config = makeConfig(getTemplate());
+  const tables = makeTables(config);
+  const templates = [makeTemplate(config)];
+  res.json({ configuration: { users, roles, tables, templates } });
 });
 
 module.exports = router;

@@ -16,13 +16,7 @@ const {
 } = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
 
-const processUpload = async ({
-  filename,
-  configuration_id,
-  user_id,
-  agency_id,
-  data
-}) => {
+const processUpload = async ({ filename, user_id, agency_id, data }) => {
   let valog = new ValidationLog();
   const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
   valog.append(filenameValog);
@@ -78,7 +72,6 @@ const processUpload = async ({
       upload = await createUpload(
         {
           filename,
-          configuration_id,
           created_by: current_user.email,
           user_id,
           agency_id

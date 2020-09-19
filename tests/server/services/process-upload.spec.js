@@ -9,7 +9,6 @@ const makeUploadArgs = fixtureFile => {
   const filename = fixtureFile.match(/[^/]+$/)[0];
   return {
     filename: filename,
-    configuration_id: 1,
     user_id: 1,
     data: fs.readFileSync(fixtureFile)
   };
