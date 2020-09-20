@@ -56,6 +56,7 @@ function userAndRole(id) {
       "users.id",
       "users.email",
       "users.role",
+      "users.agency_id",
       "users.tags",
       "roles.rules"
     )

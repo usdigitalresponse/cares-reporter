@@ -1,6 +1,6 @@
 <template>
   <div class="data">
-    <h1>{{ titleize(type) }}</h1>
+    <h2>{{ titleize(type) }}</h2>
     <DataTable v-if="table" :table="table" :rows="documents" :user="user" />
   </div>
 </template>
