@@ -13,7 +13,8 @@ describe("Navigation.vue", () => {
       getters: {
         tableNames: () => ["Products", "Product Type"],
         user: () => ({ email: "user@example.com", role: "admin" }),
-        applicationTitle: () => "CARES Reporter"
+        applicationTitle: () => "CARES Reporter",
+        agencyName: () => id => `Agency ${id}`
       }
     });
   });
@@ -24,8 +25,8 @@ describe("Navigation.vue", () => {
       localVue,
       stubs: ["router-link", "router-view"]
     });
-    const r = wrapper.findAll("nav");
-    expect(r.length).to.equal(1); // has one nav bar
+    const r = wrapper.findAll("div.navigation");
+    expect(r.length).to.equal(1); // has one nav element
   });
 
   it("include title", () => {

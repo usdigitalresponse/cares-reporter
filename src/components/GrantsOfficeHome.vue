@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <h2>Dashboard</h2>
     <div>
+      <h2>Dashboard</h2>
       <div class="row">
         <div v-if="template" class="col-4">
           <h3 class="mt-3">Downloads</h3>
