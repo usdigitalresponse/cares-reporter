@@ -5,7 +5,9 @@ export function titleize(s) {
   if (!s) {
     return s;
   }
-  const words = s.split("_").map(w => w.slice(0, 1).toUpperCase() + w.slice(1));
+  const words = s
+    .split(/[_\s]+/)
+    .map(w => w.slice(0, 1).toUpperCase() + w.slice(1));
   return words.join(" ");
 }
 
