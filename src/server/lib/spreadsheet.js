@@ -13,11 +13,44 @@ function loadSpreadsheet(filename) {
   });
 }
 
+const columnAliases = {
+  subrecipient: {
+    "duns number (hidden)": "duns number"
+  },
+  contracts: {
+    "subrecipient id (hidden)": "subrecipient id"
+  }
+};
+
+const tabAliases = {
+  subrecipients: "subrecipient"
+};
+
+function sheetToJson(sheetName, sheet) {
+  const jsonSheet = XLSX.utils.sheet_to_json(sheet, {
+    header: 1,
+    blankrows: false
+  });
+  jsonSheet[0] = jsonSheet[0].map(colName => {
+    const lowerCol = colName.toLowerCase().trim();
+    return (columnAliases[sheetName] || {})[lowerCol] || lowerCol;
+  });
+  return jsonSheet;
+}
+
 function parseSpreadsheet(workbook, templateSheets) {
   const valog = [];
-  const parsedWorkbook = _.mapValues(workbook.Sheets || {}, sheet => {
-    return XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  const normalizedSheets = _.mapKeys(workbook.Sheets, (tab, tabName) => {
+    return (
+      tabAliases[tabName.toLowerCase().trim()] || tabName.toLowerCase().trim()
+    );
   });
+  const parsedWorkbook = _.mapValues(
+    normalizedSheets || {},
+    (sheet, sheetName) => {
+      return sheetToJson(sheetName, sheet);
+    }
+  );
   _.forIn(templateSheets, (templateSheet, sheetName) => {
     const workbookSheet = parsedWorkbook[sheetName];
     if (!workbookSheet) {
@@ -27,9 +60,8 @@ function parseSpreadsheet(workbook, templateSheets) {
         })
       );
     }
-    // get rid of pesky hidden spaces on column headings
-    const templateColumns = templateSheet[0].map(s => s.trim());
-    workbookSheet[0] = (workbookSheet[0] || []).map(s => s.trim());
+
+    const templateColumns = templateSheet[0];
     const workbookColumns = workbookSheet[0];
     const missingColumns = _.difference(templateColumns, workbookColumns);
     if (missingColumns.length === 1) {
@@ -65,17 +97,10 @@ function spreadsheetToDocuments(spreadsheet, user_id, templateSheets) {
     if (type === "Cover") return;
     if (type === "Projects") return;
     if (type === "Agencies") return;
-
-    if (type === "Subrecipient") {
-      // placeholder for deduplication
-    }
-    if (type === "Subrecipients") {
-      // placeholder for deduplication
-    }
     // Mark any columns not in the template to be ignored
-    const cols = sheet[0].map(col =>
-      templateSheet[0].includes(col) ? col : "ignore"
-    );
+    const cols = sheet[0].map(col => {
+      return templateSheet[0].includes(col) ? col : "ignore";
+    });
     sheet.slice(1).forEach(row => {
       if (row.length === 0) return;
       documents.push({
@@ -117,5 +142,7 @@ module.exports = {
   parseSpreadsheet,
   spreadsheetToDocuments,
   uploadFilename,
-  makeSpreadsheet
+  makeSpreadsheet,
+  sheetToJson,
+  tabAliases
 };

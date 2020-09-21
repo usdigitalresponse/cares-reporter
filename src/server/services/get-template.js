@@ -1,17 +1,18 @@
 const fs = require("fs");
 const xlsx = require("xlsx");
 const _ = require("lodash");
+const { sheetToJson, tabAliases } = require("../lib/spreadsheet");
 
 const template = xlsx.read(
   fs.readFileSync(`${__dirname}/../data/${process.env.REPORTING_TEMPLATE}`)
 );
 
 const templateSheets = {};
-_.keys(template.Sheets).forEach(sheetName => {
-  const templateSheet = _.get(template, ["Sheets", sheetName]);
-  templateSheets[sheetName] = xlsx.utils.sheet_to_json(templateSheet, {
-    header: 1
-  });
+_.keys(template.Sheets).forEach(tabName => {
+  const sheetName =
+    tabAliases[tabName.toLowerCase().trim()] || tabName.toLowerCase().trim();
+  const templateSheet = _.get(template, ["Sheets", tabName]);
+  templateSheets[sheetName] = sheetToJson(sheetName, templateSheet);
 });
 
 const getTemplate = () => {

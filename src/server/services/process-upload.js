@@ -10,6 +10,7 @@ const { getTemplate } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
 const FileInterface = require("../lib/server-disk-interface");
 const { ValidationLog } = require("../lib/validation-log");
+const { validateData } = require("./validate-data");
 const {
   parseSpreadsheet,
   spreadsheetToDocuments
@@ -45,6 +46,9 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
     valog: docValog
   } = spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
   valog.append(docValog);
+
+  const dataValog = await validateData(spreadsheetDocuments);
+  valog.append(dataValog);
 
   if (!valog.success()) {
     return { valog, upload: {} };
