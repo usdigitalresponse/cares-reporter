@@ -13,7 +13,6 @@ describe("process-upload", () => {
         `${dir}/EOHHS-075-06302020-missing_id-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
-      console.log("result", result);
       const err = result.valog.getLog()[0] || {};
       expect(err.message).to.equal(
         `Each subrecipient must have either an "identification number" or a "duns number"`

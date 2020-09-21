@@ -27,12 +27,10 @@ const tabAliases = {
 };
 
 function sheetToJson(sheetName, sheet) {
-  // console.log("sheet", sheet);
   const jsonSheet = XLSX.utils.sheet_to_json(sheet, {
     header: 1,
     blankrows: false
   });
-  // console.log("jsonSheet", jsonSheet);
   jsonSheet[0] = jsonSheet[0].map(colName => {
     const lowerCol = colName.toLowerCase().trim();
     return (columnAliases[sheetName] || {})[lowerCol] || lowerCol;
@@ -62,9 +60,8 @@ function parseSpreadsheet(workbook, templateSheets) {
         })
       );
     }
-    // get rid of pesky hidden spaces on column headings
-    const templateColumns = templateSheet[0].map(s => s.trim());
-    workbookSheet[0] = (workbookSheet[0] || []).map(s => s.trim());
+
+    const templateColumns = templateSheet[0];
     const workbookColumns = workbookSheet[0];
     const missingColumns = _.difference(templateColumns, workbookColumns);
     if (missingColumns.length === 1) {
@@ -102,11 +99,7 @@ function spreadsheetToDocuments(spreadsheet, user_id, templateSheets) {
     if (type === "Agencies") return;
     // Mark any columns not in the template to be ignored
     const cols = sheet[0].map(col => {
-      const testCol = col.replace(/\([^)]*\)\s*$/, "").trim();
-      // The above removes parentheticals like "(Hidden)" from column names.
-      // We might need to put an explicit lookup here for canonical
-      // column names if variations are inevitable.
-      return templateSheet[0].includes(testCol) ? testCol : "ignore";
+      return templateSheet[0].includes(col) ? col : "ignore";
     });
     sheet.slice(1).forEach(row => {
       if (row.length === 0) return;
