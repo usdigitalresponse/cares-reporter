@@ -4,15 +4,7 @@ const knex = requireSrc(`${__dirname}/../db/connection`);
 const expect = require("chai").expect;
 const util = require("util");
 const setTimeoutPromise = util.promisify(setTimeout);
-
-const makeUploadArgs = fixtureFile => {
-  const filename = fixtureFile.match(/[^/]+$/)[0];
-  return {
-    filename: filename,
-    user_id: 1,
-    data: fs.readFileSync(fixtureFile)
-  };
-};
+const { makeUploadArgs, resetUploadsAndDb } = require("./helpers");
 
 const dirRoot = `${__dirname}/../fixtures/`;
 
@@ -20,11 +12,12 @@ describe("services/process_upload", () => {
   describe("baseline success", () => {
     const dir = `${dirRoot}file-success/`;
     it("processes without error", async () => {
-      // const uploadArgs = makeUploadArgs(`${dir}DOH-013-06302020-v1.xlsx`);
       const uploadArgs = makeUploadArgs(
-        `${dir}GOV-000-06302020-laurie_test-v2.xlsx`
+        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
+      console.log(result.valog.getLog());
+      expect(result.valog.getLog()).to.be.empty;
       return result;
     });
   });
@@ -67,8 +60,9 @@ describe("services/process_upload", () => {
     });
 
     it("fails when a duplicate file is uploaded", async () => {
+      await resetUploadsAndDb();
       const uploadArgs = makeUploadArgs(
-        `${dir}/DOH-013-06302020-for_dup_fname-v1.xlsx`
+        `${dirRoot}file-success/EOHHS-075-06302020-simple-v1.xlsx`
       );
       const successResult = await processUpload(uploadArgs);
       expect(successResult.valog.getLog()).to.be.empty;
@@ -83,7 +77,7 @@ describe("services/process_upload", () => {
     const dir = `${dirRoot}file-structure/`;
     it("fails missing tab", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}GOV-1020-06302020-missingContractsTab-v1.xlsx`
+        `${dir}EOHHS-075-06302020-missingContractsTab-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       expect(result.valog.getLog()[0].message).to.match(/Missing tab/);
@@ -91,7 +85,7 @@ describe("services/process_upload", () => {
 
     it("fails missing column", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}GOV-1020-06302020-missingContractDate-v1.xlsx`
+        `${dir}EOHHS-075-06302020-missingColumn-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       expect(result.valog.getLog()[0].message).to.match(/Missing column/);
@@ -99,15 +93,10 @@ describe("services/process_upload", () => {
   });
 
   describe("database checks", () => {
-    beforeEach(async () => {
-      fs.rmdirSync(process.env.UPLOAD_DIRECTORY, { recursive: true });
-      fs.mkdirSync(process.env.UPLOAD_DIRECTORY);
-      await knex("documents").truncate();
-      await knex("uploads").truncate();
-    });
+    beforeEach(resetUploadsAndDb);
     it("replaces upload record on re-upload when the file is lost", async () => {
       const dir = `${dirRoot}file-success/`;
-      const testFile = "GOV-000-06302020-laurie_test-v2.xlsx";
+      const testFile = "EOHHS-075-06302020-simple-v1.xlsx";
       const uploadArgs = makeUploadArgs(`${dir}${testFile}`);
 
       // first upload
@@ -127,26 +116,39 @@ describe("services/process_upload", () => {
       // Do two uploads
       const dir = `${dirRoot}file-success/`;
       const uploadArgs1 = makeUploadArgs(
-        `${dir}GOV-000-06302020-laurie_test-v2.xlsx`
+        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
       );
       const result1 = await processUpload(uploadArgs1);
+
+      const afterFirstUpload = await knex("documents")
+        .distinct("upload_id")
+        .orderBy("upload_id");
+      // Check the first upload
+      expect(result1.valog.getLog()).to.have.length(0);
+      expect(afterFirstUpload).to.deep.equal([{ upload_id: 1 }]);
+
+      // For the second upload just change the filename so that it looks
+      // like these are reports from a different department, rather than
+      // a new version of the first report.
       const uploadArgs2 = makeUploadArgs(
-        `${dir}DOH-000-06302020-laurie_test-v2.xlsx`
+        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
       );
+      uploadArgs2.filename = uploadArgs2.filename.replace(/^EOHHS/, "GOV");
       const result2 = await processUpload(uploadArgs2);
 
-      // Check the first two uploads
-      expect(result1.valog.getLog()).to.have.length(0);
+      // Check the second upload
       expect(result2.valog.getLog()).to.have.length(0);
       const beforeReplace = await knex("documents")
         .distinct("upload_id")
         .orderBy("upload_id");
       expect(beforeReplace).to.deep.equal([{ upload_id: 1 }, { upload_id: 2 }]);
 
-      // Do the replacement of upload 1.
+      // Do the replacement of upload of v1 by uploading a new version of that file
+      // simulated here by changing the filename.
       const uploadArgs3 = makeUploadArgs(
-        `${dir}GOV-000-06302020-laurie_test-v3.xlsx`
+        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
       );
+      uploadArgs3.filename = uploadArgs3.filename.replace(/-v1/, "-v2");
       const result3 = await processUpload(uploadArgs3);
 
       // Check that there are new docs for upload 3 and upload 1 docs are gone.

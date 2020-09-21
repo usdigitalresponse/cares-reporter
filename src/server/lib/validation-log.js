@@ -11,16 +11,18 @@ class ValidationLog {
     this.log = [];
   }
 
-  append(infoListOrNull) {
-    if (infoListOrNull) {
-      if (_.isString(infoListOrNull)) {
-        this.log.push(new ValidationItem({ message: infoListOrNull }));
-      } else if (_.isArrayLike(infoListOrNull)) {
+  append(toAppend) {
+    if (toAppend) {
+      if (_.isString(toAppend)) {
+        this.log.push(new ValidationItem({ message: toAppend }));
+      } else if (_.isArrayLike(toAppend)) {
         // assuming this is a list of validationItems
-        this.log.push(...infoListOrNull);
+        this.log.push(...toAppend);
+      } else if (toAppend instanceof ValidationLog) {
+        this.log.push(...toAppend.log);
       } else {
         // assuming this is a single validationItem
-        this.log.push(infoListOrNull);
+        this.log.push(toAppend);
       }
     }
     return this;
