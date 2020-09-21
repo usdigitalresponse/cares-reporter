@@ -1,6 +1,6 @@
 <template>
   <div class="data">
-    <h1>Agencies</h1>
+    <h2>Agencies</h2>
     <DataTable v-if="agencies" :table="table" :rows="agencies" :user="user" />
   </div>
 </template>

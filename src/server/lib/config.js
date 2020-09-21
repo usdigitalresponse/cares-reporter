@@ -1,7 +1,16 @@
 const _ = require("lodash");
 
 function makeConfig(allSheets) {
-  const ignoreSheets = ["Cover", "Dropdowns", "Summary", "Projects"];
+  const ignoreSheets = [
+    "Cover",
+    "Dropdowns",
+    "Summary",
+    "Projects",
+    "cover",
+    "dropdowns",
+    "summary",
+    "projects"
+  ];
   const sheets = _.omit(allSheets, ignoreSheets);
   return {
     name: "Agency template",
