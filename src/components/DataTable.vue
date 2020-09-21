@@ -11,7 +11,7 @@
           </select>
         </div>
       </div>
-      <div class="col-9">
+      <div :class="hasViews ? 'col-9' : 'col-12'">
         <input
           class="form-control"
           @input="onSearchChange"

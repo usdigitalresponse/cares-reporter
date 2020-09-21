@@ -1,15 +1,15 @@
 <template>
   <div class="home">
-    <h1>Dashboard</h1>
     <div>
-      <h2 class="mt-3">Upload</h2>
+      <h2>Dashboard</h2>
+      <h3 class="mt-3">Upload</h3>
       <div>
         <button class="btn btn-primary" @click="startUpload">
           Upload Spreadsheet
         </button>
       </div>
     </div>
-    <h2 class="mt-3">Upload History</h2>
+    <h3 class="mt-3">Upload History</h3>
     <UploadHistory :uploads="uploads" />
   </div>
 </template>

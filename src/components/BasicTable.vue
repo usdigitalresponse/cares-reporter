@@ -2,15 +2,15 @@
   <table class="mt-3 table table-striped">
     <thead>
       <tr>
-        <th :key="n" v-for="(column, n) in columns">
+        <th :key="`th|${n}`" v-for="(column, n) in columns">
           {{ columnTitle(column) }}
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr :key="row.id" v-for="row in rows">
+      <tr :key="`row|${r}`" v-for="(row, r) in rows">
         <DataTableColumn
-          :key="n"
+          :key="`c|${name}|${n}`"
           v-for="(column, n) in columns"
           :column="column"
           :row="row"
