@@ -1,5 +1,4 @@
 const { processUpload } = requireSrc(__filename);
-const knex = requireSrc(`${__dirname}/../db/connection`);
 const expect = require("chai").expect;
 const { makeUploadArgs } = require("./helpers");
 
@@ -18,6 +17,16 @@ describe("process-upload", () => {
         `Each subrecipient must have either an "identification number" or a "duns number"`
       );
       expect(err.row).to.equal(3);
+    });
+    it(`fails when there is no duns number and "city name" is missing.`, async () => {
+      const uploadArgs = makeUploadArgs(
+        `${dir}/EOHHS-075-06302020-missing_sub_city_name-v1.xlsx`
+      );
+      const result = await processUpload(uploadArgs);
+      const log = result.valog.getLog();
+      expect(log.length).to.equal(1);
+      expect(log[0].message).to.match(/Empty or invalid entry for city name/);
+      expect(log[0].row).to.equal(4);
     });
   });
 });
