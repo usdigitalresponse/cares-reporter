@@ -10,7 +10,7 @@ const getSubrecipientsHash = subrecipientDocuments => {
   );
 };
 
-const validateData = documents => {
+const validateData = (documents, fileParts) => {
   const valog = [];
   const groupedDocuments = _.groupBy(documents, "type");
   const subrecipientsHash = getSubrecipientsHash(groupedDocuments.subrecipient);
@@ -22,7 +22,8 @@ const validateData = documents => {
 
   const contractsValog = validateContracts(
     groupedDocuments.contracts,
-    subrecipientsHash
+    subrecipientsHash,
+    fileParts
   );
   valog.push(...contractsValog);
 
