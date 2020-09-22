@@ -47,7 +47,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   } = spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
   valog.append(docValog);
 
-  const dataValog = await validateData(spreadsheetDocuments);
+  const dataValog = await validateData(spreadsheetDocuments, fileParts);
   valog.append(dataValog);
 
   if (!valog.success()) {

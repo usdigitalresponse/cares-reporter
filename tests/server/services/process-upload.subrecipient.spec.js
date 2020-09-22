@@ -4,7 +4,7 @@ const { makeUploadArgs } = require("./helpers");
 
 const dirRoot = `${__dirname}/../fixtures/`;
 
-describe("process-upload", () => {
+describe("services/process-upload", () => {
   describe("subrecipients", () => {
     const dir = `${dirRoot}data-subrecipients/`;
     it("fails when missing both project_id and duns", async () => {
