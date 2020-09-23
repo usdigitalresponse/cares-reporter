@@ -16,7 +16,10 @@ describe("services/process_upload", () => {
         `${dir}EOHHS-075-06302020-simple-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
-      expect(result.valog.getLog()).to.be.empty;
+      expect(
+        result.valog.getLog(),
+        JSON.stringify(result.valog.getLog(), null, 2)
+      ).to.be.empty;
       return result;
     });
   });
