@@ -1,4 +1,5 @@
 const { ValidationItem } = require("../../lib/validation-log");
+const { subrecipientKey } = require("./helpers");
 
 const noDunsRequiredFields = [
   ["legal name", val => /\w/.test(val)],
@@ -14,8 +15,7 @@ const validateSubrecipients = (documents = []) => {
   const valog = [];
 
   documents.forEach(({ content }, row) => {
-    const key = content["identification number"] || content["duns number"];
-    if (!key) {
+    if (!subrecipientKey(content)) {
       valog.push(
         new ValidationItem({
           message: `Each subrecipient must have either an "identification number" or a "duns number"`,
@@ -25,6 +25,7 @@ const validateSubrecipients = (documents = []) => {
       );
     }
     if (!content["duns number"]) {
+      // Address and other fields that are required if no Duns.
       noDunsRequiredFields.forEach(([key, validator, message]) => {
         const val = content[key] || "";
         if (!validator(val)) {
