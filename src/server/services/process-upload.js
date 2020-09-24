@@ -28,7 +28,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   }
   let workbookXlsx;
   try {
-    workbookXlsx = xlsx.read(data);
+    workbookXlsx = xlsx.read(data, { type: "buffer" });
   } catch (e) {
     console.log("error", e);
     valog.append(`Can't parse xlsx file ${filename}`);
