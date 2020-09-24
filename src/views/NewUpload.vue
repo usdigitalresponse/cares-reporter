@@ -22,14 +22,31 @@
         </div>
       </form>
       <div class="mt-3 alert alert-danger" v-if="message">{{ message }}</div>
-      <div :key="n" v-for="(error, n) in errors">
-        <div class="mt-3 alert alert-danger">{{ error.message }}</div>
+      <div v-if="errors.length > 0">
+        <h4>Validation Errors</h4>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Tab</th>
+              <th>Row</th>
+              <th>Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :key="n" class="table-danger" v-for="(error, n) in errors">
+              <td>{{ titleize(error.tab) }}</td>
+              <td>{{ error.row }}</td>
+              <td>{{ error.message }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { titleize } from "../helpers/form-helpers";
 import _ from "lodash";
 export default {
   name: "NewUpload",
@@ -45,6 +62,7 @@ export default {
     }
   },
   methods: {
+    titleize,
     uploadFile: async function(e) {
       e.preventDefault();
       const file = _.get(this.$refs, "files.files[0]");
@@ -56,20 +74,7 @@ export default {
         try {
           const r = await this.$store.dispatch("createUpload", formData);
           if ((r.errors || []).length > 0) {
-            this.errors = r.errors.map(e => {
-              let message = e.message;
-              if (e.tab) {
-                message += ` (tab:${e.tab}`;
-                if (e.row) {
-                  message += ` row:${e.row}`;
-                }
-                if (e.col) {
-                  message += ` col:${e.col}`;
-                }
-                message += ")";
-              }
-              return { ...e, message };
-            });
+            this.errors = r.errors;
           } else {
             this.$router.push({ path: `/` });
           }
