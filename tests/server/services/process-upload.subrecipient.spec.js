@@ -24,7 +24,10 @@ describe("services/process-upload", () => {
       );
       const result = await processUpload(uploadArgs);
       const log = result.valog.getLog();
-      expect(log.length).to.equal(1);
+      expect(
+        log.length,
+        JSON.stringify(result.valog.getLog(), null, 2)
+      ).to.equal(1);
       expect(log[0].message).to.match(/Empty or invalid entry for city name/);
       expect(log[0].row).to.equal(4);
     });

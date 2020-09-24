@@ -1,4 +1,59 @@
 const { ValidationItem } = require("../../lib/validation-log");
+const { dropdownValues } = require("../get-template");
+const _ = require("lodash-checkit");
+
+// type pattern for this elements of the fields array is
+// [
+//   columnName: string,
+//   validator: (val: any, content: obj?) => bool,
+//   message: string?
+// ]
+const requiredFields = [
+  ["contract number", val => /\w/.test(val)],
+  [
+    "contract type",
+    val => dropdownValues["contract type"].includes(val.toLowerCase())
+  ],
+  ["contract amount", val => _.isNumber(val) && val > 0],
+  ["contract date", val => !_.isNaN(new Date(val).getTime())],
+  [
+    "period of performance start date",
+    val => !_.isNaN(new Date(val).getTime())
+  ],
+  ["period of performance end date", val => !_.isNaN(new Date(val).getTime())],
+  [
+    "contract date",
+    (val, content) =>
+      new Date(content["period of performance start date"]).getTime() <=
+      new Date(content["period of performance end date"]).getTime(),
+    "Performance end date can't be after the performance start date"
+  ],
+  [
+    "contract date",
+    (val, content) =>
+      new Date(val).getTime() <=
+      new Date(content["period of performance start date"]).getTime(),
+    "Contract date can't be after the performance start date"
+  ],
+  ["primary place of performance address line 1", val => /\w/.test(val)],
+  ["primary place of performance city name", val => /\w/.test(val)],
+  [
+    "primary place of performance state code",
+    (val, content) =>
+      content["primary place of performance country name"] !== "usa" ||
+      dropdownValues["state code"].includes(val.toLowerCase())
+  ],
+  [
+    "primary place of performance zip",
+    (val, content) =>
+      content["primary place of performance country name"] !== "usa" ||
+      /^\d{5}(-\d{4})?$/.test(val)
+  ],
+  [
+    "primary place of performance country name",
+    val => dropdownValues["country"].includes(val.toLowerCase())
+  ]
+];
 
 const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
   const valog = [];
@@ -25,6 +80,19 @@ const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
         })
       );
     }
+    requiredFields.forEach(([key, validator, message]) => {
+      const val = content[key] || "";
+      if (!validator(val, content)) {
+        valog.push(
+          new ValidationItem({
+            message:
+              (message || `Empty or invalid entry for ${key}:`) + ` "${val}"`,
+            tab: "contracts",
+            row: row + 2
+          })
+        );
+      }
+    });
   });
   return valog;
 };
