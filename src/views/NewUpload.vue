@@ -29,7 +29,6 @@
             <tr>
               <th>Tab</th>
               <th>Row</th>
-              <th>Column</th>
               <th>Error</th>
             </tr>
           </thead>
@@ -37,7 +36,6 @@
             <tr :key="n" class="table-danger" v-for="(error, n) in errors">
               <td>{{ titleize(error.tab) }}</td>
               <td>{{ error.row }}</td>
-              <td>{{ error.col }}</td>
               <td>{{ error.message }}</td>
             </tr>
           </tbody>
