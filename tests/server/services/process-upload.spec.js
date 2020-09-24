@@ -138,7 +138,10 @@ describe("services/process_upload", () => {
       const result2 = await processUpload(uploadArgs2);
 
       // Check the second upload
-      expect(result2.valog.getLog()).to.have.length(0);
+      expect(
+        result2.valog.getLog(),
+        JSON.stringify(result2.valog.getLog(), null, 2)
+      ).to.have.length(0);
       const beforeReplace = await knex("documents")
         .distinct("upload_id")
         .orderBy("upload_id");
