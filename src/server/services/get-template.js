@@ -4,7 +4,8 @@ const _ = require("lodash");
 const { sheetToJson, tabAliases } = require("../lib/spreadsheet");
 
 const template = xlsx.read(
-  fs.readFileSync(`${__dirname}/../data/${process.env.REPORTING_TEMPLATE}`)
+  fs.readFileSync(`${__dirname}/../data/${process.env.REPORTING_TEMPLATE}`),
+  { type: "buffer" }
 );
 
 const templateSheets = {};
