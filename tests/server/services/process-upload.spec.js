@@ -129,17 +129,19 @@ describe("services/process_upload", () => {
       expect(result1.valog.getLog()).to.have.length(0);
       expect(afterFirstUpload).to.deep.equal([{ upload_id: 1 }]);
 
-      // For the second upload just change the filename so that it looks
-      // like these are reports from a different department, rather than
+      // For the second upload use a file with similar content
+      // but a different cover page, rather than
       // a new version of the first report.
       const uploadArgs2 = makeUploadArgs(
-        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
+        `${dir}GOV-075-06302020-simple-v1.xlsx`
       );
-      uploadArgs2.filename = uploadArgs2.filename.replace(/^EOHHS/, "GOV");
       const result2 = await processUpload(uploadArgs2);
 
       // Check the second upload
-      expect(result2.valog.getLog()).to.have.length(0);
+      expect(
+        result2.valog.getLog(),
+        JSON.stringify(result2.valog.getLog(), null, 2)
+      ).to.have.length(0);
       const beforeReplace = await knex("documents")
         .distinct("upload_id")
         .orderBy("upload_id");
