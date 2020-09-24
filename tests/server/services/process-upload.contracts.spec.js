@@ -13,7 +13,7 @@ describe("services/process-upload", () => {
       );
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
-      expect(err.message).to.equal(
+      expect(err.message, `File ${uploadArgs.filename}`).to.equal(
         `Each contract row must have a "subrecipient id" which is included in the "subrecipient" tab`
       );
       expect(err.row).to.equal(3);
@@ -25,7 +25,7 @@ describe("services/process-upload", () => {
       );
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
-      expect(err.message).to.match(
+      expect(err.message, `File ${uploadArgs.filename}`).to.match(
         /contract's "project id" (.*) must match file name's "project id"/
       );
       expect(err.row).to.equal(4);
