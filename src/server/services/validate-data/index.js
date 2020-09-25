@@ -10,19 +10,19 @@ const validateData = (documents, fileParts) => {
   const subrecipientsHash = getSubrecipientsHash(groupedDocuments.subrecipient);
 
   const coverValog = validateCover(groupedDocuments.cover, fileParts);
-  valog.push(...coverValog);
+  valog.push(...coverValog.slice(0, 100));
 
   const subrecipientValog = validateSubrecipients(
     groupedDocuments.subrecipient
   );
-  valog.push(...subrecipientValog);
+  valog.push(...subrecipientValog.slice(0, 100));
 
   const contractsValog = validateContracts(
     groupedDocuments.contracts,
     subrecipientsHash,
     fileParts
   );
-  valog.push(...contractsValog);
+  valog.push(...contractsValog.slice(0, 100));
 
   return valog;
 };

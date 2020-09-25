@@ -70,7 +70,9 @@ const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
       );
     }
     const fileProjectId = fileParts.projectId.replace(/^0*/, "");
-    const tabProjectId = content["project id"].toString().replace(/^0*/, "");
+    const tabProjectId = (content["project id"] || "")
+      .toString()
+      .replace(/^0*/, "");
     if (tabProjectId !== fileProjectId) {
       valog.push(
         new ValidationItem({
