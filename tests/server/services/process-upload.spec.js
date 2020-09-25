@@ -35,12 +35,12 @@ describe("services/process_upload", () => {
       {
         label: "version number",
         file: "GOV-1020-06302020-missingVersion.xlsx",
-        expects: /Last part of filename must be a version number/
+        expects: /Filename is missing the version number/
       },
       {
         label: "report date",
         file: "GOV-1020-07302020-incorrectReportDate-v1.xlsx",
-        expects: /Third part of filename must match the reporting period end date/
+        expects: /The filename's reporting period end date .* does not match/
       },
       {
         label: "project id",
@@ -50,14 +50,14 @@ describe("services/process_upload", () => {
       {
         label: "agency code",
         file: "InvalidAgencyCode-013-06302020-v1.xlsx",
-        expects: /not a valid agency code/
+        expects: /The agency code ".*" in the filename is not valid/
       }
     ];
     filenameTests.forEach(ftest => {
       it(ftest.label, async () => {
         const uploadArgs = makeUploadArgs(dir + ftest.file);
         const result = await processUpload(uploadArgs);
-        expect(result.valog.getLog()[0].message).to.match(ftest.expects);
+        expect(result.valog.getLog()[1].message).to.match(ftest.expects);
       });
     });
 
