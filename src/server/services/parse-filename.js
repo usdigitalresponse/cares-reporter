@@ -28,7 +28,7 @@ const parseFilename = async filename => {
     if (result.length < 1) {
       valog.push(
         new ValidationItem({
-          message: `First part of file name "${agencyCode}" is not a valid agency code.`
+          message: `The agency code "${agencyCode}" in the filename is not valid.`
         })
       );
     }
@@ -51,7 +51,7 @@ const parseFilename = async filename => {
   if (reportingDate !== expectedEndReportDate) {
     valog.push(
       new ValidationItem({
-        message: `Third part of filename must match the reporting period end date (${expectedEndReportDate})`
+        message: `The filename's reporting period end date "${reportingDate}" does not match the current reporting period end date set up in the application "${expectedEndReportDate}"`
       })
     );
   }
@@ -61,13 +61,14 @@ const parseFilename = async filename => {
   if (!version) {
     valog.push(
       new ValidationItem({
-        message: `Last part of filename must be a version number (e.g. -v3)`
+        message: `Filename is missing the version number`
       })
     );
   }
 
   if (valog.length) {
-    valog.push(
+    // put this on the front of the error list
+    valog.unshift(
       new ValidationItem({
         message: `Uploaded file name must match pattern
       <agency abbrev>-<project id>-<reporting due date>-v<version number>.xlsx
