@@ -3,12 +3,14 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const history = require("connect-history-api-fallback");
+const morgan = require("morgan");
 const { resolve } = require("path");
 
 const publicPath = resolve(__dirname, "../../dist");
 const staticConf = { maxAge: "1y", etag: false };
 
 module.exports = app => {
+  app.use(morgan("common"));
   app.use(bodyParser.json());
   app.use(cookieParser(process.env.COOKIE_SECRET));
   app.use("/api/agencies", require("./routes/agencies"));
