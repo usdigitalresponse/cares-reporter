@@ -10,10 +10,10 @@ try {
     fs.readFileSync(`${__dirname}/../data/${process.env.REPORTING_TEMPLATE}`),
     { type: "buffer" }
   );
+  console.log("Template loaded");
 } catch (e) {
   console.log("Unable to load template:", e.message);
 }
-console.log(template);
 
 const templateSheets = {};
 _.keys(template.Sheets).forEach(tabName => {
