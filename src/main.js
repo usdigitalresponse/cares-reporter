@@ -10,6 +10,8 @@ fetch("/api/sessions")
   .then(data => {
     if (data && data.user) {
       store.dispatch("login", data.user);
+    } else {
+      store.dispatch("loadApplicationSettings");
     }
     new Vue({
       router,
