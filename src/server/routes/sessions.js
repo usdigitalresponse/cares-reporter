@@ -36,7 +36,11 @@ router.get("/logout", function(req, res) {
 });
 
 router.post("/", async function(req, res, next) {
-  const { email } = req.body;
+  if (!req.body.email) {
+    res.statusMessage = "No Email Address provided";
+    return res.sendStatus(400);
+  }
+  const email = req.body.email.toLowerCase();
   if (!_.isEmail(email)) {
     res.statusMessage = "Invalid Email Address";
     return res.sendStatus(400);
