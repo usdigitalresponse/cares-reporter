@@ -3,10 +3,17 @@ const xlsx = require("xlsx");
 const _ = require("lodash");
 const { sheetToJson, tabAliases } = require("../lib/spreadsheet");
 
-const template = xlsx.read(
-  fs.readFileSync(`${__dirname}/../data/${process.env.REPORTING_TEMPLATE}`),
-  { type: "buffer" }
-);
+let template = { Sheets: {} };
+console.log(`Loading REPORTING_TEMPLATE: ${process.env.REPORTING_TEMPLATE}`);
+try {
+  template = xlsx.read(
+    fs.readFileSync(`${__dirname}/../data/${process.env.REPORTING_TEMPLATE}`),
+    { type: "buffer" }
+  );
+} catch (e) {
+  console.log("Unable to load template:", e.message);
+}
+console.log(template);
 
 const templateSheets = {};
 _.keys(template.Sheets).forEach(tabName => {
