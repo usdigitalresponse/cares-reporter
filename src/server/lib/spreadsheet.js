@@ -14,12 +14,12 @@ function loadSpreadsheet(filename) {
 }
 
 const columnAliases = {
-  subrecipient: {
-    "duns number (hidden)": "duns number"
-  },
-  contracts: {
-    "subrecipient id (hidden)": "subrecipient id"
-  }
+  "duns number (hidden)": "duns number",
+  "subrecipient id (hidden)": "subrecipient id",
+  "subrecipient organization name": "subrecipient legal name",
+  "subrecipient organization (borrower)": "subrecipient legal name",
+  "subrecipient organization (transferee/government unit)":
+    "subrecipient legal name"
 };
 
 const tabAliases = {
@@ -33,7 +33,7 @@ function sheetToJson(sheetName, sheet) {
   });
   jsonSheet[0] = jsonSheet[0].map(colName => {
     const lowerCol = colName.toLowerCase().trim();
-    return (columnAliases[sheetName] || {})[lowerCol] || lowerCol;
+    return columnAliases[lowerCol] || lowerCol;
   });
   return jsonSheet;
 }
