@@ -16,10 +16,12 @@ function loadSpreadsheet(filename) {
 const columnAliases = {
   "duns number (hidden)": "duns number",
   "subrecipient id (hidden)": "subrecipient id",
+  "subrecipient organization": "subrecipient legal name",
   "subrecipient organization name": "subrecipient legal name",
   "subrecipient organization (borrower)": "subrecipient legal name",
   "subrecipient organization (transferee/government unit)":
-    "subrecipient legal name"
+    "subrecipient legal name",
+  "transfer amount": "award amount"
 };
 
 const tabAliases = {
