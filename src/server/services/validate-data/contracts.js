@@ -1,5 +1,6 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
+const { validateRequiredFields } = require("./validate-fields");
 const _ = require("lodash-checkit");
 
 // type pattern for this elements of the fields array is
@@ -56,7 +57,7 @@ const requiredFields = [
 ];
 
 const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
-  const valog = [];
+  let valog = [];
   const tabItem = "contract";
 
   documents.forEach(({ content }, row) => {
@@ -82,19 +83,7 @@ const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
         })
       );
     }
-    requiredFields.forEach(([key, validator, message]) => {
-      const val = content[key] || "";
-      if (!validator(val, content)) {
-        valog.push(
-          new ValidationItem({
-            message:
-              (message || `Empty or invalid entry for ${key}:`) + ` "${val}"`,
-            tab: "contracts",
-            row: row + 2
-          })
-        );
-      }
-    });
+    valog = valog.concat(validateRequiredFields(requiredFields, content, row + 2));
   });
   return valog;
 };
