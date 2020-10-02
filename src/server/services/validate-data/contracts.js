@@ -84,7 +84,7 @@ const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
       );
     }
     valog = valog.concat(
-      validateFields(requiredFields, content, row + 2)
+      validateFields(requiredFields, content, "contracts", row + 2)
     );
   });
   return valog;
