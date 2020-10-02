@@ -1,6 +1,6 @@
 const { ValidationItem } = require("../../lib/validation-log");
 
-function validateFields(requiredFields, content, row) {
+function validateFields(requiredFields, content, tab, row) {
   const valog = [];
   requiredFields.forEach(([key, validator, message]) => {
     const val = content[key] || "";
@@ -9,7 +9,7 @@ function validateFields(requiredFields, content, row) {
         new ValidationItem({
           message:
             (message || `Empty or invalid entry for ${key}:`) + ` "${val}"`,
-          tab: "contracts",
+          tab,
           row
         })
       );

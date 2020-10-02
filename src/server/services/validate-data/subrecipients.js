@@ -42,23 +42,13 @@ const validateSubrecipients = (documents = []) => {
       );
     }
     valog = valog.concat(
-      validateFields(requiredFields, content, row + 2)
+      validateFields(requiredFields, content, "subrecipient", row + 2)
     );
     if (!content["duns number"]) {
       // Address and other fields that are required if no Duns.
-      noDunsRequiredFields.forEach(([key, validator, message]) => {
-        const val = content[key] || "";
-        if (!validator(val, content)) {
-          valog.push(
-            new ValidationItem({
-              message:
-                (message || `Empty or invalid entry for ${key}:`) + ` "${val}"`,
-              tab: "subrecipient",
-              row: row + 2
-            })
-          );
-        }
-      });
+      valog = valog.concat(
+        validateFields(noDunsRequiredFields, content, "subrecipient", row + 2)
+      );
     }
   });
   return valog;
