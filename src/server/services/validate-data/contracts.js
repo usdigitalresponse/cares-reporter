@@ -1,6 +1,6 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
-const { validateRequiredFields } = require("./validate-fields");
+const { validateFields } = require("./validate-fields");
 const _ = require("lodash-checkit");
 
 // type pattern for this elements of the fields array is
@@ -83,7 +83,9 @@ const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
         })
       );
     }
-    valog = valog.concat(validateRequiredFields(requiredFields, content, row + 2));
+    valog = valog.concat(
+      validateFields(requiredFields, content, row + 2)
+    );
   });
   return valog;
 };
