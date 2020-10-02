@@ -1,6 +1,7 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { subrecipientKey } = require("./helpers");
 const { dropdownValues } = require("../get-template");
+const { validateRequiredFields } = require("./validate-fields");
 
 const requiredFields = [
   ["legal name", val => /\w/.test(val)],
@@ -28,7 +29,7 @@ const noDunsRequiredFields = [
 ];
 
 const validateSubrecipients = (documents = []) => {
-  const valog = [];
+  let valog = [];
 
   documents.forEach(({ content }, row) => {
     if (!subrecipientKey(content)) {
@@ -40,19 +41,7 @@ const validateSubrecipients = (documents = []) => {
         })
       );
     }
-    requiredFields.forEach(([key, validator, message]) => {
-      const val = content[key] || "";
-      if (!validator(val, content)) {
-        valog.push(
-          new ValidationItem({
-            message:
-              (message || `Empty or invalid entry for ${key}:`) + ` "${val}"`,
-            tab: "subrecipient",
-            row: row + 2
-          })
-        );
-      }
-    });
+    valog = valog.concat(validateRequiredFields(requiredFields, content, row + 2));
     if (!content["duns number"]) {
       // Address and other fields that are required if no Duns.
       noDunsRequiredFields.forEach(([key, validator, message]) => {
