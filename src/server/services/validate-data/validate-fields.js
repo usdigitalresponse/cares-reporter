@@ -1,6 +1,6 @@
 const { ValidationItem } = require("../../lib/validation-log");
 
-function validateRequiredFields(requiredFields, content, row) {
+function validateFields(requiredFields, content, row) {
   const valog = [];
   requiredFields.forEach(([key, validator, message]) => {
     const val = content[key] || "";
@@ -19,5 +19,5 @@ function validateRequiredFields(requiredFields, content, row) {
 }
 
 module.exports = {
-  validateRequiredFields
-}
+  validateFields
+};

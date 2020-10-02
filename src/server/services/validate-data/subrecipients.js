@@ -1,7 +1,7 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { subrecipientKey } = require("./helpers");
 const { dropdownValues } = require("../get-template");
-const { validateRequiredFields } = require("./validate-fields");
+const { validateFields } = require("./validate-fields");
 
 const requiredFields = [
   ["legal name", val => /\w/.test(val)],
@@ -41,7 +41,9 @@ const validateSubrecipients = (documents = []) => {
         })
       );
     }
-    valog = valog.concat(validateRequiredFields(requiredFields, content, row + 2));
+    valog = valog.concat(
+      validateFields(requiredFields, content, row + 2)
+    );
     if (!content["duns number"]) {
       // Address and other fields that are required if no Duns.
       noDunsRequiredFields.forEach(([key, validator, message]) => {
