@@ -22,7 +22,7 @@ function isPositiveNumber(val) {
 }
 
 function isValidDate(val) {
-  return val => !_.isNaN(new Date(val).getTime());
+  return !_.isNaN(new Date(val).getTime());
 }
 
 function isValidState(val, content) {
