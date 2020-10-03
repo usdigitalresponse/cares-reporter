@@ -1,6 +1,7 @@
 const _ = require("lodash");
 const validateSubrecipients = require("./subrecipients");
 const validateContracts = require("./contracts");
+const validateGrants = require("./grants");
 const validateCover = require("./cover");
 const { getSubrecipientsHash } = require("./helpers");
 
@@ -23,6 +24,13 @@ const validateData = (documents, fileParts) => {
     fileParts
   );
   valog.push(...contractsValog.slice(0, 100));
+
+  const grantsValog = validateGrants(
+    groupedDocuments.grants,
+    subrecipientsHash,
+    fileParts
+  );
+  valog.push(...grantsValog.slice(0, 100));
 
   return valog;
 };
