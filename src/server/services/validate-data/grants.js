@@ -7,6 +7,7 @@ const {
   isValidDate,
   isValidState,
   isValidZip,
+  matchesFilePart,
   validateFields
 } = require("./validate-fields");
 
@@ -39,7 +40,12 @@ const requiredFields = [
   ["current quarter obligation", isNumber],
   ["expenditure start date", isValidDate],
   ["expenditure start date", isValidDate],
-  ["total expenditure amount", isNumber]
+  ["total expenditure amount", isNumber],
+  [
+    "project id",
+    matchesFilePart("projectId"),
+    `grant's "project id" must match file name's "project id"`
+  ]
 ];
 
 const validateGrants = (documents = [], subrecipientsHash, fileParts) => {
@@ -56,21 +62,8 @@ const validateGrants = (documents = [], subrecipientsHash, fileParts) => {
         })
       );
     }
-    const fileProjectId = fileParts.projectId.replace(/^0*/, "");
-    const tabProjectId = (content["project id"] || "")
-      .toString()
-      .replace(/^0*/, "");
-    if (tabProjectId !== fileProjectId) {
-      valog.push(
-        new ValidationItem({
-          message: `${tabItem}'s "project id" (${tabProjectId}) must match file name's "project id" (${fileProjectId})`,
-          tab: tabItem,
-          row: row + 2
-        })
-      );
-    }
     valog = valog.concat(
-      validateFields(requiredFields, content, tabItem, row + 2)
+      validateFields(requiredFields, content, tabItem, row + 2, fileParts)
     );
   });
   return valog;
