@@ -8,7 +8,7 @@ const {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
-  validateFields
+  validateDocuments
 } = require("./validate-fields");
 
 // type pattern for this elements of the fields array is
@@ -54,19 +54,11 @@ const requiredFields = [
 ];
 
 const validateGrants = (documents = [], subrecipientsHash, fileParts) => {
-  let valog = [];
-  const tabItem = "grants";
   const validateContext = {
     fileParts,
     subrecipientsHash
   };
-
-  documents.forEach(({ content }, row) => {
-    valog = valog.concat(
-      validateFields(requiredFields, content, tabItem, row + 2, validateContext)
-    );
-  });
-  return valog;
+  return validateDocuments(documents, "grants", requiredFields, validateContext);
 };
 
 module.exports = validateGrants;
