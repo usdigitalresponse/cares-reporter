@@ -1,7 +1,14 @@
 const { ValidationItem } = require("../../lib/validation-log");
-const { dropdownValues } = require("../get-template");
-const { validateFields } = require("./validate-fields");
-const _ = require("lodash-checkit");
+const {
+  dropdownIncludes,
+  isNotBlank,
+  isNumber,
+  isPositiveNumber,
+  isValidDate,
+  isValidState,
+  isValidZip,
+  validateFields
+} = require("./validate-fields");
 
 // type pattern for this elements of the fields array is
 // [
@@ -10,18 +17,12 @@ const _ = require("lodash-checkit");
 //   message: string?
 // ]
 const requiredFields = [
-  ["award number", val => /\w/.test(val)],
-  [
-    "award payment method",
-    val => dropdownValues["award payment method"].includes(val.toLowerCase())
-  ],
-  ["award amount", val => _.isNumber(val) && val > 0],
-  ["award date", val => !_.isNaN(new Date(val).getTime())],
-  [
-    "period of performance start date",
-    val => !_.isNaN(new Date(val).getTime())
-  ],
-  ["period of performance end date", val => !_.isNaN(new Date(val).getTime())],
+  ["award number", isNotBlank],
+  ["award payment method", dropdownIncludes("award payment method")],
+  ["award amount", isPositiveNumber],
+  ["award date", isValidDate],
+  ["period of performance start date", isValidDate],
+  ["period of performance end date", isValidDate],
   [
     "award date",
     (val, content) =>
@@ -29,32 +30,16 @@ const requiredFields = [
       new Date(content["period of performance end date"]).getTime(),
     "Performance end date can't be after the performance start date"
   ],
-  ["primary place of performance address line 1", val => /\w/.test(val)],
-  ["primary place of performance city name", val => /\w/.test(val)],
-  [
-    "primary place of performance state code",
-    (val, content) =>
-      content["primary place of performance country name"] !== "usa" ||
-      dropdownValues["state code"].includes(val.toLowerCase())
-  ],
-  [
-    "primary place of performance zip",
-    (val, content) =>
-      content["primary place of performance country name"] !== "usa" ||
-      /^\d{5}(-\d{4})?$/.test(val)
-  ],
-  [
-    "primary place of performance country name",
-    val => dropdownValues["country"].includes(val.toLowerCase())
-  ],
-  [
-    "compliance",
-    val => dropdownValues["compliance"].includes(val.toLowerCase())
-  ],
-  ["current quarter obligation", val => _.isNumber(val)],
-  ["expenditure start date", val => !_.isNaN(new Date(val).getTime())],
-  ["expenditure start date", val => !_.isNaN(new Date(val).getTime())],
-  ["total expenditure amount", val => _.isNumber(val)]
+  ["primary place of performance address line 1", isNotBlank],
+  ["primary place of performance city name", isNotBlank],
+  ["primary place of performance state code", isValidState],
+  ["primary place of performance zip", isValidZip],
+  ["primary place of performance country name", dropdownIncludes("country")],
+  ["compliance", dropdownIncludes("compliance")],
+  ["current quarter obligation", isNumber],
+  ["expenditure start date", isValidDate],
+  ["expenditure start date", isValidDate],
+  ["total expenditure amount", isNumber]
 ];
 
 const validateGrants = (documents = [], subrecipientsHash, fileParts) => {

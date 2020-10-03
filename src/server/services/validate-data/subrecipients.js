@@ -1,31 +1,24 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { subrecipientKey } = require("./helpers");
-const { dropdownValues } = require("../get-template");
-const { validateFields } = require("./validate-fields");
+const {
+  dropdownIncludes,
+  isNotBlank,
+  isValidState,
+  isValidZip,
+  validateFields
+} = require("./validate-fields");
 
 const requiredFields = [
-  ["legal name", val => /\w/.test(val)],
-  [
-    "organization type",
-    val => dropdownValues["organization type"].includes(val.toLowerCase())
-  ]
+  ["legal name", isNotBlank],
+  ["organization type", dropdownIncludes("organization type")]
 ];
 
 const noDunsRequiredFields = [
-  ["address line 1", val => /\w/.test(val)],
-  ["city name", val => /\w/.test(val)],
-  [
-    "state code",
-    (val, content) =>
-      content["country name"] !== "usa" ||
-      dropdownValues["state code"].includes(val.toLowerCase())
-  ],
-  [
-    "zip",
-    (val, content) =>
-      content["country name"] !== "usa" || /^\d{5}(-\d{4})?$/.test(val)
-  ],
-  ["country name", val => dropdownValues["country"].includes(val.toLowerCase())]
+  ["address line 1", isNotBlank],
+  ["city name", isNotBlank],
+  ["state code", isValidState],
+  ["zip", isValidZip],
+  ["country name", dropdownIncludes("country")]
 ];
 
 const validateSubrecipients = (documents = []) => {
