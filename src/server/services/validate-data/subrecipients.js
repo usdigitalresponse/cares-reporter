@@ -1,6 +1,5 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { subrecipientKey } = require("./helpers");
-const { dropdownValues } = require("../get-template");
 const {
   dropdownIncludes,
   isNotBlank,

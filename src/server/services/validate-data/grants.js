@@ -1,5 +1,4 @@
 const { ValidationItem } = require("../../lib/validation-log");
-const { dropdownValues } = require("../get-template");
 const {
   dropdownIncludes,
   isNotBlank,
@@ -10,7 +9,6 @@ const {
   isValidZip,
   validateFields
 } = require("./validate-fields");
-const _ = require("lodash-checkit");
 
 // type pattern for this elements of the fields array is
 // [
