@@ -1,7 +1,7 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
 const {
-  dateIsBefore,
+  dateIsOnOrBefore,
   dropdownIncludes,
   isNotBlank,
   isPositiveNumber,
@@ -26,15 +26,13 @@ const requiredFields = [
   ["period of performance start date",isValidDate],
   ["period of performance end date", isValidDate],
   [
-    "contract date",
-    (val, content) =>
-      new Date(content["period of performance start date"]).getTime() <=
-      new Date(content["period of performance end date"]).getTime(),
-    "Performance end date can't be after the performance start date"
+    "period of performance start date",
+    dateIsOnOrBefore("period of performance end date"),
+    "Performance end date can't be before the performance start date"
   ],
   [
     "contract date",
-    dateIsBefore("period of performance start date"),
+    dateIsOnOrBefore("period of performance start date"),
     "Contract date can't be after the performance start date"
   ],
   ["primary place of performance address line 1", isNotBlank],

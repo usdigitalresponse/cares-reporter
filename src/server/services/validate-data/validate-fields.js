@@ -2,7 +2,7 @@ const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
 const _ = require('lodash');
 
-function dateIsBefore(key) {
+function dateIsOnOrBefore(key) {
   return (val, content) => {
     return new Date(val).getTime() <=
       new Date(content[key]).getTime()
@@ -58,7 +58,7 @@ function validateFields(requiredFields, content, tab, row) {
 }
 
 module.exports = {
-  dateIsBefore,
+  dateIsOnOrBefore,
   dropdownIncludes,
   isNotBlank,
   isNumber,
