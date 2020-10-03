@@ -26,7 +26,7 @@ const validateData = (documents, fileParts) => {
   valog.push(...contractsValog.slice(0, 100));
 
   const grantsValog = validateGrants(
-    groupedDocuments.contracts,
+    groupedDocuments.grants,
     subrecipientsHash,
     fileParts
   );
