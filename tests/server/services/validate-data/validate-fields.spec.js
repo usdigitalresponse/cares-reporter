@@ -5,7 +5,8 @@ const {
   isValidDate,
   isValidSubrecipient,
   matchesFilePart,
-  validateFields
+  validateFields,
+  validateDocuments
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
@@ -82,5 +83,22 @@ describe("validateFields", () => {
     expect(r[1].info.message).to.equal('Description is required ""');
     expect(r[1].info.tab).to.equal("Test");
     expect(r[1].info.row).to.equal(5);
+  });
+});
+
+describe("validateDocuments", () => {
+  const documents = [
+    { content: { name: "George" }},
+    { content: { name: "John" }},
+    { content: { name: "Thomas" }},
+    { content: { name: "James" }},
+    { content: { name: "" }}
+  ];
+  const requiredFields = [
+    ["name", isNotBlank ]
+  ];
+  it('can validate a collection of documents', () => {
+    const log = validateDocuments(documents, "test", requiredFields, {});
+    expect(log).to.have.length(1);
   });
 });

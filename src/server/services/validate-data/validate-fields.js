@@ -73,6 +73,16 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
   return valog;
 }
 
+function validateDocuments(documents, tab, requiredFields, validateContext) {
+  let valog = [];
+  documents.forEach(({ content }, row) => {
+    valog = valog.concat(
+      validateFields(requiredFields, content, tab, row + 2, validateContext)
+    );
+  });
+  return valog;
+}
+
 module.exports = {
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -84,5 +94,6 @@ module.exports = {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
+  validateDocuments,
   validateFields
 };
