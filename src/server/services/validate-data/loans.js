@@ -35,8 +35,12 @@ const requiredFields = [
 ];
 
 const validateLoans = (documents = [], subrecipientsHash, fileParts) => {
-  let valog = [];
   const tabItem = "loans";
+  const validateContext = {
+    fileParts,
+    subrecipientsHash
+  };
+  let valog = [];
 
   documents.forEach(({ content }, row) => {
     if (!subrecipientsHash[content["subrecipient id"]]) {
@@ -49,7 +53,7 @@ const validateLoans = (documents = [], subrecipientsHash, fileParts) => {
       );
     }
     valog = valog.concat(
-      validateFields(requiredFields, content, tabItem, row + 2, fileParts)
+      validateFields(requiredFields, content, tabItem, row + 2, validateContext)
     );
   });
   return valog;

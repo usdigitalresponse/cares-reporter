@@ -20,12 +20,12 @@ describe("validation helpers", () => {
     ["invalid date", isValidDate("2020-15-99"), false],
     [
       "file part matches",
-      matchesFilePart("projectId")("DOH", {}, { projectId: "DOH" }),
+      matchesFilePart("projectId")("DOH", {}, { fileParts: { projectId: "DOH" }}),
       true
     ],
     [
       "file part does not match",
-      matchesFilePart("projectId")("OMB", {}, { projectId: "DOH" }),
+      matchesFilePart("projectId")("OMB", {}, { fileParts: { projectId: "DOH" }}),
       false
     ]
   ];
