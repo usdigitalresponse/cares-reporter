@@ -32,7 +32,10 @@ const requiredFields = [
 const validateTransfers = (documents = [], subrecipientsHash, fileParts) => {
   let valog = [];
   const tabItem = "transfers";
-
+  const validateContext = {
+    fileParts,
+    subrecipientsHash
+  };
   documents.forEach(({ content }, row) => {
     if (!subrecipientsHash[content["subrecipient id"]]) {
       valog.push(
@@ -44,7 +47,7 @@ const validateTransfers = (documents = [], subrecipientsHash, fileParts) => {
       );
     }
     valog = valog.concat(
-      validateFields(requiredFields, content, tabItem, row + 2, fileParts)
+      validateFields(requiredFields, content, tabItem, row, validateContext)
     );
   });
   return valog;

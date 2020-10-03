@@ -48,6 +48,10 @@ const requiredFields = [
 
 const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
   const tabItem = "contract";
+  const validateContext = {
+    fileParts,
+    subrecipientsHash
+  };
   let valog = [];
   documents.forEach(({ content }, row) => {
     if (!subrecipientsHash[content["subrecipient id"]]) {
@@ -60,7 +64,7 @@ const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
       );
     }
     valog = valog.concat(
-      validateFields(requiredFields, content, "contracts", row + 2, fileParts)
+      validateFields(requiredFields, content, "contracts", row + 2, validateContext)
     );
   });
   return valog;

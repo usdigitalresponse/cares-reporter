@@ -39,7 +39,7 @@ function isValidZip(val, content) {
 }
 
 function matchesFilePart(key) {
-  return function(val, content, fileParts) {
+  return function(val, content, { fileParts }) {
     const fileValue = fileParts[key].replace(/^0*/, "");
     const documentValue = (val || "").toString().replace(/^0*/, "");
     return documentValue === fileValue;
@@ -50,11 +50,11 @@ function dropdownIncludes(key) {
   return val => _.get(dropdownValues, key, []).includes(val.toLowerCase());
 }
 
-function validateFields(requiredFields, content, tab, row, fileParts = {}) {
+function validateFields(requiredFields, content, tab, row, context = {}) {
   const valog = [];
   requiredFields.forEach(([key, validator, message]) => {
     const val = content[key] || "";
-    if (!validator(val, content, fileParts)) {
+    if (!validator(val, content, context)) {
       valog.push(
         new ValidationItem({
           message:
