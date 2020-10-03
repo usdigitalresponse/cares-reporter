@@ -3,23 +3,34 @@ const {
   isNumber,
   isPositiveNumber,
   isValidDate,
+  matchesFilePart,
   validateFields
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
 describe("validation helpers", () => {
   const testCases = [
-    [isNotBlank(""), false],
-    [isNotBlank("Test"), true],
-    [isNumber(1), true],
-    [isNumber("Test"), false],
-    [isPositiveNumber(100), true],
-    [isPositiveNumber(-100), false],
-    [isValidDate("2020-10-03"), true],
-    [isValidDate("2020-15-99"), false]
+    ["blank string", isNotBlank(""), false],
+    ["non blank string", isNotBlank("Test"), true],
+    ["number", isNumber(1), true],
+    ["non number", isNumber("Test"), false],
+    ["positive number", isPositiveNumber(100), true],
+    ["non positive number", isPositiveNumber(-100), false],
+    ["valid date", isValidDate("2020-10-03"), true],
+    ["invalid date", isValidDate("2020-15-99"), false],
+    [
+      "file part matches",
+      matchesFilePart("projectId")("DOH", {}, { projectId: "DOH" }),
+      true
+    ],
+    [
+      "file part does not match",
+      matchesFilePart("projectId")("OMB", {}, { projectId: "DOH" }),
+      false
+    ]
   ];
-  testCases.forEach(([b, expectedResult]) => {
-    it(`should return ${expectedResult}`, () => {
+  testCases.forEach(([name, b, expectedResult]) => {
+    it(`${name} should return ${expectedResult}`, () => {
       expect(b).to.equal(expectedResult);
     });
   });
