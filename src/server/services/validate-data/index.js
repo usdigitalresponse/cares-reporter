@@ -30,7 +30,7 @@ const validateData = (documents, fileParts) => {
     subrecipientsHash,
     fileParts
   );
-  //valog.push(...grantsValog.slice(0, 100));
+  valog.push(...grantsValog.slice(0, 100));
 
   return valog;
 };
