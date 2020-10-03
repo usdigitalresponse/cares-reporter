@@ -1,4 +1,3 @@
-const { ValidationItem } = require("../../lib/validation-log");
 const {
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -6,6 +5,7 @@ const {
   isPositiveNumber,
   isValidDate,
   isValidState,
+  isValidSubrecipient,
   isValidZip,
   matchesFilePart,
   validateFields
@@ -43,28 +43,24 @@ const requiredFields = [
     "project id",
     matchesFilePart("projectId"),
     `contract's "project id" must match file name's "project id"`
+  ],
+  [
+    "subrecipient id",
+    isValidSubrecipient,
+    'Each contract row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ]
 ];
 
 const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
-  const tabItem = "contract";
+  const tabItem = "contracts";
   const validateContext = {
     fileParts,
     subrecipientsHash
   };
   let valog = [];
   documents.forEach(({ content }, row) => {
-    if (!subrecipientsHash[content["subrecipient id"]]) {
-      valog.push(
-        new ValidationItem({
-          message: `Each ${tabItem} row must have a "subrecipient id" which is included in the "subrecipient" tab`,
-          tab: "contracts",
-          row: row + 2
-        })
-      );
-    }
     valog = valog.concat(
-      validateFields(requiredFields, content, "contracts", row + 2, validateContext)
+      validateFields(requiredFields, content, tabItem, row + 2, validateContext)
     );
   });
   return valog;
