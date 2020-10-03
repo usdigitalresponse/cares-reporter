@@ -21,7 +21,14 @@ const columnAliases = {
   "subrecipient organization (borrower)": "subrecipient legal name",
   "subrecipient organization (transferee/government unit)":
     "subrecipient legal name",
-  "transfer amount": "award amount"
+  "transfer amount": "award amount",
+  "is awardee complying with terms and conditions of the grant?": "compliance",
+  "awardee primary place of performance address line 1":
+    "primary place of performance address line 1",
+  "awardee primary place of performance address line 2":
+    "primary place of performance address line 2",
+  "awardee primary place of performance address line 3":
+    "primary place of performance address line 3"
 };
 
 const tabAliases = {
