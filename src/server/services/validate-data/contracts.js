@@ -7,6 +7,7 @@ const {
   isValidDate,
   isValidState,
   isValidZip,
+  matchesFilePart,
   validateFields
 } = require("./validate-fields");
 
@@ -37,13 +38,17 @@ const requiredFields = [
   ["primary place of performance city name", isNotBlank],
   ["primary place of performance state code", isValidState],
   ["primary place of performance zip", isValidZip],
-  ["primary place of performance country name", dropdownIncludes("country")]
+  ["primary place of performance country name", dropdownIncludes("country")],
+  [
+    "project id",
+    matchesFilePart("projectId"),
+    `contract's "project id" must match file name's "project id"`
+  ]
 ];
 
 const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
-  let valog = [];
   const tabItem = "contract";
-
+  let valog = [];
   documents.forEach(({ content }, row) => {
     if (!subrecipientsHash[content["subrecipient id"]]) {
       valog.push(
@@ -54,21 +59,8 @@ const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
         })
       );
     }
-    const fileProjectId = fileParts.projectId.replace(/^0*/, "");
-    const tabProjectId = (content["project id"] || "")
-      .toString()
-      .replace(/^0*/, "");
-    if (tabProjectId !== fileProjectId) {
-      valog.push(
-        new ValidationItem({
-          message: `${tabItem}'s "project id" (${tabProjectId}) must match file name's "project id" (${fileProjectId})`,
-          tab: "contracts",
-          row: row + 2
-        })
-      );
-    }
     valog = valog.concat(
-      validateFields(requiredFields, content, "contracts", row + 2)
+      validateFields(requiredFields, content, "contracts", row + 2, fileParts)
     );
   });
   return valog;
