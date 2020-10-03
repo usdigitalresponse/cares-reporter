@@ -1,9 +1,9 @@
-const { ValidationItem } = require("../../lib/validation-log");
 const {
   isNotBlank,
   isNumber,
   isPositiveNumber,
   isValidDate,
+  isValidSubrecipient,
   matchesFilePart,
   validateFields
 } = require("./validate-fields");
@@ -26,6 +26,11 @@ const requiredFields = [
     "project id",
     matchesFilePart("projectId"),
     `loan's "project id" must match file name's "project id"`
+  ],
+  [
+    "subrecipient id",
+    isValidSubrecipient,
+    'Each transfer row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ]
 ];
 
@@ -37,15 +42,6 @@ const validateTransfers = (documents = [], subrecipientsHash, fileParts) => {
     subrecipientsHash
   };
   documents.forEach(({ content }, row) => {
-    if (!subrecipientsHash[content["subrecipient id"]]) {
-      valog.push(
-        new ValidationItem({
-          message: `Each ${tabItem} row must have a "subrecipient id" which is included in the "subrecipient" tab`,
-          tab: tabItem,
-          row: row + 2
-        })
-      );
-    }
     valog = valog.concat(
       validateFields(requiredFields, content, tabItem, row, validateContext)
     );

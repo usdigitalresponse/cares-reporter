@@ -1,4 +1,3 @@
-const { ValidationItem } = require("../../lib/validation-log");
 const {
   dropdownIncludes,
   isNotBlank,
@@ -6,6 +5,7 @@ const {
   isPositiveNumber,
   isValidDate,
   isValidState,
+  isValidSubrecipient,
   isValidZip,
   matchesFilePart,
   validateFields
@@ -45,6 +45,11 @@ const requiredFields = [
     "project id",
     matchesFilePart("projectId"),
     `grant's "project id" must match file name's "project id"`
+  ],
+  [
+    "subrecipient id",
+    isValidSubrecipient,
+    'Each grant row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ]
 ];
 
@@ -57,15 +62,6 @@ const validateGrants = (documents = [], subrecipientsHash, fileParts) => {
   };
 
   documents.forEach(({ content }, row) => {
-    if (!subrecipientsHash[content["subrecipient id"]]) {
-      valog.push(
-        new ValidationItem({
-          message: `Each ${tabItem} row must have a "subrecipient id" which is included in the "subrecipient" tab`,
-          tab: tabItem,
-          row: row + 2
-        })
-      );
-    }
     valog = valog.concat(
       validateFields(requiredFields, content, tabItem, row + 2, validateContext)
     );

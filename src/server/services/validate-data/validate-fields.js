@@ -24,6 +24,11 @@ function isValidDate(val) {
   return !_.isNaN(new Date(val).getTime());
 }
 
+function isValidSubrecipient(val, content, context) {
+  const { subrecipientsHash } = context;
+  return _.has(subrecipientsHash, val);
+}
+
 function isValidState(val, content) {
   return (
     content["primary place of performance country name"] !== "usa" ||
@@ -76,6 +81,7 @@ module.exports = {
   isPositiveNumber,
   isValidDate,
   isValidState,
+  isValidSubrecipient,
   isValidZip,
   matchesFilePart,
   validateFields

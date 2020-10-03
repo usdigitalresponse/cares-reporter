@@ -3,12 +3,23 @@ const {
   isNumber,
   isPositiveNumber,
   isValidDate,
+  isValidSubrecipient,
   matchesFilePart,
   validateFields
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
 describe("validation helpers", () => {
+  const validateContext = {
+    fileParts: {
+      projectId: "DOH"
+    },
+    subrecipientsHash: {
+      "1010": {
+        name: "Payee"
+      }
+    }
+  };
   const testCases = [
     ["blank string", isNotBlank(""), false],
     ["non blank string", isNotBlank("Test"), true],
@@ -20,12 +31,22 @@ describe("validation helpers", () => {
     ["invalid date", isValidDate("2020-15-99"), false],
     [
       "file part matches",
-      matchesFilePart("projectId")("DOH", {}, { fileParts: { projectId: "DOH" }}),
+      matchesFilePart("projectId")("DOH", {}, validateContext),
       true
     ],
     [
       "file part does not match",
-      matchesFilePart("projectId")("OMB", {}, { fileParts: { projectId: "DOH" }}),
+      matchesFilePart("projectId")("OMB", {}, validateContext),
+      false
+    ],
+    [
+      "valid subrecipient",
+      isValidSubrecipient("1010", {}, validateContext),
+      true
+    ],
+    [
+      "invalid subrecipient",
+      isValidSubrecipient("1020", {}, validateContext),
       false
     ]
   ];
