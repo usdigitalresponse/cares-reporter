@@ -1,5 +1,4 @@
 const { ValidationItem } = require("../../lib/validation-log");
-const { dropdownValues } = require("../get-template");
 const {
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -10,7 +9,6 @@ const {
   isValidZip,
   validateFields
 } = require("./validate-fields");
-const _ = require("lodash-checkit");
 
 // type pattern for this elements of the fields array is
 // [
@@ -19,11 +17,11 @@ const _ = require("lodash-checkit");
 //   message: string?
 // ]
 const requiredFields = [
-  ["contract number", isNotBlank ],
+  ["contract number", isNotBlank],
   ["contract type", dropdownIncludes("contract type")],
   ["contract amount", isPositiveNumber],
-  ["contract date", isValidDate ],
-  ["period of performance start date",isValidDate],
+  ["contract date", isValidDate],
+  ["period of performance start date", isValidDate],
   ["period of performance end date", isValidDate],
   [
     "period of performance start date",

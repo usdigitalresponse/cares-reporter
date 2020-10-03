@@ -1,11 +1,10 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
-const _ = require('lodash');
+const _ = require("lodash");
 
 function dateIsOnOrBefore(key) {
   return (val, content) => {
-    return new Date(val).getTime() <=
-      new Date(content[key]).getTime()
+    return new Date(val).getTime() <= new Date(content[key]).getTime();
   };
 }
 
@@ -26,17 +25,21 @@ function isValidDate(val) {
 }
 
 function isValidState(val, content) {
-  return content["primary place of performance country name"] !== "usa" ||
-      dropdownIncludes("state code")(val);
+  return (
+    content["primary place of performance country name"] !== "usa" ||
+    dropdownIncludes("state code")(val)
+  );
 }
 
 function isValidZip(val, content) {
-  return content["primary place of performance country name"] !== "usa" ||
-    /^\d{5}(-\d{4})?$/.test(val);
+  return (
+    content["primary place of performance country name"] !== "usa" ||
+    /^\d{5}(-\d{4})?$/.test(val)
+  );
 }
 
 function dropdownIncludes(key) {
-  return (val) =>  _.get(dropdownValues, key, []).includes(val.toLowerCase());
+  return val => _.get(dropdownValues, key, []).includes(val.toLowerCase());
 }
 
 function validateFields(requiredFields, content, tab, row) {
