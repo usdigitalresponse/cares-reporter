@@ -1,6 +1,15 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
-const { validateFields } = require("./validate-fields");
+const {
+  dateIsBefore,
+  dropdownIncludes,
+  isNotBlank,
+  isPositiveNumber,
+  isValidDate,
+  isValidState,
+  isValidZip,
+  validateFields
+} = require("./validate-fields");
 const _ = require("lodash-checkit");
 
 // type pattern for this elements of the fields array is
@@ -10,18 +19,12 @@ const _ = require("lodash-checkit");
 //   message: string?
 // ]
 const requiredFields = [
-  ["contract number", val => /\w/.test(val)],
-  [
-    "contract type",
-    val => dropdownValues["contract type"].includes(val.toLowerCase())
-  ],
-  ["contract amount", val => _.isNumber(val) && val > 0],
-  ["contract date", val => !_.isNaN(new Date(val).getTime())],
-  [
-    "period of performance start date",
-    val => !_.isNaN(new Date(val).getTime())
-  ],
-  ["period of performance end date", val => !_.isNaN(new Date(val).getTime())],
+  ["contract number", isNotBlank ],
+  ["contract type", dropdownIncludes("contract type")],
+  ["contract amount", isPositiveNumber],
+  ["contract date", isValidDate ],
+  ["period of performance start date",isValidDate],
+  ["period of performance end date", isValidDate],
   [
     "contract date",
     (val, content) =>
@@ -31,29 +34,14 @@ const requiredFields = [
   ],
   [
     "contract date",
-    (val, content) =>
-      new Date(val).getTime() <=
-      new Date(content["period of performance start date"]).getTime(),
+    dateIsBefore("period of performance start date"),
     "Contract date can't be after the performance start date"
   ],
-  ["primary place of performance address line 1", val => /\w/.test(val)],
-  ["primary place of performance city name", val => /\w/.test(val)],
-  [
-    "primary place of performance state code",
-    (val, content) =>
-      content["primary place of performance country name"] !== "usa" ||
-      dropdownValues["state code"].includes(val.toLowerCase())
-  ],
-  [
-    "primary place of performance zip",
-    (val, content) =>
-      content["primary place of performance country name"] !== "usa" ||
-      /^\d{5}(-\d{4})?$/.test(val)
-  ],
-  [
-    "primary place of performance country name",
-    val => dropdownValues["country"].includes(val.toLowerCase())
-  ]
+  ["primary place of performance address line 1", isNotBlank],
+  ["primary place of performance city name", isNotBlank],
+  ["primary place of performance state code", isValidState],
+  ["primary place of performance zip", isValidZip],
+  ["primary place of performance country name", dropdownIncludes("country")]
 ];
 
 const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
