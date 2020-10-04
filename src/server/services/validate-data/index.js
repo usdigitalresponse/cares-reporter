@@ -5,7 +5,8 @@ const validateTabs = {
   contracts: require("./contracts"),
   grants: require("./grants"),
   loans: require("./loans"),
-  transfers: require("./transfers")
+  transfers: require("./transfers"),
+  direct: require("./direct")
 };
 const { getSubrecipientsHash } = require("./helpers");
 const { validateDocuments } = require("./validate");
