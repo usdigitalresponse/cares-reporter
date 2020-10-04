@@ -5,9 +5,11 @@ const validateTabs = {
   contracts: require("./contracts"),
   grants: require("./grants"),
   loans: require("./loans"),
-  transfers: require("./transfers")
+  transfers: require("./transfers"),
+  direct: require("./direct")
 };
 const { getSubrecipientsHash } = require("./helpers");
+const { validateDocuments } = require("./validate");
 
 const validateData = (documents, fileParts) => {
   const valog = [];
@@ -22,11 +24,17 @@ const validateData = (documents, fileParts) => {
   );
   valog.push(...subrecipientValog.slice(0, 100));
 
-  _.each(validateTabs, (fn, tabName) => {
-    const tabValog = fn(
+  const validateContext = {
+    fileParts,
+    subrecipientsHash
+  };
+
+  _.each(validateTabs, (validations, tabName) => {
+    const tabValog = validateDocuments(
       groupedDocuments[tabName],
-      subrecipientsHash,
-      fileParts
+      tabName,
+      validations,
+      validateContext
     );
     valog.push(...tabValog.slice(0, 100));
   });

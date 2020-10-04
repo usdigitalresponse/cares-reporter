@@ -74,7 +74,7 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
 
 function validateDocuments(documents, tab, requiredFields, validateContext) {
   let valog = [];
-  documents.forEach(({ content }, row) => {
+  _.each(documents, ({ content }, row) => {
     valog = valog.concat(
       validateFields(requiredFields, content, tab, row + 2, validateContext)
     );
