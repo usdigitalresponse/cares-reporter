@@ -8,12 +8,12 @@ const requiredFields = [
   [
     "agency code",
     matchesFilePart("agencyCode"),
-    `cover's "agency code" must match file name's "agency code"`
+    `The "agency code" in the file name does not match the cover's "agency code"`
   ],
   [
     "project id",
     matchesFilePart("projectId"),
-    `cover's "project id" must match file name's "project id"`
+    `The "project id" in the file name does not match the cover's "project id"`
   ],
 ];
 

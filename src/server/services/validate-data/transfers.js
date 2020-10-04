@@ -24,7 +24,7 @@ const requiredFields = [
   [
     "project id",
     matchesFilePart("projectId"),
-    `transfer's "project id" must match file name's "project id"`
+    `The "project id" in the file name does not match the transfer's "project id"`
   ],
   [
     "subrecipient id",
