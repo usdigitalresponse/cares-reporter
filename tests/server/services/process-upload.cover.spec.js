@@ -24,7 +24,7 @@ describe("process-upload", () => {
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
       expect(err.message).to.equal(
-        `cover's "agency code" (EOH) must match file name's "agency code" (EOHHS)`
+        `The "agency code" in the file name does not match the cover's "agency code" "EOH"`
       );
       expect(err.row).to.equal(2);
     });
@@ -35,7 +35,7 @@ describe("process-upload", () => {
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
       expect(err.message).to.equal(
-        `cover's "project id" (74) must match file name's "project id" (75)`
+        `The "project id" in the file name does not match the cover's "project id" "74"`
       );
       expect(err.row).to.equal(2);
     });

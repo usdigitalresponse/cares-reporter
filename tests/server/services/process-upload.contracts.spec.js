@@ -26,7 +26,7 @@ describe("services/process-upload", () => {
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
       expect(err.message, `File ${uploadArgs.filename}`).to.match(
-        /contract's "project id" must match file name's "project id"/
+        /The "project id" in the file name does not match the contract's "project id"/
       );
       expect(err.row).to.equal(4);
     });

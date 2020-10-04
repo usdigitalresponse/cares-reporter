@@ -1,5 +1,4 @@
 const {
-  isNotBlank,
   isNumber,
   isPositiveNumber,
   isValidDate,
@@ -14,9 +13,8 @@ const {
 //   message: string?
 // ]
 const requiredFields = [
-  ["transfer number", isNotBlank],
-  ["award amount", isPositiveNumber],
-  ["transfer date", isValidDate],
+  ["obligation amount", isPositiveNumber],
+  ["obligation date", isValidDate],
   ["current quarter obligation", isNumber],
   ["expenditure start date", isValidDate],
   ["expenditure start date", isValidDate],
@@ -24,12 +22,12 @@ const requiredFields = [
   [
     "project id",
     matchesFilePart("projectId"),
-    `The "project id" in the file name does not match the transfer's "project id"`
+    `The "project id" is the file name does not match the direct's "project id"`
   ],
   [
     "subrecipient id",
     isValidSubrecipient,
-    'Each transfer row must have a "subrecipient id" which is included in the "subrecipient" tab'
+    'Each direct row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ]
 ];
 
