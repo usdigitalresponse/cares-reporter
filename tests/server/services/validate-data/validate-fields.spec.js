@@ -3,12 +3,24 @@ const {
   isNumber,
   isPositiveNumber,
   isValidDate,
+  isValidSubrecipient,
   matchesFilePart,
-  validateFields
+  validateFields,
+  validateDocuments
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
 describe("validation helpers", () => {
+  const validateContext = {
+    fileParts: {
+      projectId: "DOH"
+    },
+    subrecipientsHash: {
+      "1010": {
+        name: "Payee"
+      }
+    }
+  };
   const testCases = [
     ["blank string", isNotBlank(""), false],
     ["non blank string", isNotBlank("Test"), true],
@@ -20,12 +32,22 @@ describe("validation helpers", () => {
     ["invalid date", isValidDate("2020-15-99"), false],
     [
       "file part matches",
-      matchesFilePart("projectId")("DOH", {}, { projectId: "DOH" }),
+      matchesFilePart("projectId")("DOH", {}, validateContext),
       true
     ],
     [
       "file part does not match",
-      matchesFilePart("projectId")("OMB", {}, { projectId: "DOH" }),
+      matchesFilePart("projectId")("OMB", {}, validateContext),
+      false
+    ],
+    [
+      "valid subrecipient",
+      isValidSubrecipient("1010", {}, validateContext),
+      true
+    ],
+    [
+      "invalid subrecipient",
+      isValidSubrecipient("1020", {}, validateContext),
       false
     ]
   ];
@@ -61,5 +83,22 @@ describe("validateFields", () => {
     expect(r[1].info.message).to.equal('Description is required ""');
     expect(r[1].info.tab).to.equal("Test");
     expect(r[1].info.row).to.equal(5);
+  });
+});
+
+describe("validateDocuments", () => {
+  const documents = [
+    { content: { name: "George" }},
+    { content: { name: "John" }},
+    { content: { name: "Thomas" }},
+    { content: { name: "James" }},
+    { content: { name: "" }}
+  ];
+  const requiredFields = [
+    ["name", isNotBlank ]
+  ];
+  it('can validate a collection of documents', () => {
+    const log = validateDocuments(documents, "test", requiredFields, {});
+    expect(log).to.have.length(1);
   });
 });

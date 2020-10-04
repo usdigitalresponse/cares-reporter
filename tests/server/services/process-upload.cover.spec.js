@@ -1,5 +1,4 @@
 const { processUpload } = requireSrc(__filename);
-const knex = requireSrc(`${__dirname}/../db/connection`);
 const expect = require("chai").expect;
 const { makeUploadArgs } = require("./helpers");
 
