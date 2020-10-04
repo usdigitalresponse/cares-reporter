@@ -1,36 +1,33 @@
 const { ValidationItem } = require("../../lib/validation-log");
+const {
+  matchesFilePart,
+  validateFields
+} = require("./validate");
+
+const requiredFields = [
+  [
+    "agency code",
+    matchesFilePart("agencyCode"),
+    `cover's "agency code" must match file name's "agency code"`
+  ],
+  [
+    "project id",
+    matchesFilePart("projectId"),
+    `cover's "project id" must match file name's "project id"`
+  ],
+];
 
 function validateCover(documents, fileParts) {
-  const valog = [];
+  let valog = [];
   const tabItem = "cover";
-  const fileProjectId = fileParts.projectId.replace(/^0*/, "");
-  const fileAgencyCode = fileParts.agencyCode;
 
   if (documents && documents.length > 0) {
     const { content } = documents[0];
     const row = 2;
-
-    const tabAgencyCode = content["agency code"].toString();
-    if (tabAgencyCode !== fileAgencyCode) {
-      valog.push(
-        new ValidationItem({
-          message: `${tabItem}'s "agency code" (${tabAgencyCode}) must match file name's "agency code" (${fileAgencyCode})`,
-          tab: tabItem,
-          row: row
-        })
-      );
-    }
-
-    const tabProjectId = content["project id"].toString().replace(/^0*/, "");
-    if (tabProjectId !== fileProjectId) {
-      valog.push(
-        new ValidationItem({
-          message: `${tabItem}'s "project id" (${tabProjectId}) must match file name's "project id" (${fileProjectId})`,
-          tab: tabItem,
-          row: row
-        })
-      );
-    }
+    const validateContext = {
+      fileParts
+    };
+    valog = valog.concat(validateFields(requiredFields, content, "tabItem", row, validateContext));
   } else {
     valog.push(
       new ValidationItem({
