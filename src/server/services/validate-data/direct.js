@@ -22,7 +22,7 @@ const requiredFields = [
   [
     "project id",
     matchesFilePart("projectId"),
-    `direct's "project id" must match file name's "project id"`
+    `The "project id" is the file name does not match the direct's "project id"`
   ],
   [
     "subrecipient id",
