@@ -88,16 +88,14 @@ describe("validateFields", () => {
 
 describe("validateDocuments", () => {
   const documents = [
-    { content: { name: "George" }},
-    { content: { name: "John" }},
-    { content: { name: "Thomas" }},
-    { content: { name: "James" }},
-    { content: { name: "" }}
+    { content: { name: "George" } },
+    { content: { name: "John" } },
+    { content: { name: "Thomas" } },
+    { content: { name: "James" } },
+    { content: { name: "" } }
   ];
-  const requiredFields = [
-    ["name", isNotBlank ]
-  ];
-  it('can validate a collection of documents', () => {
+  const requiredFields = [["name", isNotBlank]];
+  it("can validate a collection of documents", () => {
     const log = validateDocuments(documents, "test", requiredFields, {});
     expect(log).to.have.length(1);
   });
