@@ -16,7 +16,7 @@ const {
 // ]
 const requiredFields = [
   ["transfer number", isNotBlank],
-  ["award amount", isPositiveNumber], // VERIFY there is an alias that converts "transfer amount" to "award amount" - is that what we want?
+  ["award amount", isPositiveNumber],
   ["transfer date", isValidDate],
   ["current quarter obligation", isNumber],
   ["expenditure start date", isValidDate],
@@ -25,7 +25,7 @@ const requiredFields = [
   [
     "project id",
     matchesFilePart("projectId"),
-    `loan's "project id" must match file name's "project id"`
+    `transfer's "project id" must match file name's "project id"`
   ],
   [
     "subrecipient id",
