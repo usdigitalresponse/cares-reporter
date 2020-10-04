@@ -24,8 +24,7 @@ function isValidDate(val) {
   return !_.isNaN(new Date(val).getTime());
 }
 
-function isValidSubrecipient(val, content, context) {
-  const { subrecipientsHash } = context;
+function isValidSubrecipient(val, content, { subrecipientsHash }) {
   return _.has(subrecipientsHash, val);
 }
 
