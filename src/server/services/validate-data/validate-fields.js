@@ -24,6 +24,10 @@ function isValidDate(val) {
   return !_.isNaN(new Date(val).getTime());
 }
 
+function isValidSubrecipient(val, content, { subrecipientsHash }) {
+  return _.has(subrecipientsHash, val);
+}
+
 function isValidState(val, content) {
   return (
     content["primary place of performance country name"] !== "usa" ||
@@ -39,7 +43,7 @@ function isValidZip(val, content) {
 }
 
 function matchesFilePart(key) {
-  return function(val, content, fileParts) {
+  return function(val, content, { fileParts }) {
     const fileValue = fileParts[key].replace(/^0*/, "");
     const documentValue = (val || "").toString().replace(/^0*/, "");
     return documentValue === fileValue;
@@ -50,11 +54,11 @@ function dropdownIncludes(key) {
   return val => _.get(dropdownValues, key, []).includes(val.toLowerCase());
 }
 
-function validateFields(requiredFields, content, tab, row, fileParts = {}) {
+function validateFields(requiredFields, content, tab, row, context = {}) {
   const valog = [];
   requiredFields.forEach(([key, validator, message]) => {
     const val = content[key] || "";
-    if (!validator(val, content, fileParts)) {
+    if (!validator(val, content, context)) {
       valog.push(
         new ValidationItem({
           message:
@@ -68,6 +72,16 @@ function validateFields(requiredFields, content, tab, row, fileParts = {}) {
   return valog;
 }
 
+function validateDocuments(documents, tab, requiredFields, validateContext) {
+  let valog = [];
+  documents.forEach(({ content }, row) => {
+    valog = valog.concat(
+      validateFields(requiredFields, content, tab, row + 2, validateContext)
+    );
+  });
+  return valog;
+}
+
 module.exports = {
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -76,7 +90,9 @@ module.exports = {
   isPositiveNumber,
   isValidDate,
   isValidState,
+  isValidSubrecipient,
   isValidZip,
   matchesFilePart,
+  validateDocuments,
   validateFields
 };
