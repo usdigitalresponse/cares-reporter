@@ -6,7 +6,7 @@ const {
   isValidState,
   isValidZip,
   validateFields
-} = require("./validate-fields");
+} = require("./validate");
 
 const requiredFields = [
   ["legal name", isNotBlank],

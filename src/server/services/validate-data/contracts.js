@@ -7,9 +7,8 @@ const {
   isValidState,
   isValidSubrecipient,
   isValidZip,
-  matchesFilePart,
-  validateDocuments
-} = require("./validate-fields");
+  matchesFilePart
+} = require("./validate");
 
 // type pattern for this elements of the fields array is
 // [
@@ -51,12 +50,4 @@ const requiredFields = [
   ]
 ];
 
-const validateContracts = (documents = [], subrecipientsHash, fileParts) => {
-  const validateContext = {
-    fileParts,
-    subrecipientsHash
-  };
-  return validateDocuments(documents, "contracts", requiredFields, validateContext);
-};
-
-module.exports = validateContracts;
+module.exports = requiredFields;
