@@ -43,7 +43,7 @@ const requiredFields = [
   [
     "project id",
     matchesFilePart("projectId"),
-    `The "project id" in the file name does not match grant's "project id"`
+    `The "project id" in the file name does not match the grant's "project id"`
   ],
   [
     "subrecipient id",
