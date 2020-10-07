@@ -1,8 +1,5 @@
 const { ValidationItem } = require("../../lib/validation-log");
-const {
-  matchesFilePart,
-  validateFields
-} = require("./validate");
+const { matchesFilePart, validateFields } = require("./validate");
 
 const requiredFields = [
   [
@@ -14,7 +11,7 @@ const requiredFields = [
     "project id",
     matchesFilePart("projectId"),
     `The "project id" in the file name does not match the cover's "project id"`
-  ],
+  ]
 ];
 
 function validateCover(documents, fileParts) {
@@ -27,7 +24,9 @@ function validateCover(documents, fileParts) {
     const validateContext = {
       fileParts
     };
-    valog = valog.concat(validateFields(requiredFields, content, "tabItem", row, validateContext));
+    valog = valog.concat(
+      validateFields(requiredFields, content, "tabItem", row, validateContext)
+    );
   } else {
     valog.push(
       new ValidationItem({

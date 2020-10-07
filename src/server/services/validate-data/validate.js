@@ -20,6 +20,23 @@ function isPositiveNumber(val) {
   return _.isNumber(val) && val > 0;
 }
 
+function isSum(columns) {
+  return (val, content) => {
+    const sum = _.reduce(
+      columns,
+      (acc, c) => {
+        if (!c) {
+          return acc;
+        }
+        const f = parseFloat(content[c]) || 0.0
+        return acc + f;
+      },
+      0.0
+    );
+    return val == sum;
+  };
+}
+
 function isValidDate(val) {
   return !_.isNaN(new Date(val).getTime());
 }
@@ -88,6 +105,7 @@ module.exports = {
   isNotBlank,
   isNumber,
   isPositiveNumber,
+  isSum,
   isValidDate,
   isValidState,
   isValidSubrecipient,

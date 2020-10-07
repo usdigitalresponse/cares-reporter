@@ -2,6 +2,7 @@ const {
   isNotBlank,
   isNumber,
   isPositiveNumber,
+  isSum,
   isValidDate,
   isValidSubrecipient,
   matchesFilePart,
@@ -49,6 +50,33 @@ describe("validation helpers", () => {
       "invalid subrecipient",
       isValidSubrecipient("1020", {}, validateContext),
       false
+    ],
+    [
+      "sum is correct",
+      isSum(["amount1", "amount2"])(
+        100.0,
+        { amount1: 40.0, amount2: 60.0 },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "sum is not correct",
+      isSum(["amount1", "amount2"])(
+        90.0,
+        { amount1: 40.0, amount2: 60.0 },
+        validateContext
+      ),
+      false
+    ],
+    [
+      "sum convert strings to float",
+      isSum(["amount1", "amount2"])(
+        "100.0",
+        { amount1: "40.0", amount2: "60.0" },
+        validateContext
+      ),
+      true
     ]
   ];
   testCases.forEach(([name, b, expectedResult]) => {
