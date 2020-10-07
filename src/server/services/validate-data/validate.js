@@ -28,12 +28,8 @@ function isSum(columns) {
         if (!c) {
           return acc;
         }
-        const f = parseFloat(content[c]);
-        if (_.isUndefined(f) || _.isNaN(f)) {
-          return acc;
-        }
-        acc += f;
-        return acc;
+        const f = parseFloat(content[c]) || 0.0
+        return acc + f;
       },
       0.0
     );
