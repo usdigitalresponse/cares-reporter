@@ -1,10 +1,13 @@
 const {
   isNumber,
   isPositiveNumber,
+  isSum,
   isValidDate,
   isValidSubrecipient,
   matchesFilePart
 } = require("./validate");
+
+const expenditureCategories = require("./expenditure-categories");
 
 // type pattern for this elements of the fields array is
 // [
@@ -28,6 +31,11 @@ const requiredFields = [
     "subrecipient id",
     isValidSubrecipient,
     'Each direct row must have a "subrecipient id" which is included in the "subrecipient" tab'
+  ],
+  [
+    "total expenditure amount",
+    isSum(expenditureCategories),
+    "Total expenditure amount is not the sum of all expenditure amount columns"
   ]
 ];
 
