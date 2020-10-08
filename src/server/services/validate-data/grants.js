@@ -38,7 +38,12 @@ const requiredFields = [
   ["primary place of performance state code", isValidState],
   ["primary place of performance zip", isValidZip],
   ["primary place of performance country name", dropdownIncludes("country")],
-  ["compliance", dropdownIncludes("compliance")],
+  [
+    "compliance",
+    dropdownIncludes(
+      "is awardee complying with terms and conditions of the grant?"
+    )
+  ],
   ["current quarter obligation", isNumber],
   ["expenditure start date", isValidDate],
   ["expenditure start date", isValidDate],
