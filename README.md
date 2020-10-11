@@ -14,7 +14,7 @@ mkdir uploads ## (a gitignored folder for uploaded files)
 
 Additional dummy data can be added with
 ```
-node ./tests/servers/fixtures/add-dummy-data.js
+node ./tests/server/fixtures/add-dummy-data.js
 ```
 
 And the whole local testing database can be reset with:
