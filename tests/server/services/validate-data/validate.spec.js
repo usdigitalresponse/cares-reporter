@@ -6,6 +6,8 @@ const {
   isValidDate,
   isValidSubrecipient,
   matchesFilePart,
+  numberIsLessThanOrEqual,
+  numberIsGreaterThanOrEqual,
   validateFields,
   validateDocuments
 } = requireSrc(__filename);
@@ -77,6 +79,30 @@ describe("validation helpers", () => {
         validateContext
       ),
       true
+    ],
+    [
+      "number is less than or equal",
+      numberIsLessThanOrEqual("total")(100, { total: 200 }, validateContext),
+      true
+    ],
+    [
+      "number is not less than or equal",
+      numberIsLessThanOrEqual("total")(500, { total: 200 }, validateContext),
+      false
+    ],
+    [
+      "number is greater than or equal",
+      numberIsGreaterThanOrEqual("total")(
+        1000,
+        { total: 200 },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "number is not greater than or equal",
+      numberIsGreaterThanOrEqual("total")(50, { total: 200 }, validateContext),
+      false
     ]
   ];
   testCases.forEach(([name, b, expectedResult]) => {

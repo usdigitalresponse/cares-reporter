@@ -1,10 +1,12 @@
 const {
+  dateIsOnOrBefore,
   isNumber,
   isPositiveNumber,
   isSum,
   isValidDate,
   isValidSubrecipient,
-  matchesFilePart
+  matchesFilePart,
+  numberIsLessThanOrEqual
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -21,6 +23,8 @@ const requiredFields = [
   ["current quarter obligation", isNumber],
   ["expenditure start date", isValidDate],
   ["expenditure start date", isValidDate],
+  //["obligation date", dateIsOnOrBefore("expenditure start date")], FIXME need updated spreadsheet
+  ["expenditure start date", dateIsOnOrBefore("expenditure end date")],
   ["total expenditure amount", isNumber],
   [
     "project id",
@@ -36,7 +40,12 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
-  ]
+  ],
+  ["current quarter obligation", numberIsLessThanOrEqual("obligation amount")]
+  // TODO
+  // obligation date <= reporting period end date
+  // obligation date >= reporting period start date
+  // expenditure start date <= reporting period end date
 ];
 
 module.exports = requiredFields;

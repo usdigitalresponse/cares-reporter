@@ -8,6 +8,12 @@ function dateIsOnOrBefore(key) {
   };
 }
 
+function dateIsOnOrAfter(key) {
+  return (val, content) => {
+    return new Date(val).getTime() >= new Date(content[key]).getTime();
+  };
+}
+
 function isNotBlank(val) {
   return /\w/.test(val);
 }
@@ -28,7 +34,7 @@ function isSum(columns) {
         if (!c) {
           return acc;
         }
-        const f = parseFloat(content[c]) || 0.0
+        const f = parseFloat(content[c]) || 0.0;
         return acc + f;
       },
       0.0
@@ -67,6 +73,20 @@ function matchesFilePart(key) {
   };
 }
 
+function numberIsLessThanOrEqual(key) {
+  return (val, content) => {
+    const other = content[key];
+    return _.isNumber(val) && _.isNumber(other) && val <= other;
+  };
+}
+
+function numberIsGreaterThanOrEqual(key) {
+  return (val, content) => {
+    const other = content[key];
+    return _.isNumber(val) && _.isNumber(other) && val >= other;
+  };
+}
+
 function dropdownIncludes(key) {
   return val => _.get(dropdownValues, key, []).includes(val.toLowerCase());
 }
@@ -101,6 +121,7 @@ function validateDocuments(documents, tab, requiredFields, validateContext) {
 
 module.exports = {
   dateIsOnOrBefore,
+  dateIsOnOrAfter,
   dropdownIncludes,
   isNotBlank,
   isNumber,
@@ -111,6 +132,8 @@ module.exports = {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
+  numberIsLessThanOrEqual,
+  numberIsGreaterThanOrEqual,
   validateDocuments,
   validateFields
 };
