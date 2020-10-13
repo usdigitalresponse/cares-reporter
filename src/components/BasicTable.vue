@@ -1,6 +1,6 @@
 <template>
   <table class="mt-3 table table-striped">
-    <thead>
+    <thead class="thead-light">
       <tr>
         <th :key="`th|${n}`" v-for="(column, n) in columns">
           {{ columnTitle(column) }}
@@ -43,3 +43,11 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+</style>
