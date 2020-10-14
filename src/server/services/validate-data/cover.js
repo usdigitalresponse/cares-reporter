@@ -25,7 +25,7 @@ function validateCover(documents, fileParts) {
       fileParts
     };
     valog = valog.concat(
-      validateFields(requiredFields, content, "tabItem", row, validateContext)
+      validateFields(requiredFields, content, tabItem, row, validateContext)
     );
   } else {
     valog.push(

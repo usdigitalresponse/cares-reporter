@@ -8,7 +8,8 @@ const {
   isValidState,
   isValidSubrecipient,
   isValidZip,
-  matchesFilePart
+  matchesFilePart,
+  numberIsLessThanOrEqual
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -36,6 +37,10 @@ const requiredFields = [
     dateIsOnOrBefore("period of performance start date"),
     "Contract date can't be after the performance start date"
   ],
+  ["expenditure start date", isValidDate],
+  ["expenditure end date", isValidDate],
+  ["contract date", dateIsOnOrBefore("expenditure start date")],
+  ["expenditure start date", dateIsOnOrBefore("expenditure end date")],
   ["primary place of performance address line 1", isNotBlank],
   ["primary place of performance city name", isNotBlank],
   ["primary place of performance state code", isValidState],
@@ -55,7 +60,15 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
-  ]
+  ],
+  ["current quarter obligation", isPositiveNumber],
+  ["current quarter obligation", numberIsLessThanOrEqual("contract amount")]
+
+  // TODO
+  // contract date <= reporting period end date
+  // contract date >= reporting period start date
+  // period of performance end date <= reporting period end date
+  // expenditure end date <= reporting period end date
 ];
 
 module.exports = requiredFields;

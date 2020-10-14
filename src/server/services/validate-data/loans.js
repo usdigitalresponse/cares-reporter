@@ -7,7 +7,8 @@ const {
   isValidState,
   isValidSubrecipient,
   isValidZip,
-  matchesFilePart
+  matchesFilePart,
+  numberIsLessThanOrEqual
 } = require("./validate");
 
 // type pattern for this elements of the fields array is
@@ -35,7 +36,12 @@ const requiredFields = [
     "subrecipient id",
     isValidSubrecipient,
     'Each loan row must have a "subrecipient id" which is included in the "subrecipient" tab'
-  ]
+  ],
+  ["current quarter obligation", numberIsLessThanOrEqual("loan amount")]
+  // TODO
+  // loan date <= reporting period end date
+  // loan date >= reporting period start date
+  // payment date >= loan date - need spreadsheet fix
 ];
 
 module.exports = requiredFields;
