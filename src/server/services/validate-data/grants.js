@@ -1,4 +1,5 @@
 const {
+  dateIsOnOrBefore,
   dropdownIncludes,
   isNotBlank,
   isNumber,
@@ -8,7 +9,8 @@ const {
   isValidState,
   isValidSubrecipient,
   isValidZip,
-  matchesFilePart
+  matchesFilePart,
+  numberIsLessThanOrEqual
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -26,12 +28,10 @@ const requiredFields = [
   ["award date", isValidDate],
   ["period of performance start date", isValidDate],
   ["period of performance end date", isValidDate],
+  ["award date", dateIsOnOrBefore("period of performance start date")],
   [
-    "award date",
-    (val, content) =>
-      new Date(content["period of performance start date"]).getTime() <=
-      new Date(content["period of performance end date"]).getTime(),
-    "Performance end date can't be after the performance start date"
+    "period of performance start date",
+    dateIsOnOrBefore("period of performance end date")
   ],
   ["primary place of performance address line 1", isNotBlank],
   ["primary place of performance city name", isNotBlank],
@@ -46,7 +46,9 @@ const requiredFields = [
   ],
   ["current quarter obligation", isNumber],
   ["expenditure start date", isValidDate],
-  ["expenditure start date", isValidDate],
+  ["expenditure end date", isValidDate],
+  ["award date", dateIsOnOrBefore("expenditure start date")],
+  ["expenditure start date", dateIsOnOrBefore("expenditure end date")],
   ["total expenditure amount", isNumber],
   [
     "project id",
@@ -62,7 +64,11 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
-  ]
+  ],
+  ["current quarter obligation", numberIsLessThanOrEqual("award amount")]
+  // TODO
+  // award date >= reporting period start date
+  // period of performance end date <= reporting period end date
 ];
 
 module.exports = requiredFields;

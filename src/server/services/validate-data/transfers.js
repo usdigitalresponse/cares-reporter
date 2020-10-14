@@ -1,11 +1,14 @@
 const {
+  dateIsOnOrBefore,
+  dropdownIncludes,
   isNotBlank,
   isNumber,
   isPositiveNumber,
   isSum,
   isValidDate,
   isValidSubrecipient,
-  matchesFilePart
+  matchesFilePart,
+  numberIsLessThanOrEqual
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -38,7 +41,15 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
-  ]
+  ],
+  ["current quarter obligation", numberIsLessThanOrEqual("award amount")],
+  //["expenditure start date", dateIsOnOrBefore("transfer date")], // FIXME need spreadsheet fix
+  ["expenditure start date", dateIsOnOrBefore("expenditure end date")],
+  //["transfer type", dropdownIncludes("award payment method")], FIXME need spreadsheet fix
+  // TODO
+  // transfer date <= reporting period end date
+  // transfer date >= reporting period start date
+  // expenditure start date" <= reporting period end date
 ];
 
 module.exports = requiredFields;
