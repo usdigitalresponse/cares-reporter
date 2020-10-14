@@ -10,6 +10,11 @@
               >Download Treasury Report</a
             >
           </div>
+          <div class="mt-2">
+            <a :href="downloadTemplateUrl()" class="btn btn-primary" download
+              >Download Template</a
+            >
+          </div>
         </div>
         <div class="mt-3 col-4" v-if="currentReportingPeriod">
           <h3>Current Reporting Period</h3>
@@ -99,6 +104,9 @@ export default {
     titleize,
     downloadUrl() {
       return `/api/exports`;
+    },
+    downloadTemplateUrl() {
+      return `/templates/empty-template.xlsx`;
     },
     documentCount(tableName) {
       const records = this.groups[tableName];
