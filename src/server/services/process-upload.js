@@ -17,7 +17,7 @@ const {
 } = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
 const { deduplicate } = require("../services/deduplicate");
-const { removeEmptyDocuments } = require("./remove-empty-documents");
+const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
   let valog = new ValidationLog();
