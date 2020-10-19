@@ -17,6 +17,7 @@ const {
 } = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
 const { deduplicate } = require("../services/deduplicate");
+const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
   let valog = new ValidationLog();
@@ -47,14 +48,16 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   } = spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
   valog.append(docValog);
 
-  const dataValog = await validateData(spreadsheetDocuments, fileParts);
+  let documents = removeEmptyDocuments(spreadsheetDocuments);
+
+  const dataValog = await validateData(documents, fileParts);
   valog.append(dataValog);
 
   if (!valog.success()) {
     return { valog, upload: {} };
   }
 
-  const documents = await deduplicate(spreadsheetDocuments);
+  documents = await deduplicate(documents);
 
   try {
     await fileInterface.writeFileCarefully(filename, data);
