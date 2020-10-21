@@ -1,4 +1,5 @@
 const {
+  dateIsInReportingPeriod,
   dropdownIncludes,
   isNotBlank,
   isNumber,
@@ -37,11 +38,9 @@ const requiredFields = [
     isValidSubrecipient,
     'Each loan row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ],
-  ["current quarter obligation", numberIsLessThanOrEqual("loan amount")]
-  // TODO
-  // loan date <= reporting period end date
-  // loan date >= reporting period start date
-  // payment date >= loan date - need spreadsheet fix
+  ["current quarter obligation", numberIsLessThanOrEqual("loan amount")],
+
+  [ "loan date", dateIsInReportingPeriod ],
 ];
 
 module.exports = requiredFields;

@@ -1,4 +1,5 @@
 const {
+  dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
   isNotBlank,
@@ -62,13 +63,12 @@ const requiredFields = [
     "Total expenditure amount is not the sum of all expenditure amount columns"
   ],
   ["current quarter obligation", isPositiveNumber],
-  ["current quarter obligation", numberIsLessThanOrEqual("contract amount")]
+  ["current quarter obligation", numberIsLessThanOrEqual("contract amount")],
 
-  // TODO
-  // contract date <= reporting period end date
-  // contract date >= reporting period start date
-  // period of performance end date <= reporting period end date
-  // expenditure end date <= reporting period end date
+  [ "contract date", dateIsInReportingPeriod ],
+  [ "expenditure end date", dateIsInReportingPeriod ],
+  [ "period of performance end date", dateIsInReportingPeriod ]
+
 ];
 
 module.exports = requiredFields;

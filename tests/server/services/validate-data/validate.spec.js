@@ -1,4 +1,5 @@
 const {
+  dateIsInReportingPeriod,
   isNotBlank,
   isNumber,
   isPositiveNumber,
@@ -22,6 +23,10 @@ describe("validation helpers", () => {
       "1010": {
         name: "Payee"
       }
+    },
+    reportingPeriod: {
+      startDate: "2020-03-01",
+      endDate:"2020-12-30"
     }
   };
   const testCases = [
@@ -102,6 +107,21 @@ describe("validation helpers", () => {
     [
       "number is not greater than or equal",
       numberIsGreaterThanOrEqual("total")(50, { total: 200 }, validateContext),
+      false
+    ],
+    [
+      "date is in reporting period",
+      dateIsInReportingPeriod(43929, {}, validateContext),
+      true
+    ],
+    [
+      "date is before reporting period",
+      dateIsInReportingPeriod(43800, {}, validateContext),
+      false
+    ],
+    [
+      "date is after reporting period",
+      dateIsInReportingPeriod(44197, {}, validateContext),
       false
     ]
   ];
