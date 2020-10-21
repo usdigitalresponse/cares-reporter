@@ -102,6 +102,15 @@ function dropdownIncludes(key) {
   return val => _.get(dropdownValues, key, []).includes(val.toLowerCase());
 }
 
+function whenBlank(key, validator) {
+  return (val, content, context) => {
+    if (!content[key]) {
+      return validator(val, content, context);
+    }
+    return true;
+  }
+}
+
 function validateFields(requiredFields, content, tab, row, context = {}) {
   const valog = [];
   requiredFields.forEach(([key, validator, message]) => {
@@ -165,5 +174,6 @@ module.exports = {
   numberIsGreaterThanOrEqual,
   validateDocuments,
   validateFields,
-  validateSingleDocument
+  validateSingleDocument,
+  whenBlank
 };
