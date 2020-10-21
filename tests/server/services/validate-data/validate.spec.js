@@ -184,9 +184,9 @@ describe("validateDocuments", () => {
     { content: { name: "James" } },
     { content: { name: "" } }
   ];
-  const requiredFields = [["name", isNotBlank]];
+  const validations = [["name", isNotBlank]];
   it("can validate a collection of documents", () => {
-    const log = validateDocuments(documents, "test", requiredFields, {});
+    const log = validateDocuments(documents, { tabName: "test", validations }, {});
     expect(log).to.have.length(1);
   });
 });

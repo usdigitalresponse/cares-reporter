@@ -129,11 +129,11 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
   return valog;
 }
 
-function validateDocuments(documents, tab, requiredFields, validateContext) {
+function validateDocuments(documents, params, validateContext) {
   let valog = [];
   _.each(documents, ({ content }, row) => {
     valog = valog.concat(
-      validateFields(requiredFields, content, tab, row + 2, validateContext)
+      validateFields(params.validations, content, params.tabName, row + 2, validateContext)
     );
   });
   return valog;
