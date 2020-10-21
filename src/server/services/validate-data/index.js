@@ -9,7 +9,7 @@ const validateTabs = [
   require("./direct")
 ];
 const { getSubrecipientsHash } = require("./helpers");
-const { validateDocuments } = require("./validate");
+const { validateDocuments, validateSingleDocument } = require("./validate");
 const { format } = require("date-fns");
 
 const validateData = (documents, fileParts, reportingPeriod) => {
@@ -31,6 +31,13 @@ const validateData = (documents, fileParts, reportingPeriod) => {
     switch(validations.type) {
       case "custom":
         tabValog = validations.execute(groupedDocuments[validations.tabName], validateContext);
+        break;
+      case "exactlyOne":
+        tabValog = validateSingleDocument(
+          groupedDocuments[validations.tabName],
+          validations,
+          validateContext
+        );
         break;
       case "every":
         tabValog = validateDocuments(
