@@ -26,11 +26,14 @@ const validateData = (documents, fileParts, reportingPeriod) => {
     subrecipientsHash
   };
 
-  _.each(validateTabs, (validations) => {
+  _.each(validateTabs, validations => {
     let tabValog = [];
-    switch(validations.type) {
+    switch (validations.type) {
       case "custom":
-        tabValog = validations.execute(groupedDocuments[validations.tabName], validateContext);
+        tabValog = validations.execute(
+          groupedDocuments[validations.tabName],
+          validateContext
+        );
         break;
       case "exactlyOne":
         tabValog = validateSingleDocument(

@@ -1,5 +1,4 @@
-const { ValidationItem } = require("../../lib/validation-log");
-const { matchesFilePart, validateFields } = require("./validate");
+const { matchesFilePart } = require("./validate");
 
 const requiredFields = [
   [

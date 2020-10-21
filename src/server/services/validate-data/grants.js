@@ -68,9 +68,8 @@ const requiredFields = [
   ],
   ["current quarter obligation", numberIsLessThanOrEqual("award amount")],
 
-  [ "award date", dateIsInReportingPeriod ],
-  [ "period of performance end date", dateIsInReportingPeriod ]
-
+  ["award date", dateIsInReportingPeriod],
+  ["period of performance end date", dateIsInReportingPeriod]
 ];
 
 module.exports = {

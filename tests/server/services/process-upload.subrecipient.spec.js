@@ -14,7 +14,7 @@ describe("services/process-upload", () => {
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
       expect(err.message).to.equal(
-        `Each subrecipient must have either an "identification number" or a "duns number"`
+        `Each subrecipient must have either an "identification number" or a "duns number" ""`
       );
       expect(err.row).to.equal(3);
     });

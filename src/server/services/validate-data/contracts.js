@@ -65,10 +65,9 @@ const requiredFields = [
   ["current quarter obligation", isPositiveNumber],
   ["current quarter obligation", numberIsLessThanOrEqual("contract amount")],
 
-  [ "contract date", dateIsInReportingPeriod ],
-  [ "expenditure end date", dateIsInReportingPeriod ],
-  [ "period of performance end date", dateIsInReportingPeriod ]
-
+  ["contract date", dateIsInReportingPeriod],
+  ["expenditure end date", dateIsInReportingPeriod],
+  ["period of performance end date", dateIsInReportingPeriod]
 ];
 
 module.exports = {
