@@ -10,8 +10,9 @@ const validateTabs = {
 };
 const { getSubrecipientsHash } = require("./helpers");
 const { validateDocuments } = require("./validate");
+const { format } = require("date-fns");
 
-const validateData = (documents, fileParts) => {
+const validateData = (documents, fileParts, reportingPeriod) => {
   const valog = [];
   const groupedDocuments = _.groupBy(documents, "type");
   const subrecipientsHash = getSubrecipientsHash(groupedDocuments.subrecipient);
@@ -26,6 +27,10 @@ const validateData = (documents, fileParts) => {
 
   const validateContext = {
     fileParts,
+    reportingPeriod: {
+      startDate: format(reportingPeriod.start_date, "yyyy-MM-dd"),
+      endDate: format(reportingPeriod.end_date, "yyyy-MM-dd")
+    },
     subrecipientsHash
   };
 
