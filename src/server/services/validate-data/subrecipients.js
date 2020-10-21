@@ -1,7 +1,7 @@
 const { ValidationItem } = require("../../lib/validation-log");
-const { subrecipientKey } = require("./helpers");
 const {
   dropdownIncludes,
+  hasSubrecipientKey,
   isNotBlank,
   isValidState,
   isValidZip,
@@ -9,6 +9,11 @@ const {
 } = require("./validate");
 
 const requiredFields = [
+  [
+    "",
+    hasSubrecipientKey,
+    `Each subrecipient must have either an "identification number" or a "duns number"`
+  ],
   ["legal name", isNotBlank],
   ["organization type", dropdownIncludes("organization type")]
 ];
@@ -25,15 +30,6 @@ const validateSubrecipients = (documents = []) => {
   let valog = [];
 
   documents.forEach(({ content }, row) => {
-    if (!subrecipientKey(content)) {
-      valog.push(
-        new ValidationItem({
-          message: `Each subrecipient must have either an "identification number" or a "duns number"`,
-          tab: "subrecipient",
-          row: row + 2
-        })
-      );
-    }
     valog = valog.concat(
       validateFields(requiredFields, content, "subrecipient", row + 2)
     );
