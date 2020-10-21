@@ -72,3 +72,26 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+td:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: #e9ecef;
+}
+
+th:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+</style>
