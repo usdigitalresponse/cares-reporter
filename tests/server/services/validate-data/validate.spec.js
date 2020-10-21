@@ -10,7 +10,8 @@ const {
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
   validateFields,
-  validateDocuments
+  validateDocuments,
+  whenBlank
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
@@ -123,6 +124,21 @@ describe("validation helpers", () => {
       "date is after reporting period",
       dateIsInReportingPeriod(44197, {}, validateContext),
       false
+    ],
+    [
+      "conditional validation passes",
+      whenBlank("duns number", isNotBlank)("123", { "duns number": "" }, validateContext),
+      true
+    ],
+    [
+      "conditional validation fails",
+      whenBlank("duns number", isNotBlank)("", { "duns number": "" }, validateContext),
+      false
+    ],
+    [
+      "conditional validation ignored",
+      whenBlank("duns number", isNotBlank)("", { "duns number": "123" }, validateContext),
+      true
     ]
   ];
   testCases.forEach(([name, b, expectedResult]) => {
