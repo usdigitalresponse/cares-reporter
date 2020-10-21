@@ -43,4 +43,8 @@ const requiredFields = [
   [ "loan date", dateIsInReportingPeriod ],
 ];
 
-module.exports = requiredFields;
+module.exports = {
+  tabName: "loans",
+  type: "every",
+  validations: requiredFields
+};

@@ -48,4 +48,8 @@ const requiredFields = [
   [ "expenditure start date", dateIsInReportingPeriod ]
 ];
 
-module.exports = requiredFields;
+module.exports = {
+  tabName: "direct",
+  type: "every",
+  validations: requiredFields
+};

@@ -73,4 +73,8 @@ const requiredFields = [
 
 ];
 
-module.exports = requiredFields;
+module.exports = {
+  tabName: "grants",
+  type: "every",
+  validations: requiredFields
+};
