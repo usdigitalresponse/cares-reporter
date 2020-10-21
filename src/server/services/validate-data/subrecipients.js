@@ -47,4 +47,8 @@ const validateSubrecipients = (documents = []) => {
   return valog;
 };
 
-module.exports = validateSubrecipients;
+module.exports = {
+  tabName: "subrecipient",
+  type: "custom",
+  execute: validateSubrecipients
+};

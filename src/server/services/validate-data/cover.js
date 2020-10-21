@@ -14,16 +14,13 @@ const requiredFields = [
   ]
 ];
 
-function validateCover(documents, fileParts) {
+function validateCover(documents, validateContext) {
   let valog = [];
   const tabItem = "cover";
 
   if (documents && documents.length > 0) {
     const { content } = documents[0];
     const row = 2;
-    const validateContext = {
-      fileParts
-    };
     valog = valog.concat(
       validateFields(requiredFields, content, tabItem, row, validateContext)
     );
@@ -38,4 +35,8 @@ function validateCover(documents, fileParts) {
   return valog;
 }
 
-module.exports = validateCover;
+module.exports = {
+  tabName: "cover",
+  type: "custom",
+  execute: validateCover
+};

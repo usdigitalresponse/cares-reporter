@@ -52,4 +52,8 @@ const requiredFields = [
 
 ];
 
-module.exports = requiredFields;
+module.exports = {
+  tabName: "transfers",
+  type: "every",
+  validations: requiredFields
+};
