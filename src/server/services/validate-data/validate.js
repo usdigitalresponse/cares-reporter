@@ -1,7 +1,7 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
 const { subrecipientKey } = require("./helpers");
-const ssf = require('ssf');
+const ssf = require("ssf");
 const _ = require("lodash");
 
 function dateIsInReportingPeriod(val, content, { reportingPeriod }) {
@@ -141,9 +141,7 @@ function validateSingleDocument(documents, params, validateContext) {
       validateFields(params.validations, content, tabItem, row, validateContext)
     );
   } else {
-    valog.push(
-      new ValidationItem({ message: params.message, tab: tabItem })
-    );
+    valog.push(new ValidationItem({ message: params.message, tab: tabItem }));
   }
   return valog;
 }

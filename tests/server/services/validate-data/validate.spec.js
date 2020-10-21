@@ -26,7 +26,7 @@ describe("validation helpers", () => {
     },
     reportingPeriod: {
       startDate: "2020-03-01",
-      endDate:"2020-12-30"
+      endDate: "2020-12-30"
     }
   };
   const testCases = [

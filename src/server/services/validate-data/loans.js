@@ -40,7 +40,7 @@ const requiredFields = [
   ],
   ["current quarter obligation", numberIsLessThanOrEqual("loan amount")],
 
-  [ "loan date", dateIsInReportingPeriod ],
+  ["loan date", dateIsInReportingPeriod]
 ];
 
 module.exports = {

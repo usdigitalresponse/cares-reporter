@@ -1,4 +1,3 @@
-const { ValidationItem } = require("../../lib/validation-log");
 const {
   dropdownIncludes,
   hasSubrecipientKey,

@@ -47,9 +47,8 @@ const requiredFields = [
   ["expenditure start date", dateIsOnOrBefore("transfer date")],
   ["expenditure start date", dateIsOnOrBefore("expenditure end date")],
   ["transfer type", dropdownIncludes("award payment method")],
-  [ "transfer date", dateIsInReportingPeriod ],
-  [ "expenditure start date", dateIsInReportingPeriod ]
-
+  ["transfer date", dateIsInReportingPeriod],
+  ["expenditure start date", dateIsInReportingPeriod]
 ];
 
 module.exports = {
