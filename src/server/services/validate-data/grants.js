@@ -1,4 +1,5 @@
 const {
+  dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
   isNotBlank,
@@ -65,10 +66,11 @@ const requiredFields = [
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
   ],
-  ["current quarter obligation", numberIsLessThanOrEqual("award amount")]
-  // TODO
-  // award date >= reporting period start date
-  // period of performance end date <= reporting period end date
+  ["current quarter obligation", numberIsLessThanOrEqual("award amount")],
+
+  [ "award date", dateIsInReportingPeriod ],
+  [ "period of performance end date", dateIsInReportingPeriod ]
+
 ];
 
 module.exports = requiredFields;

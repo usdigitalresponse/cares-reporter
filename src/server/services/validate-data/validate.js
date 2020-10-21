@@ -1,6 +1,12 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
+const ssf = require('ssf');
 const _ = require("lodash");
+
+function dateIsInReportingPeriod(val, content, { reportingPeriod }) {
+  const dt = ssf.format("yyyy-MM-dd", val);
+  return dt >= reportingPeriod.startDate && dt <= reportingPeriod.endDate;
+}
 
 function dateIsOnOrBefore(key) {
   return (val, content) => {
@@ -120,6 +126,7 @@ function validateDocuments(documents, tab, requiredFields, validateContext) {
 }
 
 module.exports = {
+  dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dateIsOnOrAfter,
   dropdownIncludes,
