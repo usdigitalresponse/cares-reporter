@@ -1,9 +1,7 @@
 <template>
   <div class="upload">
-    <h1>UploadFile</h1>
-
+    <h1>Upload File</h1>
     <div v-if="uploadConfiguration">
-      <h2>{{ uploadConfiguration.name }}</h2>
       <form method="post" encType="multipart/form-data" @submit="uploadFile">
         <div class="form-group">
           <input

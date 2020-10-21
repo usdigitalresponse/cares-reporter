@@ -1,62 +1,56 @@
 <template>
   <div class="home">
     <div>
-      <h2>Dashboard</h2>
       <div class="row">
-        <div v-if="template" class="col-4">
-          <h3 class="mt-3">Downloads</h3>
-          <div>
-            <a :href="downloadUrl()" class="btn btn-primary"
-              >Download Treasury Report</a
-            >
-          </div>
-          <div class="mt-2">
-            <a :href="downloadTemplateUrl()" class="btn btn-primary" download
-              >Download Template</a
-            >
-          </div>
-        </div>
-        <div class="mt-3 col-4" v-if="currentReportingPeriod">
-          <h3>Current Reporting Period</h3>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Start Date</th>
-                <th>End Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{{ dateFormat(currentReportingPeriod.start_date) }}</td>
-                <td>{{ dateFormat(currentReportingPeriod.end_date) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="mt-3 col-4">
-          <h3>Record Summary</h3>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr :key="table.name" v-for="table in tables">
-                <td>
-                  <router-link :to="dataUrl(table)">{{
-                    titleize(table.name)
-                  }}</router-link>
-                </td>
-                <td>{{ documentCount(table.name) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="col-12">
+          <h3>Reporting Period:
+                {{ dateFormat(currentReportingPeriod.start_date) }} to
+                {{ dateFormat(currentReportingPeriod.end_date) }}
+          </h3>
         </div>
       </div>
-      <h3 class="mt-3">Upload History</h3>
-      <UploadHistory :uploads="uploads" />
+      <div class="row buttons mt-5">
+        <div class="col-4">
+          <a :href="downloadUrl()" class="btn btn-primary">Download Treasury Report</a>
+        </div>
+        <div class="col-4">
+          <a href="/new_upload" class="btn btn-secondary">Upload Agency Spreadsheet</a>
+        </div>
+        <div class="col-4">
+          <a :href="downloadTemplateUrl()" class="btn btn-secondary" download>Download Empty Template</a>
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col-12">
+          <h3 class="mt-3">Record Summary</h3>
+        </div>
+        <table class="table table-borderless">
+          <thead>
+            <tr>
+              <th :key="table.name" v-for="table in tables">{{titleize(table.name)}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td :key="table.name" v-for="table in tables" class="count">
+                <span v-if="documentCount(table.name) > 0">
+                  <router-link :to="dataUrl(table)">{{documentCount(table.name)}}</router-link>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12">
+          <h3>Upload History</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <UploadHistory :uploads="uploads" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -139,5 +133,13 @@ h2,
 td,
 pre {
   text-align: left;
+}
+.count {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+}
+.buttons {
+  text-align: center;
 }
 </style>
