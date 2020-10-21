@@ -1,5 +1,6 @@
 const xlsx = require("xlsx");
 const {
+  currentReportingPeriod,
   user,
   createUpload,
   createDocuments,
@@ -50,7 +51,8 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
 
   let documents = removeEmptyDocuments(spreadsheetDocuments);
 
-  const dataValog = await validateData(documents, fileParts);
+  const reportingPeriod = await currentReportingPeriod();
+  const dataValog = await validateData(documents, fileParts, reportingPeriod);
   valog.append(dataValog);
 
   if (!valog.success()) {

@@ -1,4 +1,5 @@
 const {
+  dateIsInReportingPeriod,
   dateIsOnOrBefore,
   isNumber,
   isPositiveNumber,
@@ -41,11 +42,10 @@ const requiredFields = [
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
   ],
-  ["current quarter obligation", numberIsLessThanOrEqual("obligation amount")]
-  // TODO
-  // obligation date <= reporting period end date
-  // obligation date >= reporting period start date
-  // expenditure start date <= reporting period end date
+  ["current quarter obligation", numberIsLessThanOrEqual("obligation amount")],
+
+  [ "obligation date", dateIsInReportingPeriod ],
+  [ "expenditure start date", dateIsInReportingPeriod ]
 ];
 
 module.exports = requiredFields;
