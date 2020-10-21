@@ -125,6 +125,24 @@ function validateDocuments(documents, tab, requiredFields, validateContext) {
   return valog;
 }
 
+function validateSingleDocument(documents, params, validateContext) {
+  let valog = [];
+  const tabItem = params.tabName;
+
+  if (documents && documents.length == 1) {
+    const { content } = documents[0];
+    const row = 2;
+    valog = valog.concat(
+      validateFields(params.validations, content, tabItem, row, validateContext)
+    );
+  } else {
+    valog.push(
+      new ValidationItem({ message: params.message, tab: tabItem })
+    );
+  }
+  return valog;
+}
+
 module.exports = {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
@@ -142,5 +160,6 @@ module.exports = {
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
   validateDocuments,
-  validateFields
+  validateFields,
+  validateSingleDocument
 };

@@ -14,29 +14,9 @@ const requiredFields = [
   ]
 ];
 
-function validateCover(documents, validateContext) {
-  let valog = [];
-  const tabItem = "cover";
-
-  if (documents && documents.length > 0) {
-    const { content } = documents[0];
-    const row = 2;
-    valog = valog.concat(
-      validateFields(requiredFields, content, tabItem, row, validateContext)
-    );
-  } else {
-    valog.push(
-      new ValidationItem({
-        message: `${tabItem} requires a row with "agency code" and "project id"`,
-        tab: tabItem
-      })
-    );
-  }
-  return valog;
-}
-
 module.exports = {
   tabName: "cover",
-  type: "custom",
-  execute: validateCover
+  type: "exactlyOne",
+  message: `cover requires a row with "agency code" and "project id"`,
+  validations: requiredFields
 };
