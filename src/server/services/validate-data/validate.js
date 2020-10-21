@@ -1,5 +1,6 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
+const { subrecipientKey } = require("./helpers");
 const ssf = require('ssf');
 const _ = require("lodash");
 
@@ -18,6 +19,10 @@ function dateIsOnOrAfter(key) {
   return (val, content) => {
     return new Date(val).getTime() >= new Date(content[key]).getTime();
   };
+}
+
+function hasSubrecipientKey(val, content) {
+  return subrecipientKey(content);
 }
 
 function isNotBlank(val) {
@@ -148,6 +153,7 @@ module.exports = {
   dateIsOnOrBefore,
   dateIsOnOrAfter,
   dropdownIncludes,
+  hasSubrecipientKey,
   isNotBlank,
   isNumber,
   isPositiveNumber,
