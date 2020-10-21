@@ -39,8 +39,7 @@ const validateData = (documents, fileParts, reportingPeriod) => {
       case "every":
         tabValog = validateDocuments(
           groupedDocuments[validations.tabName],
-          validations.tabName,
-          validations.validations,
+          validations,
           validateContext
         );
         break;
