@@ -104,7 +104,7 @@ function dropdownIncludes(key) {
 
 function whenBlank(key, validator) {
   return (val, content, context) => {
-    return !!content[key] || validator(val, content, context)
+    return !!content[key] || validator(val, content, context);
   };
 }
 

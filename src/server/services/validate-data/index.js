@@ -12,7 +12,6 @@ const { getSubrecipientsHash } = require("./helpers");
 const { format } = require("date-fns");
 
 const validateData = (documents, fileParts, reportingPeriod) => {
-  const valog = [];
   const groupedDocuments = _.groupBy(documents, "type");
   const subrecipientsHash = getSubrecipientsHash(groupedDocuments.subrecipient);
 
@@ -25,12 +24,9 @@ const validateData = (documents, fileParts, reportingPeriod) => {
     subrecipientsHash
   };
 
-  _.each(tabValidators, validator => {
-    const tabValog = validator(groupedDocuments, validateContext);
-    valog.push(...tabValog.slice(0, 100));
+  return _.flatMap(tabValidators, validator => {
+    return _.take(validator(groupedDocuments, validateContext), 100);
   });
-
-  return valog;
 };
 
 module.exports = { validateData };
