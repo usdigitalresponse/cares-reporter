@@ -22,11 +22,11 @@ function dateIsOnOrAfter(key) {
 }
 
 function hasSubrecipientKey(val, content) {
-  return subrecipientKey(content);
+  return !!subrecipientKey(content);
 }
 
 function isNotBlank(val) {
-  return /\w/.test(val);
+  return _.isNumber(val) || !_.isEmpty(val);
 }
 
 function isNumber(val) {
@@ -104,10 +104,7 @@ function dropdownIncludes(key) {
 
 function whenBlank(key, validator) {
   return (val, content, context) => {
-    if (!content[key]) {
-      return validator(val, content, context);
-    }
-    return true;
+    return !!content[key] || validator(val, content, context)
   };
 }
 
