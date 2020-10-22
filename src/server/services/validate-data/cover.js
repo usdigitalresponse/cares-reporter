@@ -1,4 +1,5 @@
 const { matchesFilePart } = require("./validate");
+const { validateSingleDocument } = require("./validate");
 
 const requiredFields = [
   [
@@ -13,9 +14,8 @@ const requiredFields = [
   ]
 ];
 
-module.exports = {
-  tabName: "cover",
-  type: "exactlyOne",
-  message: `cover requires a row with "agency code" and "project id"`,
-  validations: requiredFields
-};
+module.exports = validateSingleDocument(
+  "cover",
+  requiredFields,
+  `cover requires a row with "agency code" and "project id"`
+);

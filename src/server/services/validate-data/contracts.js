@@ -10,7 +10,8 @@ const {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
-  numberIsLessThanOrEqual
+  numberIsLessThanOrEqual,
+  validateDocuments
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -70,8 +71,4 @@ const requiredFields = [
   ["period of performance end date", dateIsInReportingPeriod]
 ];
 
-module.exports = {
-  tabName: "contracts",
-  type: "every",
-  validations: requiredFields
-};
+module.exports = validateDocuments("contracts", requiredFields);
