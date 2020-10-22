@@ -130,7 +130,13 @@ function validateDocuments(tab, validations) {
   return function(groupedDocuments, validateContext) {
     const documents = groupedDocuments[tab];
     return _.flatMap(documents, ({ content }, row) => {
-      return validateFields(validations, content, tab, row + 2, validateContext);
+      return validateFields(
+        validations,
+        content,
+        tab,
+        row + 2,
+        validateContext
+      );
     });
   };
 }
