@@ -1,5 +1,5 @@
 const _ = require("lodash");
-const validateTabs = [
+const tabValidators = [
   require("./cover"),
   require("./subrecipients"),
   require("./contracts"),
@@ -9,7 +9,6 @@ const validateTabs = [
   require("./direct")
 ];
 const { getSubrecipientsHash } = require("./helpers");
-const { validateDocuments, validateSingleDocument } = require("./validate");
 const { format } = require("date-fns");
 
 const validateData = (documents, fileParts, reportingPeriod) => {
@@ -26,26 +25,8 @@ const validateData = (documents, fileParts, reportingPeriod) => {
     subrecipientsHash
   };
 
-  _.each(validateTabs, validations => {
-    let tabValog = [];
-    switch (validations.type) {
-      case "exactlyOne":
-        tabValog = validateSingleDocument(
-          groupedDocuments[validations.tabName],
-          validations,
-          validateContext
-        );
-        break;
-      case "every":
-        tabValog = validateDocuments(
-          groupedDocuments[validations.tabName],
-          validations,
-          validateContext
-        );
-        break;
-      default:
-        break;
-    }
+  _.each(tabValidators, validator => {
+    const tabValog = validator(groupedDocuments, validateContext);
     valog.push(...tabValog.slice(0, 100));
   });
 

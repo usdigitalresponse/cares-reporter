@@ -4,7 +4,7 @@ const {
   isNotBlank,
   isValidState,
   isValidZip,
-  validateFields,
+  validateDocuments,
   whenBlank
 } = require("./validate");
 
@@ -24,8 +24,4 @@ const requiredFields = [
   ["country name", whenBlank("duns number", dropdownIncludes("country"))]
 ];
 
-module.exports = {
-  tabName: "subrecipient",
-  type: "every",
-  validations: requiredFields
-};
+module.exports = validateDocuments("subrecipient", requiredFields);

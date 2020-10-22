@@ -127,17 +127,29 @@ describe("validation helpers", () => {
     ],
     [
       "conditional validation passes",
-      whenBlank("duns number", isNotBlank)("123", { "duns number": "" }, validateContext),
+      whenBlank("duns number", isNotBlank)(
+        "123",
+        { "duns number": "" },
+        validateContext
+      ),
       true
     ],
     [
       "conditional validation fails",
-      whenBlank("duns number", isNotBlank)("", { "duns number": "" }, validateContext),
+      whenBlank("duns number", isNotBlank)(
+        "",
+        { "duns number": "" },
+        validateContext
+      ),
       false
     ],
     [
       "conditional validation ignored",
-      whenBlank("duns number", isNotBlank)("", { "duns number": "123" }, validateContext),
+      whenBlank("duns number", isNotBlank)(
+        "",
+        { "duns number": "123" },
+        validateContext
+      ),
       true
     ]
   ];
@@ -177,16 +189,18 @@ describe("validateFields", () => {
 });
 
 describe("validateDocuments", () => {
-  const documents = [
-    { content: { name: "George" } },
-    { content: { name: "John" } },
-    { content: { name: "Thomas" } },
-    { content: { name: "James" } },
-    { content: { name: "" } }
-  ];
+  const documents = {
+    test: [
+      { content: { name: "George" } },
+      { content: { name: "John" } },
+      { content: { name: "Thomas" } },
+      { content: { name: "James" } },
+      { content: { name: "" } }
+    ]
+  };
   const validations = [["name", isNotBlank]];
   it("can validate a collection of documents", () => {
-    const log = validateDocuments(documents, { tabName: "test", validations }, {});
+    const log = validateDocuments("test", validations)(documents, {});
     expect(log).to.have.length(1);
   });
 });

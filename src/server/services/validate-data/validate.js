@@ -108,7 +108,7 @@ function whenBlank(key, validator) {
       return validator(val, content, context);
     }
     return true;
-  }
+  };
 }
 
 function validateFields(requiredFields, content, tab, row, context = {}) {
@@ -129,30 +129,35 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
   return valog;
 }
 
-function validateDocuments(documents, params, validateContext) {
-  let valog = [];
-  _.each(documents, ({ content }, row) => {
-    valog = valog.concat(
-      validateFields(params.validations, content, params.tabName, row + 2, validateContext)
-    );
-  });
-  return valog;
+function validateDocuments(tab, validations) {
+  return function(groupedDocuments, validateContext) {
+    const documents = groupedDocuments[tab];
+    let valog = [];
+    _.each(documents, ({ content }, row) => {
+      valog = valog.concat(
+        validateFields(validations, content, tab, row + 2, validateContext)
+      );
+    });
+    return valog;
+  };
 }
 
-function validateSingleDocument(documents, params, validateContext) {
-  let valog = [];
-  const tabItem = params.tabName;
+function validateSingleDocument(tab, validations, message) {
+  return function(groupedDocuments, validateContext) {
+    const documents = groupedDocuments[tab];
+    let valog = [];
 
-  if (documents && documents.length == 1) {
-    const { content } = documents[0];
-    const row = 2;
-    valog = valog.concat(
-      validateFields(params.validations, content, tabItem, row, validateContext)
-    );
-  } else {
-    valog.push(new ValidationItem({ message: params.message, tab: tabItem }));
-  }
-  return valog;
+    if (documents && documents.length == 1) {
+      const { content } = documents[0];
+      const row = 2;
+      valog = valog.concat(
+        validateFields(validations, content, tab, row, validateContext)
+      );
+    } else {
+      valog.push(new ValidationItem({ message, tab }));
+    }
+    return valog;
+  };
 }
 
 module.exports = {
