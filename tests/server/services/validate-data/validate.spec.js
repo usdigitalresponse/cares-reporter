@@ -10,7 +10,8 @@ const {
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
   validateFields,
-  validateDocuments
+  validateDocuments,
+  whenBlank
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
@@ -26,7 +27,7 @@ describe("validation helpers", () => {
     },
     reportingPeriod: {
       startDate: "2020-03-01",
-      endDate:"2020-12-30"
+      endDate: "2020-12-30"
     }
   };
   const testCases = [
@@ -123,6 +124,33 @@ describe("validation helpers", () => {
       "date is after reporting period",
       dateIsInReportingPeriod(44197, {}, validateContext),
       false
+    ],
+    [
+      "conditional validation passes",
+      whenBlank("duns number", isNotBlank)(
+        "123",
+        { "duns number": "" },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "conditional validation fails",
+      whenBlank("duns number", isNotBlank)(
+        "",
+        { "duns number": "" },
+        validateContext
+      ),
+      false
+    ],
+    [
+      "conditional validation ignored",
+      whenBlank("duns number", isNotBlank)(
+        "",
+        { "duns number": "123" },
+        validateContext
+      ),
+      true
     ]
   ];
   testCases.forEach(([name, b, expectedResult]) => {
@@ -161,16 +189,18 @@ describe("validateFields", () => {
 });
 
 describe("validateDocuments", () => {
-  const documents = [
-    { content: { name: "George" } },
-    { content: { name: "John" } },
-    { content: { name: "Thomas" } },
-    { content: { name: "James" } },
-    { content: { name: "" } }
-  ];
-  const requiredFields = [["name", isNotBlank]];
+  const documents = {
+    test: [
+      { content: { name: "George" } },
+      { content: { name: "John" } },
+      { content: { name: "Thomas" } },
+      { content: { name: "James" } },
+      { content: { name: "" } }
+    ]
+  };
+  const validations = [["name", isNotBlank]];
   it("can validate a collection of documents", () => {
-    const log = validateDocuments(documents, "test", requiredFields, {});
+    const log = validateDocuments("test", validations)(documents, {});
     expect(log).to.have.length(1);
   });
 });

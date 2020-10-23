@@ -9,7 +9,8 @@ const {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
-  numberIsLessThanOrEqual
+  numberIsLessThanOrEqual,
+  validateDocuments
 } = require("./validate");
 
 // type pattern for this elements of the fields array is
@@ -40,7 +41,7 @@ const requiredFields = [
   ],
   ["current quarter obligation", numberIsLessThanOrEqual("loan amount")],
 
-  [ "loan date", dateIsInReportingPeriod ],
+  ["loan date", dateIsInReportingPeriod]
 ];
 
-module.exports = requiredFields;
+module.exports = validateDocuments("loans", requiredFields);
