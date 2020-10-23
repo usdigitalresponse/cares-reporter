@@ -11,7 +11,8 @@ const {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
-  numberIsLessThanOrEqual
+  numberIsLessThanOrEqual,
+  validateDocuments
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -68,9 +69,8 @@ const requiredFields = [
   ],
   ["current quarter obligation", numberIsLessThanOrEqual("award amount")],
 
-  [ "award date", dateIsInReportingPeriod ],
-  [ "period of performance end date", dateIsInReportingPeriod ]
-
+  ["award date", dateIsInReportingPeriod],
+  ["period of performance end date", dateIsInReportingPeriod]
 ];
 
-module.exports = requiredFields;
+module.exports = validateDocuments("grants", requiredFields);

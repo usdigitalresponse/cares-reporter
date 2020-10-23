@@ -1,6 +1,7 @@
 const { ValidationItem } = require("../../lib/validation-log");
 const { dropdownValues } = require("../get-template");
-const ssf = require('ssf');
+const { subrecipientKey } = require("./helpers");
+const ssf = require("ssf");
 const _ = require("lodash");
 
 function dateIsInReportingPeriod(val, content, { reportingPeriod }) {
@@ -20,8 +21,12 @@ function dateIsOnOrAfter(key) {
   };
 }
 
+function hasSubrecipientKey(val, content) {
+  return !!subrecipientKey(content);
+}
+
 function isNotBlank(val) {
-  return /\w/.test(val);
+  return _.isNumber(val) || !_.isEmpty(val);
 }
 
 function isNumber(val) {
@@ -97,6 +102,12 @@ function dropdownIncludes(key) {
   return val => _.get(dropdownValues, key, []).includes(val.toLowerCase());
 }
 
+function whenBlank(key, validator) {
+  return (val, content, context) => {
+    return !!content[key] || validator(val, content, context);
+  };
+}
+
 function validateFields(requiredFields, content, tab, row, context = {}) {
   const valog = [];
   requiredFields.forEach(([key, validator, message]) => {
@@ -115,14 +126,37 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
   return valog;
 }
 
-function validateDocuments(documents, tab, requiredFields, validateContext) {
-  let valog = [];
-  _.each(documents, ({ content }, row) => {
-    valog = valog.concat(
-      validateFields(requiredFields, content, tab, row + 2, validateContext)
-    );
-  });
-  return valog;
+function validateDocuments(tab, validations) {
+  return function(groupedDocuments, validateContext) {
+    const documents = groupedDocuments[tab];
+    return _.flatMap(documents, ({ content }, row) => {
+      return validateFields(
+        validations,
+        content,
+        tab,
+        row + 2,
+        validateContext
+      );
+    });
+  };
+}
+
+function validateSingleDocument(tab, validations, message) {
+  return function(groupedDocuments, validateContext) {
+    const documents = groupedDocuments[tab];
+    let valog = [];
+
+    if (documents && documents.length == 1) {
+      const { content } = documents[0];
+      const row = 2;
+      valog = valog.concat(
+        validateFields(validations, content, tab, row, validateContext)
+      );
+    } else {
+      valog.push(new ValidationItem({ message, tab }));
+    }
+    return valog;
+  };
 }
 
 module.exports = {
@@ -130,6 +164,7 @@ module.exports = {
   dateIsOnOrBefore,
   dateIsOnOrAfter,
   dropdownIncludes,
+  hasSubrecipientKey,
   isNotBlank,
   isNumber,
   isPositiveNumber,
@@ -142,5 +177,7 @@ module.exports = {
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
   validateDocuments,
-  validateFields
+  validateFields,
+  validateSingleDocument,
+  whenBlank
 };
