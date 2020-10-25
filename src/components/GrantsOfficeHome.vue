@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div>
-      <div class="row">
+      <div class="row" v-if="currentReportingPeriod">
         <div class="col-12">
           <h3>
             Reporting Period:
@@ -76,12 +76,10 @@ export default {
   components: {
     UploadHistory
   },
-  data: function() {
-    return {
-      currentReportingPeriod: this.$store.getters.currentReportingPeriod
-    };
-  },
   computed: {
+    currentReportingPeriod: function() {
+      return this.$store.getters.currentReportingPeriod;
+    },
     template: function() {
       return _.find(this.$store.state.configuration.templates, t =>
         t.name.match(/agency/i)
