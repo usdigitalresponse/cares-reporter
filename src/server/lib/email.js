@@ -16,4 +16,15 @@ function sendPasscode(email, passcode, httpOrigin) {
   return sg.send(msg);
 }
 
-module.exports = { sendPasscode };
+function sendWelcomeEmail(email, httpOrigin) {
+  const msg = {
+    to: email,
+    from: fromEmail,
+    subject: "CARES Reporter Access Granted",
+    html: `<p>You have been granted access to the CARES Reporter:
+     <a href="${httpOrigin}}">${httpOrigin}</a>.`
+  };
+  return sg.send(msg);
+}
+
+module.exports = { sendPasscode, sendWelcomeEmail };
