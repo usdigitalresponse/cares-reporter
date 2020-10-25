@@ -10,10 +10,15 @@
       </div>
     </div>
     <div class="row buttons mt-5">
-      <div class="col-12">
+      <div class="col-6">
         <button class="btn btn-primary" @click="startUpload">
           Upload Spreadsheet
         </button>
+      </div>
+      <div class="col-6">
+        <a :href="downloadTemplateUrl()" class="btn btn-secondary" download
+          >Download Empty Template</a
+        >
       </div>
     </div>
     <h3 class="mt-3">Upload History</h3>
@@ -52,6 +57,9 @@ export default {
       return moment(d)
         .utc()
         .format("MM-DD-YYYY");
+    },
+    downloadTemplateUrl() {
+      return `/templates/empty-template.xlsx`;
     }
   }
 };
