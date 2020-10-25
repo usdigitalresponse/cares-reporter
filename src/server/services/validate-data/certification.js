@@ -1,12 +1,9 @@
-const {
-  isNotBlank,
-  isValidDate
-} = require("./validate");
+const { isNotBlank, isValidDate } = require("./validate");
 const { validateSingleDocument } = require("./validate");
 
 const requiredFields = [
-  [ "agency financial reviewer name", isNotBlank ],
-  [ "date", isValidDate ]
+  ["agency financial reviewer name", isNotBlank],
+  ["date", isValidDate]
 ];
 
 module.exports = validateSingleDocument(
@@ -14,4 +11,3 @@ module.exports = validateSingleDocument(
   requiredFields,
   `certification requires a row with "agency financial reviewer name" and "date"`
 );
-
