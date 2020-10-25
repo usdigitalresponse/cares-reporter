@@ -2,7 +2,11 @@
   <div class="upload">
     <h1>Upload File</h1>
     <div v-if="uploadConfiguration">
-      <form method="post" encType="multipart/form-data" @submit="uploadFile">
+      <form
+        method="post"
+        encType="multipart/form-data"
+        @submit.prevent="uploadFile"
+      >
         <div class="form-group">
           <input
             class="form-control"
@@ -13,8 +17,13 @@
           />
         </div>
         <div class="form-group">
-          <button class="btn btn-primary" type="submit" @click="uploadFile">
-            Upload
+          <button
+            class="btn btn-primary"
+            type="submit"
+            :disabled="uploadDisabled"
+            @click.prevent="uploadFile"
+          >
+            {{ uploadButtonLabel }}
           </button>
           <a class="ml-5" href="#" @click="cancelUpload">Cancel</a>
         </div>
@@ -51,26 +60,34 @@ export default {
   data: function() {
     return {
       message: null,
-      errors: []
+      errors: [],
+      uploading: false
     };
   },
   computed: {
     uploadConfiguration: function() {
       return this.$store.getters.template;
+    },
+    uploadButtonLabel: function() {
+      return this.uploading ? "Uploading..." : "Upload";
+    },
+    uploadDisabled: function() {
+      return this.uploading;
     }
   },
   methods: {
     titleize,
-    uploadFile: async function(e) {
-      e.preventDefault();
+    uploadFile: async function() {
       const file = _.get(this.$refs, "files.files[0]");
       if (file) {
+        this.uploading = true;
         this.message = null;
         this.errors = [];
         let formData = new FormData();
         formData.append("spreadsheet", file);
         try {
           const r = await this.$store.dispatch("createUpload", formData);
+          this.uploading = false;
           if ((r.errors || []).length > 0) {
             this.errors = r.errors;
           } else {
@@ -78,6 +95,7 @@ export default {
           }
         } catch (e) {
           this.message = e.message;
+          this.uploading = false;
         }
       }
     },

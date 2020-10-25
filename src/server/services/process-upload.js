@@ -66,7 +66,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   } catch (e) {
     valog.append(
       e.code === "EEXIST"
-        ? `The file ${filename} is already in the database. Should this be a new version?`
+        ? `The file ${filename} is already in the database. Change the version number to upload again.`
         : e.message
     );
   }

@@ -48,7 +48,8 @@ export default new Vuex.Store({
     uploads: [],
     agencies: [],
     projects: [],
-    reportingPeriods: []
+    reportingPeriods: [],
+    messages: []
   },
   mutations: {
     setUser(state, user) {
@@ -89,6 +90,9 @@ export default new Vuex.Store({
         [...state.configuration.users, user],
         "email"
       );
+    },
+    addMessage(state, message) {
+      state.messages = [...state.messages, message];
     }
   },
   actions: {
@@ -145,6 +149,10 @@ export default new Vuex.Store({
         .then(response => {
           if (response.success && response.upload) {
             commit("addUpload", response.upload);
+            commit(
+              "addMessage",
+              `File "${response.upload.filename}" uploaded successfully`
+            );
           }
           return response;
         });
