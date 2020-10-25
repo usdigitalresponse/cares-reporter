@@ -5,6 +5,7 @@
       <form
         method="post"
         encType="multipart/form-data"
+        ref="form"
         @submit.prevent="uploadFile"
       >
         <div class="form-group">
@@ -13,6 +14,7 @@
             type="file"
             id="spreadsheet"
             name="spreadsheet"
+            @change="changeFiles"
             ref="files"
           />
         </div>
@@ -25,7 +27,7 @@
           >
             {{ uploadButtonLabel }}
           </button>
-          <a class="ml-5" href="#" @click="cancelUpload">Cancel</a>
+          <a class="ml-3" href="#" @click="cancelUpload">Cancel</a>
         </div>
       </form>
       <div class="mt-3 alert alert-danger" v-if="message">{{ message }}</div>
@@ -61,6 +63,7 @@ export default {
     return {
       message: null,
       errors: [],
+      files: null,
       uploading: false
     };
   },
@@ -72,13 +75,17 @@ export default {
       return this.uploading ? "Uploading..." : "Upload";
     },
     uploadDisabled: function() {
-      return this.uploading;
+      return this.files === null || this.uploading;
     }
   },
   methods: {
     titleize,
+    changeFiles() {
+      this.files = this.$refs.files.files;
+    },
     uploadFile: async function() {
       const file = _.get(this.$refs, "files.files[0]");
+      const form = _.get(this.$refs, "form");
       if (file) {
         this.uploading = true;
         this.message = null;
@@ -88,6 +95,7 @@ export default {
         try {
           const r = await this.$store.dispatch("createUpload", formData);
           this.uploading = false;
+          form.reset();
           if ((r.errors || []).length > 0) {
             this.errors = r.errors;
           } else {
