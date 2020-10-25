@@ -4,6 +4,7 @@
     <table class="table table-striped">
       <thead>
         <tr>
+          <th>Email</th>
           <th>Name</th>
           <th>Role</th>
           <th>Agency</th>
@@ -13,6 +14,7 @@
       <tbody>
         <tr :key="user.email" v-for="user in users">
           <td>{{ user.email }}</td>
+          <td>{{ user.name }}</td>
           <td>{{ user.role }}</td>
           <td>{{ agencyName(user.agency_id) }}</td>
           <td>{{ user.created_at }}</td>
