@@ -34,16 +34,16 @@
         <table class="table">
           <thead>
             <tr>
+              <th>Error</th>
               <th>Tab</th>
               <th>Row</th>
-              <th>Error</th>
             </tr>
           </thead>
           <tbody>
             <tr :key="n" class="table-danger" v-for="(error, n) in errors">
+              <td>{{ error.message }}</td>
               <td>{{ titleize(error.tab) }}</td>
               <td>{{ error.row }}</td>
-              <td>{{ error.message }}</td>
             </tr>
           </tbody>
         </table>
