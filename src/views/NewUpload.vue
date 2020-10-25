@@ -2,21 +2,32 @@
   <div class="upload">
     <h1>Upload File</h1>
     <div v-if="uploadConfiguration">
-      <form method="post" encType="multipart/form-data" @submit="uploadFile">
+      <form
+        method="post"
+        encType="multipart/form-data"
+        ref="form"
+        @submit.prevent="uploadFile"
+      >
         <div class="form-group">
           <input
             class="form-control"
             type="file"
             id="spreadsheet"
             name="spreadsheet"
+            @change="changeFiles"
             ref="files"
           />
         </div>
         <div class="form-group">
-          <button class="btn btn-primary" type="submit" @click="uploadFile">
-            Upload
+          <button
+            class="btn btn-primary"
+            type="submit"
+            :disabled="uploadDisabled"
+            @click.prevent="uploadFile"
+          >
+            {{ uploadButtonLabel }}
           </button>
-          <a class="ml-5" href="#" @click="cancelUpload">Cancel</a>
+          <a class="ml-3" href="#" @click="cancelUpload">Cancel</a>
         </div>
       </form>
       <div class="mt-3 alert alert-danger" v-if="message">{{ message }}</div>
@@ -25,16 +36,16 @@
         <table class="table">
           <thead>
             <tr>
+              <th>Error</th>
               <th>Tab</th>
               <th>Row</th>
-              <th>Error</th>
             </tr>
           </thead>
           <tbody>
             <tr :key="n" class="table-danger" v-for="(error, n) in errors">
+              <td>{{ error.message }}</td>
               <td>{{ titleize(error.tab) }}</td>
               <td>{{ error.row }}</td>
-              <td>{{ error.message }}</td>
             </tr>
           </tbody>
         </table>
@@ -51,26 +62,40 @@ export default {
   data: function() {
     return {
       message: null,
-      errors: []
+      errors: [],
+      files: null,
+      uploading: false
     };
   },
   computed: {
     uploadConfiguration: function() {
       return this.$store.getters.template;
+    },
+    uploadButtonLabel: function() {
+      return this.uploading ? "Uploading..." : "Upload";
+    },
+    uploadDisabled: function() {
+      return this.files === null || this.uploading;
     }
   },
   methods: {
     titleize,
-    uploadFile: async function(e) {
-      e.preventDefault();
+    changeFiles() {
+      this.files = this.$refs.files.files;
+    },
+    uploadFile: async function() {
       const file = _.get(this.$refs, "files.files[0]");
+      const form = _.get(this.$refs, "form");
       if (file) {
+        this.uploading = true;
         this.message = null;
         this.errors = [];
         let formData = new FormData();
         formData.append("spreadsheet", file);
         try {
           const r = await this.$store.dispatch("createUpload", formData);
+          this.uploading = false;
+          form.reset();
           if ((r.errors || []).length > 0) {
             this.errors = r.errors;
           } else {
@@ -78,6 +103,7 @@ export default {
           }
         } catch (e) {
           this.message = e.message;
+          this.uploading = false;
         }
       }
     },

@@ -1,23 +1,30 @@
 <template>
   <div class="home">
     <div>
-      <div class="row">
+      <div class="row" v-if="currentReportingPeriod">
         <div class="col-12">
-          <h3>Reporting Period:
-                {{ dateFormat(currentReportingPeriod.start_date) }} to
-                {{ dateFormat(currentReportingPeriod.end_date) }}
+          <h3>
+            Reporting Period:
+            {{ dateFormat(currentReportingPeriod.start_date) }} to
+            {{ dateFormat(currentReportingPeriod.end_date) }}
           </h3>
         </div>
       </div>
       <div class="row buttons mt-5">
         <div class="col-4">
-          <a :href="downloadUrl()" class="btn btn-primary">Download Treasury Report</a>
+          <a :href="downloadUrl()" class="btn btn-primary"
+            >Download Treasury Report</a
+          >
         </div>
         <div class="col-4">
-          <a href="/new_upload" class="btn btn-secondary">Upload Agency Spreadsheet</a>
+          <a href="/new_upload" class="btn btn-secondary"
+            >Upload Agency Spreadsheet</a
+          >
         </div>
         <div class="col-4">
-          <a :href="downloadTemplateUrl()" class="btn btn-secondary" download>Download Empty Template</a>
+          <a :href="downloadTemplateUrl()" class="btn btn-secondary" download
+            >Download Empty Template</a
+          >
         </div>
       </div>
       <div class="row mt-5">
@@ -27,14 +34,18 @@
         <table class="table table-borderless">
           <thead>
             <tr>
-              <th :key="table.name" v-for="table in tables">{{titleize(table.name)}}</th>
+              <th :key="table.name" v-for="table in tables">
+                {{ titleize(table.name) }}
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td :key="table.name" v-for="table in tables" class="count">
                 <span v-if="documentCount(table.name) > 0">
-                  <router-link :to="dataUrl(table)">{{documentCount(table.name)}}</router-link>
+                  <router-link :to="dataUrl(table)">{{
+                    documentCount(table.name)
+                  }}</router-link>
                 </span>
               </td>
             </tr>
@@ -65,12 +76,10 @@ export default {
   components: {
     UploadHistory
   },
-  data: function() {
-    return {
-      currentReportingPeriod: this.$store.getters.currentReportingPeriod
-    };
-  },
   computed: {
+    currentReportingPeriod: function() {
+      return this.$store.getters.currentReportingPeriod;
+    },
     template: function() {
       return _.find(this.$store.state.configuration.templates, t =>
         t.name.match(/agency/i)

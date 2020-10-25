@@ -53,15 +53,22 @@
         </li>
       </ul>
     </div>
+    <div class="messages">
+      <Messages />
+    </div>
     <router-view />
   </div>
 </template>
 
 <script>
+import Messages from "./Messages";
 import { titleize } from "../helpers/form-helpers";
 
 export default {
   name: "Logout",
+  components: {
+    Messages
+  },
   computed: {
     user: function() {
       return this.$store.getters.user;
@@ -117,6 +124,7 @@ export default {
 .title {
   font-size: 24px;
 }
+.messages,
 .navigation {
   width: 90%;
   margin: 0 auto;
