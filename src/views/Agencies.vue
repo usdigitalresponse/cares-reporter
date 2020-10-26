@@ -18,7 +18,7 @@ export default {
       user,
       table: {
         views: [],
-        columns: [{ name: "id" }, { name: "code" }, { name: "name" }]
+        columns: [{ name: "code", label: "Agency Code" }, { name: "name" }]
       }
     };
   },

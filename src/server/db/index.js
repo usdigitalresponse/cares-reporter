@@ -123,7 +123,14 @@ function agencyByCode(code) {
 
 function projects() {
   return knex("projects")
-    .select("*")
+    .select(
+      "projects.id",
+      "projects.code",
+      "projects.name",
+      "agencies.code as agency_code",
+      "agencies.name as agency_name"
+    )
+    .leftJoin("agencies", "projects.agency_id", "agencies.id")
     .orderBy("name");
 }
 
