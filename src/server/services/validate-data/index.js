@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const tabValidators = [
+  require("./certification"),
   require("./cover"),
   require("./subrecipients"),
   require("./contracts"),
