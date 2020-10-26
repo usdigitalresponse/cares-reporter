@@ -1,6 +1,6 @@
 <template>
   <table class="mt-3 table table-striped">
-    <thead>
+    <thead class="thead-light">
       <tr>
         <th :key="n" v-for="(column, n) in columns">
           {{ columnTitle(column) }}
@@ -11,7 +11,8 @@
       <template v-for="(groupRows, key) in groups">
         <tr :key="`${keyPrefix}-${key}`">
           <td :colspan="columns.length">
-            {{ titleize(groupBy) }}: <b>{{ key == "undefined" ? "" : key }}</b>
+            {{ titleize(groupBy) }}:
+            <b>{{ key == "undefined" || key == "null" ? "" : key }}</b>
           </td>
         </tr>
         <tr
