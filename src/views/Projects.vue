@@ -17,8 +17,17 @@ export default {
     return {
       user,
       table: {
-        views: [],
-        columns: [{ name: "id" }, { name: "code" }, { name: "name" }]
+        views: [
+          {
+            name: "Group by Agency",
+            groupBy: "agency_code"
+          }
+        ],
+        columns: [
+          { name: "code", label: "Project Code" },
+          { name: "name" },
+          { name: "agency_code", label: "Agency Code" }
+        ]
       }
     };
   },
