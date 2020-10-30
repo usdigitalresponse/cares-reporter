@@ -14,7 +14,7 @@ describe("process-upload", () => {
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
       expect(err.message).to.equal(
-        'Empty or invalid entry for agency financial reviewer name: ""'
+        "Agency financial reviewer name must not be blank"
       );
     });
   });
