@@ -20,28 +20,66 @@ const {
 //   message: string?
 // ]
 const requiredFields = [
-  ["loan number", isNotBlank],
-  ["loan amount", isPositiveNumber],
-  ["loan date", isValidDate],
-  ["primary place of performance address line 1", isNotBlank],
-  ["primary place of performance city name", isNotBlank],
-  ["primary place of performance state code", isValidState],
-  ["primary place of performance zip", isValidZip],
-  ["primary place of performance country name", dropdownIncludes("country")],
-  ["current quarter obligation", isNumber],
   [
     "project id",
     matchesFilePart("projectId"),
-    `The "project id" in the file name does not match the loan's "project id"`
+    'The loan project id "{}" does not match the project id in the filename'
   ],
   [
     "subrecipient id",
     isValidSubrecipient,
     'Each loan row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ],
-  ["current quarter obligation", numberIsLessThanOrEqual("loan amount")],
 
-  ["loan date", dateIsInReportingPeriod]
+  ["loan number", isNotBlank, "Load number must not be blank"],
+  [
+    "loan amount",
+    isPositiveNumber,
+    "Loan amount must be a number greater than zero"
+  ],
+  ["loan date", isValidDate, "Loan date must be a valid date"],
+  [
+    "loan date",
+    dateIsInReportingPeriod,
+    'Loan date "{}" is not in the reporting period'
+  ],
+
+  [
+    "primary place of performance address line 1",
+    isNotBlank,
+    "primary place of business address line 1 must not be blank "
+  ],
+  [
+    "primary place of performance city name",
+    isNotBlank,
+    "primary place of business city name must not be blank "
+  ],
+  [
+    "primary place of performance state code",
+    isValidState,
+    "primary place of business state code must not be blank "
+  ],
+  [
+    "primary place of performance zip",
+    isValidZip,
+    "primary place of business zip is not valid"
+  ],
+  [
+    "primary place of performance country name",
+    dropdownIncludes("country"),
+    'primary place of business country name "{}" is not valid'
+  ],
+
+  [
+    "current quarter obligation",
+    isNumber,
+    "Current quarter obligation must be an amount"
+  ],
+  [
+    "current quarter obligation",
+    numberIsLessThanOrEqual("loan amount"),
+    "Current quarter obligation must be less than or equal to loan amount"
+  ]
 ];
 
 module.exports = validateDocuments("loans", requiredFields);

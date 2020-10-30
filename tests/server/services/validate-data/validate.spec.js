@@ -182,9 +182,21 @@ describe("validateFields", () => {
     expect(r[0].info.message).to.equal('Empty or invalid entry for name: ""');
     expect(r[0].info.tab).to.equal("Test");
     expect(r[0].info.row).to.equal(5);
-    expect(r[1].info.message).to.equal('Description is required ""');
+    expect(r[1].info.message).to.equal("Description is required");
     expect(r[1].info.tab).to.equal("Test");
     expect(r[1].info.row).to.equal(5);
+  });
+});
+
+describe("custom message", () => {
+  it("can include the invalid value in the message", () => {
+    const validations = [
+      ["type", v => v == "FOO" || v == "BAR", 'Type "{}" is not valid']
+    ];
+    const content = { type: "BAZ" };
+    const r = validateFields(validations, content, "Test", 5);
+    expect(r).to.have.length(1);
+    expect(r[0].info.message).to.equal('Type "BAZ" is not valid');
   });
 });
 

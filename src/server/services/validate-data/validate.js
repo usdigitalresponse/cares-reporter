@@ -108,6 +108,10 @@ function whenBlank(key, validator) {
   };
 }
 
+function addValueToMessage(message, value) {
+  return message.replace("{}", `${value || ""}`);
+}
+
 function validateFields(requiredFields, content, tab, row, context = {}) {
   const valog = [];
   requiredFields.forEach(([key, validator, message]) => {
@@ -115,8 +119,10 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
     if (!validator(val, content, context)) {
       valog.push(
         new ValidationItem({
-          message:
-            (message || `Empty or invalid entry for ${key}:`) + ` "${val}"`,
+          message: addValueToMessage(
+            message || `Empty or invalid entry for ${key}: "{}"`,
+            val
+          ),
           tab,
           row
         })

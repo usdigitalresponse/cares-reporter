@@ -14,14 +14,38 @@ const requiredFields = [
     hasSubrecipientKey,
     `Each subrecipient must have either an "identification number" or a "duns number"`
   ],
-  ["legal name", isNotBlank],
-  ["organization type", dropdownIncludes("organization type")],
+  ["legal name", isNotBlank, "Legal name must not be blank"],
+  [
+    "organization type",
+    dropdownIncludes("organization type"),
+    'Organization type "{}" is not valid'
+  ],
 
-  ["address line 1", whenBlank("duns number", isNotBlank)],
-  ["city name", whenBlank("duns number", isNotBlank)],
-  ["state code", whenBlank("duns number", isValidState)],
-  ["zip", whenBlank("duns number", isValidZip)],
-  ["country name", whenBlank("duns number", dropdownIncludes("country"))]
+  [
+    "address line 1",
+    whenBlank("duns number", isNotBlank),
+    "Address line 1 must not be blank when DUNS number is not provided"
+  ],
+  [
+    "city name",
+    whenBlank("duns number", isNotBlank),
+    "City name must not be blank when DUNS number is not provided"
+  ],
+  [
+    "state code",
+    whenBlank("duns number", isValidState),
+    "State code must be a valid state code when DUNS number is not provided"
+  ],
+  [
+    "zip",
+    whenBlank("duns number", isValidZip),
+    "Zip must be a valid zip when DUNS number is not provided"
+  ],
+  [
+    "country name",
+    whenBlank("duns number", dropdownIncludes("country")),
+    "Country name must be a valid country name when DUNS number is not provided"
+  ]
 ];
 
 module.exports = validateDocuments("subrecipient", requiredFields);
