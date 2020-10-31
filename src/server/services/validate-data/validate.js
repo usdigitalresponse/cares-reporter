@@ -4,6 +4,11 @@ const { subrecipientKey } = require("./helpers");
 const ssf = require("ssf");
 const _ = require("lodash");
 
+function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
+  const dt = ssf.format("yyyy-MM-dd", val);
+  return dt <= reportingPeriod.periodOfPerformanceEndDate;
+}
+
 function dateIsInReportingPeriod(val, content, { reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
   return dt >= reportingPeriod.startDate && dt <= reportingPeriod.endDate;
@@ -174,6 +179,7 @@ function validateSingleDocument(tab, validations, message) {
 }
 
 module.exports = {
+  dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dateIsOnOrAfter,

@@ -1,4 +1,5 @@
 const {
+  dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   isNotBlank,
   isNumber,
@@ -28,7 +29,8 @@ describe("validation helpers", () => {
     },
     reportingPeriod: {
       startDate: "2020-03-01",
-      endDate: "2020-12-30"
+      endDate: "2020-12-30",
+      periodOfPerformanceEndDate: "2020-12-30"
     }
   };
   const testCases = [
@@ -125,6 +127,11 @@ describe("validation helpers", () => {
       "date is after reporting period",
       dateIsInReportingPeriod(44197, {}, validateContext),
       false
+    ],
+    [
+      "date is in period or performance",
+      dateIsInPeriodOfPerformance(44166, {}, validateContext),
+      true
     ],
     [
       "conditional validation passes",

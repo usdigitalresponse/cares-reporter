@@ -1,4 +1,5 @@
 const {
+  dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -80,8 +81,8 @@ const requiredFields = [
   ],
   [
     "period of performance end date",
-    dateIsInReportingPeriod,
-    'Period of performance end date "{}" is not in the reporting period',
+    dateIsInPeriodOfPerformance,
+    'Period of performance end date "{}" is not in the period or performance',
     { isDateValue: true }
   ],
   [
