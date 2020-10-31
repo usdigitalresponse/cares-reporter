@@ -32,7 +32,7 @@
       </form>
       <div class="mt-3 alert alert-danger" v-if="message">{{ message }}</div>
       <div v-if="errors.length > 0">
-        <h4>Validation Errors</h4>
+        <h4>Validation Errors: {{ uploadedFilename }}</h4>
         <table class="table">
           <thead>
             <tr>
@@ -64,7 +64,8 @@ export default {
       message: null,
       errors: [],
       files: null,
-      uploading: false
+      uploading: false,
+      uploadedFilename: null
     };
   },
   computed: {
@@ -87,6 +88,7 @@ export default {
       const file = _.get(this.$refs, "files.files[0]");
       const form = _.get(this.$refs, "form");
       if (file) {
+        this.uploadedFilename = file.name;
         this.uploading = true;
         this.message = null;
         this.errors = [];
