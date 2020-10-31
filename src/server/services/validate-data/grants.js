@@ -50,49 +50,58 @@ const requiredFields = [
   [
     "award date",
     dateIsOnOrBefore("period of performance start date"),
-    'Award date "{}" is not on or before the period of performance start date'
+    'Award date "{}" is not on or before the period of performance start date',
+    { isDateValue: true }
   ],
   [
     "award date",
     dateIsOnOrBefore("expenditure start date"),
-    'Award date "{}" is not on or before the expenditure start date'
+    'Award date "{}" is not on or before the expenditure start date',
+    { isDateValue: true }
   ],
   [
     "award date",
     dateIsInReportingPeriod,
-    'Award date "{}" is not in the reporting period'
+    'Award date "{}" is not in the reporting period',
+    { isDateValue: true }
   ],
 
   [
     "period of performance start date",
     isValidDate,
-    'Period of performance start date "{}" is not a valid date'
+    'Period of performance start date "{}" is not a valid date',
+    { isDateValue: true }
   ],
   [
     "period of performance end date",
     isValidDate,
-    'Period of performance end date "{}" is not a valid date'
+    'Period of performance end date "{}" is not a valid date',
+    { isDateValue: true }
   ],
   [
     "period of performance end date",
     dateIsInReportingPeriod,
-    'Period of performance end date "{}" is not in the reporting period'
+    'Period of performance end date "{}" is not in the reporting period',
+    { isDateValue: true }
   ],
   [
     "period of performance start date",
     dateIsOnOrBefore("period of performance end date"),
-    'period of performance start date "{}" is not on or before period of performance end date'
+    'period of performance start date "{}" is not on or before period of performance end date',
+    { isDateValue: true }
   ],
 
   [
     "expenditure start date",
     isValidDate,
-    'Expenditure start date "{}" is not a valid date'
+    'Expenditure start date "{}" is not a valid date',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     dateIsOnOrBefore("expenditure end date"),
-    'Expenditure start date "{}" is not on or before the expenditure end date'
+    'Expenditure start date "{}" is not on or before the expenditure end date',
+    { isDateValue: true }
   ],
   [
     "expenditure end date",
@@ -142,7 +151,7 @@ const requiredFields = [
   [
     "current quarter obligation",
     numberIsLessThanOrEqual("award amount"),
-    "Current quarter obligation mest be less than or equal to award amount"
+    "Current quarter obligation must be less than or equal to award amount"
   ],
 
   [

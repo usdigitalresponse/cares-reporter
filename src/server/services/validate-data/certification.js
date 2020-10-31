@@ -7,7 +7,7 @@ const requiredFields = [
     isNotBlank,
     "Agency financial reviewer name must not be blank"
   ],
-  ["date", isValidDate, "Date must be a valid date"]
+  ["date", isValidDate, "Date must be a valid date", { isDate: true }]
 ];
 
 module.exports = validateSingleDocument(

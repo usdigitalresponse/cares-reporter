@@ -7,6 +7,7 @@ const {
   isValidDate,
   isValidSubrecipient,
   matchesFilePart,
+  messageValue,
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
   validateFields,
@@ -214,5 +215,17 @@ describe("validateDocuments", () => {
   it("can validate a collection of documents", () => {
     const log = validateDocuments("test", validations)(documents, {});
     expect(log).to.have.length(1);
+  });
+});
+
+describe("date conversion for messages", () => {
+  it("can convert spreadsheet dates", () => {
+    expect(messageValue(44195, { isDateValue: true })).to.equal("12/30/2020");
+  });
+  it("only converts valid dates", () => {
+    expect(messageValue("Friday", { isDateValue: true })).to.equal("Friday");
+  });
+  it("only converts dates", () => {
+    expect(messageValue(44195)).to.equal(44195);
   });
 });

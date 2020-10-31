@@ -45,65 +45,81 @@ const requiredFields = [
     "Contract amount must be an amount greater than zero"
   ],
 
-  ["contract date", isValidDate, 'Contract date "{}" is not valid'],
+  [
+    "contract date",
+    isValidDate,
+    'Contract date "{}" is not valid',
+    { isDateValue: true }
+  ],
   [
     "contract date",
     dateIsInReportingPeriod,
-    'Contract date "{}" is not in reporting report'
+    'Contract date "{}" is not in reporting report',
+    { isDateValue: true }
   ],
   [
     "contract date",
     dateIsOnOrBefore("period of performance start date"),
-    `Contract date "{}" can't be after the period of performance start date`
+    `Contract date "{}" can't be after the period of performance start date`,
+    { isDateValue: true }
   ],
   [
     "contract date",
     dateIsOnOrBefore("expenditure start date"),
-    'Contract date "{}" cannot be after the expenditure start date'
+    'Contract date "{}" cannot be after the expenditure start date',
+    { isDateValue: true }
   ],
 
   [
     "period of performance start date",
     isValidDate,
-    'Period of performance start date "{}" is not valid'
+    'Period of performance start date "{}" is not valid',
+    { isDateValue: true }
   ],
   [
     "period of performance start date",
     dateIsOnOrBefore("period of performance end date"),
-    `Performance end date "{}" can't be before the period of performance start date`
+    `Performance end date "{}" can't be before the period of performance start date`,
+    { isDateValue: true }
   ],
 
   [
     "period of performance end date",
     isValidDate,
-    'Period of performance end date "{}" is not valid'
+    'Period of performance end date "{}" is not valid',
+    { isDateValue: true }
   ],
   [
     "period of performance end date",
     dateIsInReportingPeriod,
-    'Period of performance end date "{}" must be in the reporting period'
+    'Period of performance end date "{}" must be in the reporting period',
+    { isDateValue: true }
   ],
 
   [
     "expenditure start date",
     isValidDate,
-    'Expenditure state date "{}" is not a valid date'
+    'Expenditure state date "{}" is not a valid date',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     dateIsOnOrBefore("expenditure end date"),
-    'Expenditure start date "{}" must be before expenditure end date'
+    'Expenditure start date "{}" must be before expenditure end date',
+    { isDateValue: true }
   ],
 
   [
     "expenditure end date",
     isValidDate,
-    'Expenditure end date "{}" is not a valid date'
+    'Expenditure end date "{}" is not a valid date',
+    { isDateValue: true }
   ],
   [
     "expenditure end date",
     dateIsInReportingPeriod,
-    'Expenditure end date "{}" must be in the reporting period'
+    'Expenditure end date "{}" must be in the reporting period',
+    { isDateValue: true }
   ],
 
   [
