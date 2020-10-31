@@ -34,6 +34,18 @@ const requiredFields = [
     isValidSubrecipient,
     'Each contract row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ],
+  [
+    "period of performance end date",
+    isValidDate,
+    'Period of performance end date "{}" is not a valid date',
+    { isDateValue: true }
+  ],
+  [
+    "period of performance end date",
+    dateIsInPeriodOfPerformance,
+    'Period of performance end date "{}" must be in the period of performance',
+    { isDateValue: true }
+  ],
   ["contract number", isNotBlank, "Contract number cannot be blank"],
   [
     "contract type",
@@ -61,13 +73,13 @@ const requiredFields = [
   [
     "contract date",
     dateIsOnOrBefore("period of performance start date"),
-    `Contract date "{}" can't be after the period of performance start date`,
+    'Contract date "{}" must be on or before the period of performance start date',
     { isDateValue: true }
   ],
   [
     "contract date",
     dateIsOnOrBefore("expenditure start date"),
-    'Contract date "{}" cannot be after the expenditure start date',
+    'Contract date "{}" must be on or before the expenditure start date',
     { isDateValue: true }
   ],
 
@@ -80,20 +92,7 @@ const requiredFields = [
   [
     "period of performance start date",
     dateIsOnOrBefore("period of performance end date"),
-    `Performance end date "{}" can't be before the period of performance start date`,
-    { isDateValue: true }
-  ],
-
-  [
-    "period of performance end date",
-    isValidDate,
-    'Period of performance end date "{}" is not valid',
-    { isDateValue: true }
-  ],
-  [
-    "period of performance end date",
-    dateIsInPeriodOfPerformance,
-    'Period of performance end date "{}" must be in the period of performance',
+    'Period of performance start date "{}" must be on or before the period of performance end date',
     { isDateValue: true }
   ],
 
@@ -151,17 +150,17 @@ const requiredFields = [
   [
     "current quarter obligation",
     isPositiveNumber,
-    "Current quarter obligation is not an amount greater than zero"
+    "Current quarter obligation must be an amount greater than zero"
   ],
   [
     "current quarter obligation",
     numberIsLessThanOrEqual("contract amount"),
-    "Current quarter obligation must be less than the contract amount"
+    "Current quarter obligation must be less than or equal to the contract amount"
   ],
   [
     "total expenditure amount",
     isSum(expenditureCategories),
-    "Total expenditure amount is not the sum of all expenditure amount columns"
+    "Total expenditure amount must be the sum of all expenditure amount columns"
   ]
 ];
 
