@@ -112,16 +112,24 @@ function addValueToMessage(message, value) {
   return message.replace("{}", `${value || ""}`);
 }
 
+function messageValue(val, options) {
+  if (options && options.isDateValue && val) {
+    const dt = new Date(val).getTime();
+    return _.isNaN(dt) ? val : ssf.format("MM/dd/yyyy", val);
+  }
+  return val;
+}
+
 function validateFields(requiredFields, content, tab, row, context = {}) {
   const valog = [];
-  requiredFields.forEach(([key, validator, message]) => {
+  requiredFields.forEach(([key, validator, message, options]) => {
     const val = content[key] || "";
     if (!validator(val, content, context)) {
       valog.push(
         new ValidationItem({
           message: addValueToMessage(
             message || `Empty or invalid entry for ${key}: "{}"`,
-            val
+            messageValue(val, options)
           ),
           tab,
           row
@@ -180,6 +188,7 @@ module.exports = {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
+  messageValue,
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
   validateDocuments,

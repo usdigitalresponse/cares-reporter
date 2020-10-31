@@ -41,7 +41,8 @@ const requiredFields = [
   [
     "loan date",
     dateIsInReportingPeriod,
-    'Loan date "{}" is not in the reporting period'
+    'Loan date "{}" is not in the reporting period',
+    { isDateValue: true }
   ],
 
   [

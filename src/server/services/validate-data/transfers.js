@@ -48,7 +48,8 @@ const requiredFields = [
   [
     "transfer date",
     dateIsInReportingPeriod,
-    'Transfer date "{}" is not in reporting period'
+    'Transfer date "{}" is not in reporting period',
+    { isDateValue: true }
   ],
 
   [
@@ -65,27 +66,32 @@ const requiredFields = [
   [
     "expenditure start date",
     isValidDate,
-    'Expenditure start date "{}" is not a valid date'
+    'Expenditure start date "{}" is not a valid date',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     isValidDate,
-    'Expenditure end date "{}" is not a valid date'
+    'Expenditure end date "{}" is not a valid date',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     dateIsOnOrBefore("transfer date"),
-    'Expenditure start date "{}" must be on or before transfer date'
+    'Expenditure start date "{}" must be on or before transfer date',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     dateIsOnOrBefore("expenditure end date"),
-    'Expenditure start date "{}" must be on or before expenditure end date'
+    'Expenditure start date "{}" must be on or before expenditure end date',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     dateIsInReportingPeriod,
-    'Expenditure start date "{}" must be in reporting period'
+    'Expenditure start date "{}" must be in reporting period',
+    { isDateValue: true }
   ],
 
   [

@@ -42,7 +42,8 @@ const requiredFields = [
   [
     "obligation date",
     dateIsInReportingPeriod,
-    'Obligation date "{}" is not in the reporting period'
+    'Obligation date "{}" is not in the reporting period',
+    { isDateValue: true }
   ],
 
   [
@@ -59,22 +60,26 @@ const requiredFields = [
   [
     "expenditure start date",
     isValidDate,
-    'Expenditure start date "{}" is not valid'
+    'Expenditure start date "{}" is not valid',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     isValidDate,
-    'Expenditure start date "{}" is not valid'
+    'Expenditure start date "{}" is not valid',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     dateIsOnOrBefore("expenditure end date"),
-    'Expenditure start date "{}" is not on or before the expenditure end date'
+    'Expenditure start date "{}" is not on or before the expenditure end date',
+    { isDateValue: true }
   ],
   [
     "expenditure start date",
     dateIsInReportingPeriod,
-    'Expenditure start date "{}" is not in the reporting period'
+    'Expenditure start date "{}" is not in the reporting period',
+    { isDateValue: true }
   ],
 
   [
