@@ -47,11 +47,15 @@ const parseFilename = async filename => {
   const endDate = (currentPeriod || {}).end_date;
   if (!endDate) throw new Error(`Error finding currentReportingPeriod`);
   const expectedEndReportDate = format(endDate, "MMddyyyy");
+  const shortExpectedEndReportDate = format(endDate, "MMddyy");
   const reportingDate = nameParts.shift();
-  if (reportingDate !== expectedEndReportDate) {
+  if (
+    reportingDate !== expectedEndReportDate &&
+    reportingDate !== shortExpectedEndReportDate
+  ) {
     valog.push(
       new ValidationItem({
-        message: `The filename's reporting period end date "${reportingDate}" does not match the current reporting period end date set up in the application "${expectedEndReportDate}"`
+        message: `The reporting period end date in the filename is "${reportingDate}" but should be "${expectedEndReportDate}" or "${shortExpectedEndReportDate}"`
       })
     );
   }
