@@ -20,7 +20,11 @@ const validateData = (documents, fileParts, reportingPeriod) => {
     fileParts,
     reportingPeriod: {
       startDate: format(reportingPeriod.start_date, "yyyy-MM-dd"),
-      endDate: format(reportingPeriod.end_date, "yyyy-MM-dd")
+      endDate: format(reportingPeriod.end_date, "yyyy-MM-dd"),
+      periodOfPerformanceEndDate: format(
+        reportingPeriod.period_of_performance_end_date,
+        "yyyy-MM-dd"
+      )
     },
     subrecipientsHash
   };

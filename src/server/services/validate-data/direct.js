@@ -20,33 +20,78 @@ const expenditureCategories = require("./expenditure-categories");
 //   message: string?
 // ]
 const requiredFields = [
-  ["obligation amount", isPositiveNumber],
-  ["obligation date", isValidDate],
-  ["current quarter obligation", isNumber],
-  ["expenditure start date", isValidDate],
-  ["expenditure start date", isValidDate],
-  //["obligation date", dateIsOnOrBefore("expenditure start date")], FIXME need updated spreadsheet
-  ["expenditure start date", dateIsOnOrBefore("expenditure end date")],
-  ["total expenditure amount", isNumber],
   [
     "project id",
     matchesFilePart("projectId"),
-    `The "project id" is the file name does not match the direct's "project id"`
+    'The direct project id "{}" does not match the project id in the filename'
   ],
+
   [
     "subrecipient id",
     isValidSubrecipient,
     'Each direct row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ],
+
+  [
+    "obligation amount",
+    isPositiveNumber,
+    "Obligation amount must be an amount greater than zero"
+  ],
+
+  ["obligation date", isValidDate, 'Obligation date "{}" is not valid'],
+  [
+    "obligation date",
+    dateIsInReportingPeriod,
+    'Obligation date "{}" is not in the reporting period',
+    { isDateValue: true }
+  ],
+
+  [
+    "current quarter obligation",
+    isNumber,
+    "Current quarter obligation must be an amount"
+  ],
+  [
+    "current quarter obligation",
+    numberIsLessThanOrEqual("obligation amount"),
+    "Current quarter obligation must be less than or equal to obligation amount"
+  ],
+
+  [
+    "expenditure start date",
+    isValidDate,
+    'Expenditure start date "{}" is not valid',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure start date",
+    isValidDate,
+    'Expenditure start date "{}" is not valid',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure start date",
+    dateIsOnOrBefore("expenditure end date"),
+    'Expenditure start date "{}" is not on or before the expenditure end date',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure start date",
+    dateIsInReportingPeriod,
+    'Expenditure start date "{}" is not in the reporting period',
+    { isDateValue: true }
+  ],
+
+  [
+    "total expenditure amount",
+    isNumber,
+    "Total expenditure amount must be a number"
+  ],
   [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
-  ],
-  ["current quarter obligation", numberIsLessThanOrEqual("obligation amount")],
-
-  ["obligation date", dateIsInReportingPeriod],
-  ["expenditure start date", dateIsInReportingPeriod]
+  ]
 ];
 
 module.exports = validateDocuments("direct", requiredFields);

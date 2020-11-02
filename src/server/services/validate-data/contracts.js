@@ -1,4 +1,5 @@
 const {
+  dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -23,35 +24,10 @@ const expenditureCategories = require("./expenditure-categories");
 //   message: string?
 // ]
 const requiredFields = [
-  ["contract number", isNotBlank],
-  ["contract type", dropdownIncludes("contract type")],
-  ["contract amount", isPositiveNumber],
-  ["contract date", isValidDate],
-  ["period of performance start date", isValidDate],
-  ["period of performance end date", isValidDate],
-  [
-    "period of performance start date",
-    dateIsOnOrBefore("period of performance end date"),
-    "Performance end date can't be before the performance start date"
-  ],
-  [
-    "contract date",
-    dateIsOnOrBefore("period of performance start date"),
-    "Contract date can't be after the performance start date"
-  ],
-  ["expenditure start date", isValidDate],
-  ["expenditure end date", isValidDate],
-  ["contract date", dateIsOnOrBefore("expenditure start date")],
-  ["expenditure start date", dateIsOnOrBefore("expenditure end date")],
-  ["primary place of performance address line 1", isNotBlank],
-  ["primary place of performance city name", isNotBlank],
-  ["primary place of performance state code", isValidState],
-  ["primary place of performance zip", isValidZip],
-  ["primary place of performance country name", dropdownIncludes("country")],
   [
     "project id",
     matchesFilePart("projectId"),
-    `The "project id" in the file name does not match the contract's "project id"`
+    'The contract project id "{}" does not match the project id in the filename'
   ],
   [
     "subrecipient id",
@@ -59,16 +35,133 @@ const requiredFields = [
     'Each contract row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ],
   [
+    "period of performance end date",
+    isValidDate,
+    'Period of performance end date "{}" is not a valid date',
+    { isDateValue: true }
+  ],
+  [
+    "period of performance end date",
+    dateIsInPeriodOfPerformance,
+    'Period of performance end date "{}" must be in the period of performance',
+    { isDateValue: true }
+  ],
+  ["contract number", isNotBlank, "Contract number cannot be blank"],
+  [
+    "contract type",
+    dropdownIncludes("contract type"),
+    "Contract type is not valid"
+  ],
+  [
+    "contract amount",
+    isPositiveNumber,
+    "Contract amount must be an amount greater than zero"
+  ],
+
+  [
+    "contract date",
+    isValidDate,
+    'Contract date "{}" is not valid',
+    { isDateValue: true }
+  ],
+  [
+    "contract date",
+    dateIsInReportingPeriod,
+    'Contract date "{}" is not in reporting report',
+    { isDateValue: true }
+  ],
+  [
+    "contract date",
+    dateIsOnOrBefore("period of performance start date"),
+    'Contract date "{}" must be on or before the period of performance start date',
+    { isDateValue: true }
+  ],
+  [
+    "contract date",
+    dateIsOnOrBefore("expenditure start date"),
+    'Contract date "{}" must be on or before the expenditure start date',
+    { isDateValue: true }
+  ],
+
+  [
+    "period of performance start date",
+    isValidDate,
+    'Period of performance start date "{}" is not valid',
+    { isDateValue: true }
+  ],
+  [
+    "period of performance start date",
+    dateIsOnOrBefore("period of performance end date"),
+    'Period of performance start date "{}" must be on or before the period of performance end date',
+    { isDateValue: true }
+  ],
+
+  [
+    "expenditure start date",
+    isValidDate,
+    'Expenditure state date "{}" is not a valid date',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure start date",
+    dateIsOnOrBefore("expenditure end date"),
+    'Expenditure start date "{}" must be before expenditure end date',
+    { isDateValue: true }
+  ],
+
+  [
+    "expenditure end date",
+    isValidDate,
+    'Expenditure end date "{}" is not a valid date',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure end date",
+    dateIsInReportingPeriod,
+    'Expenditure end date "{}" must be in the reporting period',
+    { isDateValue: true }
+  ],
+
+  [
+    "primary place of performance address line 1",
+    isNotBlank,
+    "Primary place of performance address line 1 cannot be blank"
+  ],
+  [
+    "primary place of performance city name",
+    isNotBlank,
+    "Primary place of performance city name cannot be blank"
+  ],
+  [
+    "primary place of performance state code",
+    isValidState,
+    'Primary place of performance state code "{}" is not valid'
+  ],
+  [
+    "primary place of performance zip",
+    isValidZip,
+    'Primary place of performance zip "{}" is not valid'
+  ],
+  [
+    "primary place of performance country name",
+    dropdownIncludes("country"),
+    'Primary place of performance country name "{}" is not valid'
+  ],
+  [
+    "current quarter obligation",
+    isPositiveNumber,
+    "Current quarter obligation must be an amount greater than zero"
+  ],
+  [
+    "current quarter obligation",
+    numberIsLessThanOrEqual("contract amount"),
+    "Current quarter obligation must be less than or equal to the contract amount"
+  ],
+  [
     "total expenditure amount",
     isSum(expenditureCategories),
-    "Total expenditure amount is not the sum of all expenditure amount columns"
-  ],
-  ["current quarter obligation", isPositiveNumber],
-  ["current quarter obligation", numberIsLessThanOrEqual("contract amount")],
-
-  ["contract date", dateIsInReportingPeriod],
-  ["expenditure end date", dateIsInReportingPeriod],
-  ["period of performance end date", dateIsInReportingPeriod]
+    "Total expenditure amount must be the sum of all expenditure amount columns"
+  ]
 ];
 
 module.exports = validateDocuments("contracts", requiredFields);

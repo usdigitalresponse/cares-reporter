@@ -40,7 +40,7 @@ describe("services/process_upload", () => {
       {
         label: "report date",
         file: "GOV-1020-07302020-incorrectReportDate-v1.xlsx",
-        expects: /The filename's reporting period end date .* does not match/
+        expects: /The reporting period end date in the filename is "07302020" but should be "06302020" or "063020"/
       },
       {
         label: "project id",
