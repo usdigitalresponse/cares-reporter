@@ -2,8 +2,12 @@ const { isNotBlank, isValidDate } = require("./validate");
 const { validateSingleDocument } = require("./validate");
 
 const requiredFields = [
-  ["agency financial reviewer name", isNotBlank],
-  ["date", isValidDate]
+  [
+    "agency financial reviewer name",
+    isNotBlank,
+    "Agency financial reviewer name must not be blank"
+  ],
+  ["date", isValidDate, "Date must be a valid date", { isDate: true }]
 ];
 
 module.exports = validateSingleDocument(

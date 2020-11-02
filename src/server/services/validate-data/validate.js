@@ -4,6 +4,11 @@ const { subrecipientKey } = require("./helpers");
 const ssf = require("ssf");
 const _ = require("lodash");
 
+function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
+  const dt = ssf.format("yyyy-MM-dd", val);
+  return dt <= reportingPeriod.periodOfPerformanceEndDate;
+}
+
 function dateIsInReportingPeriod(val, content, { reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
   return dt >= reportingPeriod.startDate && dt <= reportingPeriod.endDate;
@@ -108,15 +113,29 @@ function whenBlank(key, validator) {
   };
 }
 
+function addValueToMessage(message, value) {
+  return message.replace("{}", `${value || ""}`);
+}
+
+function messageValue(val, options) {
+  if (options && options.isDateValue && val) {
+    const dt = new Date(val).getTime();
+    return _.isNaN(dt) ? val : ssf.format("MM/dd/yyyy", val);
+  }
+  return val;
+}
+
 function validateFields(requiredFields, content, tab, row, context = {}) {
   const valog = [];
-  requiredFields.forEach(([key, validator, message]) => {
+  requiredFields.forEach(([key, validator, message, options]) => {
     const val = content[key] || "";
     if (!validator(val, content, context)) {
       valog.push(
         new ValidationItem({
-          message:
-            (message || `Empty or invalid entry for ${key}:`) + ` "${val}"`,
+          message: addValueToMessage(
+            message || `Empty or invalid entry for ${key}: "{}"`,
+            messageValue(val, options)
+          ),
           tab,
           row
         })
@@ -160,6 +179,7 @@ function validateSingleDocument(tab, validations, message) {
 }
 
 module.exports = {
+  dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dateIsOnOrAfter,
@@ -174,6 +194,7 @@ module.exports = {
   isValidSubrecipient,
   isValidZip,
   matchesFilePart,
+  messageValue,
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
   validateDocuments,
