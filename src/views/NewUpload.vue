@@ -101,7 +101,9 @@ export default {
           if ((r.errors || []).length > 0) {
             this.errors = r.errors;
           } else {
-            this.$router.push({ path: `/` });
+            this.$store
+              .dispatch("refreshDocuments")
+              .then(() => this.$router.push({ path: `/` }));
           }
         } catch (e) {
           this.message = e.message;
