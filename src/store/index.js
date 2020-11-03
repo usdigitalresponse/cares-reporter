@@ -117,6 +117,11 @@ export default new Vuex.Store({
     logout({ commit }) {
       fetch("/api/sessions/logout").then(() => commit("setUser", null));
     },
+    refreshDocuments({ commit }) {
+      return fetch("/api/documents", { credentials: "include" })
+        .then(r => r.json())
+        .then(data => commit("setDocuments", data.documents));
+    },
     loadApplicationSettings({ commit }) {
       fetch("/api/application_settings")
         .then(r => r.json())
