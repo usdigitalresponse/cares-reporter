@@ -11,10 +11,9 @@ function uploads() {
 
 function uploadsForAgency(agency_id) {
   return knex("uploads")
-    .join("users", "uploads.user_id", "=", "users.id")
-    .select("uploads.*", "users.agency_id")
-    .where("users.agency_id", agency_id)
-    .orderBy("uploads.created_at", "desc");
+    .select("*")
+    .where("agency_id", agency_id)
+    .orderBy("created_at", "desc");
 }
 
 function upload(id) {
@@ -33,15 +32,18 @@ async function createUpload(upload, queryBuilder = knex) {
   const timestamp = new Date().toISOString();
   const qResult = await queryBuilder.raw(
     `INSERT INTO uploads
-      (created_by, filename, user_id, created_at)
+      (created_by, filename, user_id, created_at, agency_id, project_id, reporting_period_id)
       VALUES
-      (:created_by, :filename, :user_id, '${timestamp}')
+      (:created_by, :filename, :user_id, '${timestamp}', :agency_id, :project_id, :reporting_period_id)
       ON CONFLICT (filename) DO UPDATE
         SET 
           created_by = :created_by,
           filename = :filename,
           user_id = :user_id,
-          created_at = '${timestamp}'
+          created_at = '${timestamp}',
+          agency_id = :agency_id,
+          project_id = :project_id,
+          reporting_period_id = :reporting_period_id
       RETURNING "id", "created_at"`,
     upload
   );
