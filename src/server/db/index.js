@@ -134,6 +134,12 @@ function projects() {
     .orderBy("name");
 }
 
+function projectByCode(code) {
+  return knex("projects")
+    .select("*")
+    .where({ code });
+}
+
 async function transact(callback) {
   let result;
   await knex.transaction(async queryBuilder => {
@@ -158,6 +164,7 @@ module.exports = {
   documentsForAgency,
   markAccessTokenUsed,
   projects,
+  projectByCode,
   reportingPeriods,
   roles,
   transact,
