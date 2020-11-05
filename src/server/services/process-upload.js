@@ -1,10 +1,12 @@
 const xlsx = require("xlsx");
 const {
+  agencyByCode,
   currentReportingPeriod,
   user,
   createUpload,
   createDocuments,
   deleteDocuments,
+  projectByCode,
   transact
 } = require("../db");
 const { getTemplate } = require("./get-template");
@@ -78,6 +80,11 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   let upload;
   let result;
   try {
+    const project = await projectByCode(fileParts.projectId);
+    const agency = await agencyByCode(fileParts.agencyCode);
+    if (agency[0]) {
+      agency_id = agency[0].id;
+    }
     result = await transact(async trx => {
       const current_user = await user(user_id);
       upload = await createUpload(
@@ -85,7 +92,9 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
           filename,
           created_by: current_user.email,
           user_id,
-          agency_id
+          agency_id,
+          project_id: project[0].id,
+          reporting_period_id: reportingPeriod.id
         },
         trx
       );
