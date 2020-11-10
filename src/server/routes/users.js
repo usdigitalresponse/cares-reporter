@@ -13,7 +13,7 @@ router.post("/", requireAdminUser, function(req, res, next) {
     return;
   }
   const user = {
-    email: req.body.email.toLowerCase(),
+    email: req.body.email.toLowerCase().trim(),
     role,
     agency_id
   };
