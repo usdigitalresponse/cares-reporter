@@ -22,7 +22,7 @@
           >
         </div>
         <div class="col-4">
-          <a :href="downloadTemplateUrl()" class="btn btn-secondary" download
+          <a :href="downloadTemplateUrl" class="btn btn-secondary" download
             >Download Empty Template</a
           >
         </div>
@@ -93,6 +93,10 @@ export default {
     },
     groups: function() {
       return this.$store.getters.documentGroups;
+    },
+    downloadTemplateUrl() {
+      const template = this.$store.getters.reportingTemplate;
+      return `/templates/${encodeURIComponent(template)}`;
     }
   },
   watch: {
@@ -107,9 +111,6 @@ export default {
     titleize,
     downloadUrl() {
       return `/api/exports`;
-    },
-    downloadTemplateUrl() {
-      return `/templates/empty-template.xlsx`;
     },
     documentCount(tableName) {
       const records = this.groups[tableName];
