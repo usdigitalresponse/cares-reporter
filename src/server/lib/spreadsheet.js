@@ -40,7 +40,10 @@ function sheetToJson(sheetName, sheet) {
     header: 1,
     blankrows: false
   });
-  jsonSheet[0] = jsonSheet[0].map(colName => {
+  if (_.isEmpty(jsonSheet)) {
+    return jsonSheet;
+  }
+  jsonSheet[0] = _.map(jsonSheet[0], colName => {
     const lowerCol = colName.toLowerCase().trim();
     return columnAliases[lowerCol] || lowerCol;
   });
