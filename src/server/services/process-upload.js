@@ -87,6 +87,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
     }
     result = await transact(async trx => {
       const current_user = await user(user_id);
+      // write an upload record for saved file
       upload = await createUpload(
         {
           filename,
@@ -98,7 +99,9 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
         },
         trx
       );
+      // delete existing records for this agencyCode-projectID-reportingDate
       await deleteDocuments(fileParts);
+
       // Enhance the documents with the resulting upload.id. Note this needs
       // to be done here to get the upload and document insert operations into
       // the same transaction.

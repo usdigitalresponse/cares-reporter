@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 uploads/
 mocha_uploads/
+
+package-lock.json
+notes.txt

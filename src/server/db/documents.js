@@ -1,8 +1,19 @@
 const knex = require("./connection");
 const _ = require("lodash");
-
+const { currentReportingPeriod } = require("./settings");
 function documents() {
   return knex("documents").select("*");
+}
+
+function documentsInCurrentReportingPeriod() {
+  return currentReportingPeriod().then(reportingPeriod => {
+    console.log(`reporting period is ${reportingPeriod.start_date} to ${reportingPeriod.end_date}`);
+    // TODO!
+    // we really need to do periods 1 and 2 together for now ...
+    // so best way is to fix the start and end dates reported by
+    // currentReportingPeriod()
+    return knex("documents").select("*");
+  });
 }
 
 function documentsOfType(type) {
@@ -10,6 +21,7 @@ function documentsOfType(type) {
     .select("*")
     .where("type", type);
 }
+
 function documentsForAgency(agency_id) {
   return knex("documents")
     .select("*")
@@ -51,6 +63,7 @@ module.exports = {
   createDocuments,
   deleteDocuments,
   documents,
+  documentsInCurrentReportingPeriod,
   documentsForAgency,
   documentsOfType
 };

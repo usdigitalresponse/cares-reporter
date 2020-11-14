@@ -6,6 +6,7 @@ const {
   createDocuments,
   deleteDocuments,
   documents,
+  documentsInCurrentReportingPeriod,
   documentsForAgency
 } = require("./documents");
 
@@ -162,6 +163,7 @@ module.exports = {
   deleteDocuments,
   documents,
   documentsForAgency,
+  documentsInCurrentReportingPeriod,
   markAccessTokenUsed,
   projects,
   projectByCode,
