@@ -1,19 +1,23 @@
 const _ = require("lodash");
 
-function makeConfig(allSheets) {
-  const ignoreSheets = [
+function makeConfig(
+  allSheets,
+  templateName = "Agency Template",
+  ignoreSheets = [
     "Cover",
     "Dropdowns",
     "Summary",
     "Projects",
     "cover",
+    "cover page",
     "dropdowns",
     "summary",
     "projects"
-  ];
+  ]
+) {
   const sheets = _.omit(allSheets, ignoreSheets);
   return {
-    name: "Agency template",
+    name: templateName,
     settings: _.map(sheets, (value, key) => {
       return {
         sheetName: key,
@@ -24,9 +28,9 @@ function makeConfig(allSheets) {
   };
 }
 
-function makeTemplate(content) {
+function makeTemplate(content, templateName = "Agency Template") {
   return {
-    name: "Agency Template",
+    name: templateName,
     type: "templates",
     sort_order: 0,
     content

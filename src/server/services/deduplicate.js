@@ -41,6 +41,11 @@ async function removeDuplicates(getFn, type, keyAttribute, documents) {
     .value();
 }
 
+/*  deduplicate() appears to be intended to remove duplicate sub-recipient
+  records, but after loading the key is actually 'subrecipient' (not
+  'Subrecipient'), so this does nothing?
+  BUG?
+  */
 async function deduplicate(documents) {
   return await removeDuplicates(
     documentsOfType,

@@ -36,7 +36,7 @@ This will initially redirect to a login page and you will be prompted for an ema
 yarn build
 ```
 
-### Run tests'=
+### Run tests
 
 #### Unit  
 ```
