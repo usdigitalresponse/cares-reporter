@@ -16,7 +16,7 @@
         </button>
       </div>
       <div class="col-6">
-        <a :href="downloadTemplateUrl()" class="btn btn-secondary" download
+        <a :href="downloadTemplateUrl" class="btn btn-secondary" download
           >Download Empty Template</a
         >
       </div>
@@ -46,6 +46,10 @@ export default {
     },
     uploads: function() {
       return this.$store.state.uploads;
+    },
+    downloadTemplateUrl() {
+      const template = this.$store.getters.reportingTemplate;
+      return `/templates/${encodeURIComponent(template)}`;
     }
   },
   methods: {
@@ -57,9 +61,6 @@ export default {
       return moment(d)
         .utc()
         .format("MM-DD-YYYY");
-    },
-    downloadTemplateUrl() {
-      return `/templates/empty-template.xlsx`;
     }
   }
 };

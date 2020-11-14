@@ -1,30 +1,54 @@
-const sg = require("@sendgrid/mail");
+const AWS = require("aws-sdk");
 
-sg.setApiKey(process.env.SENDGRID_API_KEY);
-const fromEmail = process.env.SENDGRID_EMAIL;
+const ses = new AWS.SES({ region: process.env.SES_REGION });
+const fromEmail = process.env.NOTIFICATIONS_EMAIL;
 const expiryMinutes = 30;
 
 function sendPasscode(email, passcode, httpOrigin) {
-  const msg = {
-    to: email,
-    from: fromEmail,
-    subject: "CARES Reporter Access Link",
-    html: `<p>Your link to access the CARES Reporter is
+  const params = {
+    Destination: {
+      ToAddresses: [email]
+    },
+    Source: fromEmail,
+    Message: {
+      Subject: {
+        Charset: "UTF-8",
+        Data: "CARES Reporter Access Link"
+      },
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: `<p>Your link to access the CARES Reporter is
      <a href="${httpOrigin}/api/sessions?passcode=${passcode}">${httpOrigin}/api/sessions/?passcode=${passcode}</a>.
      It expires in ${expiryMinutes} minutes</p>`
+        }
+      }
+    }
   };
-  return sg.send(msg);
+  return ses.sendEmail(params).promise();
 }
 
 function sendWelcomeEmail(email, httpOrigin) {
-  const msg = {
-    to: email,
-    from: fromEmail,
-    subject: "CARES Reporter Access Granted",
-    html: `<p>You have been granted access to the CARES Reporter:
-     <a href="${httpOrigin}}">${httpOrigin}</a>.`
+  const params = {
+    Destination: {
+      ToAddresses: [email]
+    },
+    Source: fromEmail,
+    Message: {
+      Subject: {
+        Charset: "UTF-8",
+        Data: "Welcome to CARES Reporter"
+      },
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: `<p>You have been granted access to the CARES Reporter:
+     <a href="${httpOrigin}">${httpOrigin}</a>.`
+        }
+      }
+    }
   };
-  return sg.send(msg);
+  return ses.sendEmail(params).promise();
 }
 
 module.exports = { sendPasscode, sendWelcomeEmail };
