@@ -166,6 +166,11 @@ function sheetToJson(sheetName, sheet, toLower = true) {
     header: 1,
     blankrows: false,
   });
+
+  if (_.isEmpty(jsonSheet)) {
+    return jsonSheet;
+  }
+
   // jsonSheet[0] is an array of the column names (the first row in the sheet)
   if (toLower) {
     jsonSheet[0] = jsonSheet[0].map((colName) => {

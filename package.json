@@ -11,8 +11,8 @@
     "prod": "NODE_ENV=production node src/server"
   },
   "dependencies": {
-    "@sendgrid/mail": "^7.2.4",
     "@vue/cli": "^4.5.4",
+    "aws-sdk": "^2.792.0",
     "body-parser": "^1.19.0",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
