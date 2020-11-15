@@ -15,7 +15,8 @@ describe("Home.vue", () => {
         }
       },
       getters: {
-        user: () => ({ email: "admin@example.com", role: "admin" })
+        user: () => ({ email: "admin@example.com", role: "admin" }),
+        reportingTemplate: () => "template.xlsx"
       }
     });
     const wrapper = mount(Home, {
