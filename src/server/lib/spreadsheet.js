@@ -2,14 +2,15 @@ const XLSX = require("xlsx");
 const _ = require("lodash");
 const { ValidationItem } = require("./validation-log");
 const { applicationSettings } = require("../db");
+const fixCellFormats = require("../services/fix-cell-formats");
 
 function loadSpreadsheet(filename) {
   const workbook = XLSX.readFile(filename);
-  return workbook.SheetNames.map(name => {
+  return workbook.SheetNames.map((name) => {
     const sheet = workbook.Sheets[name];
     return {
       name,
-      data: XLSX.utils.sheet_to_json(sheet, { header: 1 })
+      data: XLSX.utils.sheet_to_json(sheet, { header: 1 }),
     };
   });
 }
@@ -27,12 +28,12 @@ const tabMap = {
   Transfers: "transfers",
   Direct: "direct",
   "Aggregate Awards < 50000": "aggregate awards < 50000",
-  "Aggregate Payments Individual": "aggregate payments individual"
+  "Aggregate Payments Individual": "aggregate payments individual",
 };
 
 const tabAliases = {
-  subrecipients: "subrecipient"
-}
+  subrecipients: "subrecipient",
+};
 
 // columnMap keys are column names in the Treasury Output Spreadsheet,
 // values are the column names in the Agency Input Spreadsheet, forced
@@ -60,7 +61,7 @@ const columnMap = {
   "Current Quarter Expenditure/Payments":
     "current quarter expenditure/payments",
   "Current Quarter Obligation": "current quarter obligation",
-  "Description": "description",
+  Description: "description",
   "DUNS Number": "duns number",
   "Expenditure End Date": "expenditure end date",
   "Expenditure Project": "project id",
@@ -99,7 +100,7 @@ const columnMap = {
     "primary place of performance state code",
   "Primary Place of Performance Zip+4": "primary place of performance zip",
   "Prime Recipient DUNS #": "prime recipient duns #",
-  "Program": "program",
+  Program: "program",
   "Project Identification Number": "project identification number",
   "Project Name": "project name",
   "Purpose Description": "purpose description",
@@ -107,7 +108,7 @@ const columnMap = {
   "Reporting Period End Date": "reporting period end date",
   "Reporting Period Start Date": "reporting period start date",
   "State Code": "state code",
-  "Status": "status",
+  Status: "status",
   "Sub-Recipient Organization (Contractor)": "subrecipient legal name",
   "Sub-Recipient Organization (Payee)": "subrecipient legal name",
   "Sub-Recipient Organization (Awardee)": "subrecipient legal name",
@@ -120,7 +121,7 @@ const columnMap = {
   "Transfer Type": "transfer type",
   "Will these payments be repurposed for Future Use?":
     "will these payments be repurposed for future use?",
-  "Zip+4": "zip"
+  "Zip+4": "zip",
   // "Primary Place of Performance Zip+4": "primary place of performance zip+4",
   // "Expenditure Project":"total expenditure amount",
 };
@@ -153,7 +154,7 @@ const categoryMap = {
     "Expenses Associated with the Issuance of Tax Anticipation Notes",
   "administrative expenses": "Administrative Expenses",
   "other expenditure categories": "Other Expenditure Categories",
-  "other expenditure amount": "Other Expenditure Amount"
+  "other expenditure amount": "Other Expenditure Amount",
 };
 
 /* sheetToJson() converts an XLSX sheet to a two dimensional JS array,
@@ -163,11 +164,11 @@ const categoryMap = {
 function sheetToJson(sheetName, sheet, toLower = true) {
   const jsonSheet = XLSX.utils.sheet_to_json(sheet, {
     header: 1,
-    blankrows: false
+    blankrows: false,
   });
   // jsonSheet[0] is an array of the column names (the first row in the sheet)
   if (toLower) {
-    jsonSheet[0] = jsonSheet[0].map(colName => {
+    jsonSheet[0] = jsonSheet[0].map((colName) => {
       return colName.toLowerCase().trim();
     });
   }
@@ -196,7 +197,7 @@ function parseSpreadsheet(workbook, templateSheets) {
     if (!workbookSheet) {
       return valog.push(
         new ValidationItem({
-          message: `Missing tab "${sheetName}"`
+          message: `Missing tab "${sheetName}"`,
         })
       );
     }
@@ -208,14 +209,14 @@ function parseSpreadsheet(workbook, templateSheets) {
       return valog.push(
         new ValidationItem({
           message: `Missing column "${missingColumns[0]}"`,
-          tab: sheetName
+          tab: sheetName,
         })
       );
     } else if (missingColumns.length > 1) {
       return valog.push(
         new ValidationItem({
           message: `Missing columns "${missingColumns.join('", "')}"`,
-          tab: sheetName
+          tab: sheetName,
         })
       );
     }
@@ -252,15 +253,15 @@ function spreadsheetToDocuments(
     if (type === "Projects") return;
     if (type === "Agencies") return;
     // Mark any columns not in the template to be ignored
-    const cols = sheet[0].map(col => {
+    const cols = sheet[0].map((col) => {
       return templateSheet[0].includes(col) ? col : "ignore";
     });
-    sheet.slice(1).forEach(row => {
+    sheet.slice(1).forEach((row) => {
       if (row.length === 0) return;
       documents.push({
         type,
         user_id,
-        content: _.omit(_.zipObject(cols, row), ["ignore"])
+        content: _.omit(_.zipObject(cols, row), ["ignore"]),
       });
     });
   });
@@ -272,7 +273,7 @@ function uploadFilename(filename) {
 }
 
 function makeSpreadsheet(template, groups) {
-  return applicationSettings().then(settings => {
+  return applicationSettings().then((settings) => {
     // console.log("makeSpreadsheet - settings are:");
     // console.dir(settings);
     /*  {
@@ -283,7 +284,7 @@ function makeSpreadsheet(template, groups) {
         }
     */
     const workbook = XLSX.utils.book_new();
-    template.settings.forEach(s => {
+    template.settings.forEach((s) => {
       console.log(s.tableName);
       let input;
       let rows = [];
@@ -312,8 +313,8 @@ function makeSpreadsheet(template, groups) {
         case "Aggregate Payments Individual":
         default:
           input = groups[tabMap[s.tableName]];
-          rows = _.map(input, row => {
-            return s.columns.map(column => {
+          rows = _.map(input, (row) => {
+            return s.columns.map((column) => {
               if (column === "ignore") {
                 return "";
               }
@@ -325,7 +326,9 @@ function makeSpreadsheet(template, groups) {
 
       rows.unshift(s.columns);
 
-      const sheet = XLSX.utils.aoa_to_sheet(rows);
+      let sheet = XLSX.utils.aoa_to_sheet(rows);
+      sheet = fixCellFormats(sheet);
+
       XLSX.utils.book_append_sheet(workbook, sheet, s.sheetName);
     });
     return XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
@@ -339,16 +342,16 @@ function getCoverPage(groups, settings = {}) {
       "Coronavirus Relief Fund",
       groups.cover[0].content["reporting period start date"],
       groups.cover[0].content["reporting period end date"],
-      settings.duns_number || "000-00-DUNS"
-    ]
+      settings.duns_number || "000-00-DUNS",
+    ],
   ];
 
   return rows;
 }
 
 function getProjectsTab(input, columns) {
-  let rows = _.map(input, row => {
-    return columns.map(column => {
+  let rows = _.map(input, (row) => {
+    return columns.map((column) => {
       const value = row.content[columnMap[column]];
       return value ? value : "";
     });
@@ -360,27 +363,27 @@ function getProjectsTab(input, columns) {
 function getCategoryTab(group, columns) {
   return spread(group, columns, {
     amountLabel: "Cost or Expenditure Amount",
-    categoryLabel: "Cost or Expenditure Category"
+    categoryLabel: "Cost or Expenditure Category",
   });
 }
 
 function getLoanTab(group, columns) {
   return spread(group, columns, {
     amountLabel: "Payment Amount",
-    categoryLabel: "Loan Category"
+    categoryLabel: "Loan Category",
   });
 }
 
 function spread(group, columns, labels) {
   const { amountLabel, categoryLabel } = labels;
   let rows = [];
-  group.forEach(sourceRow => {
+  group.forEach((sourceRow) => {
     let rowContent = sourceRow.content;
-    Object.keys(rowContent).forEach(key => {
+    Object.keys(rowContent).forEach((key) => {
       let category = categoryMap[key];
       if (category) {
         // add a row
-        let row = columns.map(column => {
+        let row = columns.map((column) => {
           const value = rowContent[columnMap[column]];
           return value ? value : "";
         });
@@ -400,5 +403,5 @@ module.exports = {
   spreadsheetToDocuments,
   uploadFilename,
   makeSpreadsheet,
-  sheetToJson
+  sheetToJson,
 };
