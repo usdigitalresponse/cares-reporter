@@ -13,7 +13,8 @@ const {
   isValidZip,
   matchesFilePart,
   numberIsLessThanOrEqual,
-  validateDocuments
+  validateDocuments,
+  whenGreaterThanZero
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -69,44 +70,53 @@ const requiredFields = [
 
   [
     "period of performance start date",
-    isValidDate,
+    whenGreaterThanZero("total expenditure amount", isValidDate),
     'Period of performance start date "{}" is not a valid date',
     { isDateValue: true }
   ],
   [
     "period of performance end date",
-    isValidDate,
+    whenGreaterThanZero("total expenditure amount", isValidDate),
     'Period of performance end date "{}" is not a valid date',
     { isDateValue: true }
   ],
   [
     "period of performance end date",
-    dateIsInPeriodOfPerformance,
+    whenGreaterThanZero(
+      "total expenditure amount",
+      dateIsInPeriodOfPerformance
+    ),
     'Period of performance end date "{}" is not in the period or performance',
     { isDateValue: true }
   ],
   [
     "period of performance start date",
-    dateIsOnOrBefore("period of performance end date"),
+    whenGreaterThanZero(
+      "total expenditure amount",
+      dateIsOnOrBefore("period of performance end date")
+    ),
     'period of performance start date "{}" is not on or before period of performance end date',
     { isDateValue: true }
   ],
 
   [
     "expenditure start date",
-    isValidDate,
+    whenGreaterThanZero("total expenditure amount", isValidDate),
     'Expenditure start date "{}" is not a valid date',
     { isDateValue: true }
   ],
   [
     "expenditure start date",
-    dateIsOnOrBefore("expenditure end date"),
+    whenGreaterThanZero(
+      "total expenditure amount",
+      dateIsOnOrBefore("expenditure end date")
+    ),
     'Expenditure start date "{}" is not on or before the expenditure end date',
     { isDateValue: true }
   ],
   [
     "expenditure end date",
-    isValidDate,
+    whenGreaterThanZero("total expenditure amount", isValidDate),
     'Expenditure end date "{}" is not a valid date'
   ],
 

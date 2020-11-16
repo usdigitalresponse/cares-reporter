@@ -113,6 +113,12 @@ function whenBlank(key, validator) {
   };
 }
 
+function whenGreaterThanZero(key, validator) {
+  return (val, content, context) => {
+    return content[key] > 0 ? validator(val, content, context) : true;
+  };
+}
+
 function addValueToMessage(message, value) {
   return message.replace("{}", `${value || ""}`);
 }
@@ -200,5 +206,6 @@ module.exports = {
   validateDocuments,
   validateFields,
   validateSingleDocument,
-  whenBlank
+  whenBlank,
+  whenGreaterThanZero
 };
