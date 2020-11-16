@@ -6,7 +6,7 @@ function documents() {
 }
 
 function documentsInCurrentReportingPeriod() {
-  return currentReportingPeriod().then((reportingPeriod) => {
+  return currentReportingPeriod().then(reportingPeriod => {
     console.log(
       `reporting period is ${reportingPeriod.start_date} to ${reportingPeriod.end_date}`
     );
@@ -36,10 +36,10 @@ function createDocument(document) {
     .insert(document)
     .into("documents")
     .returning("id")
-    .then((id) => {
+    .then(id => {
       const result = {
         ...document,
-        id: id[0],
+        id: id[0]
       };
       return result;
     });
@@ -67,5 +67,5 @@ module.exports = {
   documents,
   documentsInCurrentReportingPeriod,
   documentsForAgency,
-  documentsOfType,
+  documentsOfType
 };

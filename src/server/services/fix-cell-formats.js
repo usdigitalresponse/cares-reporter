@@ -12,9 +12,9 @@ module.exports = fixCellFormats;
 function fixCellFormats(sheet) {
   const { columns, dateColumns, amountColumns } = getColumns(sheet);
 
-  dateColumns.forEach((dateColumn) => {
+  dateColumns.forEach(dateColumn => {
     let cellRefs = columns[dateColumn];
-    cellRefs.forEach((cellRef) => {
+    cellRefs.forEach(cellRef => {
       if (sheet[cellRef].t === "n") {
         // this doesn't work, though according to
         //  https://github.com/SheetJS/sheetjs#number-formats
@@ -30,9 +30,9 @@ function fixCellFormats(sheet) {
     });
   });
 
-  amountColumns.forEach((amountColumn) => {
+  amountColumns.forEach(amountColumn => {
     let cellRefs = columns[amountColumn];
-    cellRefs.forEach((cellRef) => {
+    cellRefs.forEach(cellRef => {
       if (sheet[cellRef].t === "n") {
         sheet[cellRef].z = "$#,##0.00;($#,##0.00)";
       }
@@ -48,7 +48,7 @@ function getColumns(sheet) {
   let columns = [];
   let dateColumns = [];
   let amountColumns = [];
-  Object.keys(sheet).forEach((cellRef) => {
+  Object.keys(sheet).forEach(cellRef => {
     let rc = toRC(cellRef);
     if (rc) {
       if (!columns[rc.C]) {
@@ -69,7 +69,7 @@ function getColumns(sheet) {
   return {
     columns: columns, // an array of arrays of cellRefs
     amountColumns: amountColumns, // an array of numeric column indexes
-    dateColumns: dateColumns, // an array of numeric column indexes
+    dateColumns: dateColumns // an array of numeric column indexes
   };
 }
 
@@ -127,11 +127,11 @@ function toDecimal(colRef) {
   Simple conversion because we are interested in date only, not time
   Subtract 1 from excelDate because Excel (wrongly) thinks 1900 is a leap year
   */
-function toJSDate(excelDate) {
-  // return new Date(0, 0, Math.floor(excelDate - 1)).valueOf;
+// function toJSDate(excelDate) {
+//   // return new Date(0, 0, Math.floor(excelDate - 1)).valueOf;
 
-  let jsDate = new Date(0, 0, Math.floor(excelDate - 1));
-  return `${jsDate.getMonth() + 1}/${jsDate.getDate()}/${jsDate.getFullYear()}`;
-}
+//   let jsDate = new Date(0, 0, Math.floor(excelDate - 1));
+//   return `${jsDate.getMonth() + 1}/${jsDate.getDate()}/${jsDate.getFullYear()}`;
+// }
 
 /*                                  *  *  *                                   */
