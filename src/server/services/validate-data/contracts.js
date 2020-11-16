@@ -12,7 +12,8 @@ const {
   isValidZip,
   matchesFilePart,
   numberIsLessThanOrEqual,
-  validateDocuments
+  validateDocuments,
+  whenGreaterThanZero
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -78,7 +79,10 @@ const requiredFields = [
   ],
   [
     "contract date",
-    dateIsOnOrBefore("expenditure start date"),
+    whenGreaterThanZero(
+      "total expenditure amount",
+      dateIsOnOrBefore("expenditure start date")
+    ),
     'Contract date "{}" must be on or before the expenditure start date',
     { isDateValue: true }
   ],
@@ -98,26 +102,29 @@ const requiredFields = [
 
   [
     "expenditure start date",
-    isValidDate,
+    whenGreaterThanZero("total expenditure amount", isValidDate),
     'Expenditure state date "{}" is not a valid date',
     { isDateValue: true }
   ],
   [
     "expenditure start date",
-    dateIsOnOrBefore("expenditure end date"),
+    whenGreaterThanZero(
+      "total expenditure amount",
+      dateIsOnOrBefore("expenditure end date")
+    ),
     'Expenditure start date "{}" must be before expenditure end date',
     { isDateValue: true }
   ],
 
   [
     "expenditure end date",
-    isValidDate,
+    whenGreaterThanZero("total expenditure amount", isValidDate),
     'Expenditure end date "{}" is not a valid date',
     { isDateValue: true }
   ],
   [
     "expenditure end date",
-    dateIsInReportingPeriod,
+    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
     'Expenditure end date "{}" must be in the reporting period',
     { isDateValue: true }
   ],
