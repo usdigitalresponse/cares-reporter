@@ -10,9 +10,10 @@ const { template, templateSheets } = loadTemplate(
 
 const dropdownValues = loadDropdownValues(template.Sheets.Dropdowns);
 
-const { template: treasuryTemplate, templateSheets: treasuryTemplateSheets } = loadTreasuryTemplate(
-  process.env.TREASURY_TEMPLATE
-);
+const {
+  template: treasuryTemplate,
+  templateSheets: treasuryTemplateSheets
+} = loadTreasuryTemplate(process.env.TREASURY_TEMPLATE);
 // console.dir(treasuryTemplateSheets)
 
 module.exports = { getTemplate, dropdownValues, treasuryTemplate };
@@ -37,9 +38,10 @@ function loadTreasuryTemplate(fileName) {
 
   console.log(`Loading : ${fileName}`);
   try {
-    template = xlsx.read(   // eslint-disable-line prettier/prettier
+    template = xlsx.read(
+      // eslint-disable-line prettier/prettier
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      {type: "buffer"}      // eslint-disable-line prettier/prettier
+      { type: "buffer" } // eslint-disable-line prettier/prettier
     );
     console.log("Template loaded");
   } catch (e) {
@@ -60,9 +62,10 @@ function loadTemplate(fileName) {
 
   console.log(`Loading : ${fileName}`);
   try {
-    template = xlsx.read(   // eslint-disable-line prettier/prettier
+    template = xlsx.read(
+      // eslint-disable-line prettier/prettier
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      {type: "buffer"}      // eslint-disable-line prettier/prettier
+      { type: "buffer" } // eslint-disable-line prettier/prettier
     );
     console.log("Template loaded");
   } catch (e) {
