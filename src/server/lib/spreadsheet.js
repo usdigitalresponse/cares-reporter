@@ -44,7 +44,7 @@ function sheetToJson(sheetName, sheet) {
     return jsonSheet;
   }
   jsonSheet[0] = _.map(jsonSheet[0], colName => {
-    const lowerCol = colName.toLowerCase().trim();
+    const lowerCol = `${colName}`.toLowerCase().trim();
     return columnAliases[lowerCol] || lowerCol;
   });
   return jsonSheet;
