@@ -30,5 +30,16 @@ describe("services/process-upload", () => {
       );
       expect(err.row).to.equal(4);
     });
+
+    it("ignores expenditure dates for zero expenditure amount", async () => {
+      const uploadArgs = makeUploadArgs(
+        `${dir}/EOHHS-075-06302020-noexpenditures-v1.xlsx`
+      );
+      const result = await processUpload(uploadArgs);
+      expect(
+        result.valog.getLog(),
+        JSON.stringify(result.valog.getLog(), null, 2)
+      ).to.be.empty;
+    });
   });
 });
