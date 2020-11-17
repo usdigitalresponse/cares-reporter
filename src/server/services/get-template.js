@@ -78,6 +78,7 @@ function loadTemplate(fileName) {
     const sheetName = tabName.toLowerCase().trim();
     const templateSheet = _.get(template, ["Sheets", tabName]);
     templateSheets[sheetName] = sheetToJson(sheetName, templateSheet);
+    console.log(`loadTemplate is loading ${sheetName}:`);
   });
   return { template, templateSheets };
 }
