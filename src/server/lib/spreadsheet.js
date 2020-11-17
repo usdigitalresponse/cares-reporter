@@ -32,8 +32,29 @@ const tabMap = {
   "Aggregate Payments Individual": "aggregate payments individual",
 };
 
+// columnAliases are needed by the test fixtures, which have old versions of
+// the column names
+const columnAliases = {
+  "duns number (hidden)": "duns number",
+  "subrecipient id (hidden)": "subrecipient id",
+  "subrecipient organization": "subrecipient legal name",
+  "subrecipient organization name": "subrecipient legal name",
+  "subrecipient organization (borrower)": "subrecipient legal name",
+  "subrecipient organization (transferee/government unit)":
+    "subrecipient legal name",
+  "transfer amount": "award amount",
+  "is awardee complying with terms and conditions of the grant?": "compliance",
+  "awardee primary place of performance address line 1":
+    "primary place of performance address line 1",
+  "awardee primary place of performance address line 2":
+    "primary place of performance address line 2",
+  "awardee primary place of performance address line 3":
+    "primary place of performance address line 3"
+};
+
+// prettier-ignore
 const tabAliases = {
-  subrecipients: "subrecipient"
+  subrecipients: "subrecipient",
 };
 
 // columnMap keys are column names in the Treasury Output Spreadsheet,
@@ -131,6 +152,7 @@ const columnMap = {
 // columnMap keys are column names in the Agency Input Spreadsheet forced
 // to lower case by getTemplate()
 // values are the column names in the Treasury Output Spreadsheet
+// prettier-ignore
 const categoryMap = {
   "budgeted personnel and services diverted to a substantially different use":
     "Budgeted Personnel and Services Diverted to a Substantially Different Use",
@@ -156,7 +178,7 @@ const categoryMap = {
     "Expenses Associated with the Issuance of Tax Anticipation Notes",
   "administrative expenses": "Administrative Expenses",
   "other expenditure categories": "Other Expenditure Categories",
-  "other expenditure amount": "Other Expenditure Amount"
+  "other expenditure amount": "Other Expenditure Amount",
 };
 
 /* sheetToJson() converts an XLSX sheet to a two dimensional JS array,
@@ -176,7 +198,8 @@ function sheetToJson(sheetName, sheet, toLower = true) {
   // jsonSheet[0] is an array of the column names (the first row in the sheet)
   if (toLower) {
     jsonSheet[0] = jsonSheet[0].map(colName => {
-      return colName.toLowerCase().trim();
+      const lowerCol = colName.toLowerCase().trim();
+      return columnAliases[lowerCol] || lowerCol;
     });
   }
   return jsonSheet;
@@ -210,9 +233,10 @@ function parseSpreadsheet(workbook, templateSheets) {
       );
     }
 
-    const templateColumns = templateSheet[0];
     const workbookColumns = workbookSheet[0];
+    const templateColumns = templateSheet[0];
     const missingColumns = _.difference(templateColumns, workbookColumns);
+
     if (missingColumns.length === 1) {
       return valog.push(
         new ValidationItem({
@@ -293,7 +317,7 @@ function makeSpreadsheet(template, groups) {
     */
     const workbook = XLSX.utils.book_new();
     template.settings.forEach(s => {
-      console.log(s.tableName);
+      // console.log(s.tableName);
       let input;
       let rows = [];
       switch (s.tableName) {

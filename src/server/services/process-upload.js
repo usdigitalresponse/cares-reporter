@@ -27,6 +27,8 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
   valog.append(filenameValog);
   const templateSheets = await getTemplate();
+  // console.log("templateSheets");
+  // console.dir(templateSheets);
   if (!valog.success()) {
     return { valog, upload: {} };
   }
