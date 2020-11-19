@@ -1,5 +1,5 @@
 const { ValidationItem } = require("../lib/validation-log");
-const { agencyByCode } = require("../db");
+const { agencyByCode, projectByCode } = require("../db");
 const { currentReportingPeriod } = require("../db/settings");
 const { format } = require("date-fns");
 
@@ -34,13 +34,22 @@ const parseFilename = async filename => {
     }
   }
   const projectId = nameParts.shift();
-  // TODO: specific rules for project id
-  if (projectId === "InvalidProjectID") {
+
+  if (!projectId) {
     valog.push(
       new ValidationItem({
         message: `Second part of file name must be a project id.`
       })
     );
+  } else {
+    const project = await projectByCode(projectId);
+    if (project.length < 1) {
+      valog.push(
+        new ValidationItem({
+          message: `The project id "${projectId}" in the filename is not valid.`
+        })
+      );
+    }
   }
 
   const currentPeriod = await currentReportingPeriod();
