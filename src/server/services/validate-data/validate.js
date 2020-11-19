@@ -38,6 +38,10 @@ function isNumber(val) {
   return _.isNumber(val);
 }
 
+function isNumberOrBlank(val) {
+  return _.isEmpty(val) || _.isNumber(val);
+}
+
 function isPositiveNumber(val) {
   return _.isNumber(val) && val > 0;
 }
@@ -193,6 +197,7 @@ module.exports = {
   hasSubrecipientKey,
   isNotBlank,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isSum,
   isValidDate,
