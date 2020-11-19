@@ -23,6 +23,8 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
+.eslintrc.js
+
 uploads/
 mocha_uploads/
 

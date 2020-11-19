@@ -17,7 +17,8 @@ function loadSpreadsheet(filename) {
 
 // tabMap keys are the tab names in the Treasury Output Spreadsheet,
 // values are the tab names in the Agency Input Spreadsheet, forced
-// to lower case by getTemplate()
+// to lower case by getTemplate().
+// The values go in the 'type' field in the 'documents' table of the database
 // prettier-ignore
 const tabMap = {
   "Cover Page": "cover",
@@ -33,7 +34,9 @@ const tabMap = {
 };
 
 // columnAliases are needed by the test fixtures, which have old versions of
-// the column names
+// the column names.
+// Keys are the column names in the input spreadsheets, values are what
+// they are called in the document records of the database.
 const columnAliases = {
   "duns number (hidden)": "duns number",
   "subrecipient id (hidden)": "subrecipient id",
@@ -149,9 +152,36 @@ const columnMap = {
   // "Expenditure Project":"total expenditure amount",
 };
 
-// columnMap keys are column names in the Agency Input Spreadsheet forced
-// to lower case by getTemplate()
-// values are the column names in the Treasury Output Spreadsheet
+// categoryMap keys are column names in the Agency Data Input Spreadsheet
+// forced to lower case by getTemplate(). Values go in in the category
+// column of the Treasury Data Output Spreadsheet.
+// Each row in the agency data input spreadsheet has a column for each of
+// these categories, which contains a dollar amount or is left blank. So a
+// single row of the input spreadsheet can contain multiple dollar amounts.
+// In the Treasury data output spreadsheet each of these dollar amounts is
+// given a row of its own, and a category. The category is found in this
+// categoryMap, keyed by the input spreadsheet column name.
+//
+// List from Treasury Data Dictionary
+//   Administrative Expenses
+//   Budgeted Personnel and Services Diverted to a Substantially Different Use
+//   COVID-19 Testing and Contact Tracing
+//   Economic Support (Other than Small Business, Housing, and Food Assistance)
+//   Expenses Associated with the Issuance of Tax Anticipation Notes
+//   Facilitating Distance Learning
+//   Food Programs
+//   Housing Support
+//   Improve Telework Capabilities of Public Employees
+//   Medical Expenses
+//   Nursing Home Assistance
+//   Payroll for Public Health and Safety Employees
+//   Personal Protective Equipment
+//   Public Health Expenses
+//   Small Business Assistance
+//   Unemployment Benefits
+//   Workers' Compensation
+//   Items Not Listed Above
+
 // prettier-ignore
 const categoryMap = {
   "budgeted personnel and services diverted to a substantially different use":
@@ -317,8 +347,9 @@ function makeSpreadsheet(template, groups) {
     */
     const workbook = XLSX.utils.book_new();
     template.settings.forEach(s => {
-      // console.log(s.tableName);
-      let input;
+      // sometimes tabs are empty!
+      let arrGroup = groups[tabMap[s.tableName]] || []
+
       let rows = [];
       switch (s.tableName) {
         case "Cover Page":
@@ -326,26 +357,25 @@ function makeSpreadsheet(template, groups) {
           break;
 
         case "Projects":
-          rows = getProjectsTab(groups[tabMap[s.tableName]], s.columns);
+          rows = getProjectsTab(arrGroup, s.columns);
           break;
 
         case "Contracts":
         case "Grants":
         case "Transfers":
         case "Direct":
-          rows = getCategoryTab(groups[tabMap[s.tableName]], s.columns);
+          rows = getCategoryTab(arrGroup, s.columns);
           break;
 
         case "Loans":
-          rows = getLoanTab(groups[tabMap[s.tableName]], s.columns);
+          rows = getLoanTab(arrGroup, s.columns);
           break;
 
         case "Sub Recipient":
         case "Aggregate Awards < 50000":
         case "Aggregate Payments Individual":
         default:
-          input = groups[tabMap[s.tableName]];
-          rows = _.map(input, row => {
+          rows = _.map(arrGroup, row => {
             return s.columns.map(column => {
               if (column === "ignore") {
                 return "";

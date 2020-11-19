@@ -3,7 +3,7 @@
 # The actual directory of this file.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # set -x
-set -e 
+set -e
 
 # Import .env variables if not already defined.
 DOTENV="$DIR/../../.env"
@@ -23,7 +23,7 @@ then
   psql -h localhost -U postgres -w postgres -c "DROP SCHEMA public CASCADE"
   psql -h localhost -U postgres -w postgres -c "CREATE SCHEMA public"
 else
-  
+
   psql -h localhost -U postgres -w postgres -c "DROP DATABASE IF EXISTS $dbname"
   psql -h localhost -U postgres -w postgres -c "CREATE DATABASE $dbname"
 fi

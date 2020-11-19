@@ -7,7 +7,7 @@ module.exports = {
     node: true,
     mocha: true
   },
-  extends: ["plugin:vue/essential", "eslint:recommended", "@vue/prettier"],
+  extends: ["plugin:vue/essential", "eslint:recommended"],
   parserOptions: {
     parser: "babel-eslint"
   },

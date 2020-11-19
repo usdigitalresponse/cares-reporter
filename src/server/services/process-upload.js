@@ -114,7 +114,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
     console.log(`Inserted ${(result || {}).rowCount} documents.`);
   } catch (e) {
     try {
-      fileInterface.rmFile(filename);
+      await fileInterface.rmFile(filename);
     } catch (rmErr) {
       // This should never happen.
       console.error("rmFile error:", rmErr.message);
