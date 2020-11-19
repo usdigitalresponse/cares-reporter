@@ -58,7 +58,10 @@ const requiredFields = [
   ],
   [
     "award date",
-    whenGreaterThanZero("total expenditure amount", dateIsOnOrBefore("expenditure start date")),
+    whenGreaterThanZero(
+      "total expenditure amount",
+      dateIsOnOrBefore("expenditure start date")
+    ),
     'Award date "{}" is not on or before the expenditure start date',
     { isDateValue: true }
   ],
