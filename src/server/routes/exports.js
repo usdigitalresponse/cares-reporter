@@ -8,9 +8,9 @@ const { makeSpreadsheet } = require("../lib/spreadsheet");
 const _ = require("lodash");
 
 router.get("/", requireUser, function(req, res) {
-  const t = getTemplate(`treasury`);
-  const c = makeConfig(t, "Treasury Template", []);
-  const template = makeTemplate(c, "Treasury Template");
+  const treasuryTemplate = getTemplate(`treasury`);
+  const config = makeConfig(treasuryTemplate, "Treasury Template", []);
+  const template = makeTemplate(config, "Treasury Template");
 
   if (!template) {
     res.sendStatus(500);
@@ -20,7 +20,7 @@ router.get("/", requireUser, function(req, res) {
         documents => {
           console.log(`Found ${documents.length} documents`);
           const groups = _.groupBy(documents, "type");
-          console.log(`Found ${_.keys(groups).length} groups`);
+          console.log(`Found ${_.keys(groups).length} groups:`);
 
           makeSpreadsheet(template.content, groups).then(attachmentData => {
             const filename = `${template.name}.xlsx`;

@@ -21,7 +21,8 @@ function fixCellFormats(sheet) {
         // it should.
         // sheet[cellRef].z = 14;
 
-        sheet[cellRef].z = "m/d/yy";
+        // see "Data Upload Service DataDictionary 09282020.xlsx"
+        sheet[cellRef].z = "mm/dd/yyyy";
 
         // this also works, but more compute
         // sheet[cellRef].v = toJSDate(cell.v);
@@ -34,7 +35,8 @@ function fixCellFormats(sheet) {
     let cellRefs = columns[amountColumn];
     cellRefs.forEach(cellRef => {
       if (sheet[cellRef].t === "n") {
-        sheet[cellRef].z = "$#,##0.00;($#,##0.00)";
+        // see "Data Upload Service DataDictionary 09282020.xlsx"
+        sheet[cellRef].z = "#,##0.00;(#,##0.00)";
       }
     });
   });
