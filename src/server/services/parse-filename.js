@@ -4,6 +4,9 @@ const { currentReportingPeriod } = require("../db/settings");
 const { format } = require("date-fns");
 
 const parseFilename = async filename => {
+  const currentPeriod = await currentReportingPeriod();
+  const endDate = (currentPeriod || {}).end_date;
+  const expectedEndReportDate = format(endDate, "MMddyyyy");
   const valog = [];
   const [, name, ext] = filename.match(/^(.*)\.([^.]+)$/) || [];
   if (ext !== "xlsx") {
@@ -14,6 +17,17 @@ const parseFilename = async filename => {
     );
   }
   const nameParts = (name || "").split("-");
+
+  if (nameParts.length < 4) {
+    valog.push(
+      new ValidationItem({
+        message: `Uploaded file name must match pattern
+      <agency abbrev>-<project id>-<reporting due date>-<optional-desc>-v<version number>.xlsx
+      Example: EOH-013-${expectedEndReportDate}-v1.xlsx
+      `
+      })
+    );
+  }
 
   const agencyCode = nameParts.shift();
 
@@ -52,12 +66,9 @@ const parseFilename = async filename => {
     }
   }
 
-  const currentPeriod = await currentReportingPeriod();
-  const endDate = (currentPeriod || {}).end_date;
   if (!endDate) throw new Error(`Error finding currentReportingPeriod`);
-  const expectedEndReportDate = format(endDate, "MMddyyyy");
   const shortExpectedEndReportDate = format(endDate, "MMddyy");
-  const reportingDate = nameParts.shift();
+  const reportingDate = nameParts.shift() || "";
   if (
     reportingDate !== expectedEndReportDate &&
     reportingDate !== shortExpectedEndReportDate
@@ -79,17 +90,6 @@ const parseFilename = async filename => {
     );
   }
 
-  if (valog.length) {
-    // put this on the front of the error list
-    valog.unshift(
-      new ValidationItem({
-        message: `Uploaded file name must match pattern
-      <agency abbrev>-<project id>-<reporting due date>-v<version number>.xlsx
-      Example: EOH-013-06302020-v1.xlsx
-      `
-      })
-    );
-  }
   return { agencyCode, projectId, reportingDate, version, valog };
 };
 
