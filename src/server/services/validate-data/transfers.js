@@ -4,6 +4,7 @@ const {
   dropdownIncludes,
   isNotBlank,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isSum,
   isValidDate,
@@ -103,7 +104,7 @@ const requiredFields = [
 
   [
     "total expenditure amount",
-    isNumber,
+    isNumberOrBlank,
     "Total expenditure amount must an amount"
   ],
   [

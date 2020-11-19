@@ -4,6 +4,7 @@ const {
   dateIsOnOrBefore,
   dropdownIncludes,
   isNotBlank,
+  isNumberOrBlank,
   isPositiveNumber,
   isSum,
   isValidDate,
@@ -163,6 +164,12 @@ const requiredFields = [
     "current quarter obligation",
     numberIsLessThanOrEqual("contract amount"),
     "Current quarter obligation must be less than or equal to the contract amount"
+  ],
+
+  [
+    "total expenditure amount",
+    isNumberOrBlank,
+    "Total expenditure amount must be a number"
   ],
   [
     "total expenditure amount",

@@ -2,6 +2,7 @@ const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isSum,
   isValidDate,
@@ -88,7 +89,7 @@ const requiredFields = [
 
   [
     "total expenditure amount",
-    isNumber,
+    isNumberOrBlank,
     "Total expenditure amount must be a number"
   ],
   [
