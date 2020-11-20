@@ -17,7 +17,7 @@ function loadSpreadsheet(filename) {
 
 // tabMap keys are the tab names in the Treasury Output Spreadsheet,
 // values are the tab names in the Agency Input Spreadsheet, forced
-// to lower case by getTemplate().
+// to lower case by getTemplateSheets().
 // The values go in the 'type' field in the 'documents' table of the database
 // prettier-ignore
 const tabMap = {
@@ -62,7 +62,7 @@ const tabAliases = {
 
 // columnMap keys are column names in the Treasury Output Spreadsheet,
 // values are the column names in the Agency Input Spreadsheet, forced
-// to lower case by getTemplate()
+// to lower case by getTemplateSheets()
 // prettier-ignore
 const columnMap = {
   "Address Line 1": "address line 1",
@@ -153,7 +153,7 @@ const columnMap = {
 };
 
 // categoryMap keys are column names in the Agency Data Input Spreadsheet
-// forced to lower case by getTemplate(). Values go in in the category
+// forced to lower case by getTemplateSheets(). Values go in in the category
 // column of the Treasury Data Output Spreadsheet.
 // Each row in the agency data input spreadsheet has a column for each of
 // these categories, which contains a dollar amount or is left blank. So a
@@ -184,38 +184,34 @@ const columnMap = {
 
 // prettier-ignore
 const categoryMap = {
-  "budgeted personnel and services diverted to a substantially different use":
-    "Budgeted Personnel and Services Diverted to a Substantially Different Use",
-  "covid-19 testing and contact tracing":
-    "COVID-19 Testing and Contact Tracing",
-  "economic support (other than small business, housing, and food assistance)":
-    "Economic Support (Other than Small Business, Housing, and Food Assistance)",
-  "facilitating distance learning": "Facilitating Distance Learning",
-  "food programs": "Food Programs",
-  "housing support": "Housing Support",
-  "improve telework capabilities of public employees":
-    "Improve Telework Capabilities of Public Employees",
-  "medical expenses": "Medical Expenses",
-  "nursing home assistance": "Nursing Home Assistance",
-  "payroll for public health and safety employees":
-    "Payroll for Public Health and Safety Employees",
-  "personal protective equipment": "Personal Protective Equipment",
-  "public health expenses": "Public Health Expenses",
-  "small business assistance": "Small Business Assistance",
-  "unemployment benefits": "Unemployment Benefits",
-  "workers’ compensation": "Workers’ Compensation",
-  "expenses associated with the issuance of tax anticipation notes":
-    "Expenses Associated with the Issuance of Tax Anticipation Notes",
-  "administrative expenses": "Administrative Expenses",
-  "other expenditure categories": "Other Expenditure Categories",
-  "other expenditure amount": "Other Expenditure Amount",
+  "administrative expenses" : "Administrative Expenses",
+  "budgeted personnel and services diverted to a substantially different use" :"Budgeted Personnel and Services Diverted to a Substantially Different Use",
+  "covid-19 testing and contact tracing" :"COVID-19 Testing and Contact Tracing",
+  "economic support (other than small business, housing, and food assistance)" :"Economic Support (Other than Small Business, Housing, and Food Assistance)",
+  "expenses associated with the issuance of tax anticipation notes" :"Expenses Associated with the Issuance of Tax Anticipation Notes",
+  "facilitating distance learning" :"Facilitating Distance Learning",
+  "food programs" :"Food Programs",
+  "housing support" :"Housing Support",
+  "improve telework capabilities of public employees" :"Improve Telework Capabilities of Public Employees",
+  "medical expenses" :"Medical Expenses",
+  "nursing home assistance" :"Nursing Home Assistance",
+  "payroll for public health and safety employees" :"Payroll for Public Health and Safety Employees",
+  "personal protective equipment" :"Personal Protective Equipment",
+  "public health expenses" :"Public Health Expenses",
+  "small business assistance" :"Small Business Assistance",
+  "unemployment benefits" :"Unemployment Benefits",
+  "workers’ compensation" :"Workers' Compensation",
+  "other expenditure amount" :"Items Not Listed Above",
+  "other expenditure categories" :"Category Description",
 };
+
+const categoryDescriptionSourceColumn = "other expenditure categories"
 
 /* sheetToJson() converts an XLSX sheet to a two dimensional JS array,
   (not really JSON). So the first element in the array will be an array
   of column names
   */
-function sheetToJson(sheetName, sheet, toLower = true) {
+function sheetToJson(sheet, toLower = true) {
   const jsonSheet = XLSX.utils.sheet_to_json(sheet, {
     header: 1,
     blankrows: false
@@ -249,8 +245,8 @@ function parseSpreadsheet(workbook, templateSheets) {
 
   const parsedWorkbook = _.mapValues(
     normalizedSheets || {},
-    (sheet, sheetName) => {
-      return sheetToJson(sheetName, sheet);
+    (sheet) => {
+      return sheetToJson( sheet);
     }
   );
   _.forIn(templateSheets, (templateSheet, sheetName) => {
@@ -334,7 +330,14 @@ function uploadFilename(filename) {
   return `${process.env.UPLOAD_DIRECTORY}/${filename}`;
 }
 
-function makeSpreadsheet(template, groups) {
+/*  makeSpreadsheet()
+  */
+function makeSpreadsheet(
+  config, // a config object - see config.js/makeConfig()
+  groups  // a KV object where keys are sheet names, values are arrays of
+          // document records of this type (aka spreadsheet rows from these
+          // sheets)
+) {
   return applicationSettings().then(settings => {
     // console.log("makeSpreadsheet - settings are:");
     // console.dir(settings);
@@ -346,29 +349,28 @@ function makeSpreadsheet(template, groups) {
         }
     */
     const workbook = XLSX.utils.book_new();
-    template.settings.forEach(s => {
+    config.settings.forEach(sheet => {
+      let sheetName = sheet.sheetName
+      let columnNames = sheet.columns
       // sometimes tabs are empty!
-      let arrGroup = groups[tabMap[s.tableName]] || []
+      let arrGroup = groups[tabMap[sheetName]] || []
 
       let rows = [];
-      switch (s.tableName) {
+      switch (sheetName) {
         case "Cover Page":
           rows = getCoverPage(groups, settings);
           break;
 
         case "Projects":
-          rows = getProjectsTab(arrGroup, s.columns);
+          rows = getProjectsTab(arrGroup, columnNames);
           break;
 
         case "Contracts":
         case "Grants":
+        case "Loans":
         case "Transfers":
         case "Direct":
-          rows = getCategoryTab(arrGroup, s.columns);
-          break;
-
-        case "Loans":
-          rows = getLoanTab(arrGroup, s.columns);
+          rows = getCategoryTab(sheetName, arrGroup, columnNames);
           break;
 
         case "Sub Recipient":
@@ -376,22 +378,19 @@ function makeSpreadsheet(template, groups) {
         case "Aggregate Payments Individual":
         default:
           rows = _.map(arrGroup, row => {
-            return s.columns.map(column => {
-              if (column === "ignore") {
-                return "";
-              }
-              const value = row.content[columnMap[column]];
-              return value ? value : "";
+            return columnNames.map(columnName => {
+              const value = row.content[columnMap[columnName]];
+              return value ? value : null;
             });
           });
       }
 
-      rows.unshift(s.columns);
+      rows.unshift(columnNames);
 
-      let sheet = XLSX.utils.aoa_to_sheet(rows);
-      sheet = fixCellFormats(sheet);
+      let sheetOut = XLSX.utils.aoa_to_sheet(rows);
+      sheetOut = fixCellFormats(sheetOut);
 
-      XLSX.utils.book_append_sheet(workbook, sheet, s.sheetName);
+      XLSX.utils.book_append_sheet(workbook, sheetOut, sheetName);
     });
     return XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
   });
@@ -402,8 +401,9 @@ function getCoverPage(groups, settings = {}) {
     [
       "Financial Progress Reporting",
       "Coronavirus Relief Fund",
-      groups.cover[0].content["reporting period start date"],
-      groups.cover[0].content["reporting period end date"],
+
+      settings.current_reporting_period_id,
+      settings.current_reporting_period_id,
       settings.duns_number || "000-00-DUNS"
     ]
   ];
@@ -422,41 +422,75 @@ function getProjectsTab(input, columns) {
   return rows;
 }
 
-function getCategoryTab(group, columns) {
-  return spread(group, columns, {
-    amountLabel: "Cost or Expenditure Amount",
-    categoryLabel: "Cost or Expenditure Category"
-  });
-}
+function getCategoryTab(
+  sheetName,
+  group,  // an array of document records
+  arrColumnNames // an array of output column names
+) {
 
-function getLoanTab(group, columns) {
-  return spread(group, columns, {
-    amountLabel: "Payment Amount",
-    categoryLabel: "Loan Category"
-  });
-}
+  let columnOrds = {}
+  for ( let i = 0; i<arrColumnNames.length; i++ ) {
+    columnOrds[arrColumnNames[i]] = i
+  }
 
-function spread(group, columns, labels) {
-  const { amountLabel, categoryLabel } = labels;
-  let rows = [];
+  let rowsOut = [];
+
+  let amountColumnOrd = columnOrds["Cost or Expenditure Amount"]
+  let categoryColumnOrd = columnOrds["Cost or Expenditure Category"]
+  let descriptionColumnOrd = columnOrds["Category Description"]
+
+  if (sheetName === "Loans" ) {
+    amountColumnOrd = columnOrds["Payment Amount"]
+    categoryColumnOrd = columnOrds["Loan Category"]
+  }
+
   group.forEach(sourceRow => {
-    let rowContent = sourceRow.content;
-    Object.keys(rowContent).forEach(key => {
-      let category = categoryMap[key];
-      if (category) {
-        // add a row
-        let row = columns.map(column => {
-          const value = rowContent[columnMap[column]];
-          return value ? value : "";
-        });
-        let amount = rowContent[key];
-        row[columns.indexOf(amountLabel)] = amount;
-        row[columns.indexOf(categoryLabel)] = category;
-        rows.push(row);
+    sourceRow = sourceRow.content; // see exports.js/deduplicate()
+    let arrRow =[]
+
+    // populate the common fields
+    arrColumnNames.forEach(columnName => {
+      if ( sourceRow[columnMap[columnName]] ) {
+        arrRow[columnOrds[columnName]] = sourceRow[columnMap[columnName]]
+      }
+    } )
+    Object.keys(sourceRow).forEach(key => {
+      let category = categoryMap[key] || null ;
+      let destRow = arrRow.slice()
+
+      switch (category) {
+        case null:
+        break
+
+        case "Category Description":
+          // ignore for now, we will populate it when we get to
+          // "Other Expenditure Amount"
+          break
+
+        case "Items Not Listed Above":
+          // If the column "other expenditure amount" is occupied in the
+          // input row, put that amount in the Cost or Expenditure Amount
+          // column, put "Items Not Listed Above" in the "Cost or
+          // Expenditure Category" (or "Loan Category") column, and put the
+          // contents of the "other expenditure categories" column in the
+          // the "Category Description" column.
+          destRow[amountColumnOrd] = sourceRow[key]
+          destRow[categoryColumnOrd] = categoryMap[key]
+          destRow[descriptionColumnOrd] = sourceRow[categoryDescriptionSourceColumn]
+          rowsOut.push(destRow);
+          break
+
+        default: {
+          destRow[amountColumnOrd] = sourceRow[key]
+          destRow[categoryColumnOrd] = categoryMap[key]
+          rowsOut.push(destRow);
+
+          break
+        }
       }
     });
   });
-  return rows;
+  return rowsOut;
 }
 
 module.exports = {
@@ -467,3 +501,5 @@ module.exports = {
   makeSpreadsheet,
   sheetToJson
 };
+
+/*                                  *  *  *                                   */
