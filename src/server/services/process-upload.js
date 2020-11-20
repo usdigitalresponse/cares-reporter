@@ -9,7 +9,7 @@ const {
   projectByCode,
   transact
 } = require("../db");
-const { getTemplate } = require("./get-template");
+const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
 const FileInterface = require("../lib/server-disk-interface");
 const { ValidationLog } = require("../lib/validation-log");
@@ -26,7 +26,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   let valog = new ValidationLog();
   const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
   valog.append(filenameValog);
-  const templateSheets = await getTemplate();
+  const templateSheets = await getTemplateSheets();
   // console.log("templateSheets");
   // console.dir(templateSheets);
   if (!valog.success()) {

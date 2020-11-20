@@ -16,9 +16,9 @@ const {
 } = loadTreasuryTemplate(process.env.TREASURY_TEMPLATE);
 // console.dir(treasuryTemplateSheets)
 
-module.exports = { getTemplate, dropdownValues, treasuryTemplate };
+module.exports = { getTemplateSheets, dropdownValues, treasuryTemplate };
 
-function getTemplate(t = "agency") {
+function getTemplateSheets(t = "agency") {
   switch (t) {
     case "agency":
       // agency data input template
@@ -34,11 +34,11 @@ function getTemplate(t = "agency") {
 }
 
 function loadTreasuryTemplate(fileName) {
-  let template = { Sheets: {} };
+  let rawTemplate = { Sheets: {} };
 
   console.log(`Loading : ${fileName}`);
   try {
-    template = xlsx.read(
+    rawTemplate = xlsx.read(
       // eslint-disable-line prettier/prettier
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
       { type: "buffer" } // eslint-disable-line prettier/prettier
@@ -48,21 +48,20 @@ function loadTreasuryTemplate(fileName) {
     console.log("Unable to load template:", e.message);
   }
 
-  const templateSheets = {};
-  _.keys(template.Sheets).forEach(tabName => {
-    const sheetName = tabName;
-    const templateSheet = _.get(template, ["Sheets", tabName]);
-    templateSheets[sheetName] = sheetToJson(sheetName, templateSheet, false);
+  const objAoaSheets = {};
+  _.keys(rawTemplate.Sheets).forEach(tabName => {
+    const rawSheet = rawTemplate["Sheets"][tabName];
+    objAoaSheets[tabName] = sheetToJson(rawSheet, false);
   });
-  return { template, templateSheets };
+  return { template: rawTemplate, templateSheets: objAoaSheets };
 }
 
 function loadTemplate(fileName) {
-  let template = { Sheets: {} };
+  let rawTemplate = { Sheets: {} };
 
   console.log(`Loading : ${fileName}`);
   try {
-    template = xlsx.read(
+    rawTemplate = xlsx.read(
       // eslint-disable-line prettier/prettier
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
       { type: "buffer" } // eslint-disable-line prettier/prettier
@@ -71,16 +70,16 @@ function loadTemplate(fileName) {
   } catch (e) {
     console.log("Unable to load template:", e.message);
   }
+  const objAoaSheets = {};
 
-  const templateSheets = {};
-  _.keys(template.Sheets).forEach(tabName => {
+  _.keys(rawTemplate.Sheets).forEach(tabName => {
     if (tabName === "Dropdowns") return;
     const sheetName = tabName.toLowerCase().trim();
-    const templateSheet = _.get(template, ["Sheets", tabName]);
-    templateSheets[sheetName] = sheetToJson(sheetName, templateSheet);
+    const templateSheet = _.get(rawTemplate, ["Sheets", tabName]);
+    objAoaSheets[sheetName] = sheetToJson(templateSheet);
     console.log(`loadTemplate is loading ${sheetName}:`);
   });
-  return { template, templateSheets };
+  return { template: rawTemplate, templateSheets: objAoaSheets };
 }
 
 function loadDropdownValues(dropdownTab) {
