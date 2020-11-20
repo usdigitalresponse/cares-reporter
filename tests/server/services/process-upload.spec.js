@@ -45,19 +45,24 @@ describe("services/process_upload", () => {
       {
         label: "project id",
         file: "GOV-InvalidProjectID-06302020-v1.xlsx",
-        expects: /./
+        expects: /The project id ".*" in the filename is not valid/
       },
       {
         label: "agency code",
         file: "InvalidAgencyCode-013-06302020-v1.xlsx",
         expects: /The agency code ".*" in the filename is not valid/
+      },
+      {
+        label: "pattern",
+        file: "InvalidPattern-v1.xlsx",
+        expects: /Uploaded file name must match pattern.*/
       }
     ];
     filenameTests.forEach(ftest => {
       it(ftest.label, async () => {
         const uploadArgs = makeUploadArgs(dir + ftest.file);
         const result = await processUpload(uploadArgs);
-        expect(result.valog.getLog()[1].message).to.match(ftest.expects);
+        expect(result.valog.getLog()[0].message).to.match(ftest.expects);
       });
     });
 
