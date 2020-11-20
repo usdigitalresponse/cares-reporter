@@ -9,7 +9,7 @@ const {
   projectByCode,
   transact
 } = require("../db");
-const { getTemplate } = require("./get-template");
+const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
 const FileInterface = require("../lib/server-disk-interface");
 const { ValidationLog } = require("../lib/validation-log");
@@ -26,7 +26,9 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   let valog = new ValidationLog();
   const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
   valog.append(filenameValog);
-  const templateSheets = await getTemplate();
+  const templateSheets = await getTemplateSheets();
+  // console.log("templateSheets");
+  // console.dir(templateSheets);
   if (!valog.success()) {
     return { valog, upload: {} };
   }
@@ -87,6 +89,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
     }
     result = await transact(async trx => {
       const current_user = await user(user_id);
+      // write an upload record for saved file
       upload = await createUpload(
         {
           filename,
@@ -98,7 +101,9 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
         },
         trx
       );
+      // delete existing records for this agencyCode-projectID-reportingDate
       await deleteDocuments(fileParts);
+
       // Enhance the documents with the resulting upload.id. Note this needs
       // to be done here to get the upload and document insert operations into
       // the same transaction.
@@ -110,7 +115,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   } catch (e) {
     console.log(e);
     try {
-      fileInterface.rmFile(filename);
+      await fileInterface.rmFile(filename);
     } catch (rmErr) {
       // This should never happen.
       console.error("rmFile error:", rmErr.message);

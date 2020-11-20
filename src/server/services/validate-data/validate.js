@@ -136,10 +136,18 @@ function messageValue(val, options) {
 }
 
 function validateFields(requiredFields, content, tab, row, context = {}) {
+  // console.log("------ required fields are:");
+  // console.dir(requiredFields);
+  // console.log("------content is");
+  // console.dir(content);
+  // console.log("------content end");
   const valog = [];
   requiredFields.forEach(([key, validator, message, options]) => {
     const val = content[key] || "";
     if (!validator(val, content, context)) {
+      // console.log(val);
+      // console.dir(content);
+      // console.dir(context);
       valog.push(
         new ValidationItem({
           message: addValueToMessage(
