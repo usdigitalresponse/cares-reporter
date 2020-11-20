@@ -220,7 +220,6 @@ function sheetToJson(sheet, toLower = true) {
   if (_.isEmpty(jsonSheet)) {
     return jsonSheet;
   }
-
   // jsonSheet[0] is an array of the column names (the first row in the sheet)
   if (toLower) {
     jsonSheet[0] = _.map(jsonSheet[0], colName => {

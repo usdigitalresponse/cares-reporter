@@ -3,6 +3,7 @@ const {
   dateIsInReportingPeriod,
   isNotBlank,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isSum,
   isValidDate,
@@ -13,7 +14,8 @@ const {
   numberIsGreaterThanOrEqual,
   validateFields,
   validateDocuments,
-  whenBlank
+  whenBlank,
+  whenGreaterThanZero
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
@@ -37,6 +39,9 @@ describe("validation helpers", () => {
     ["blank string", isNotBlank(""), false],
     ["non blank string", isNotBlank("Test"), true],
     ["number", isNumber(1), true],
+    ["number", isNumber(""), false],
+    ["numberOrBlank", isNumberOrBlank(1), true],
+    ["numberOrBlank", isNumberOrBlank(""), true],
     ["non number", isNumber("Test"), false],
     ["positive number", isPositiveNumber(100), true],
     ["non positive number", isPositiveNumber(-100), false],
@@ -134,7 +139,7 @@ describe("validation helpers", () => {
       true
     ],
     [
-      "conditional validation passes",
+      "whenBlank conditional validation passes",
       whenBlank("duns number", isNotBlank)(
         "123",
         { "duns number": "" },
@@ -143,7 +148,7 @@ describe("validation helpers", () => {
       true
     ],
     [
-      "conditional validation fails",
+      "whenBlank conditional validation fails",
       whenBlank("duns number", isNotBlank)(
         "",
         { "duns number": "" },
@@ -152,12 +157,36 @@ describe("validation helpers", () => {
       false
     ],
     [
-      "conditional validation ignored",
+      "whenBlank conditional validation ignored",
       whenBlank("duns number", isNotBlank)(
         "",
         { "duns number": "123" },
         validateContext
       ),
+      true
+    ],
+    [
+      "whenGreaterThanZero conditional validation passes",
+      whenGreaterThanZero(
+        "total expenditure amount",
+        dateIsInPeriodOfPerformance
+      )(44166, { "total expenditure amount": 1000.0 }, validateContext),
+      true
+    ],
+    [
+      "whenGreaterThanZero conditional validation fails",
+      whenGreaterThanZero(
+        "total expenditure amount",
+        dateIsInPeriodOfPerformance
+      )(45000, { "total expenditure amount": 1000.0 }, validateContext),
+      false
+    ],
+    [
+      "whenGreaterThanZero conditional validation ignored",
+      whenGreaterThanZero(
+        "total expenditure amount",
+        dateIsInPeriodOfPerformance
+      )(45000, { "total expenditure amount": "" }, validateContext),
       true
     ]
   ];

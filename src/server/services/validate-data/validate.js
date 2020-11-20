@@ -38,6 +38,10 @@ function isNumber(val) {
   return _.isNumber(val);
 }
 
+function isNumberOrBlank(val) {
+  return _.isEmpty(val) || _.isNumber(val);
+}
+
 function isPositiveNumber(val) {
   return _.isNumber(val) && val > 0;
 }
@@ -110,6 +114,12 @@ function dropdownIncludes(key) {
 function whenBlank(key, validator) {
   return (val, content, context) => {
     return !!content[key] || validator(val, content, context);
+  };
+}
+
+function whenGreaterThanZero(key, validator) {
+  return (val, content, context) => {
+    return content[key] > 0 ? validator(val, content, context) : true;
   };
 }
 
@@ -195,6 +205,7 @@ module.exports = {
   hasSubrecipientKey,
   isNotBlank,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isSum,
   isValidDate,
@@ -208,5 +219,6 @@ module.exports = {
   validateDocuments,
   validateFields,
   validateSingleDocument,
-  whenBlank
+  whenBlank,
+  whenGreaterThanZero
 };

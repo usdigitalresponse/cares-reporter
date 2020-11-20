@@ -113,6 +113,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
     });
     console.log(`Inserted ${(result || {}).rowCount} documents.`);
   } catch (e) {
+    console.log(e);
     try {
       await fileInterface.rmFile(filename);
     } catch (rmErr) {
