@@ -338,8 +338,8 @@ function makeSpreadsheet(
           // sheets)
 ) {
   return applicationSettings().then(settings => {
-    // console.log("makeSpreadsheet - settings are:");
-    // console.dir(settings);
+    console.log("makeSpreadsheet - settings are:");
+    console.dir(settings);
     /*  {
           title: 'Rhode Island',
           current_reporting_period_id: 1,
@@ -348,9 +348,13 @@ function makeSpreadsheet(
         }
     */
     const workbook = XLSX.utils.book_new();
+    console.log(`config.settings is:`)
+    console.dir(config.settings);
     config.settings.forEach(sheet => {
       let sheetName = sheet.sheetName
+      console.log(`Composing sheet ${sheetName}`)
       let columnNames = sheet.columns
+      console.log(`Column names are ${columnNames}`)
       // sometimes tabs are empty!
       let arrGroup = groups[tabMap[sheetName]] || []
 
@@ -387,9 +391,12 @@ function makeSpreadsheet(
       rows.unshift(columnNames);
 
       let sheetOut = XLSX.utils.aoa_to_sheet(rows);
+      console.log(`appended ${rows.length} rows to {sheetName}`)
       sheetOut = fixCellFormats(sheetOut);
+      console.log(`appended ${rows.length} rows to {sheetName}`)
 
       XLSX.utils.book_append_sheet(workbook, sheetOut, sheetName);
+
     });
     return XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
   });
