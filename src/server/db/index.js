@@ -42,6 +42,17 @@ function createUser(user) {
     });
 }
 
+function updateUser(user) {
+  return knex("users")
+    .where("id", user.id)
+    .update({
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      agency_id: user.agency_id
+    });
+}
+
 function user(id) {
   return knex("users")
     .select("*")
@@ -115,6 +126,13 @@ function agencies() {
     .orderBy("name");
 }
 
+function agencyById(id) {
+  return knex("agencies")
+    .select("*")
+    .where("id", id)
+    .then(r => r[0]);
+}
+
 function agencyByCode(code) {
   return knex("agencies")
     .select("*")
@@ -152,6 +170,7 @@ module.exports = {
   accessToken,
   agencies,
   agencyByCode,
+  agencyById,
   applicationSettings,
   createAccessToken,
   createDocument,
@@ -168,6 +187,7 @@ module.exports = {
   reportingPeriods,
   roles,
   transact,
+  updateUser,
   upload,
   uploads,
   uploadsForAgency,

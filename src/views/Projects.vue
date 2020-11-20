@@ -7,6 +7,7 @@
 
 <script>
 import DataTable from "../components/DataTable";
+import ProjectLink from "../components/ProjectLink";
 export default {
   name: "Projects",
   components: {
@@ -26,7 +27,8 @@ export default {
         columns: [
           { name: "code", label: "Project Code" },
           { name: "name" },
-          { name: "agency_code", label: "Agency Code" }
+          { name: "agency_code", label: "Agency Code" },
+          { component: ProjectLink }
         ]
       }
     };

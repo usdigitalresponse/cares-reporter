@@ -7,6 +7,7 @@
 
 <script>
 import DataTable from "../components/DataTable";
+import AgencyLink from "../components/AgencyLink";
 export default {
   name: "Agencies",
   components: {
@@ -18,7 +19,11 @@ export default {
       user,
       table: {
         views: [],
-        columns: [{ name: "code", label: "Agency Code" }, { name: "name" }]
+        columns: [
+          { name: "code", label: "Agency Code" },
+          { name: "name" },
+          { component: AgencyLink }
+        ]
       }
     };
   },
