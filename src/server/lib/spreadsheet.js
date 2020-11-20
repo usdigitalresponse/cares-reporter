@@ -223,8 +223,8 @@ function sheetToJson(sheet, toLower = true) {
 
   // jsonSheet[0] is an array of the column names (the first row in the sheet)
   if (toLower) {
-    jsonSheet[0] = jsonSheet[0].map(colName => {
-      const lowerCol = colName.toLowerCase().trim();
+    jsonSheet[0] = _.map(jsonSheet[0], colName => {
+      const lowerCol = `${colName}`.toLowerCase().trim();
       return columnAliases[lowerCol] || lowerCol;
     });
   }
