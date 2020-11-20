@@ -5,6 +5,7 @@ const {
   dropdownIncludes,
   isNotBlank,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isSum,
   isValidDate,
@@ -57,7 +58,10 @@ const requiredFields = [
   ],
   [
     "award date",
-    dateIsOnOrBefore("expenditure start date"),
+    whenGreaterThanZero(
+      "total expenditure amount",
+      dateIsOnOrBefore("expenditure start date")
+    ),
     'Award date "{}" is not on or before the expenditure start date',
     { isDateValue: true }
   ],
@@ -167,7 +171,7 @@ const requiredFields = [
 
   [
     "total expenditure amount",
-    isNumber,
+    isNumberOrBlank,
     "Total expenditure amount must be an amount"
   ],
   [
