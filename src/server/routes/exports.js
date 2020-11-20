@@ -56,10 +56,10 @@ async function processDocuments( res, config ) {
   }
 
   console.log(`Found ${documents.length} documents`);
-  documents = deDuplicate(documents, objUploadSummaries)
-  console.log(`Found ${documents.length} unique documents`);
+  let rv = deDuplicate(documents, objUploadSummaries)
+  console.log(`Found ${rv.length} unique documents`);
 
-  const groups = _.groupBy(documents, "type");
+  const groups = _.groupBy(rv, "type");
   console.log(`Found ${_.keys(groups).length} groups:`);
 
   makeSpreadsheet(config, groups).then(attachmentData => {
@@ -75,11 +75,13 @@ async function processDocuments( res, config ) {
 
 function deDuplicate(documents, objUploadSummaries) {
   let agencyCodes = {}
+  let objProjectStatus ={}
 
   documents.forEach(record => {
     switch (record.type) {
       case "cover":
-        agencyCodes[`${record.upload_id}`] = record.content["agency code"]
+        agencyCodes[record.upload_id] = record.content["agency code"]
+        objProjectStatus[record.content['project id']] = record.content.status
         break
       default:
         break
@@ -87,7 +89,6 @@ function deDuplicate(documents, objUploadSummaries) {
   })
 
   let uniqueRecords = {} // keyed by concatenated id
-  let projectStatus ={}
   // let total = 0
   // let current = 0
 
@@ -98,6 +99,7 @@ function deDuplicate(documents, objUploadSummaries) {
 
     let projectID = content["project id"] ||
       content["project identification number"]
+
     const objUploadSummary = objUploadSummaries[record.upload_id]
 
     let key
@@ -114,8 +116,6 @@ function deDuplicate(documents, objUploadSummaries) {
         //     'crf end date': 44195
         //   }
         // },
-
-        projectStatus[`${agencyID}:project:${projectID}`] = content.status
         break
 
       case "projects":
@@ -131,6 +131,7 @@ function deDuplicate(documents, objUploadSummaries) {
         // },
         // console.dir(record)
         record.content["project identification number"] = String(projectID)
+        record.content["status"] = objProjectStatus[projectID]
         uniqueRecords[`${agencyCode}:project:${projectID}`] = record
         break
 
