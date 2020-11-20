@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import Agencies from "../views/Agencies.vue";
+import Agency from "../views/Agency.vue";
 import CreateDocument from "../views/CreateDocument.vue";
 import Document from "../views/Document.vue";
 import Documents from "../views/Documents.vue";
@@ -10,8 +11,10 @@ import ImportFile from "../views/ImportFile.vue";
 import Login from "../views/Login.vue";
 import NewUpload from "../views/NewUpload.vue";
 import NewUser from "../views/NewUser.vue";
+import Project from "../views/Project.vue";
 import Projects from "../views/Projects.vue";
 import Upload from "../views/Upload.vue";
+import User from "../views/User.vue";
 import Users from "../views/Users.vue";
 
 import store from "../store";
@@ -69,9 +72,21 @@ const routes = [
     meta: { requiresLogin: true }
   },
   {
+    path: "/agencies/:id",
+    name: "Agency",
+    component: Agency,
+    meta: { requiresLogin: true }
+  },
+  {
     path: "/projects",
     name: "Projects",
     component: Projects,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/projects/:id",
+    name: "Project",
+    component: Project,
     meta: { requiresLogin: true }
   },
   {
@@ -84,6 +99,12 @@ const routes = [
     path: "/new_user",
     name: "NewUser",
     component: NewUser,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/users/:id",
+    name: "User",
+    component: User,
     meta: { requiresLogin: true }
   }
 ];
