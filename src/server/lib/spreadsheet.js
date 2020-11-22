@@ -1,26 +1,17 @@
 const XLSX = require("xlsx");
 const _ = require("lodash");
 const { ValidationItem } = require("./validation-log");
-const { applicationSettings } = require("../db");
+const { applicationSettings, currentReportingPeriod } = require("../db");
 const fixCellFormats = require("../services/fix-cell-formats");
 
-function loadSpreadsheet(filename) {
-  const workbook = XLSX.readFile(filename);
-  return workbook.SheetNames.map(name => {
-    const sheet = workbook.Sheets[name];
-    return {
-      name,
-      data: XLSX.utils.sheet_to_json(sheet, { header: 1 })
-    };
-  });
-}
-
-// tabMap keys are the tab names in the Treasury Output Spreadsheet,
-// values are the tab names in the Agency Input Spreadsheet, forced
-// to lower case by getTemplateSheets().
-// The values go in the 'type' field in the 'documents' table of the database
+/*  sheetNameMap keys are the sheet names in the Treasury Output Spreadsheet,
+  values are the sheet names in the Agency Input Spreadsheet, forced
+  to lower case by getTemplateSheets().
+  The values go in the 'type' field in the 'documents' table of the database,
+  which are used to group the records into output sheets
+  */
 // prettier-ignore
-const tabMap = {
+const sheetNameMap = {
   "Cover Page": "cover",
   "Projects": "projects",
   "Sub Recipient": "subrecipient",
@@ -33,38 +24,22 @@ const tabMap = {
   "Aggregate Payments Individual": "aggregate payments individual",
 };
 
-// columnAliases are needed by the test fixtures, which have old versions of
-// the column names.
-// Keys are the column names in the input spreadsheets, values are what
-// they are called in the document records of the database.
-const columnAliases = {
-  "duns number (hidden)": "duns number",
-  "subrecipient id (hidden)": "subrecipient id",
-  "subrecipient organization": "subrecipient legal name",
-  "subrecipient organization name": "subrecipient legal name",
-  "subrecipient organization (borrower)": "subrecipient legal name",
-  "subrecipient organization (transferee/government unit)":
-    "subrecipient legal name",
-  "transfer amount": "award amount",
-  "is awardee complying with terms and conditions of the grant?": "compliance",
-  "awardee primary place of performance address line 1":
-    "primary place of performance address line 1",
-  "awardee primary place of performance address line 2":
-    "primary place of performance address line 2",
-  "awardee primary place of performance address line 3":
-    "primary place of performance address line 3"
-};
-
+/*  sheetNameAliases are needed by the test fixtures, which have old versions of
+  the sheet names.
+  Keys are the sheet names in the input spreadsheets, values are what
+  they are called in the document records of the database.
+  */
 // prettier-ignore
-const tabAliases = {
+const sheetNameAliases = {
   subrecipients: "subrecipient",
 };
 
-// columnMap keys are column names in the Treasury Output Spreadsheet,
-// values are the column names in the Agency Input Spreadsheet, forced
-// to lower case by getTemplateSheets()
+/*  columnNameMap keys are column names in the Treasury Output Workbook,
+  values are the column names in the Agency Input Workbooks, forced
+  to lower case by getTemplateSheets()
+*/
 // prettier-ignore
-const columnMap = {
+const columnNameMap = {
   "Address Line 1": "address line 1",
   "Address Line 2": "address line 2",
   "Address Line 3": "address line 3",
@@ -152,6 +127,28 @@ const columnMap = {
   // "Expenditure Project":"total expenditure amount",
 };
 
+// columnAliases are needed by the test fixtures, which have old versions of
+// the column names.
+// Keys are the column names in the input spreadsheets, values are what
+// they are called in the document records of the database.
+const columnAliases = {
+  "duns number (hidden)": "duns number",
+  "subrecipient id (hidden)": "subrecipient id",
+  "subrecipient organization": "subrecipient legal name",
+  "subrecipient organization name": "subrecipient legal name",
+  "subrecipient organization (borrower)": "subrecipient legal name",
+  "subrecipient organization (transferee/government unit)":
+    "subrecipient legal name",
+  "transfer amount": "award amount",
+  "is awardee complying with terms and conditions of the grant?": "compliance",
+  "awardee primary place of performance address line 1":
+    "primary place of performance address line 1",
+  "awardee primary place of performance address line 2":
+    "primary place of performance address line 2",
+  "awardee primary place of performance address line 3":
+    "primary place of performance address line 3"
+};
+
 // categoryMap keys are column names in the Agency Data Input Spreadsheet
 // forced to lower case by getTemplateSheets(). Values go in in the category
 // column of the Treasury Data Output Spreadsheet.
@@ -205,7 +202,24 @@ const categoryMap = {
   "other expenditure categories" :"Category Description",
 };
 
-const categoryDescriptionSourceColumn = "other expenditure categories"
+const categoryDescriptionSourceColumn = "other expenditure categories";
+
+/* loadSpreadsheet() returns an object containing:
+  {
+    sheetName: <the name of this sheet (aka tab aka table),
+    data: an AOA of cell values.
+  }
+  */
+function loadSpreadsheet(filename) {
+  const workbook = XLSX.readFile(filename);
+  return workbook.SheetNames.map(sheetName => {
+    const sheet = workbook.Sheets[sheetName];
+    return {
+      sheetName,
+      data: XLSX.utils.sheet_to_json(sheet, { header: 1 })
+    };
+  });
+}
 
 /* sheetToJson() converts an XLSX sheet to a two dimensional JS array,
   (not really JSON). So the first element in the array will be an array
@@ -230,15 +244,17 @@ function sheetToJson(sheet, toLower = true) {
   return jsonSheet;
 }
 
-/*  parseSpreadsheet() verifies that the tabs and columns of the uploaded
+/*  parseSpreadsheet() verifies that the sheet and column names of the uploaded
   workbook match those of the reference template, and returns the contents
-  of the uploaded workbook in a {<tabName>: <two dimensional array>, ...}.
+  of the uploaded workbook in a {<sheetName>: <two dimensional array>, ...}.
   */
 function parseSpreadsheet(workbook, templateSheets) {
   const valog = [];
-  const normalizedSheets = _.mapKeys(workbook.Sheets, (tab, tabName) => {
+
+  const normalizedSheets = _.mapKeys(workbook.Sheets, (sheet, sheetName) => {
     return (
-      tabAliases[tabName.toLowerCase().trim()] || tabName.toLowerCase().trim()
+      sheetNameAliases[sheetName.toLowerCase().trim()]
+      || sheetName.toLowerCase().trim()
     );
   });
 
@@ -248,6 +264,7 @@ function parseSpreadsheet(workbook, templateSheets) {
       return sheetToJson( sheet);
     }
   );
+
   _.forIn(templateSheets, (templateSheet, sheetName) => {
     const workbookSheet = parsedWorkbook[sheetName];
     if (!workbookSheet) {
@@ -282,7 +299,7 @@ function parseSpreadsheet(workbook, templateSheets) {
 }
 
 /*  spreadsheetToDocuments() returns an array of row objects consisting of:
-   {  type:<tab name>,
+   {  type:<sheet name>,
       user_id:<user ID>,
       content: {
         <column A title>:<cell contents>,
@@ -292,7 +309,7 @@ function parseSpreadsheet(workbook, templateSheets) {
     }
   */
 function spreadsheetToDocuments(
-  spreadsheet, // { <tab name>:<two dimensional array>, ... }
+  spreadsheet, // { <sheet name>:<two dimensional array>, ... }
   user_id,
   templateSheets
 ) {
@@ -329,98 +346,133 @@ function uploadFilename(filename) {
   return `${process.env.UPLOAD_DIRECTORY}/${filename}`;
 }
 
-/*  makeSpreadsheet()
-  */
-function makeSpreadsheet(
-  config, // a config object - see config.js/makeConfig()
-  groups  // a KV object where keys are sheet names, values are arrays of
-          // document records of this type (aka spreadsheet rows from these
-          // sheets)
-) {
-  return applicationSettings().then(settings => {
-    console.log("makeSpreadsheet - settings are:");
-    console.dir(settings);
-    /*  {
-          title: 'Rhode Island',
-          current_reporting_period_id: 1,
-          reporting_template: null,
-          duns_number: null
-        }
-    */
-    const workbook = XLSX.utils.book_new();
-    console.log(`config.settings is:`)
-    console.dir(config.settings);
-    config.settings.forEach(sheet => {
-      let sheetName = sheet.sheetName
-      console.log(`Composing sheet ${sheetName}`)
-      let columnNames = sheet.columns
-      console.log(`Column names are ${columnNames}`)
-      // sometimes tabs are empty!
-      let arrGroup = groups[tabMap[sheetName]] || []
-
-      let rows = [];
-      switch (sheetName) {
-        case "Cover Page":
-          rows = getCoverPage(groups, settings);
-          break;
-
-        case "Projects":
-          rows = getProjectsTab(arrGroup, columnNames);
-          break;
-
-        case "Contracts":
-        case "Grants":
-        case "Loans":
-        case "Transfers":
-        case "Direct":
-          rows = getCategoryTab(sheetName, arrGroup, columnNames);
-          break;
-
-        case "Sub Recipient":
-        case "Aggregate Awards < 50000":
-        case "Aggregate Payments Individual":
-        default:
-          rows = _.map(arrGroup, row => {
-            return columnNames.map(columnName => {
-              const value = row.content[columnMap[columnName]];
-              return value ? value : null;
-            });
-          });
+/*  makeSpreadsheet() takes input records in the form of
+      { <type (this is the source sheet name)>: [
+          { content: {
+              <sourceColumnName>:<sourceColumnValue>,
+              ...
+            }
+          },
+          ...
+        ]
+        ...
       }
+    and composes these records into an output xlsx-formatted workbook.
+  */
+async function makeSpreadsheet(
+  config, // a config object - see config.js/makeConfig()
+  recordGroups  // a KV object where keys are sheet names, values are arrays
+          // of document records of this type (aka spreadsheet rows from
+          // these sheets)
+) {
+  try {
+    var appSettings = await applicationSettings() // eslint-disable-line
 
-      rows.unshift(columnNames);
+  } catch (err) {
+    console.dir(err)
+    return {}
+  }
 
-      let sheetOut = XLSX.utils.aoa_to_sheet(rows);
-      console.log(`appended ${rows.length} rows to {sheetName}`)
-      sheetOut = fixCellFormats(sheetOut);
-      console.log(`appended ${rows.length} rows to {sheetName}`)
+  try {
+    var reportingPeriod = await currentReportingPeriod() // eslint-disable-line
 
-      XLSX.utils.book_append_sheet(workbook, sheetOut, sheetName);
+  } catch (err) {
+    console.dir(err)
+    return {}
+  }
 
-    });
-    return XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
+  // console.log("makeSpreadsheet - appSettings are:");
+  // console.dir(appSettings);
+  /*  {
+        title: 'Rhode Island',
+        current_reporting_period_id: 1,
+        reporting_template: null,
+        duns_number: null
+      }
+  */
+  const workbook = XLSX.utils.book_new();
+  // console.log(`config.settings is:`)
+  // console.dir(config.settings);
+
+  config.settings.forEach(outputSheetSpec => {
+    let outputSheetName = outputSheetSpec.sheetName
+    // console.log(`Composing outputSheet ${outputSheetName}`)
+    let outputColumnNames = outputSheetSpec.columns
+    // console.log(`Column names are ${outputColumnNames}`)
+    // sometimes tabs are empty!
+    let arrRecordGroup = recordGroups[sheetNameMap[outputSheetName]] || []
+
+    let rows = [];
+    switch (outputSheetName) {
+      case "Cover Page":
+        rows = getCoverPage(appSettings, reportingPeriod);
+        break;
+
+      case "Projects":
+        rows = getProjectsSheet(arrRecordGroup, outputColumnNames);
+        break;
+
+      case "Contracts":
+      case "Grants":
+      case "Loans":
+      case "Transfers":
+      case "Direct":
+        rows = getCategorySheet(outputSheetName, arrRecordGroup, outputColumnNames);
+        break;
+      case "Aggregate Payments Individual":
+        rows = getAggregatePaymentsIndividualSheet(arrRecordGroup, outputColumnNames)
+        break
+
+      case "Sub Recipient":
+      case "Aggregate Awards < 50000":
+      default:
+        rows = _.map(arrRecordGroup, row => {
+          return outputColumnNames.map(columnName => {
+            const value = row.content[columnNameMap[columnName]];
+            return value ? value : null;
+          });
+        });
+    }
+
+    rows.unshift(outputColumnNames);
+
+    let sheetOut = XLSX.utils.aoa_to_sheet(rows);
+    sheetOut = fixCellFormats(sheetOut);
+
+    XLSX.utils.book_append_sheet(workbook, sheetOut, outputSheetName);
+
   });
+  try {
+    // eslint-disable-next-line
+    var treasuryOutputWorkbook =
+      await XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
+
+  } catch (err) {
+    console.dir(err)
+  }
+  return treasuryOutputWorkbook
 }
 
-function getCoverPage(groups, settings = {}) {
+function getCoverPage(appSettings = {}, reportingPeriod = {}) {
+  console.dir(`typeof reportingPeriod.start_date is ${typeof reportingPeriod.start_date}`)
   let rows = [
     [
       "Financial Progress Reporting",
       "Coronavirus Relief Fund",
 
-      settings.current_reporting_period_id,
-      settings.current_reporting_period_id,
-      settings.duns_number || "000-00-DUNS"
+      reportingPeriod.start_date || "Needs a date",
+      reportingPeriod.end_date || "Needs a date",
+      appSettings.duns_number || "Needs a DUNS number"
     ]
   ];
 
   return rows;
 }
 
-function getProjectsTab(input, columns) {
+function getProjectsSheet(input, columns) {
   let rows = _.map(input, row => {
     return columns.map(column => {
-      const value = row.content[columnMap[column]];
+      const value = row.content[columnNameMap[column]];
       return value ? value : "";
     });
   });
@@ -428,7 +480,7 @@ function getProjectsTab(input, columns) {
   return rows;
 }
 
-function getCategoryTab(
+function getCategorySheet(
   sheetName,
   group,  // an array of document records
   arrColumnNames // an array of output column names
@@ -456,8 +508,8 @@ function getCategoryTab(
 
     // populate the common fields
     arrColumnNames.forEach(columnName => {
-      if ( sourceRow[columnMap[columnName]] ) {
-        arrRow[columnOrds[columnName]] = sourceRow[columnMap[columnName]]
+      if ( sourceRow[columnNameMap[columnName]] ) {
+        arrRow[columnOrds[columnName]] = sourceRow[columnNameMap[columnName]]
       }
     } )
     Object.keys(sourceRow).forEach(key => {
@@ -498,6 +550,26 @@ function getCategoryTab(
   });
   return rowsOut;
 }
+
+function getAggregatePaymentsIndividualSheet (arrRecordGroup, outputColumnNames) {
+  let cqoSourceName = columnNameMap["Current Quarter Obligation"];
+  let cqeSourceName = columnNameMap["Current Quarter Expenditure"];
+
+  let cqoTotal = 0;
+  let cqeTotal = 0;
+
+  arrRecordGroup.forEach( sourceRec => {
+    cqoTotal += Number(sourceRec.content[cqoSourceName]) || 0;
+    cqeTotal += Number(sourceRec.content[cqeSourceName]) || 0;
+  } )
+
+  let arrDestRow =[];
+  arrDestRow[outputColumnNames.indexOf("Current Quarter Obligation")] = cqoTotal;
+  arrDestRow[outputColumnNames.indexOf("Current Quarter Expenditure")] = cqeTotal;
+
+  return [arrDestRow];
+}
+
 
 module.exports = {
   loadSpreadsheet,
