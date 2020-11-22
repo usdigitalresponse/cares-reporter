@@ -74,8 +74,8 @@ async function processDocuments( res, config ) {
 }
 
 function deDuplicate(documents, objUploadSummaries) {
-  let agencyCodes = {}
-  let objProjectStatus ={}
+  let agencyCodes = {} // KV table of { upload_id: agency code }
+  let objProjectStatus ={} // KV table of { project id: project status }
 
   documents.forEach(record => {
     switch (record.type) {
@@ -146,10 +146,11 @@ function deDuplicate(documents, objUploadSummaries) {
         //     'state code': 'CA',
         //     zip: '95113',
         //     'country name': 'United States',
-        //     'organization type': 'For-Profit Organization (Other than Small Business)'
+        //     'organization type': 'For-Profit Organization...)'
         //   }
         // },
-        record.content["identification number"] = String(content["identification number"])
+        record.content["identification number"] =
+          String(content["identification number"])
         uniqueRecords[
           `subrecipient:${content["identification number"]}`
         ] = record
@@ -168,12 +169,12 @@ function deDuplicate(documents, objUploadSummaries) {
         //     'contract date': 43958,
         //     'period of performance start date': 43958,
         //     'period of performance end date': 44135,
-        //     'primary place of performance address line 1': '167 POINT ST STE 1A',
+        //     'primary place of performance address line 1': '167 POINT ST 1A',
         //     'primary place of performance city name': 'PROVIDENCE',
         //     'primary place of performance state code': 'RI',
         //     'primary place of performance zip': '02903-4766',
         //     'primary place of performance country name': 'United States',
-        //     'contract description': 'COVID-19 Antibody Surveillance Research Support',
+        //     'contract description': 'COVID-19 Antibody Surveillance R...',
         //     'current quarter obligation': 62000,
         //     'expenditure start date': 43958,
         //     'expenditure end date': 43998,
@@ -210,7 +211,7 @@ function deDuplicate(documents, objUploadSummaries) {
         //     'award amount': 50000,
         //     'transfer type': 'Reimbursable',
         //     'transfer date': 44092,
-        //     'purpose description': 'Summer Academy for Interactive Learning to proivde RI students access to a range of academic and enrichment opportunities during Summer 2020',
+        //     'purpose description': 'Summer Academy for Interactive L...',
         //     'current quarter obligation': 50000,
         //     'expenditure start date': 44092,
         //     'expenditure end date': 44104,
@@ -331,7 +332,7 @@ function deDuplicate(documents, objUploadSummaries) {
         // certification: {
         //   type: 'certification',
         //   content: {
-        //     certification: 'By signing this report, I certify to the best of my knowledge and belief that the report is true, complete, and accurate, and the expenditures, disbursements and cash receipts are for the purposes and objectives set forth in the terms and conditions of the Federal award. I am aware that any false, fictitious, or fraudulent information, or the omission of any material fact, may subject me to criminal, civil or administrative penalties for fraud, false statements, false claims or otherwise. (U.S. Code Title 18, Section 1001 and Title 31, Sections 3729-3730 and 3801-3812). (2 CFR 200.415)',
+        //     certification: 'By signing this report, I certify ...',
         //     'agency financial reviewer name': 'Amanda M. Rivers',
         //     date: 44153
         //   }

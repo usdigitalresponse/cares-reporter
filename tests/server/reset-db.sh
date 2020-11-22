@@ -14,6 +14,8 @@ DONE
 # Default dbname is "postgres"
 dbname=${1:-postgres}
 
+echo Using database $dbname
+
 mkdir -p $UPLOAD_DIRECTORY
 rm -rf $UPLOAD_DIRECTORY/*
 
@@ -27,7 +29,8 @@ else
   psql -h localhost -U postgres -w postgres -c "DROP DATABASE IF EXISTS $dbname"
   psql -h localhost -U postgres -w postgres -c "CREATE DATABASE $dbname"
 fi
+
 yarn knex migrate:latest
-yarn knex seed:run
+yarn knex --knexfile tests/server/knexfile.js seed:run
 
 
