@@ -1,3 +1,4 @@
+
 const XLSX = require("xlsx");
 const _ = require("lodash");
 const { ValidationItem } = require("./validation-log");
@@ -125,6 +126,85 @@ const columnNameMap = {
   "Zip+4": "zip",
   // "Primary Place of Performance Zip+4": "primary place of performance zip+4",
   // "Expenditure Project":"total expenditure amount",
+};
+// prettier-ignore
+const columnTypeMap = {
+  "Address Line 1": "string",
+  "Address Line 2": "string",
+  "Address Line 3": "string",
+  "Award Amount": "number",
+  "Award Date": "date",
+  "Award Description": "string",
+  "Award Number": "string",
+  "Award Payment Method": "string",
+  "Category Description": "string",
+  "City Name": "string",
+  "Contract Amount": "number",
+  "Contract Date": "date",
+  "Contract Description": "string",
+  "Contract Number": "string",
+  "Contract Type": "string",
+  "Cost or Expenditure Amount": "number",
+  "Cost or Expenditure Category": "string",
+  "Country Name": "string",
+  "Current Quarter Expenditure": "number",
+  "Current Quarter Expenditure/Payments": "number",
+  "Current Quarter Obligation": "number",
+  "Description": "string",
+  "DUNS Number": "string",
+  "Expenditure End Date": "date",
+  "Expenditure Project": "string",
+  "Expenditure Start Date": "date",
+  "Funding Type": "string",
+  "Identification Number": "string",
+  "Is awardee complying with terms and conditions of the grant?": "string",
+  "Legal Name": "string",
+  "Loan Amount": "number",
+  "Loan Category": "string",
+  "Loan Date": "date",
+  "Loan Description": "string",
+  "Loan Expiration Date": "date",
+  "Loan Number": "string",
+  "Non-Compliance Explanation": "string",
+  "Obligation Amount": "number",
+  "Obligation Date": "date",
+  "Obligation Project": "string",
+  "Organization Type": "string",
+  "Payment Amount": "number",
+  "Payment Date": "date",
+  "Payment Project": "string",
+  "Period of Performance End Date": "date",
+  "Period of Performance Start Date": "date",
+  "Primary Place of Performance Address Line 1":"string",
+  "Primary Place of Performance Address Line 2":"string",
+  "Primary Place of Performance Address Line 3":"string",
+  "Primary Place of Performance City Name":"string",
+  "Primary Place of Performance Country Name":"string",
+  "Primary Place of Performance State Code":"string",
+  "Primary Place of Performance Zip+4": "string",
+  "Prime Recipient DUNS #": "string",
+  "Program": "string",
+  "Project Identification Number": "string",
+  "Project Name": "string",
+  "Purpose Description": "string",
+  "Report Name": "string",
+  "Reporting Period End Date": "date",
+  "Reporting Period Start Date": "date",
+  "State Code": "string",
+  "Status": "string",
+  "Sub-Recipient Organization (Contractor)": "string",
+  "Sub-Recipient Organization (Payee)": "string",
+  "Sub-Recipient Organization (Awardee)": "string",
+  "Sub-Recipient Organization (Borrower)": "string",
+  "Sub-Recipient Organization (Transferee/Government Unit)":"string",
+  "Transfer Amount": "number",
+  "Transfer Date": "date",
+  "Transfer Number": "number",
+  "Transfer Type": "string",
+  "Will these payments be repurposed for Future Use?":"string",
+  "Zip+4": "string",
+  // "Primary Place of Performance Zip+4": "string",
+  // "Expenditure Project":"string",
 };
 
 // columnAliases are needed by the test fixtures, which have old versions of
@@ -346,7 +426,7 @@ function uploadFilename(filename) {
   return `${process.env.UPLOAD_DIRECTORY}/${filename}`;
 }
 
-/*  makeSpreadsheet() takes input records in the form of
+/*  createTreasuryOutputWorkbook() takes input records in the form of
       { <type (this is the source sheet name)>: [
           { content: {
               <sourceColumnName>:<sourceColumnValue>,
@@ -359,7 +439,7 @@ function uploadFilename(filename) {
       }
     and composes these records into an output xlsx-formatted workbook.
   */
-async function makeSpreadsheet(
+async function createTreasuryOutputWorkbook(
   config, // a config object - see config.js/makeConfig()
   recordGroups  // a KV object where keys are sheet names, values are arrays
           // of document records of this type (aka spreadsheet rows from
@@ -367,6 +447,15 @@ async function makeSpreadsheet(
 ) {
   try {
     var appSettings = await applicationSettings() // eslint-disable-line
+    // console.log("createTreasuryOutputWorkbook - appSettings are:");
+    // console.dir(appSettings);
+    /*  {
+          title: 'Rhode Island',
+          current_reporting_period_id: 1,
+          reporting_template: null,
+          duns_number: null
+        }
+    */
 
   } catch (err) {
     console.dir(err)
@@ -381,26 +470,18 @@ async function makeSpreadsheet(
     return {}
   }
 
-  // console.log("makeSpreadsheet - appSettings are:");
-  // console.dir(appSettings);
-  /*  {
-        title: 'Rhode Island',
-        current_reporting_period_id: 1,
-        reporting_template: null,
-        duns_number: null
-      }
-  */
+
   const workbook = XLSX.utils.book_new();
+
   // console.log(`config.settings is:`)
   // console.dir(config.settings);
-
   config.settings.forEach(outputSheetSpec => {
     let outputSheetName = outputSheetSpec.sheetName
     // console.log(`Composing outputSheet ${outputSheetName}`)
     let outputColumnNames = outputSheetSpec.columns
     // console.log(`Column names are ${outputColumnNames}`)
     // sometimes tabs are empty!
-    let arrRecordGroup = recordGroups[sheetNameMap[outputSheetName]] || []
+    let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || []
 
     let rows = [];
     switch (outputSheetName) {
@@ -409,7 +490,7 @@ async function makeSpreadsheet(
         break;
 
       case "Projects":
-        rows = getProjectsSheet(arrRecordGroup, outputColumnNames);
+        rows = getProjectsSheet(sheetRecords, outputColumnNames);
         break;
 
       case "Contracts":
@@ -417,16 +498,20 @@ async function makeSpreadsheet(
       case "Loans":
       case "Transfers":
       case "Direct":
-        rows = getCategorySheet(outputSheetName, arrRecordGroup, outputColumnNames);
+        rows = getCategorySheet(outputSheetName, sheetRecords, outputColumnNames);
         break;
+
       case "Aggregate Payments Individual":
-        rows = getAggregatePaymentsIndividualSheet(arrRecordGroup, outputColumnNames)
+        rows = getAggregatePaymentsIndividualSheet(sheetRecords, outputColumnNames)
         break
 
       case "Sub Recipient":
+        rows = getSubRecipientSheet(sheetRecords, outputColumnNames)
+        break
+
       case "Aggregate Awards < 50000":
       default:
-        rows = _.map(arrRecordGroup, row => {
+        rows = _.map(sheetRecords, row => {
           return outputColumnNames.map(columnName => {
             const value = row.content[columnNameMap[columnName]];
             return value ? value : null;
@@ -469,20 +554,28 @@ function getCoverPage(appSettings = {}, reportingPeriod = {}) {
   return rows;
 }
 
-function getProjectsSheet(input, columns) {
-  let rows = _.map(input, row => {
-    return columns.map(column => {
-      const value = row.content[columnNameMap[column]];
-      return value ? value : "";
+function getProjectsSheet(sheetRecords, columns) {
+  let projectIDColumnName = columnNameMap["Project Identification Number"]
+  let rows =[]
+  sheetRecords.forEach(jsRecord => {
+    let jsRow = jsRecord.content
+    let projectID = jsRow[projectIDColumnName]
+    if( !projectID || projectID === "undefined" ) {
+      console.log("Bad project record:",jsRecord)
+      return
+    }
+    let arrRow = columns.map(column => {
+      const value = jsRow[columnNameMap[column]];
+      return value ? value : null;
     });
-  });
-
+    rows.push( arrRow );
+  })
   return rows;
 }
 
 function getCategorySheet(
   sheetName,
-  group,  // an array of document records
+  sheetRecords,  // an array of document records
   arrColumnNames // an array of output column names
 ) {
 
@@ -502,17 +595,27 @@ function getCategorySheet(
     categoryColumnOrd = columnOrds["Loan Category"]
   }
 
-  group.forEach(sourceRow => {
-    sourceRow = sourceRow.content; // see exports.js/deduplicate()
+  sheetRecords.forEach(jsonRecord => {
+    let jsonRow = jsonRecord.content; // see exports.js/deduplicate()
     let arrRow =[]
 
     // populate the common fields
     arrColumnNames.forEach(columnName => {
-      if ( sourceRow[columnNameMap[columnName]] ) {
-        arrRow[columnOrds[columnName]] = sourceRow[columnNameMap[columnName]]
+      let cellValue = jsonRow[columnNameMap[columnName]]
+      if ( cellValue ) {
+        switch (columnTypeMap[columnName] ) {
+          case "string":
+            arrRow[columnOrds[columnName]] = String(cellValue)
+            break
+          default:
+            arrRow[columnOrds[columnName]] = cellValue
+            break
+        }
       }
     } )
-    Object.keys(sourceRow).forEach(key => {
+
+
+    Object.keys(jsonRow).forEach(key => {
       let category = categoryMap[key] || null ;
       let destRow = arrRow.slice()
 
@@ -532,14 +635,14 @@ function getCategorySheet(
           // Expenditure Category" (or "Loan Category") column, and put the
           // contents of the "other expenditure categories" column in the
           // the "Category Description" column.
-          destRow[amountColumnOrd] = sourceRow[key]
+          destRow[amountColumnOrd] = jsonRow[key]
           destRow[categoryColumnOrd] = categoryMap[key]
-          destRow[descriptionColumnOrd] = sourceRow[categoryDescriptionSourceColumn]
+          destRow[descriptionColumnOrd] = jsonRow[categoryDescriptionSourceColumn]
           rowsOut.push(destRow);
           break
 
         default: {
-          destRow[amountColumnOrd] = sourceRow[key]
+          destRow[amountColumnOrd] = jsonRow[key]
           destRow[categoryColumnOrd] = categoryMap[key]
           rowsOut.push(destRow);
 
@@ -551,14 +654,14 @@ function getCategorySheet(
   return rowsOut;
 }
 
-function getAggregatePaymentsIndividualSheet (arrRecordGroup, outputColumnNames) {
+function getAggregatePaymentsIndividualSheet (sheetRecords, outputColumnNames) {
   let cqoSourceName = columnNameMap["Current Quarter Obligation"];
   let cqeSourceName = columnNameMap["Current Quarter Expenditure"];
 
   let cqoTotal = 0;
   let cqeTotal = 0;
 
-  arrRecordGroup.forEach( sourceRec => {
+  sheetRecords.forEach( sourceRec => {
     cqoTotal += Number(sourceRec.content[cqoSourceName]) || 0;
     cqeTotal += Number(sourceRec.content[cqeSourceName]) || 0;
   } )
@@ -570,13 +673,28 @@ function getAggregatePaymentsIndividualSheet (arrRecordGroup, outputColumnNames)
   return [arrDestRow];
 }
 
+function getSubRecipientSheet (sheetRecords, outputColumnNames) {
+  let dunsSourceName = columnNameMap["DUNS Number"];
+  let idSourceName = columnNameMap["Identification Number"];
+
+  return _.map(sheetRecords, jsonRecord => {
+    let jsonRow = jsonRecord.content
+    if ( jsonRow[dunsSourceName] ) {
+      delete jsonRow[idSourceName] // 20 11 22 it had "undefined" in it.
+    }
+    return outputColumnNames.map(columnName => {
+      return jsonRow[columnNameMap[columnName]] || null
+    });
+  })
+}
+
 
 module.exports = {
   loadSpreadsheet,
   parseSpreadsheet,
   spreadsheetToDocuments,
   uploadFilename,
-  makeSpreadsheet,
+  createTreasuryOutputWorkbook,
   sheetToJson
 };
 
