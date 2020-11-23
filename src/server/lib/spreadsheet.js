@@ -672,8 +672,8 @@ function getAggregateAwardsSheet (sheetRecords) {
       console.log("Aggregate Awards record without a category!", sourceRow)
       return
     }
-    console.log(`${category}:${sourceRow}`)
-    console.dir(sourceRow)
+    // console.log(`${category}:${sourceRow}`)
+    // console.dir(sourceRow)
     Object.keys(sourceRow).forEach(columnName => {
 
       switch (true) {
