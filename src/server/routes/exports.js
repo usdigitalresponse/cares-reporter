@@ -266,26 +266,26 @@ function deDuplicate(documents, objUploadSummaries) {
         //   user_id: 1
         // }
 
-        key = `${content["funding type"]}`
+        key = `upload:${record.upload_id}:aggregate:${content["funding type"]}`
         if ( !uniqueRecords[key] ) {
           uniqueRecords[key]= record
 
-        } else {
-          let fieldName = 'current quarter expenditure/payments'
-          let total = uniqueRecords[key].content[fieldName]
+        // } else {
+        //   let fieldName = 'current quarter expenditure/payments'
+        //   let total = uniqueRecords[key].content[fieldName]
 
-          total = Number(total) || 0 + (Number(record.content[fieldName]) || 0)
-          uniqueRecords[key].content[fieldName] = total
+        //   total = (Number(total) || 0) + (Number(record.content[fieldName]) || 0)
+        //   uniqueRecords[key].content[fieldName] = total
 
-          fieldName = 'current quarter obligation'
-          total = uniqueRecords[key].content[fieldName]
+        //   fieldName = 'current quarter obligation'
+        //   total = uniqueRecords[key].content[fieldName]
 
-          total = Number(total) || 0 + (Number(record.content[fieldName]) || 0)
-          uniqueRecords[key].content[fieldName] = total
+        //   total = (Number(total) || 0) + (Number(record.content[fieldName]) || 0)
+        //   uniqueRecords[key].content[fieldName] = total
 
-          if (record.content['updates this quarter?'] === "Yes" ) {
-            uniqueRecords[key].content['updates this quarter?'] = 'Yes'
-          }
+        //   if (record.content['updates this quarter?'] === "Yes" ) {
+        //     uniqueRecords[key].content['updates this quarter?'] = 'Yes'
+        //   }
         }
         break
 
