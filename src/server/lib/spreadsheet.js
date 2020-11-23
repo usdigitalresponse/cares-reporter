@@ -440,7 +440,7 @@ function uploadFilename(filename) {
     and composes these records into an output xlsx-formatted workbook.
   */
 async function createTreasuryOutputWorkbook(
-  config, // a config object - see config.js/makeConfig()
+  wbSpec, // a config object - see config.js/makeConfig()
   recordGroups  // a KV object where keys are sheet names, values are arrays
           // of document records of this type (aka spreadsheet rows from
           // these sheets)
@@ -470,18 +470,18 @@ async function createTreasuryOutputWorkbook(
     return {}
   }
 
-
   const workbook = XLSX.utils.book_new();
 
-  // console.log(`config.settings is:`)
-  // console.dir(config.settings);
-  config.settings.forEach(outputSheetSpec => {
+  // console.log(`wbSpec.settings is:`)
+  // console.dir(wbSpec.settings);
+  wbSpec.settings.forEach(outputSheetSpec => {
     let outputSheetName = outputSheetSpec.sheetName
     // console.log(`Composing outputSheet ${outputSheetName}`)
     let outputColumnNames = outputSheetSpec.columns
     // console.log(`Column names are ${outputColumnNames}`)
     // sometimes tabs are empty!
     let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || []
+    console.dir(`Processing ${sheetRecords.length} ${outputSheetName} records`)
 
     let rows = [];
     switch (outputSheetName) {
@@ -510,13 +510,11 @@ async function createTreasuryOutputWorkbook(
         break
 
       case "Aggregate Awards < 50000":
+        rows = getAggregateAwardsSheet(sheetRecords, outputColumnNames)
+        break
+
       default:
-        rows = _.map(sheetRecords, row => {
-          return outputColumnNames.map(columnName => {
-            const value = row.content[columnNameMap[columnName]];
-            return value ? value : null;
-          });
-        });
+        throw new Error(`Unhandled sheet type: ${outputSheetName}`)
     }
 
     rows.unshift(outputColumnNames);
@@ -654,6 +652,77 @@ function getCategorySheet(
   return rowsOut;
 }
 
+function getAggregateAwardsSheet (sheetRecords) {
+
+
+  let aggregate = {
+    contracts:{updates:null,obligation:0,expenditure:0},
+    grants:{updates:null,obligation:0,expenditure:0},
+    loans:{updates:null,obligation:0,expenditure:0},
+    transfers:{updates:null,obligation:0,expenditure:0},
+    direct:{updates:null,obligation:0,expenditure:0},
+  }
+
+  sheetRecords.forEach( sourceRec => {
+    let sourceRow = sourceRec.content
+    let category = /Aggregate of (\w+)/.exec(sourceRow['funding type'])
+    if (category) {
+      category = category[1].toLowerCase()
+    } else {
+      console.log("Aggregate Awards record without a category!", sourceRow)
+      return
+    }
+    console.log(`${category}:${sourceRow}`)
+    console.dir(sourceRow)
+    Object.keys(sourceRow).forEach(columnName => {
+
+      switch (true) {
+        case Boolean(/funding/.exec(columnName)):
+          break
+
+        case Boolean(/updates/.exec(columnName)):
+          aggregate[category]["updates"] = sourceRow[columnName]
+          break
+
+        case Boolean(/obligation/.exec(columnName)):
+          aggregate[category]["obligation"] += (Number(sourceRow[columnName]) || 0)
+          break
+
+        case Boolean(/expenditure/.exec(columnName)):
+          aggregate[category]["expenditure"] += (Number(sourceRow[columnName]) || 0)
+          break
+
+        default:
+          console.log(`column ${columnName} not recognized`)
+          break
+      }
+    } )
+  } )
+
+  return [
+    [ "Aggregate of Contracts Awarded for <$50,000",
+      aggregate.contracts.obligation,
+      aggregate.contracts.expenditure
+    ],
+    [ "Aggregate of Grants Awarded for <$50,000",
+      aggregate.grants.obligation,
+      aggregate.grants.expenditure
+    ],
+    [ "Aggregate of Loans Awarded for <$50,000",
+      aggregate.loans.obligation,
+      aggregate.loans.expenditure
+    ],
+    [ "Aggregate of Transfers Awarded for <$50,000",
+      aggregate.transfers.obligation,
+      aggregate.transfers.expenditure
+    ],
+    [ "Aggregate of Direct Payments Awarded for <$50,000",
+      aggregate.direct.obligation,
+      aggregate.direct.expenditure
+    ],
+  ];
+}
+
 function getAggregatePaymentsIndividualSheet (sheetRecords, outputColumnNames) {
   let cqoSourceName = columnNameMap["Current Quarter Obligation"];
   let cqeSourceName = columnNameMap["Current Quarter Expenditure"];
@@ -677,11 +746,22 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
   let dunsSourceName = columnNameMap["DUNS Number"];
   let idSourceName = columnNameMap["Identification Number"];
 
+  // translate the JSON records in this sheet into AOA rows
   return _.map(sheetRecords, jsonRecord => {
     let jsonRow = jsonRecord.content
+
+    // Treasury Data Dictionary says that if there is a DUNS number the ID
+    // field should be empty. But we have some records where the DUNS number
+    // field is occupied by junk, so we should ignore that.
     if ( jsonRow[dunsSourceName] ) {
-      delete jsonRow[idSourceName] // 20 11 22 it had "undefined" in it.
+      if (/^\d{9}$/.exec(jsonRow[dunsSourceName])){ // check for correct format
+        delete jsonRow[idSourceName]
+
+      } else if (jsonRow[idSourceName]) {
+        delete jsonRow[dunsSourceName]
+      }
     }
+    // return an AOA row
     return outputColumnNames.map(columnName => {
       return jsonRow[columnNameMap[columnName]] || null
     });
