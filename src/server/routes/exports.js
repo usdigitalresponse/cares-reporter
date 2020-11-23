@@ -4,7 +4,7 @@ const { requireUser } = require("../access-helpers");
 const { documentsInCurrentReportingPeriod } = require("../db");
 const { getTemplateSheets } = require("../services/get-template");
 const { makeConfig } = require("../lib/config");
-const { makeSpreadsheet } = require("../lib/spreadsheet");
+const { createTreasuryOutputWorkbook } = require("../lib/spreadsheet");
 const { getUploadSummaries } = require("../db/uploads");
 const _ = require("lodash");
 
@@ -62,7 +62,7 @@ async function processDocuments( res, config ) {
   const groups = _.groupBy(rv, "type");
   console.log(`Found ${_.keys(groups).length} groups:`);
 
-  makeSpreadsheet(config, groups).then(attachmentData => {
+  createTreasuryOutputWorkbook(config, groups).then(attachmentData => {
     const filename = `${config.name}.xlsx`;
     res.header(
       "Content-Disposition",
