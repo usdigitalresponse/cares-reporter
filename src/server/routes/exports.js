@@ -25,8 +25,8 @@ router.get("/", requireUser, function(req, res) {
 async function processDocuments( res, config ) {
   try {
     // eslint-disable-next-line
-    var arrUploadSummaries = await getUploadSummaries()
-    // console.dir(arrUploadSummaries[0])
+    var arrUploadMetaData = await getUploadSummaries()
+    // console.dir(arrUploadMetaData[0])
     // {
     //   id: 1,
     //   filename: 'DOA-076-093020-v1.xlsx',
@@ -43,8 +43,8 @@ async function processDocuments( res, config ) {
     return res.status(500).end()
   }
 
-  const objUploadSummaries = {}
-  arrUploadSummaries.forEach( rec => objUploadSummaries[rec.id] = rec )
+  const objUploadMetadata = {}
+  arrUploadMetaData.forEach( rec => objUploadMetadata[rec.id] = rec )
 
   try {
     // eslint-disable-next-line
@@ -56,7 +56,7 @@ async function processDocuments( res, config ) {
   }
 
   console.log(`Found ${documents.length} documents`);
-  let rv = deDuplicate(documents, objUploadSummaries)
+  let rv = deDuplicate(documents, objUploadMetadata)
   console.log(`Found ${rv.length} unique documents`);
 
   const groups = _.groupBy(rv, "type");
@@ -73,7 +73,7 @@ async function processDocuments( res, config ) {
   });
 }
 
-function deDuplicate(documents, objUploadSummaries) {
+function deDuplicate(documents, objUploadMetadata) {
   let agencyCodes = {} // KV table of { upload_id: agency code }
   let objProjectStatus ={} // KV table of { project id: project status }
 
@@ -100,7 +100,7 @@ function deDuplicate(documents, objUploadSummaries) {
     let projectID = content["project id"] ||
       content["project identification number"]
 
-    const objUploadSummary = objUploadSummaries[record.upload_id]
+    const uploadMetadata = objUploadMetadata[record.upload_id]
 
     let key
     switch (record.type) {
@@ -156,7 +156,7 @@ function deDuplicate(documents, objUploadSummaries) {
         ] = record
         break
 
-      case  "contracts":
+      case  "contracts": {
         // contracts: {
         //   type: 'contracts',
         //   content: {
@@ -183,11 +183,25 @@ function deDuplicate(documents, objUploadSummaries) {
         //     'sum of expenses': 25554.82
         //   }
         // },
+
+        // Treasury Data Dictionary: "If a contract is used for more than
+        // one project, each project must be listed in a separate row with
+        // their current quarter obligation amount. The contract fields to
+        // the left must be repeated for each."
+
+        let dupe = uniqueRecords[
+          `${agencyCode}:project:${content["project id"]}:contract:${content["contract number"]}`
+        ]
+        if (dupe) {
+          console.log(`Duplicate Contract:`)
+          console.dir(dupe)
+          console.dir(record)
+        }
         uniqueRecords[
           `${agencyCode}:contract:${content["contract number"]}`
         ] = record
         break
-
+      }
       case  "grants":
         uniqueRecords[
           `${agencyCode}:grant:${content["award number"]}`
@@ -305,12 +319,12 @@ function deDuplicate(documents, objUploadSummaries) {
         //   user_id: 1
         // }
         key = `${record.type}` +
-        `:agency:${objUploadSummary.agency_id}` +
-        `:project:${objUploadSummary.project_id}`
+        `:agency:${uploadMetadata.agency_id}` +
+        `:project:${uploadMetadata.project_id}`
 
         if ( !uniqueRecords[key]) {
-          record.content.agency_id = objUploadSummary.agency_id
-          record.content.project_id = objUploadSummary.project_id
+          record.content.agency_id = uploadMetadata.agency_id
+          record.content.project_id = uploadMetadata.project_id
           uniqueRecords[key] = record
 
         } else {

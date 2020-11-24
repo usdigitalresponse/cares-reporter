@@ -498,7 +498,9 @@ async function createTreasuryOutputWorkbook(
       case "Loans":
       case "Transfers":
       case "Direct":
+        console.log(`${outputSheetName} has ${sheetRecords.length} records`)
         rows = getCategorySheet(outputSheetName, sheetRecords, outputColumnNames);
+        console.log(`resulting in ${rows.length} rows`)
         break;
 
       case "Aggregate Payments Individual":
@@ -559,7 +561,7 @@ function getProjectsSheet(sheetRecords, columns) {
     let jsRow = jsRecord.content
     let projectID = jsRow[projectIDColumnName]
     if( !projectID || projectID === "undefined" ) {
-      console.log("Bad project record:",jsRecord)
+      // console.log("Bad project record:",jsRecord)
       return
     }
     let arrRow = columns.map(column => {
@@ -612,7 +614,7 @@ function getCategorySheet(
       }
     } )
 
-
+    let written = 0
     Object.keys(jsonRow).forEach(key => {
       let category = categoryMap[key] || null ;
       let destRow = arrRow.slice()
@@ -637,17 +639,22 @@ function getCategorySheet(
           destRow[categoryColumnOrd] = categoryMap[key]
           destRow[descriptionColumnOrd] = jsonRow[categoryDescriptionSourceColumn]
           rowsOut.push(destRow);
+          written +=1
           break
 
         default: {
           destRow[amountColumnOrd] = jsonRow[key]
           destRow[categoryColumnOrd] = categoryMap[key]
           rowsOut.push(destRow);
-
+          written += 1
           break
         }
       }
     });
+    if (!written){
+      // write a row even if there has been no activity in this period
+      rowsOut.push(arrRow);
+    }
   });
   return rowsOut;
 }
