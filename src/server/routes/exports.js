@@ -148,6 +148,9 @@ function deDuplicate(documents, objUploadMetadata) {
         ] = record
         break
 
+      // we have to assume none of these are duplicates, because two identical
+      // records could both be valid, since we don't have anything like an
+      // invoice number and there could be two expenditures in the same period
       case  "contracts":
       case  "grants":
       case  "loans":
