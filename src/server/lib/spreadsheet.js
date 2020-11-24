@@ -111,12 +111,11 @@ const columnNameMap = {
   "Reporting Period Start Date": "reporting period start date",
   "State Code": "state code",
   "Status": "status",
-  "Sub-Recipient Organization (Contractor)": "subrecipient legal name",
-  "Sub-Recipient Organization (Payee)": "subrecipient legal name",
-  "Sub-Recipient Organization (Awardee)": "subrecipient legal name",
-  "Sub-Recipient Organization (Borrower)": "subrecipient legal name",
-  "Sub-Recipient Organization (Transferee/Government Unit)":
-    "subrecipient legal name",
+  "Sub-Recipient Organization (Contractor)": "subrecipient id",
+  "Sub-Recipient Organization (Payee)": "subrecipient id",
+  "Sub-Recipient Organization (Awardee)": "subrecipient id",
+  "Sub-Recipient Organization (Borrower)": "subrecipient id",
+  "Sub-Recipient Organization (Transferee/Government Unit)": "subrecipient id",
   "Transfer Amount": "transfer amount",
   "Transfer Date": "transfer date",
   "Transfer Number": "transfer number",
@@ -127,6 +126,7 @@ const columnNameMap = {
   // "Primary Place of Performance Zip+4": "primary place of performance zip+4",
   // "Expenditure Project":"total expenditure amount",
 };
+
 // prettier-ignore
 const columnTypeMap = {
   "Address Line 1": "string",
