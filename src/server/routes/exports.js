@@ -89,10 +89,9 @@ function deDuplicate(documents, objUploadMetadata) {
   })
 
   let uniqueRecords = {} // keyed by concatenated id
-  // let total = 0
-  // let current = 0
-
+  let uniqueID = 0 // this is for records we don't deduplicate
   documents.forEach(record => {
+    uniqueID += 1
     let content = record.content
     let agencyID = agencyCodes[record.upload_id]
     let agencyCode = content["agency code"] || agencyID
@@ -100,22 +99,13 @@ function deDuplicate(documents, objUploadMetadata) {
     let projectID = content["project id"] ||
       content["project identification number"]
 
-    const uploadMetadata = objUploadMetadata[record.upload_id]
-
-    let key
     switch (record.type) {
       case "cover":
-        // cover: {
-        //   type: 'cover',
-        //   content: {
-        //     'agency code': 'DOH',
-        //     'project id': '017',
-        //     status: 'Completed 50% or more',
-        //     'reporting period end date': 44104,
-        //     'reporting period start date': 43891,
-        //     'crf end date': 44195
-        //   }
-        // },
+        // ignore cover records
+        break
+
+      case "certification":
+        // ignore certification records
         break
 
       case "projects":
@@ -130,6 +120,7 @@ function deDuplicate(documents, objUploadMetadata) {
         //   }
         // },
         // console.dir(record)
+        // force ID to String - some of them may come in as Number
         record.content["project identification number"] = String(projectID)
         record.content["status"] = objProjectStatus[projectID]
         uniqueRecords[`${agencyCode}:project:${projectID}`] = record
@@ -149,196 +140,23 @@ function deDuplicate(documents, objUploadMetadata) {
         //     'organization type': 'For-Profit Organization...)'
         //   }
         // },
+        // force ID to String - some of them come in as Number
         record.content["identification number"] =
           String(content["identification number"])
         uniqueRecords[
-          `subrecipient:${content["identification number"]}`
+          `subrecipient:${record.content["identification number"]}`
         ] = record
         break
 
-      case  "contracts": {
-        // contracts: {
-        //   type: 'contracts',
-        //   content: {
-        //     'project id': '017',
-        //     'subrecipient id': '967',
-        //     'subrecipient legal name': 'MIRIAM HOSPITAL',
-        //     'contract number': '3679443',
-        //     'contract type': 'Blanket Purchase Agreement',
-        //     'contract amount': 79650,
-        //     'contract date': 43958,
-        //     'period of performance start date': 43958,
-        //     'period of performance end date': 44135,
-        //     'primary place of performance address line 1': '167 POINT ST 1A',
-        //     'primary place of performance city name': 'PROVIDENCE',
-        //     'primary place of performance state code': 'RI',
-        //     'primary place of performance zip': '02903-4766',
-        //     'primary place of performance country name': 'United States',
-        //     'contract description': 'COVID-19 Antibody Surveillance R...',
-        //     'current quarter obligation': 62000,
-        //     'expenditure start date': 43958,
-        //     'expenditure end date': 43998,
-        //     'total expenditure amount': 25554.82,
-        //     'covid-19 testing and contact tracing': 25554.82,
-        //     'sum of expenses': 25554.82
-        //   }
-        // },
-
-        // Treasury Data Dictionary: "If a contract is used for more than
-        // one project, each project must be listed in a separate row with
-        // their current quarter obligation amount. The contract fields to
-        // the left must be repeated for each."
-
-        let dupe = uniqueRecords[
-          `${agencyCode}:project:${content["project id"]}:contract:${content["contract number"]}`
-        ]
-        if (dupe) {
-          console.log(`Duplicate Contract:`)
-          console.dir(dupe)
-          console.dir(record)
-        }
-        uniqueRecords[
-          `${agencyCode}:contract:${content["contract number"]}`
-        ] = record
-        break
-      }
+      case  "contracts":
       case  "grants":
-        uniqueRecords[
-          `${agencyCode}:grant:${content["award number"]}`
-        ] = record
-        break
-
       case  "loans":
-        uniqueRecords[
-          `${agencyCode}:loan:${content["loan number"]}`
-        ] = record
-        break
-
       case  "transfers":
-        // transfers: {
-        //   type: 'transfers',
-        //   content: {
-        //     'project id': '049',
-        //     'subrecipient id': '60635',
-        //     'subrecipient legal name': 'GALILEO LEARNING LLC',
-        //     'transfer number': '21_1073_091120_10_072_13',
-        //     'award amount': 50000,
-        //     'transfer type': 'Reimbursable',
-        //     'transfer date': 44092,
-        //     'purpose description': 'Summer Academy for Interactive L...',
-        //     'current quarter obligation': 50000,
-        //     'expenditure start date': 44092,
-        //     'expenditure end date': 44104,
-        //     'total expenditure amount': 6420,
-        //     'other expenditure amount': 6420,
-        //     'other expenditure categories': 'Supportive Services',
-        //     'sum of expenses': 6420
-        //   }
-        // },
-        uniqueRecords[
-          `${agencyCode}:transfer:${content["transfer number"]}`
-        ] = record
-        break
-
       case  "direct":
-        // direct: {
-        //   type: 'direct',
-        //   content: {
-        //     'project id': '063',
-        //     'subrecipient id': '57411',
-        //     'subrecipient legal name': 'GUIDESOFT INC',
-        //     'obligation amount': 75988.22,
-        //     'obligation date': 44012,
-        //     'current quarter obligation': 75988.22,
-        //     'expenditure start date': 44012,
-        //     'expenditure end date': 44104,
-        //     'total expenditure amount': 75988.22,
-        //     'covid-19 testing and contact tracing': 75988.22,
-        //     'sum of expenses': 75988.22
-        //   }
-        // },
-        // console.dir(record)
-        key =`${agencyCode}:direct` +
-          `:project:${content["project id"]}` +
-          `:subrecipient:${content["subrecipient id"]}`
-        uniqueRecords[key] = record
-        break
-
       case  "aggregate awards < 50000":
-        // record is:
-        // {
-        //   id: 760,
-        //   type: 'aggregate awards < 50000',
-        //   content: {
-        //     'funding type': 'Aggregate of Grants Awarded for <$50,000',
-        //     'updates this quarter?': 'No'
-        //   },
-        //   created_at: 2020-11-19T15:14:34.478Z,
-        //   upload_id: 1,
-        //   last_updated_at: null,
-        //   last_updated_by: null,
-        //   user_id: 1
-        // }
-
-        key = `upload:${record.upload_id}:aggregate:${content["funding type"]}`
-        if ( !uniqueRecords[key] ) {
-          uniqueRecords[key]= record
-
-        // } else {
-        //   let fieldName = 'current quarter expenditure/payments'
-        //   let total = uniqueRecords[key].content[fieldName]
-
-        //   total = (Number(total) || 0) + (Number(record.content[fieldName]) || 0)
-        //   uniqueRecords[key].content[fieldName] = total
-
-        //   fieldName = 'current quarter obligation'
-        //   total = uniqueRecords[key].content[fieldName]
-
-        //   total = (Number(total) || 0) + (Number(record.content[fieldName]) || 0)
-        //   uniqueRecords[key].content[fieldName] = total
-
-        //   if (record.content['updates this quarter?'] === "Yes" ) {
-        //     uniqueRecords[key].content['updates this quarter?'] = 'Yes'
-        //   }
-        }
-        break
-
       case  "aggregate payments individual":
-        // {
-        //   id: 5371,
-        //   type: 'aggregate payments individual',
-        //   content: {
-        //     'updates this quarter?': 'No',
-        //     'current quarter obligation': 248188.65,
-        //     'current quarter expenditure': 248188.65
-        //   },
-        //   created_at: 2020-11-19T15:15:50.139Z,
-        //   upload_id: 7,
-        //   last_updated_at: null,
-        //   last_updated_by: null,
-        //   user_id: 1
-        // }
-        key = `${record.type}` +
-        `:agency:${uploadMetadata.agency_id}` +
-        `:project:${uploadMetadata.project_id}`
-
-        if ( !uniqueRecords[key]) {
-          record.content.agency_id = uploadMetadata.agency_id
-          record.content.project_id = uploadMetadata.project_id
-          uniqueRecords[key] = record
-
-        } else {
-          console.dir(new Error('Duplicate Records!'))
-          console.log('Already recorded:')
-          console.dir(uniqueRecords[key])
-          console.log('Duplicate:')
-          console.dir(record)
-          // throw new Error('Duplicate Records!')
-        }
+        uniqueRecords[uniqueID] = record
         break
-
-      case "certification":
-        return
 
       default:
         console.log("Unrecognized record:")
