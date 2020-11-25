@@ -53,6 +53,8 @@ function sheetToJson(sheet, toLower = true) {
   if (toLower) {
     jsonSheet[0] = _.map(jsonSheet[0], colName => {
       const lowerCol = `${colName}`.toLowerCase().trim();
+      // 20 11 24 currently this causes a bug by mis-mapping Transfer Amount
+      // to award amount
       return columnAliases[lowerCol] || lowerCol;
     });
   }
@@ -351,6 +353,12 @@ function getCategorySheet(
 
     let written = 0
     Object.keys(jsonRow).forEach(key => {
+      let amount = Number(jsonRow[key])
+      // ignore categories with zero expenditures
+      if ( !amount ) {
+        return
+      }
+
       let category = categoryMap[key] || null ;
       let destRow = arrRow.slice()
 
@@ -370,7 +378,7 @@ function getCategorySheet(
           // Expenditure Category" (or "Loan Category") column, and put the
           // contents of the "other expenditure categories" column in the
           // the "Category Description" column.
-          destRow[amountColumnOrd] = jsonRow[key]
+          destRow[amountColumnOrd] = amount
           destRow[categoryColumnOrd] = categoryMap[key]
           destRow[descriptionColumnOrd] = jsonRow[categoryDescriptionSourceColumn]
           rowsOut.push(destRow);
@@ -378,7 +386,8 @@ function getCategorySheet(
           break
 
         default: {
-          destRow[amountColumnOrd] = jsonRow[key]
+
+          destRow[amountColumnOrd] = amount
           destRow[categoryColumnOrd] = categoryMap[key]
           rowsOut.push(destRow);
           written += 1
