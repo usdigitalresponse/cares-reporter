@@ -48,7 +48,7 @@ function isPositiveNumber(val) {
 
 function isSum(columns) {
   return (val, content) => {
-    const sum = _.reduce(
+    let sum = _.reduce(
       columns,
       (acc, c) => {
         if (!c) {
@@ -59,6 +59,9 @@ function isSum(columns) {
       },
       0.0
     );
+    val = Number(val) || 0; // can come in as a string
+    sum = _.round(sum,2);   // parseFloat returns junk in the 11th decimal place
+
     return val == sum;
   };
 }
