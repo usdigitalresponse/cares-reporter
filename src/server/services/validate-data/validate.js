@@ -60,8 +60,11 @@ function isSum(columns) {
       0.0
     );
     val = Number(val) || 0; // can come in as a string
+    val = _.round(val,2);
     sum = _.round(sum,2);   // parseFloat returns junk in the 11th decimal place
-
+    if (val !== sum ) {
+      console.log(`val is ${val}, sum is ${sum}`)
+    }
     return val == sum;
   };
 }
