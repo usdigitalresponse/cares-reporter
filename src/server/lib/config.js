@@ -55,7 +55,7 @@ function makeTemplate(config, templateName = "Agency Template") {
     name: templateName,
     type: "templates",
     sort_order: 0,
-    content: config,
+    content: config
   };
 }
 

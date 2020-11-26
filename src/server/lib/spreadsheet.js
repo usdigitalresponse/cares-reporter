@@ -12,8 +12,8 @@ const {
   columnNameMap,
   columnTypeMap,
   sheetNameAliases,
-  sheetNameMap,
-} = require("./field-name-mapping")
+  sheetNameMap
+} = require("./field-name-mapping");
 
 /* loadSpreadsheet() returns an array containing:
   [
@@ -78,7 +78,7 @@ function parseSpreadsheet(workbook, templateSheets) {
 
   const parsedWorkbook = _.mapValues(
     normalizedSheets || {},
-    (sheet) => {
+    sheet => {
       return sheetToJson( sheet);
     }
   );
@@ -107,7 +107,7 @@ function parseSpreadsheet(workbook, templateSheets) {
     } else if (missingColumns.length > 1) {
       return valog.push(
         new ValidationItem({
-          message: `Missing columns "${missingColumns.join('", "')}"`,
+          message: `Missing columns "${missingColumns.join("\", \"")}"`,
           tab: sheetName
         })
       );
@@ -196,16 +196,16 @@ async function createTreasuryOutputWorkbook(
     */
 
   } catch (err) {
-    console.dir(err)
-    return {}
+    console.dir(err);
+    return {};
   }
 
   try {
     var reportingPeriod = await currentReportingPeriod() // eslint-disable-line
 
   } catch (err) {
-    console.dir(err)
-    return {}
+    console.dir(err);
+    return {};
   }
 
   const workbook = XLSX.utils.book_new();
@@ -213,13 +213,13 @@ async function createTreasuryOutputWorkbook(
   // console.log(`wbSpec.settings is:`)
   // console.dir(wbSpec.settings);
   wbSpec.settings.forEach(outputSheetSpec => {
-    let outputSheetName = outputSheetSpec.sheetName
+    let outputSheetName = outputSheetSpec.sheetName;
     // console.log(`Composing outputSheet ${outputSheetName}`)
-    let outputColumnNames = outputSheetSpec.columns
+    let outputColumnNames = outputSheetSpec.columns;
     // console.log(`Column names are ${outputColumnNames}`)
     // sometimes tabs are empty!
-    let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || []
-    console.dir(`Processing ${sheetRecords.length} ${outputSheetName} records`)
+    let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || [];
+    console.dir(`Processing ${sheetRecords.length} ${outputSheetName} records`);
 
     let rows = [];
     switch (outputSheetName) {
@@ -236,25 +236,25 @@ async function createTreasuryOutputWorkbook(
       case "Loans":
       case "Transfers":
       case "Direct":
-        console.log(`${outputSheetName} has ${sheetRecords.length} records`)
+        console.log(`${outputSheetName} has ${sheetRecords.length} records`);
         rows = getCategorySheet(outputSheetName, sheetRecords, outputColumnNames);
-        console.log(`resulting in ${rows.length} rows`)
+        console.log(`resulting in ${rows.length} rows`);
         break;
 
       case "Aggregate Payments Individual":
-        rows = getAggregatePaymentsIndividualSheet(sheetRecords, outputColumnNames)
-        break
+        rows = getAggregatePaymentsIndividualSheet(sheetRecords, outputColumnNames);
+        break;
 
       case "Sub Recipient":
-        rows = getSubRecipientSheet(sheetRecords, outputColumnNames)
-        break
+        rows = getSubRecipientSheet(sheetRecords, outputColumnNames);
+        break;
 
       case "Aggregate Awards < 50000":
-        rows = getAggregateAwardsSheet(sheetRecords, outputColumnNames)
-        break
+        rows = getAggregateAwardsSheet(sheetRecords, outputColumnNames);
+        break;
 
       default:
-        throw new Error(`Unhandled sheet type: ${outputSheetName}`)
+        throw new Error(`Unhandled sheet type: ${outputSheetName}`);
     }
 
     rows.unshift(outputColumnNames);
@@ -271,13 +271,13 @@ async function createTreasuryOutputWorkbook(
       await XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
 
   } catch (err) {
-    console.dir(err)
+    console.dir(err);
   }
-  return treasuryOutputWorkbook
+  return treasuryOutputWorkbook;
 }
 
 function getCoverPage(appSettings = {}, reportingPeriod = {}) {
-  console.dir(`typeof reportingPeriod.start_date is ${typeof reportingPeriod.start_date}`)
+  console.dir(`typeof reportingPeriod.start_date is ${typeof reportingPeriod.start_date}`);
   let rows = [
     [
       "Financial Progress Reporting",
@@ -293,21 +293,21 @@ function getCoverPage(appSettings = {}, reportingPeriod = {}) {
 }
 
 function getProjectsSheet(sheetRecords, columns) {
-  let projectIDColumnName = columnNameMap["Project Identification Number"]
-  let rows =[]
+  let projectIDColumnName = columnNameMap["Project Identification Number"];
+  let rows =[];
   sheetRecords.forEach(jsRecord => {
-    let jsRow = jsRecord.content
-    let projectID = jsRow[projectIDColumnName]
+    let jsRow = jsRecord.content;
+    let projectID = jsRow[projectIDColumnName];
     if( !projectID || projectID === "undefined" ) {
       // console.log("Bad project record:",jsRecord)
-      return
+      return;
     }
     let arrRow = columns.map(column => {
       const value = jsRow[columnNameMap[column]];
       return value ? value : null;
     });
     rows.push( arrRow );
-  })
+  });
   return rows;
 }
 
@@ -318,58 +318,58 @@ function getCategorySheet(
 ) {
   // columnOrds is a kv where K is output column name, V is the ord of the
   // column in the sheet
-  let columnOrds = {}
+  let columnOrds = {};
   for ( let i = 0; i<arrColumnNames.length; i++ ) {
-    columnOrds[arrColumnNames[i]] = i
+    columnOrds[arrColumnNames[i]] = i;
   }
 
   let rowsOut = [];
 
-  let columnOrd ={}
+  let columnOrd ={};
   Object.keys(expenditureColumnNames[sheetName]).forEach( col => {
-    let columnName = expenditureColumnNames[sheetName][col]
+    let columnName = expenditureColumnNames[sheetName][col];
     // console.log(`Sheet ${sheetName}, col ${col} is ${columnName}, ord is ${columnOrds[columnName]}`)
-    columnOrd[col] = columnOrds[columnName]
-  })
+    columnOrd[col] = columnOrds[columnName];
+  });
 
   sheetRecords.forEach(jsonRecord => {
     let jsonRow = jsonRecord.content; // see exports.js/deduplicate()
-    let arrRow =[]
+    let arrRow =[];
 
     // populate the common fields
     arrColumnNames.forEach(columnName => {
-      let cellValue = jsonRow[columnNameMap[columnName]]
+      let cellValue = jsonRow[columnNameMap[columnName]];
       if ( cellValue ) {
         switch (columnTypeMap[columnName] ) {
           case "string":
-            arrRow[columnOrds[columnName]] = String(cellValue)
-            break
+            arrRow[columnOrds[columnName]] = String(cellValue);
+            break;
           default:
-            arrRow[columnOrds[columnName]] = cellValue
-            break
+            arrRow[columnOrds[columnName]] = cellValue;
+            break;
         }
       }
-    } )
+    } );
 
-    let written = 0
+    let written = 0;
     Object.keys(jsonRow).forEach(key => {
-      let amount = Number(jsonRow[key])
+      let amount = Number(jsonRow[key]);
       // ignore categories with zero expenditures
       if ( !amount ) {
-        return
+        return;
       }
 
       let category = categoryMap[key] || null ;
-      let destRow = arrRow.slice()
+      let destRow = arrRow.slice();
 
       switch (category) {
         case null:
-        break
+        break;
 
         case "Category Description":
           // ignore for now, we will populate it when we get to
           // "Other Expenditure Amount"
-          break
+          break;
 
         case "Items Not Listed Above":
           // If the column "other expenditure amount" is occupied in the
@@ -378,27 +378,27 @@ function getCategorySheet(
           // Expenditure Category" (or "Loan Category") column, and put the
           // contents of the "other expenditure categories" column in the
           // the "Category Description" column.
-          destRow[columnOrd.amount] = amount
-          destRow[columnOrd.category] = categoryMap[key]
-          destRow[columnOrd.description] = jsonRow[categoryDescriptionSourceColumn]
+          destRow[columnOrd.amount] = amount;
+          destRow[columnOrd.category] = categoryMap[key];
+          destRow[columnOrd.description] = jsonRow[categoryDescriptionSourceColumn];
           rowsOut.push(destRow);
-          written +=1
-          break
+          written +=1;
+          break;
 
         default: {
-          destRow[columnOrd.amount] = amount
-          destRow[columnOrd.category] = categoryMap[key]
+          destRow[columnOrd.amount] = amount;
+          destRow[columnOrd.category] = categoryMap[key];
           rowsOut.push(destRow);
-          written += 1
-          break
+          written += 1;
+          break;
         }
       }
     });
     if (!written){
       // write a row even if there has been no activity in this period
-      delete arrRow[columnOrd.project]
-      delete arrRow[columnOrd.start]
-      delete arrRow[columnOrd.end]
+      delete arrRow[columnOrd.project];
+      delete arrRow[columnOrd.start];
+      delete arrRow[columnOrd.end];
       rowsOut.push(arrRow);
     }
   });
@@ -409,21 +409,21 @@ function getAggregateAwardsSheet (sheetRecords) {
 
 
   let aggregate = {
-    contracts:{updates:null,obligation:0,expenditure:0},
-    grants:{updates:null,obligation:0,expenditure:0},
-    loans:{updates:null,obligation:0,expenditure:0},
-    transfers:{updates:null,obligation:0,expenditure:0},
-    direct:{updates:null,obligation:0,expenditure:0},
-  }
+    contracts:{ updates:null,obligation:0,expenditure:0 },
+    grants:{ updates:null,obligation:0,expenditure:0 },
+    loans:{ updates:null,obligation:0,expenditure:0 },
+    transfers:{ updates:null,obligation:0,expenditure:0 },
+    direct:{ updates:null,obligation:0,expenditure:0 }
+  };
 
   sheetRecords.forEach( sourceRec => {
-    let sourceRow = sourceRec.content
-    let category = /Aggregate of (\w+)/.exec(sourceRow['funding type'])
+    let sourceRow = sourceRec.content;
+    let category = /Aggregate of (\w+)/.exec(sourceRow["funding type"]);
     if (category) {
-      category = category[1].toLowerCase()
+      category = category[1].toLowerCase();
     } else {
-      console.log("Aggregate Awards record without a category!", sourceRow)
-      return
+      console.log("Aggregate Awards record without a category!", sourceRow);
+      return;
     }
     // console.log(`${category}:${sourceRow}`)
     // console.dir(sourceRow)
@@ -431,48 +431,48 @@ function getAggregateAwardsSheet (sheetRecords) {
 
       switch (true) {
         case Boolean(/funding/.exec(columnName)):
-          break
+          break;
 
         case Boolean(/updates/.exec(columnName)):
-          aggregate[category]["updates"] = sourceRow[columnName]
-          break
+          aggregate[category]["updates"] = sourceRow[columnName];
+          break;
 
         case Boolean(/obligation/.exec(columnName)):
-          aggregate[category]["obligation"] += (Number(sourceRow[columnName]) || 0)
-          break
+          aggregate[category]["obligation"] += (Number(sourceRow[columnName]) || 0);
+          break;
 
         case Boolean(/expenditure/.exec(columnName)):
-          aggregate[category]["expenditure"] += (Number(sourceRow[columnName]) || 0)
-          break
+          aggregate[category]["expenditure"] += (Number(sourceRow[columnName]) || 0);
+          break;
 
         default:
-          console.log(`column ${columnName} not recognized`)
-          break
+          console.log(`column ${columnName} not recognized`);
+          break;
       }
-    } )
-  } )
+    } );
+  } );
 
   return [
-    [ "Aggregate of Contracts Awarded for <$50,000",
+    ["Aggregate of Contracts Awarded for <$50,000",
       aggregate.contracts.obligation,
       aggregate.contracts.expenditure
     ],
-    [ "Aggregate of Grants Awarded for <$50,000",
+    ["Aggregate of Grants Awarded for <$50,000",
       aggregate.grants.obligation,
       aggregate.grants.expenditure
     ],
-    [ "Aggregate of Loans Awarded for <$50,000",
+    ["Aggregate of Loans Awarded for <$50,000",
       aggregate.loans.obligation,
       aggregate.loans.expenditure
     ],
-    [ "Aggregate of Transfers Awarded for <$50,000",
+    ["Aggregate of Transfers Awarded for <$50,000",
       aggregate.transfers.obligation,
       aggregate.transfers.expenditure
     ],
-    [ "Aggregate of Direct Payments Awarded for <$50,000",
+    ["Aggregate of Direct Payments Awarded for <$50,000",
       aggregate.direct.obligation,
       aggregate.direct.expenditure
-    ],
+    ]
   ];
 }
 
@@ -486,7 +486,7 @@ function getAggregatePaymentsIndividualSheet (sheetRecords, outputColumnNames) {
   sheetRecords.forEach( sourceRec => {
     cqoTotal += Number(sourceRec.content[cqoSourceName]) || 0;
     cqeTotal += Number(sourceRec.content[cqeSourceName]) || 0;
-  } )
+  } );
 
   let arrDestRow =[];
   arrDestRow[outputColumnNames.indexOf("Current Quarter Obligation")] = cqoTotal;
@@ -501,24 +501,24 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
 
   // translate the JSON records in this sheet into AOA rows
   return _.map(sheetRecords, jsonRecord => {
-    let jsonRow = jsonRecord.content
+    let jsonRow = jsonRecord.content;
 
     // Treasury Data Dictionary says that if there is a DUNS number the ID
     // field should be empty. But we have some records where the DUNS number
     // field is occupied by junk, so we should ignore that.
     if ( jsonRow[dunsSourceName] ) {
       if (/^\d{9}$/.exec(jsonRow[dunsSourceName])){ // check for correct format
-        delete jsonRow[idSourceName]
+        delete jsonRow[idSourceName];
 
       } else if (jsonRow[idSourceName]) {
-        delete jsonRow[dunsSourceName]
+        delete jsonRow[dunsSourceName];
       }
     }
     // return an AOA row
     return outputColumnNames.map(columnName => {
-      return jsonRow[columnNameMap[columnName]] || null
+      return jsonRow[columnNameMap[columnName]] || null;
     });
-  })
+  });
 }
 
 

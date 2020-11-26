@@ -37,11 +37,11 @@ function loadTreasuryTemplate(fileName) {
   let xlsxTemplate = { Sheets: {} };
 
   console.log(`Loading : ${fileName}`);
+  // prettier-ignore
   try {
     xlsxTemplate = xlsx.read(
-      // eslint-disable-line prettier/prettier
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      { type: "buffer" } // eslint-disable-line prettier/prettier
+      { type: "buffer" }
     );
     console.log("Template loaded");
   } catch (e) {
@@ -60,11 +60,11 @@ function loadTemplate(fileName) {
   let xlsxTemplate = { Sheets: {} };
 
   console.log(`Loading : ${fileName}`);
+  // prettier-ignore
   try {
     xlsxTemplate = xlsx.read(
-      // eslint-disable-line prettier/prettier
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      { type: "buffer" } // eslint-disable-line prettier/prettier
+      { type: "buffer" }
     );
     console.log("Template loaded");
   } catch (e) {
