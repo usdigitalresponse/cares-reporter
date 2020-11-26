@@ -278,9 +278,54 @@ const categoryMap = {
 
 const categoryDescriptionSourceColumn = "other expenditure categories";
 
+const expenditureColumnNames = {
+  Contracts: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date",
+  },
+  Grants: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date",
+
+  },
+  Loans: {
+    amount: "Payment Amount",
+    category: "Loan Category",
+    description: "Category Description",
+    project: "Payment Project",
+    start: "Payment Date",
+    end: "Payment Date",
+  },
+  Transfers: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date",
+  },
+  Direct: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date",
+  },
+}
+
 module.exports = {
   categoryDescriptionSourceColumn,
   categoryMap,
+  expenditureColumnNames,
   columnAliases,
   columnNameMap,
   columnTypeMap,

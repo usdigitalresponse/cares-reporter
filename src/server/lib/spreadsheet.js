@@ -7,6 +7,7 @@ const fixCellFormats = require("../services/fix-cell-formats");
 const {
   categoryDescriptionSourceColumn,
   categoryMap,
+  expenditureColumnNames,
   columnAliases,
   columnNameMap,
   columnTypeMap,
@@ -315,7 +316,8 @@ function getCategorySheet(
   sheetRecords,  // an array of document records
   arrColumnNames // an array of output column names
 ) {
-
+  // columnOrds is a kv where K is output column name, V is the ord of the
+  // column in the sheet
   let columnOrds = {}
   for ( let i = 0; i<arrColumnNames.length; i++ ) {
     columnOrds[arrColumnNames[i]] = i
@@ -323,14 +325,12 @@ function getCategorySheet(
 
   let rowsOut = [];
 
-  let amountColumnOrd = columnOrds["Cost or Expenditure Amount"]
-  let categoryColumnOrd = columnOrds["Cost or Expenditure Category"]
-  let descriptionColumnOrd = columnOrds["Category Description"]
-
-  if (sheetName === "Loans" ) {
-    amountColumnOrd = columnOrds["Payment Amount"]
-    categoryColumnOrd = columnOrds["Loan Category"]
-  }
+  let columnOrd ={}
+  Object.keys(expenditureColumnNames[sheetName]).forEach( col => {
+    let columnName = expenditureColumnNames[sheetName][col]
+    // console.log(`Sheet ${sheetName}, col ${col} is ${columnName}, ord is ${columnOrds[columnName]}`)
+    columnOrd[col] = columnOrds[columnName]
+  })
 
   sheetRecords.forEach(jsonRecord => {
     let jsonRow = jsonRecord.content; // see exports.js/deduplicate()
@@ -378,17 +378,16 @@ function getCategorySheet(
           // Expenditure Category" (or "Loan Category") column, and put the
           // contents of the "other expenditure categories" column in the
           // the "Category Description" column.
-          destRow[amountColumnOrd] = amount
-          destRow[categoryColumnOrd] = categoryMap[key]
-          destRow[descriptionColumnOrd] = jsonRow[categoryDescriptionSourceColumn]
+          destRow[columnOrd.amount] = amount
+          destRow[columnOrd.category] = categoryMap[key]
+          destRow[columnOrd.description] = jsonRow[categoryDescriptionSourceColumn]
           rowsOut.push(destRow);
           written +=1
           break
 
         default: {
-
-          destRow[amountColumnOrd] = amount
-          destRow[categoryColumnOrd] = categoryMap[key]
+          destRow[columnOrd.amount] = amount
+          destRow[columnOrd.category] = categoryMap[key]
           rowsOut.push(destRow);
           written += 1
           break
@@ -397,6 +396,9 @@ function getCategorySheet(
     });
     if (!written){
       // write a row even if there has been no activity in this period
+      delete arrRow[columnOrd.project]
+      delete arrRow[columnOrd.start]
+      delete arrRow[columnOrd.end]
       rowsOut.push(arrRow);
     }
   });
