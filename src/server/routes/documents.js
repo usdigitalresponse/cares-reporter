@@ -1,19 +1,35 @@
 const express = require("express");
 const router = express.Router();
+const ssf = require("ssf");
 const { requireUser } = require("../access-helpers");
 const {
   user: getUser,
-  documents,
+  documents: getDocuments,
   documentsForAgency,
   createDocument
 } = require("../db");
+const _ = require('lodash');
+
+function formatDates(document) {
+  const keys = _.keys(document.content);
+  keys.forEach(k => {
+    if (_.includes(k, "date")) {
+      const value = document.content[k];
+      if (_.isNumber(value)) {
+        document.content[k] = ssf.format("MM/dd/yyyy", value);
+      }
+    }
+  });
+  return document;
+}
 
 router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
-  const docs = user.agency_id
+  const rawDocuments = user.agency_id
     ? await documentsForAgency(user.agency_id)
-    : await documents();
-  return res.json({ documents: docs });
+    : await getDocuments();
+  const documents = rawDocuments.map(formatDates);
+  return res.json({ documents });
 });
 
 router.post("/:type", requireUser, function(req, res) {
