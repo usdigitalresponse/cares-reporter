@@ -172,12 +172,12 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
 function validateDocuments(tab, validations) {
   return function(groupedDocuments, validateContext) {
     const documents = groupedDocuments[tab];
-    return _.flatMap(documents, ({ content }, row) => {
+    return _.flatMap(documents, ({ content, sourceRow }) => {
       return validateFields(
         validations,
         content,
         tab,
-        row + 2,
+        sourceRow,
         validateContext
       );
     });
