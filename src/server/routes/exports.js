@@ -140,9 +140,7 @@ function deDuplicate(documents, objUploadMetadata) {
         //     'organization type': 'For-Profit Organization...)'
         //   }
         // },
-        // force ID to String - some of them come in as Number
-        record.content["identification number"] =
-          String(content["identification number"]);
+
         uniqueRecords[
           `subrecipient:${record.content["identification number"]}`
         ] = record;
