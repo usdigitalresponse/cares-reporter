@@ -3,7 +3,7 @@ const router = express.Router();
 const { requireUser } = require("../access-helpers");
 const {
   user: getUser,
-  documents,
+  documentsWithProjectCode,
   documentsForAgency,
   createDocument
 } = require("../db");
@@ -12,7 +12,7 @@ router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
   const docs = user.agency_id
     ? await documentsForAgency(user.agency_id)
-    : await documents();
+    : await documentsWithProjectCode();
   return res.json({ documents: docs });
 });
 
