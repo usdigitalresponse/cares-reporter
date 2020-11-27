@@ -74,17 +74,20 @@ function isValidSubrecipient(val, content, { subrecipientsHash }) {
   return _.has(subrecipientsHash, val);
 }
 
+function isUnitedStates(value) {
+  return value == "usa" || value == "united states"
+}
 function isValidState(val, content) {
   return (
-    content["primary place of performance country name"] !== "usa" ||
+    !isUnitedStates(content["primary place of performance country name"]) ||
     dropdownIncludes("state code")(val)
   );
 }
 
 function isValidZip(val, content) {
   return (
-    content["primary place of performance country name"] !== "usa" ||
-    /^\d{5}(-\d{4})?$/.test(val)
+    !isUnitedStates(content["primary place of performance country name"]) ||
+    /^\d{5}(-\d{4})?$/.test(`${val}`)
   );
 }
 
