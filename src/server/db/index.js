@@ -7,7 +7,8 @@ const {
   deleteDocuments,
   documents,
   documentsInCurrentReportingPeriod,
-  documentsForAgency
+  documentsForAgency,
+  documentsWithProjectCode
 } = require("./documents");
 
 const {
@@ -164,6 +165,7 @@ module.exports = {
   documents,
   documentsForAgency,
   documentsInCurrentReportingPeriod,
+  documentsWithProjectCode,
   markAccessTokenUsed,
   projects,
   projectByCode,
