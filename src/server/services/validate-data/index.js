@@ -29,8 +29,8 @@ const validateData = (documents, fileParts, reportingPeriod) => {
     subrecipientsHash
   };
 
-  return _.flatMap(tabValidators, validator => {
-    return _.take(validator(groupedDocuments, validateContext), 100);
+  return _.flatMap(tabValidators, tabValidator => {
+    return _.take(tabValidator(groupedDocuments, validateContext), 100);
   });
 };
 

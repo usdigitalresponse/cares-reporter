@@ -16,6 +16,7 @@ function documents() {
             return;
 
           } else {
+            record.content["zip"] = String(record.content["zip"]);
             record.content["identification number"]=id;
             isDuplicate[id] = true;
           }

@@ -148,16 +148,28 @@ function spreadsheetToDocuments(
     const cols = sheet[0].map(col => {
       return templateSheet[0].includes(col) ? col : "ignore";
     });
-    sheet.slice(1).forEach(row => {
+    sheet.slice(1).forEach((row, i) => {
       if (row.length === 0) return;
       documents.push({
         type,
         user_id,
-        content: _.omit(_.zipObject(cols, row), ["ignore"])
+        content: _.omit(_.zipObject(cols, row), ["ignore"]),
+        sourceRow:i+2 // one-based, not zero-based, and title row was omitted
       });
     });
   });
   return { documents, valog };
+}
+
+/*  removeSourceRow() removes the sourceRow field we put into the document
+  record to preserve the source row for validation reporting. We need to
+  get rid of it before attempting to write the document to the db
+  */
+function removeSourceRow(documents){
+  return documents.map(document=>{
+    delete document.sourceRow;
+    return document;
+  });
 }
 
 function uploadFilename(filename) {
@@ -277,7 +289,6 @@ async function createTreasuryOutputWorkbook(
 }
 
 function getCoverPage(appSettings = {}, reportingPeriod = {}) {
-  console.dir(`typeof reportingPeriod.start_date is ${typeof reportingPeriod.start_date}`);
   let rows = [
     [
       "Financial Progress Reporting",
@@ -528,7 +539,8 @@ module.exports = {
   spreadsheetToDocuments,
   uploadFilename,
   createTreasuryOutputWorkbook,
-  sheetToJson
+  sheetToJson,
+  removeSourceRow
 };
 
 /*                                  *  *  *                                   */
