@@ -1,6 +1,11 @@
 <template>
   <div class="users">
     <h2>Users</h2>
+    <div class="mb-4">
+      <router-link to="/new_user" class="btn btn-primary"
+        >Create New User</router-link
+      >
+    </div>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -9,6 +14,7 @@
           <th>Role</th>
           <th>Agency</th>
           <th>Created At</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -18,14 +24,10 @@
           <td>{{ user.role }}</td>
           <td>{{ agencyName(user.agency_id) }}</td>
           <td>{{ user.created_at }}</td>
+          <td><router-link :to="`/users/${user.id}`">Edit</router-link></td>
         </tr>
       </tbody>
     </table>
-    <div class="mt-2">
-      <router-link to="/new_user" class="btn btn-primary"
-        >Create New User</router-link
-      >
-    </div>
   </div>
 </template>
 

@@ -44,6 +44,17 @@ function createUser(user) {
     });
 }
 
+function updateUser(user) {
+  return knex("users")
+    .where("id", user.id)
+    .update({
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      agency_id: user.agency_id
+    });
+}
+
 function user(id) {
   return knex("users")
     .select("*")
@@ -117,10 +128,39 @@ function agencies() {
     .orderBy("name");
 }
 
+function agencyById(id) {
+  return knex("agencies")
+    .select("*")
+    .where("id", id)
+    .then(r => r[0]);
+}
+
 function agencyByCode(code) {
   return knex("agencies")
     .select("*")
     .where({ code });
+}
+
+function createAgency(agency) {
+  return knex
+    .insert(agency)
+    .into("agencies")
+    .returning(["id"])
+    .then(response => {
+      return {
+        ...agency,
+        id: response[0].id
+      };
+    });
+}
+
+function updateAgency(agency) {
+  return knex("agencies")
+    .where("id", agency.id)
+    .update({
+      code: agency.code,
+      name: agency.name
+    });
 }
 
 function projects() {
@@ -134,6 +174,13 @@ function projects() {
     )
     .leftJoin("agencies", "projects.agency_id", "agencies.id")
     .orderBy("name");
+}
+
+function getProject(id) {
+  return knex("projects")
+    .select("*")
+    .where("id", id)
+    .then(r => r[0]);
 }
 
 function projectByCode(code) {
@@ -150,20 +197,47 @@ async function transact(callback) {
   return result;
 }
 
+function createProject(project) {
+  return knex
+    .insert(project)
+    .into("projects")
+    .returning(["id"])
+    .then(response => {
+      return {
+        ...project,
+        id: response[0].id
+      };
+    });
+}
+
+function updateProject(project) {
+  return knex("projects")
+    .where("id", project.id)
+    .update({
+      code: project.code,
+      name: project.name,
+      agency_id: project.agency_id
+    });
+}
+
 module.exports = {
   accessToken,
   agencies,
   agencyByCode,
+  agencyById,
   applicationSettings,
   createAccessToken,
+  createAgency,
   createDocument,
   createDocuments,
+  createProject,
   createUpload,
   createUser,
   currentReportingPeriod,
   deleteDocuments,
   documents,
   documentsForAgency,
+  getProject,
   documentsInCurrentReportingPeriod,
   documentsWithProjectCode,
   markAccessTokenUsed,
@@ -172,6 +246,9 @@ module.exports = {
   reportingPeriods,
   roles,
   transact,
+  updateAgency,
+  updateProject,
+  updateUser,
   upload,
   uploads,
   uploadsForAgency,

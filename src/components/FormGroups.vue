@@ -22,9 +22,12 @@
           :name="column.name"
           v-model="record[column.name]"
         >
-          <option :key="n" v-for="(option, n) in column.allowedValues">{{
-            option
-          }}</option>
+          <option
+            :key="n"
+            :value="optionValue(option)"
+            v-for="(option, n) in column.allowedValues"
+            >{{ optionName(option) }}</option
+          >
         </select>
       </div>
       <div v-else-if="column.rows > 0 || column.json">
@@ -64,6 +67,12 @@ export default {
         return this.foreignKeyValues(column);
       }
       return [];
+    },
+    optionValue(option) {
+      return _.isObject(option) ? option.value : option;
+    },
+    optionName(option) {
+      return _.isObject(option) ? option.name : option;
     }
   }
 };

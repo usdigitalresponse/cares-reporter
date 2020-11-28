@@ -39,6 +39,25 @@ export function postForm(url, formData) {
   return fetch(url, options);
 }
 
+export function put(url, body) {
+  const options = {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  };
+  return fetch(url, options).then(r => {
+    if (r.ok) {
+      return r.json();
+    }
+    return r
+      .text()
+      .then(text => Promise.reject(new Error(text ? text : r.statusText)));
+  });
+}
+
 export default new Vuex.Store({
   state: {
     user: null,
@@ -90,6 +109,30 @@ export default new Vuex.Store({
         [...state.configuration.users, user],
         "email"
       );
+    },
+    updateUser(state, user) {
+      state.configuration.users = _.chain(state.configuration.users)
+        .map(u => (user.id == u.id ? user : u))
+        .sortBy("email")
+        .value();
+    },
+    addProject(state, project) {
+      state.projects = _.sortBy([...state.projects, project], "name");
+    },
+    updateProject(state, project) {
+      state.projects = _.chain(state.projects)
+        .map(p => (project.id == p.id ? project : p))
+        .sortBy("name")
+        .value();
+    },
+    addAgency(state, agency) {
+      state.agencies = _.sortBy([...state.agencies, agency], "name");
+    },
+    updateAgency(state, agency) {
+      state.agencies = _.chain(state.agencies)
+        .map(a => (agency.id == a.id ? agency : a))
+        .sortBy("name")
+        .value();
     },
     addMessage(state, message) {
       state.messages = [...state.messages, message];
@@ -144,6 +187,11 @@ export default new Vuex.Store({
         commit("addUser", response.user);
       });
     },
+    updateUser({ commit }, user) {
+      return put(`/api/users/${user.id}`, user).then(() => {
+        commit("updateUser", user);
+      });
+    },
     createUpload({ commit }, formData) {
       return postForm("/api/uploads", formData)
         .then(r => {
@@ -161,6 +209,30 @@ export default new Vuex.Store({
           }
           return response;
         });
+    },
+    createProject({ commit }, project) {
+      return post("/api/projects", project).then(response => {
+        const p = {
+          ...project,
+          ...response.project
+        };
+        commit("addProject", p);
+      });
+    },
+    updateProject({ commit }, project) {
+      return put(`/api/projects/${project.id}`, project).then(() => {
+        commit("updateProject", project);
+      });
+    },
+    createAgency({ commit }, agency) {
+      return post("/api/agencies", agency).then(response => {
+        commit("addAgency", response.agency);
+      });
+    },
+    updateAgency({ commit }, agency) {
+      return put(`/api/agencies/${agency.id}`, agency).then(() => {
+        commit("updateAgency", agency);
+      });
     }
   },
   modules: {},

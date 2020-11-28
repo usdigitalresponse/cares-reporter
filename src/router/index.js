@@ -2,16 +2,16 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import Agencies from "../views/Agencies.vue";
-import CreateDocument from "../views/CreateDocument.vue";
-import Document from "../views/Document.vue";
+import Agency from "../views/Agency.vue";
 import Documents from "../views/Documents.vue";
 import Home from "../views/Home.vue";
 import ImportFile from "../views/ImportFile.vue";
 import Login from "../views/Login.vue";
 import NewUpload from "../views/NewUpload.vue";
-import NewUser from "../views/NewUser.vue";
+import Project from "../views/Project.vue";
 import Projects from "../views/Projects.vue";
 import Upload from "../views/Upload.vue";
+import User from "../views/User.vue";
 import Users from "../views/Users.vue";
 
 import store from "../store";
@@ -30,18 +30,6 @@ const routes = [
     path: "/documents/:type",
     name: "Documents",
     component: Documents,
-    meta: { requiresLogin: true }
-  },
-  {
-    path: "/documents/:type/:id",
-    name: "Document",
-    component: Document,
-    meta: { requiresLogin: true }
-  },
-  {
-    path: "/create/:type",
-    name: "CreateDocument",
-    component: CreateDocument,
     meta: { requiresLogin: true }
   },
   {
@@ -69,9 +57,33 @@ const routes = [
     meta: { requiresLogin: true }
   },
   {
+    path: "/new_agency",
+    name: "NewAgency",
+    component: Agency,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/agencies/:id",
+    name: "Agency",
+    component: Agency,
+    meta: { requiresLogin: true }
+  },
+  {
     path: "/projects",
     name: "Projects",
     component: Projects,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/new_project",
+    name: "NewProject",
+    component: Project,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/projects/:id",
+    name: "Project",
+    component: Project,
     meta: { requiresLogin: true }
   },
   {
@@ -83,7 +95,13 @@ const routes = [
   {
     path: "/new_user",
     name: "NewUser",
-    component: NewUser,
+    component: User,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/users/:id",
+    name: "User",
+    component: User,
     meta: { requiresLogin: true }
   }
 ];
