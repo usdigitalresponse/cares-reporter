@@ -2,6 +2,13 @@ const knex = require("./connection");
 const _ = require("lodash");
 const { currentReportingPeriod } = require("./settings");
 
+function documentsWithProjectCode() {
+  return knex("documents")
+    .select("documents.*", "projects.code as project_code")
+    .join("uploads", { "documents.upload_id": "uploads.id" })
+    .join("projects", { "uploads.project_id": "projects.id" });
+}
+
 function documents() {
   return knex("documents").select("*").then(arrRecords => {
 
@@ -106,5 +113,6 @@ module.exports = {
   documents,
   documentsInCurrentReportingPeriod,
   documentsForAgency,
-  documentsOfType
+  documentsOfType,
+  documentsWithProjectCode
 };
