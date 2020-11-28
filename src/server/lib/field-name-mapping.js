@@ -16,7 +16,7 @@ const sheetNameMap = {
   "Transfers": "transfers",
   "Direct": "direct",
   "Aggregate Awards < 50000": "aggregate awards < 50000",
-  "Aggregate Payments Individual": "aggregate payments individual",
+  "Aggregate Payments Individual": "aggregate payments individual"
 };
 
 /*  sheetNameAliases are needed by the test fixtures, which have old versions of
@@ -26,7 +26,7 @@ const sheetNameMap = {
   */
 // prettier-ignore
 const sheetNameAliases = {
-  subrecipients: "subrecipient",
+  subrecipients: "subrecipient"
 };
 
 /*  columnNameMap keys are column names in the Treasury Output Workbook,
@@ -110,13 +110,14 @@ const columnNameMap = {
   "Sub-Recipient Organization (Awardee)": "subrecipient id",
   "Sub-Recipient Organization (Borrower)": "subrecipient id",
   "Sub-Recipient Organization (Transferee/Government Unit)": "subrecipient id",
-  "Transfer Amount": "award amount", // bug fix kluge - see columnAliases/"transfer amount"
+  // bug fix kluge - see columnAliases/"transfer amount"
+  "Transfer Amount": "award amount",
   "Transfer Date": "transfer date",
   "Transfer Number": "transfer number",
   "Transfer Type": "transfer type",
   "Will these payments be repurposed for Future Use?":
     "will these payments be repurposed for future use?",
-  "Zip+4": "zip",
+  "Zip+4": "zip"
   // "Primary Place of Performance Zip+4": "primary place of performance zip+4",
   // "Expenditure Project":"total expenditure amount",
 };
@@ -196,7 +197,7 @@ const columnTypeMap = {
   "Transfer Number": "number",
   "Transfer Type": "string",
   "Will these payments be repurposed for Future Use?":"string",
-  "Zip+4": "string",
+  "Zip+4": "string"
   // "Primary Place of Performance Zip+4": "string",
   // "Expenditure Project":"string",
 };
@@ -256,35 +257,85 @@ const columnAliases = {
 // prettier-ignore
 const categoryMap = {
   "administrative expenses" : "Administrative Expenses",
-  "budgeted personnel and services diverted to a substantially different use" :"Budgeted Personnel and Services Diverted to a Substantially Different Use",
+  "budgeted personnel and services diverted to a substantially different use" :
+    "Budgeted Personnel and Services Diverted to a Substantially Different Use",
   "covid-19 testing and contact tracing" :"COVID-19 Testing and Contact Tracing",
-  "economic support (other than small business, housing, and food assistance)" :"Economic Support (Other than Small Business, Housing, and Food Assistance)",
-  "expenses associated with the issuance of tax anticipation notes" :"Expenses Associated with the Issuance of Tax Anticipation Notes",
+  "economic support (other than small business, housing, and food assistance)" :
+    "Economic Support (Other than Small Business, Housing, and Food Assistance)",
+  "expenses associated with the issuance of tax anticipation notes" :
+    "Expenses Associated with the Issuance of Tax Anticipation Notes",
   "facilitating distance learning" :"Facilitating Distance Learning",
   "food programs" :"Food Programs",
   "housing support" :"Housing Support",
-  "improve telework capabilities of public employees" :"Improve Telework Capabilities of Public Employees",
+  "improve telework capabilities of public employees" :
+    "Improve Telework Capabilities of Public Employees",
   "medical expenses" :"Medical Expenses",
   "nursing home assistance" :"Nursing Home Assistance",
-  "payroll for public health and safety employees" :"Payroll for Public Health and Safety Employees",
+  "payroll for public health and safety employees" :
+    "Payroll for Public Health and Safety Employees",
   "personal protective equipment" :"Personal Protective Equipment",
   "public health expenses" :"Public Health Expenses",
   "small business assistance" :"Small Business Assistance",
   "unemployment benefits" :"Unemployment Benefits",
   "workers’ compensation" :"Workers' Compensation",
   "other expenditure amount" :"Items Not Listed Above",
-  "other expenditure categories" :"Category Description",
+  "other expenditure categories" :"Category Description"
 };
 
 const categoryDescriptionSourceColumn = "other expenditure categories";
 
+const expenditureColumnNames = {
+  Contracts: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date"
+  },
+  Grants: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date"
+
+  },
+  Loans: {
+    amount: "Payment Amount",
+    category: "Loan Category",
+    description: "Category Description",
+    project: "Payment Project",
+    start: "Payment Date",
+    end: "Payment Date"
+  },
+  Transfers: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date"
+  },
+  Direct: {
+    amount: "Cost or Expenditure Amount",
+    category: "Cost or Expenditure Category",
+    description: "Category Description",
+    project: "Expenditure Project",
+    start: "Expenditure Start Date",
+    end: "Expenditure End Date"
+  }
+};
+
 module.exports = {
   categoryDescriptionSourceColumn,
   categoryMap,
+  expenditureColumnNames,
   columnAliases,
   columnNameMap,
   columnTypeMap,
   sheetNameAliases,
-  sheetNameMap,
-}
+  sheetNameMap
+};
 

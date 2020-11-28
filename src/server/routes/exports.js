@@ -10,7 +10,7 @@ const _ = require("lodash");
 
 router.get("/", requireUser, function(req, res) {
 
-  const treasuryTemplateSheets = getTemplateSheets(`treasury`);
+  const treasuryTemplateSheets = getTemplateSheets("treasury");
 
   const config = makeConfig(treasuryTemplateSheets, "Treasury Template", []);
 
@@ -18,7 +18,7 @@ router.get("/", requireUser, function(req, res) {
     res.sendStatus(500);
 
   } else {
-    processDocuments(res, config )
+    processDocuments(res, config );
   }
 });
 
@@ -40,11 +40,11 @@ async function processDocuments( res, config ) {
 
   } catch ( err ) {
     res.statusMessage = "Failed to load upload summaries";
-    return res.status(500).end()
+    return res.status(500).end();
   }
 
-  const objUploadMetadata = {}
-  arrUploadMetaData.forEach( rec => objUploadMetadata[rec.id] = rec )
+  const objUploadMetadata = {};
+  arrUploadMetaData.forEach( rec => objUploadMetadata[rec.id] = rec );
 
   try {
     // eslint-disable-next-line
@@ -52,11 +52,11 @@ async function processDocuments( res, config ) {
 
   } catch ( err ) {
     res.statusMessage = "Failed to load document records";
-    return res.status(500).end()
+    return res.status(500).end();
   }
 
   console.log(`Found ${documents.length} documents`);
-  let rv = deDuplicate(documents, objUploadMetadata)
+  let rv = deDuplicate(documents, objUploadMetadata);
   console.log(`Found ${rv.length} unique documents`);
 
   const groups = _.groupBy(rv, "type");
@@ -74,39 +74,39 @@ async function processDocuments( res, config ) {
 }
 
 function deDuplicate(documents, objUploadMetadata) {
-  let agencyCodes = {} // KV table of { upload_id: agency code }
-  let objProjectStatus ={} // KV table of { project id: project status }
+  let agencyCodes = {}; // KV table of { upload_id: agency code }
+  let objProjectStatus ={}; // KV table of { project id: project status }
 
   documents.forEach(record => {
     switch (record.type) {
       case "cover":
-        agencyCodes[record.upload_id] = record.content["agency code"]
-        objProjectStatus[record.content['project id']] = record.content.status
-        break
+        agencyCodes[record.upload_id] = record.content["agency code"];
+        objProjectStatus[record.content["project id"]] = record.content.status;
+        break;
       default:
-        break
+        break;
     }
-  })
+  });
 
-  let uniqueRecords = {} // keyed by concatenated id
-  let uniqueID = 0 // this is for records we don't deduplicate
+  let uniqueRecords = {}; // keyed by concatenated id
+  let uniqueID = 0; // this is for records we don't deduplicate
   documents.forEach(record => {
-    uniqueID += 1
-    let content = record.content
-    let agencyID = agencyCodes[record.upload_id]
-    let agencyCode = content["agency code"] || agencyID
+    uniqueID += 1;
+    let content = record.content;
+    let agencyID = agencyCodes[record.upload_id];
+    let agencyCode = content["agency code"] || agencyID;
 
     let projectID = content["project id"] ||
-      content["project identification number"]
+      content["project identification number"];
 
     switch (record.type) {
       case "cover":
         // ignore cover records
-        break
+        break;
 
       case "certification":
         // ignore certification records
-        break
+        break;
 
       case "projects":
         // projects: {
@@ -121,10 +121,10 @@ function deDuplicate(documents, objUploadMetadata) {
         // },
         // console.dir(record)
         // force ID to String - some of them may come in as Number
-        record.content["project identification number"] = String(projectID)
-        record.content["status"] = objProjectStatus[projectID]
-        uniqueRecords[`${agencyCode}:project:${projectID}`] = record
-        break
+        record.content["project identification number"] = String(projectID);
+        record.content["status"] = objProjectStatus[projectID];
+        uniqueRecords[`${agencyCode}:project:${projectID}`] = record;
+        break;
 
       case "subrecipient":
         // subrecipient: {
@@ -140,13 +140,11 @@ function deDuplicate(documents, objUploadMetadata) {
         //     'organization type': 'For-Profit Organization...)'
         //   }
         // },
-        // force ID to String - some of them come in as Number
-        record.content["identification number"] =
-          String(content["identification number"])
+
         uniqueRecords[
           `subrecipient:${record.content["identification number"]}`
-        ] = record
-        break
+        ] = record;
+        break;
 
       // we have to assume none of these are duplicates, because two identical
       // records could both be valid, since we don't have anything like an
@@ -158,12 +156,12 @@ function deDuplicate(documents, objUploadMetadata) {
       case  "direct":
       case  "aggregate awards < 50000":
       case  "aggregate payments individual":
-        uniqueRecords[uniqueID] = record
-        break
+        uniqueRecords[uniqueID] = record;
+        break;
 
       default:
-        console.log("Unrecognized record:")
-        console.dir(record)
+        console.log("Unrecognized record:");
+        console.dir(record);
         // certification: {
         //   type: 'certification',
         //   content: {
@@ -173,14 +171,14 @@ function deDuplicate(documents, objUploadMetadata) {
         //   }
         // },
 
-      return
+      return;
     }
-  })
+  });
 
-  let rv = []
-  Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]))
+  let rv = [];
+  Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));
 
-  return rv
+  return rv;
 }
 
 module.exports = router;
