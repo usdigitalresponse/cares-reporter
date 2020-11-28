@@ -1,5 +1,5 @@
 const express = require("express");
-const { requireUser } = require("../access-helpers");
+const { requireAdminUser, requireUser } = require("../access-helpers");
 
 const router = express.Router();
 const {
@@ -26,7 +26,7 @@ async function validateAgency(req, res, next) {
   next();
 }
 
-router.post("/", requireUser, validateAgency, function(req, res, next) {
+router.post("/", requireAdminUser, validateAgency, function(req, res, next) {
   console.log("POST /agencies", req.body);
   const { code, name } = req.body;
   const agency = {
@@ -44,7 +44,11 @@ router.post("/", requireUser, validateAgency, function(req, res, next) {
     });
 });
 
-router.put("/:id", requireUser, validateAgency, async function(req, res, next) {
+router.put("/:id", requireAdminUser, validateAgency, async function(
+  req,
+  res,
+  next
+) {
   console.log("PUT /agencies/:id", req.body);
   let agency = await getAgency(req.params.id);
   if (!agency) {

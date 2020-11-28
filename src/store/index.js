@@ -231,7 +231,7 @@ export default new Vuex.Store({
     },
     updateAgency({ commit }, agency) {
       return put(`/api/agencies/${agency.id}`, agency).then(() => {
-        commit("updateAgency.", agency);
+        commit("updateAgency", agency);
       });
     }
   },

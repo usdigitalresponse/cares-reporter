@@ -1,5 +1,5 @@
 const express = require("express");
-const { requireUser } = require("../access-helpers");
+const { requireAdminUser, requireUser } = require("../access-helpers");
 
 const router = express.Router();
 const {
@@ -37,7 +37,7 @@ async function validateProject(req, res, next) {
   next();
 }
 
-router.post("/", requireUser, validateProject, function(req, res, next) {
+router.post("/", requireAdminUser, validateProject, function(req, res, next) {
   console.log("POST /projects", req.body);
   const { code, name, agency_id } = req.body;
   const project = {
@@ -56,7 +56,7 @@ router.post("/", requireUser, validateProject, function(req, res, next) {
     });
 });
 
-router.put("/:id", requireUser, validateProject, async function(
+router.put("/:id", requireAdminUser, validateProject, async function(
   req,
   res,
   next
