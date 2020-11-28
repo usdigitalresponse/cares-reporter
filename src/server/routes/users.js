@@ -79,7 +79,13 @@ router.put("/:id", requireAdminUser, validateUser, async function(
   updateUser(user)
     .then(result => res.json({ user: result }))
     .then(() => sendWelcomeEmail(user.email, req.headers.origin))
-    .catch(next);
+    .catch(e => {
+      if (e.message.match(/violates unique constraint/)) {
+        res.status(400).send("User with that email already exists");
+      } else {
+        next(e);
+      }
+    });
 });
 
 module.exports = router;
