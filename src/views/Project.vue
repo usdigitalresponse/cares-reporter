@@ -67,8 +67,10 @@ export default {
       const p = _.find(this.$store.state.projects, { id }) || {};
       const a =
         _.find(this.$store.state.agencies, { code: p.agency_code }) || {};
-      p.agency_id = a.id;
-      return p;
+      return {
+        ...p,
+        agency_id: a.id
+      };
     },
     onSave(project) {
       const a =

@@ -55,7 +55,8 @@ export default {
   },
   methods: {
     findAgency(id) {
-      return _.find(this.$store.state.agencies, { id }) || {};
+      const agency = _.find(this.$store.state.agencies, { id }) || {};
+      return { ...agency };
     },
     onSave(agency) {
       const updatedAgency = {

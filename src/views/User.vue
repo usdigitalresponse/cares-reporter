@@ -72,7 +72,8 @@ export default {
   },
   methods: {
     findUser(id) {
-      return _.find(this.$store.state.configuration.users, { id }) || {};
+      const user = _.find(this.$store.state.configuration.users, { id }) || {};
+      return { ...user };
     },
     getAgencies() {
       this.agencyIds = [
