@@ -1,7 +1,7 @@
 <template>
   <div class="agency">
     <h1>Agency</h1>
-    <div v-if="!editAgency">
+    <div v-if="loading">
       Loading..
     </div>
     <div v-else>
@@ -10,10 +10,11 @@
         :columns="fields"
         :record="editAgency"
         :id="editAgency.id"
-        :isNew="false"
+        :isNew="isNew"
         :onSave="onSave"
         :onCancel="onCancel"
         :onDone="onDone"
+        :errorMessage="errorMessage"
       />
     </div>
   </div>
@@ -28,12 +29,24 @@ export default {
     DocumentForm
   },
   data: function() {
-    const id = parseInt(this.$route.params.id);
+    let id = 0;
+    if (this.$route && this.$route.params && this.$route.params.id) {
+      id = parseInt(this.$route.params.id);
+    }
     return {
       id,
-      fields: [{ name: "code" }, { name: "name" }],
-      editAgency: this.findAgency(id)
+      isNew: !id,
+      editAgency: this.findAgency(id),
+      errorMessage: null
     };
+  },
+  computed: {
+    loading: function() {
+      return this.id != 0 && !this.editAgency;
+    },
+    fields: function() {
+      return [{ name: "code" }, { name: "name" }];
+    }
   },
   watch: {
     "$store.state.agencies": function() {
@@ -42,13 +55,24 @@ export default {
   },
   methods: {
     findAgency(id) {
-      return _.find(this.$store.state.agencies, { id });
+      return _.find(this.$store.state.agencies, { id }) || {};
     },
-    onSave() {},
+    onSave(agency) {
+      const updatedAgency = {
+        ...this.editAgency,
+        ...agency
+      };
+      return this.$store
+        .dispatch(this.isNew ? "createAgency" : "updateAgency", updatedAgency)
+        .then(() => this.onDone())
+        .catch(e => (this.errorMessage = e.message));
+    },
     onCancel() {
-      this.$router.push("/agencies");
+      this.onDone();
     },
-    onDone() {}
+    onDone() {
+      this.$router.push("/agencies");
+    }
   }
 };
 </script>
