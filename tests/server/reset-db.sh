@@ -3,7 +3,7 @@
 # The actual directory of this file.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # set -x
-set -e 
+set -e
 
 # Import .env variables if not already defined.
 DOTENV="$DIR/../../.env"
@@ -14,6 +14,8 @@ DONE
 # Default dbname is "postgres"
 dbname=${1:-postgres}
 
+echo Using database $dbname
+
 mkdir -p $UPLOAD_DIRECTORY
 rm -rf $UPLOAD_DIRECTORY/*
 
@@ -23,11 +25,12 @@ then
   psql -h localhost -U postgres -w postgres -c "DROP SCHEMA public CASCADE"
   psql -h localhost -U postgres -w postgres -c "CREATE SCHEMA public"
 else
-  
+
   psql -h localhost -U postgres -w postgres -c "DROP DATABASE IF EXISTS $dbname"
   psql -h localhost -U postgres -w postgres -c "CREATE DATABASE $dbname"
 fi
+
 yarn knex migrate:latest
-yarn knex seed:run
+yarn knex --knexfile tests/server/knexfile.js seed:run
 
 

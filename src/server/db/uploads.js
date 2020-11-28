@@ -23,6 +23,11 @@ function upload(id) {
     .then(r => r[0]);
 }
 
+function getUploadSummaries() {
+  return knex("uploads")
+    .select("*");
+}
+
 async function createUpload(upload, queryBuilder = knex) {
   // The CONFLICT should never happen, because the file upload should stop
   // if there is an existing `filename` in the upload directory.
@@ -36,7 +41,7 @@ async function createUpload(upload, queryBuilder = knex) {
       VALUES
       (:created_by, :filename, :user_id, '${timestamp}', :agency_id, :project_id, :reporting_period_id)
       ON CONFLICT (filename) DO UPDATE
-        SET 
+        SET
           created_by = :created_by,
           filename = :filename,
           user_id = :user_id,
@@ -56,6 +61,7 @@ async function createUpload(upload, queryBuilder = knex) {
 }
 
 module.exports = {
+  getUploadSummaries,
   createUpload,
   upload,
   uploads,

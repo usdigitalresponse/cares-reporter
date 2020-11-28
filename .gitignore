@@ -3,10 +3,17 @@ node_modules
 /dist
 
 
-# local env files
+# local env files - rename .env.example to .env to get the project to work
 .env
 .env.local
 .env.*.local
+
+# local linting and formatting files - the ones used by the project are in
+# .eslintrc.js.example and .prettierrc.json.example, so just rename them
+# to .eslintrc.js and prettierrc.json respectively to conform to the
+# project conventions.
+.eslintrc.js
+.prettierrc.json
 
 # Log files
 npm-debug.log*
@@ -25,3 +32,8 @@ pnpm-debug.log*
 
 uploads/
 mocha_uploads/
+
+notes.txt
+~$*
+
+test-data-from-ohio/
