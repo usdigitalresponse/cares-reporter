@@ -72,7 +72,9 @@ function documentsOfType(type) {
 
 function documentsForAgency(agency_id) {
   return knex("documents")
-    .select("*")
+    .select("documents.*", "projects.code as project_code")
+    .join("uploads", { "documents.upload_id": "uploads.id" })
+    .join("projects", { "uploads.project_id": "projects.id" })
     .join("users", { "documents.user_id": "users.id" })
     .where("users.agency_id", agency_id);
 }
