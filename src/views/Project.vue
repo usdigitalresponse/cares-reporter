@@ -60,6 +60,9 @@ export default {
   watch: {
     "$store.state.projects": function() {
       this.editProject = this.findProject(this.id);
+    },
+    "$store.state.agencies": function() {
+      this.editProject = this.findProject(this.id);
     }
   },
   methods: {
