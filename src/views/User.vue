@@ -48,7 +48,7 @@ export default {
       return [
         { name: "email", required: true },
         { name: "name" },
-        { name: "role", allowedValues: this.roles },
+        { name: "role", required: true, allowedValues: this.roles },
         { name: "agency_id", allowedValues: this.agencies }
       ];
     },
