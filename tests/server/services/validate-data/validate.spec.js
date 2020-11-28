@@ -7,7 +7,9 @@ const {
   isPositiveNumber,
   isSum,
   isValidDate,
+  isValidState,
   isValidSubrecipient,
+  isValidZip,
   matchesFilePart,
   messageValue,
   numberIsLessThanOrEqual,
@@ -194,6 +196,39 @@ describe("validation helpers", () => {
     it(`${name} should return ${expectedResult}`, () => {
       expect(b).to.equal(expectedResult);
     });
+  });
+});
+
+describe("address validations", () => {
+  const us1 = { "primary place of performance country name": "usa" };
+  const us2 = { "primary place of performance country name": "united states" };
+  const hk = { "primary place of performance country name": "hong kong" };
+  it("valid US state passes", () => {
+    expect(isValidState("WA", us1)).to.equal(true);
+  });
+  it("valid United States state passes", () => {
+    expect(isValidState("WA", us2)).to.equal(true);
+  });
+  it("invalid US state fails", () => {
+    expect(isValidState("ZZ", us1)).to.equal(false);
+  });
+  it("invalid united states state fails", () => {
+    expect(isValidState("ZZ", us2)).to.equal(false);
+  });
+  it("valid US zip passes", () => {
+    expect(isValidZip(98101, us1)).to.equal(true);
+  });
+  it("valid United States zip passes", () => {
+    expect(isValidZip(98101, us2)).to.equal(true);
+  });
+  it("invalid US zip fails", () => {
+    expect(isValidZip(5, us1)).to.equal(false);
+  });
+  it("invalid united states zip fails", () => {
+    expect(isValidZip(6, us2)).to.equal(false);
+  });
+  it("non united states zip passes", () => {
+    expect(isValidZip(0, hk)).to.equal(true);
   });
 });
 

@@ -48,7 +48,7 @@ function isPositiveNumber(val) {
 
 function isSum(columns) {
   return (val, content) => {
-    const sum = _.reduce(
+    let sum = _.reduce(
       columns,
       (acc, c) => {
         if (!c) {
@@ -59,6 +59,12 @@ function isSum(columns) {
       },
       0.0
     );
+    val = Number(val) || 0; // can come in as a string
+    val = _.round(val,2);
+    sum = _.round(sum,2);   // parseFloat returns junk in the 11th decimal place
+    if (val !== sum ) {
+      console.log(`val is ${val}, sum is ${sum}`);
+    }
     return val == sum;
   };
 }
@@ -71,17 +77,20 @@ function isValidSubrecipient(val, content, { subrecipientsHash }) {
   return _.has(subrecipientsHash, val);
 }
 
+function isUnitedStates(value) {
+  return value == "usa" || value == "united states"
+}
 function isValidState(val, content) {
   return (
-    content["primary place of performance country name"] !== "usa" ||
+    !isUnitedStates(content["primary place of performance country name"]) ||
     dropdownIncludes("state code")(val)
   );
 }
 
 function isValidZip(val, content) {
   return (
-    content["primary place of performance country name"] !== "usa" ||
-    /^\d{5}(-\d{4})?$/.test(val)
+    !isUnitedStates(content["primary place of performance country name"]) ||
+    /^\d{5}(-\d{4})?$/.test(`${val}`)
   );
 }
 
@@ -136,10 +145,18 @@ function messageValue(val, options) {
 }
 
 function validateFields(requiredFields, content, tab, row, context = {}) {
+  // console.log("------ required fields are:");
+  // console.dir(requiredFields);
+  // console.log("------content is");
+  // console.dir(content);
+  // console.log("------content end");
   const valog = [];
   requiredFields.forEach(([key, validator, message, options]) => {
     const val = content[key] || "";
     if (!validator(val, content, context)) {
+      // console.log(val);
+      // console.dir(content);
+      // console.dir(context);
       valog.push(
         new ValidationItem({
           message: addValueToMessage(
@@ -158,12 +175,12 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
 function validateDocuments(tab, validations) {
   return function(groupedDocuments, validateContext) {
     const documents = groupedDocuments[tab];
-    return _.flatMap(documents, ({ content }, row) => {
+    return _.flatMap(documents, ({ content, sourceRow }) => {
       return validateFields(
         validations,
         content,
         tab,
-        row + 2,
+        sourceRow,
         validateContext
       );
     });
