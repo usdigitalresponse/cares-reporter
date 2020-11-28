@@ -1,12 +1,20 @@
 <template>
   <div class="data">
     <h2>Projects</h2>
-    <DataTable v-if="projects" :table="table" :rows="projects" :user="user" />
+    <div class="mb-4">
+      <router-link to="/new_project" class="btn btn-primary"
+        >Create New Project</router-link
+      >
+    </div>
+    <div>
+      <DataTable v-if="projects" :table="table" :rows="projects" :user="user" />
+    </div>
   </div>
 </template>
 
 <script>
 import DataTable from "../components/DataTable";
+import ProjectLink from "../components/ProjectLink";
 export default {
   name: "Projects",
   components: {
@@ -26,7 +34,8 @@ export default {
         columns: [
           { name: "code", label: "Project Code" },
           { name: "name" },
-          { name: "agency_code", label: "Agency Code" }
+          { name: "agency_code", label: "Agency Code" },
+          { component: ProjectLink }
         ]
       }
     };

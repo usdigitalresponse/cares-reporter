@@ -1,12 +1,20 @@
 <template>
   <div class="data">
     <h2>Agencies</h2>
-    <DataTable v-if="agencies" :table="table" :rows="agencies" :user="user" />
+    <div class="mb-4">
+      <router-link to="/new_agency" class="btn btn-primary"
+        >Create New Agency</router-link
+      >
+    </div>
+    <div>
+      <DataTable v-if="agencies" :table="table" :rows="agencies" :user="user" />
+    </div>
   </div>
 </template>
 
 <script>
 import DataTable from "../components/DataTable";
+import AgencyLink from "../components/AgencyLink";
 export default {
   name: "Agencies",
   components: {
@@ -18,7 +26,11 @@ export default {
       user,
       table: {
         views: [],
-        columns: [{ name: "code", label: "Agency Code" }, { name: "name" }]
+        columns: [
+          { name: "code", label: "Agency Code" },
+          { name: "name" },
+          { component: AgencyLink }
+        ]
       }
     };
   },
