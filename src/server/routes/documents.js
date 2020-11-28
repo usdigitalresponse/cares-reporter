@@ -4,6 +4,7 @@ const ssf = require("ssf");
 const { requireUser } = require("../access-helpers");
 const {
   user: getUser,
+  documentsWithProjectCode,
   documents: getDocuments,
   documentsForAgency,
   createDocument
@@ -27,7 +28,7 @@ router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
   const rawDocuments = user.agency_id
     ? await documentsForAgency(user.agency_id)
-    : await getDocuments();
+    : await documentsWithProjectCode();
   const documents = rawDocuments.map(formatDates);
   return res.json({ documents });
 });
