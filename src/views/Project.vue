@@ -1,7 +1,7 @@
 <template>
   <div class="project">
     <h1>Project</h1>
-    <div v-if="!editProject">
+    <div v-if="loading">
       Loading..
     </div>
     <div v-else>
@@ -10,10 +10,11 @@
         :columns="fields"
         :record="editProject"
         :id="editProject.id"
-        :isNew="false"
+        :isNew="isNew"
         :onSave="onSave"
         :onCancel="onCancel"
         :onDone="onDone"
+        :errorMessage="errorMessage"
       />
     </div>
   </div>
@@ -28,18 +29,26 @@ export default {
     DocumentForm
   },
   data: function() {
-    const id = parseInt(this.$route.params.id);
+    let id = 0;
+    if (this.$route && this.$route.params && this.$route.params.id) {
+      id = parseInt(this.$route.params.id);
+    }
     return {
       id,
-      editProject: this.findProject(id)
+      isNew: !id,
+      editProject: this.findProject(id),
+      errorMessage: null
     };
   },
   computed: {
+    loading: function() {
+      return this.id != 0 && !this.editProject;
+    },
     fields: function() {
       return [
-        { name: "code" },
-        { name: "name" },
-        { name: "agency_id", allowedValues: this.agencies }
+        { name: "code", required: true },
+        { name: "name", request: true },
+        { name: "agency_id", required: true, allowedValues: this.agencies }
       ];
     },
     agencies: function() {
@@ -55,13 +64,35 @@ export default {
   },
   methods: {
     findProject(id) {
-      return _.find(this.$store.state.projects, { id });
+      const p = _.find(this.$store.state.projects, { id }) || {};
+      const a =
+        _.find(this.$store.state.agencies, { code: p.agency_code }) || {};
+      p.agency_id = a.id;
+      return p;
     },
-    onSave() {},
+    onSave(project) {
+      const a =
+        _.find(this.$store.state.agencies, { id: project.agency_id }) || {};
+      const updatedProject = {
+        ...this.editProject,
+        ...project,
+        agency_code: a.code,
+        agency_name: a.name
+      };
+      return this.$store
+        .dispatch(
+          this.isNew ? "createProject" : "updateProject",
+          updatedProject
+        )
+        .then(() => this.onDone())
+        .catch(e => (this.errorMessage = e.message));
+    },
     onCancel() {
-      this.$router.push("/projects");
+      this.onDone();
     },
-    onDone() {}
+    onDone() {
+      this.$router.push("/projects");
+    }
   }
 };
 </script>

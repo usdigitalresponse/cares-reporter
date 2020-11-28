@@ -1,6 +1,11 @@
 <template>
   <div class="users">
     <h2>Users</h2>
+    <div class="mb-4">
+      <router-link to="/new_user" class="btn btn-primary"
+        >Create New User</router-link
+      >
+    </div>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -23,11 +28,6 @@
         </tr>
       </tbody>
     </table>
-    <div class="mt-2">
-      <router-link to="/new_user" class="btn btn-primary"
-        >Create New User</router-link
-      >
-    </div>
   </div>
 </template>
 

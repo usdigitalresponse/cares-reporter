@@ -6,7 +6,7 @@ const { sendWelcomeEmail } = require("../lib/email");
 const _ = require("lodash-checkit");
 
 async function validateUser(req, res, next) {
-  const { email, name, role, agency_id } = req.body;
+  const { email, role, agency_id } = req.body;
   if (!email) {
     res.status(400).send("User email is required");
     return;
@@ -32,11 +32,15 @@ async function validateUser(req, res, next) {
   next();
 }
 
-router.post("/", requireAdminUser, validateUser, async function(req, res, next) {
+router.post("/", requireAdminUser, validateUser, async function(
+  req,
+  res,
+  next
+) {
   console.log("POST /users", req.body);
   const { email, name, role, agency_id } = req.body;
   const user = {
-    email: req.body.email.toLowerCase().trim(),
+    email: email.toLowerCase().trim(),
     role,
     name,
     agency_id
@@ -53,7 +57,11 @@ router.post("/", requireAdminUser, validateUser, async function(req, res, next) 
     });
 });
 
-router.put("/:id", requireAdminUser, validateUser, async function(req, res, next) {
+router.put("/:id", requireAdminUser, validateUser, async function(
+  req,
+  res,
+  next
+) {
   console.log("PUT /users/:id", req.body);
   let user = await getUser(req.params.id);
   if (!user) {
@@ -63,7 +71,7 @@ router.put("/:id", requireAdminUser, validateUser, async function(req, res, next
   const { email, name, role, agency_id } = req.body;
   user = {
     ...user,
-    email: req.body.email.toLowerCase().trim(),
+    email: email.toLowerCase().trim(),
     name,
     role,
     agency_id

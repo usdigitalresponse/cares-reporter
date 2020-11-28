@@ -116,6 +116,24 @@ export default new Vuex.Store({
         .sortBy("email")
         .value();
     },
+    addProject(state, project) {
+      state.projects = _.sortBy([...state.projects, project], "name");
+    },
+    updateProject(state, project) {
+      state.projects = _.chain(state.projects)
+        .map(p => (project.id == p.id ? project : p))
+        .sortBy("name")
+        .value();
+    },
+    addAgency(state, agency) {
+      state.agencies = _.sortBy([...state.agencies, agency], "name");
+    },
+    updateAgency(state, agency) {
+      state.agencies = _.chain(state.agencies)
+        .map(a => (agency.id == a.id ? agency : a))
+        .sortBy("name")
+        .value();
+    },
     addMessage(state, message) {
       state.messages = [...state.messages, message];
     }
@@ -191,6 +209,30 @@ export default new Vuex.Store({
           }
           return response;
         });
+    },
+    createProject({ commit }, project) {
+      return post("/api/projects", project).then(response => {
+        const p = {
+          ...project,
+          ...response.project
+        };
+        commit("addProject", p);
+      });
+    },
+    updateProject({ commit }, project) {
+      return put(`/api/projects/${project.id}`, project).then(() => {
+        commit("updateProject", project);
+      });
+    },
+    createAgency({ commit }, agency) {
+      return post("/api/agencies", agency).then(response => {
+        commit("addAgency", response.agency);
+      });
+    },
+    updateAgency({ commit }, agency) {
+      return put(`/api/agencies/${agency.id}`, agency).then(() => {
+        commit("updateAgency.", agency);
+      });
     }
   },
   modules: {},

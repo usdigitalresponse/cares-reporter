@@ -1,7 +1,14 @@
 <template>
   <div class="data">
     <h2>Projects</h2>
-    <DataTable v-if="projects" :table="table" :rows="projects" :user="user" />
+    <div class="mb-4">
+      <router-link to="/new_project" class="btn btn-primary"
+        >Create New Project</router-link
+      >
+    </div>
+    <div>
+      <DataTable v-if="projects" :table="table" :rows="projects" :user="user" />
+    </div>
   </div>
 </template>
 
