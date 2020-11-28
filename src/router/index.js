@@ -3,8 +3,6 @@ import VueRouter from "vue-router";
 
 import Agencies from "../views/Agencies.vue";
 import Agency from "../views/Agency.vue";
-import CreateDocument from "../views/CreateDocument.vue";
-import Document from "../views/Document.vue";
 import Documents from "../views/Documents.vue";
 import Home from "../views/Home.vue";
 import ImportFile from "../views/ImportFile.vue";
@@ -33,18 +31,6 @@ const routes = [
     path: "/documents/:type",
     name: "Documents",
     component: Documents,
-    meta: { requiresLogin: true }
-  },
-  {
-    path: "/documents/:type/:id",
-    name: "Document",
-    component: Document,
-    meta: { requiresLogin: true }
-  },
-  {
-    path: "/create/:type",
-    name: "CreateDocument",
-    component: CreateDocument,
     meta: { requiresLogin: true }
   },
   {
