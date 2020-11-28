@@ -34,14 +34,14 @@ function getTemplateSheets(t = "agency") {
 }
 
 function loadTreasuryTemplate(fileName) {
-  let rawTemplate = { Sheets: {} };
+  let xlsxTemplate = { Sheets: {} };
 
   console.log(`Loading : ${fileName}`);
+  // prettier-ignore
   try {
-    rawTemplate = xlsx.read(
-      // eslint-disable-line prettier/prettier
+    xlsxTemplate = xlsx.read(
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      { type: "buffer" } // eslint-disable-line prettier/prettier
+      { type: "buffer" }
     );
     console.log("Template loaded");
   } catch (e) {
@@ -49,22 +49,22 @@ function loadTreasuryTemplate(fileName) {
   }
 
   const objAoaSheets = {};
-  _.keys(rawTemplate.Sheets).forEach(tabName => {
-    const rawSheet = rawTemplate["Sheets"][tabName];
-    objAoaSheets[tabName] = sheetToJson(rawSheet, false);
+  _.keys(xlsxTemplate.Sheets).forEach(sheetName => {
+    const rawSheet = xlsxTemplate["Sheets"][sheetName];
+    objAoaSheets[sheetName] = sheetToJson(rawSheet, false);
   });
-  return { template: rawTemplate, templateSheets: objAoaSheets };
+  return { template: xlsxTemplate, templateSheets: objAoaSheets };
 }
 
 function loadTemplate(fileName) {
-  let rawTemplate = { Sheets: {} };
+  let xlsxTemplate = { Sheets: {} };
 
   console.log(`Loading : ${fileName}`);
+  // prettier-ignore
   try {
-    rawTemplate = xlsx.read(
-      // eslint-disable-line prettier/prettier
+    xlsxTemplate = xlsx.read(
       fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      { type: "buffer" } // eslint-disable-line prettier/prettier
+      { type: "buffer" }
     );
     console.log("Template loaded");
   } catch (e) {
@@ -72,14 +72,14 @@ function loadTemplate(fileName) {
   }
   const objAoaSheets = {};
 
-  _.keys(rawTemplate.Sheets).forEach(tabName => {
+  _.keys(xlsxTemplate.Sheets).forEach(tabName => {
     if (tabName === "Dropdowns") return;
     const sheetName = tabName.toLowerCase().trim();
-    const templateSheet = _.get(rawTemplate, ["Sheets", tabName]);
+    const templateSheet = _.get(xlsxTemplate, ["Sheets", tabName]);
     objAoaSheets[sheetName] = sheetToJson(templateSheet);
     console.log(`loadTemplate is loading ${sheetName}:`);
   });
-  return { template: rawTemplate, templateSheets: objAoaSheets };
+  return { template: xlsxTemplate, templateSheets: objAoaSheets };
 }
 
 function loadDropdownValues(dropdownTab) {

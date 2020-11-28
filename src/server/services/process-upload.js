@@ -16,6 +16,7 @@ const { ValidationLog } = require("../lib/validation-log");
 const { validateData } = require("./validate-data");
 const {
   parseSpreadsheet,
+  removeSourceRow,
   spreadsheetToDocuments
 } = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
@@ -64,6 +65,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   }
 
   documents = await deduplicate(documents);
+  documents = removeSourceRow(documents);
 
   try {
     await fileInterface.writeFileCarefully(filename, data);

@@ -60,8 +60,11 @@ function isSum(columns) {
       0.0
     );
     val = Number(val) || 0; // can come in as a string
+    val = _.round(val,2);
     sum = _.round(sum,2);   // parseFloat returns junk in the 11th decimal place
-
+    if (val !== sum ) {
+      console.log(`val is ${val}, sum is ${sum}`);
+    }
     return val == sum;
   };
 }
@@ -172,12 +175,12 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
 function validateDocuments(tab, validations) {
   return function(groupedDocuments, validateContext) {
     const documents = groupedDocuments[tab];
-    return _.flatMap(documents, ({ content }, row) => {
+    return _.flatMap(documents, ({ content, sourceRow }) => {
       return validateFields(
         validations,
         content,
         tab,
-        row + 2,
+        sourceRow,
         validateContext
       );
     });
