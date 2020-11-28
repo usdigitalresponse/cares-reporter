@@ -18,6 +18,9 @@
         <a class="ml-5" href="#" @click="cancelEditDocument">Cancel</a>
       </div>
     </form>
+    <div class="mt-3 alert alert-danger" v-if="errorMessage">
+      {{ errorMessage }}
+    </div>
     <div
       :key="n"
       v-for="(message, n) in validationMessages"
@@ -48,7 +51,8 @@ export default {
     onSave: Function,
     onCancel: Function,
     onDone: Function,
-    foreignKeyValues: Function
+    foreignKeyValues: Function,
+    errorMessage: String
   },
   components: {
     FormGroups
@@ -68,18 +72,22 @@ export default {
       editorRecord
     };
   },
-  watch: {},
+  watch: {
+    record: function(r) {
+      this.editorRecord = r;
+    }
+  },
   methods: {
     columnTitle,
     titleize,
     validate,
-    doSubmit(e) {
+    doSubmit: async function(e) {
       e.preventDefault();
       this.saving = true;
       this.buttonLabel = `${this.isNew ? "Creating" : "Updating"} ${titleize(
         singular(this.type)
       )}...`;
-      Promise.resolve(this.validate(this.columns, this.editorRecord))
+      return Promise.resolve(this.validate(this.columns, this.editorRecord))
         .then(({ validatedRecord, messages }) => {
           this.validationMessages = messages;
           if (_.isEmpty(messages)) {
@@ -87,9 +95,8 @@ export default {
           } else {
             return false;
           }
-          // FIXME should there be positive confirmation that a record was written?
         })
-        .then(() => {
+        .finally(() => {
           this.buttonLabel = `${this.isNew ? "Create" : "Update"} ${titleize(
             singular(this.type)
           )}`;
@@ -98,23 +105,11 @@ export default {
     },
     saveRecord(record) {
       if (_.isFunction(this.onSave)) {
-        return this.onSave(record).then(() => {
-          if (_.isFunction(this.onDone)) {
-            return this.onDone();
-          } else {
-            this.$router.push({ path: this.nextPath() });
-          }
-        });
+        return Promise.resolve(this.onSave(record)).finally(
+          () => (this.saving = false)
+        );
       }
-    },
-    nextPath() {
-      const query = this.$route.query;
-      // if we got here from parent document, go back there
-      if (query.back && query.id) {
-        return `/documents/${query.back}/${query.id}`;
-      }
-      // otherwise, just go to the list of documents of this type
-      return `/documents/${this.type}`;
+      return Promise.resolve(null);
     },
     cancelEditDocument(e) {
       e.preventDefault();

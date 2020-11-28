@@ -39,6 +39,25 @@ export function postForm(url, formData) {
   return fetch(url, options);
 }
 
+export function put(url, body) {
+  const options = {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  };
+  return fetch(url, options).then(r => {
+    if (r.ok) {
+      return r.json();
+    }
+    return r
+      .text()
+      .then(text => Promise.reject(new Error(text ? text : r.statusText)));
+  });
+}
+
 export default new Vuex.Store({
   state: {
     user: null,
@@ -91,6 +110,12 @@ export default new Vuex.Store({
         "email"
       );
     },
+    updateUser(state, user) {
+      state.configuration.users = _.chain(state.configuration.users)
+        .map(u => (user.id == u.id ? user : u))
+        .sortBy("email")
+        .value();
+    },
     addMessage(state, message) {
       state.messages = [...state.messages, message];
     }
@@ -142,6 +167,11 @@ export default new Vuex.Store({
     createUser({ commit }, user) {
       return post("/api/users", user).then(response => {
         commit("addUser", response.user);
+      });
+    },
+    updateUser({ commit }, user) {
+      return put(`/api/users/${user.id}`, user).then(() => {
+        commit("updateUser", user);
       });
     },
     createUpload({ commit }, formData) {

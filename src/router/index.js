@@ -8,7 +8,6 @@ import Home from "../views/Home.vue";
 import ImportFile from "../views/ImportFile.vue";
 import Login from "../views/Login.vue";
 import NewUpload from "../views/NewUpload.vue";
-import NewUser from "../views/NewUser.vue";
 import Project from "../views/Project.vue";
 import Projects from "../views/Projects.vue";
 import Upload from "../views/Upload.vue";
@@ -58,6 +57,12 @@ const routes = [
     meta: { requiresLogin: true }
   },
   {
+    path: "/new_agency",
+    name: "NewAgency",
+    component: Agency,
+    meta: { requiresLogin: true }
+  },
+  {
     path: "/agencies/:id",
     name: "Agency",
     component: Agency,
@@ -67,6 +72,12 @@ const routes = [
     path: "/projects",
     name: "Projects",
     component: Projects,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/new_project",
+    name: "NewProject",
+    component: Project,
     meta: { requiresLogin: true }
   },
   {
@@ -84,7 +95,7 @@ const routes = [
   {
     path: "/new_user",
     name: "NewUser",
-    component: NewUser,
+    component: User,
     meta: { requiresLogin: true }
   },
   {

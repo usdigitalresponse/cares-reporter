@@ -43,9 +43,14 @@ router.put("/:id", requireAdminUser, async function(req, res, next) {
     res.status(400).send("User email is required");
     return;
   }
-  const agency = await agencyById(agency_id);
-  if (!agency) {
-    res.status(400).send("Invalid agency");
+  if (agency_id) {
+    const agency = await agencyById(agency_id);
+    if (!agency) {
+      res.status(400).send("Invalid agency");
+      return;
+    }
+  } else if (role != "admin") {
+    res.status(400).send("Reporter role required agency");
     return;
   }
   user = {
