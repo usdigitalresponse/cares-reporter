@@ -9,7 +9,7 @@ const {
   documentsForAgency,
   createDocument
 } = require("../db");
-const _ = require('lodash');
+const _ = require("lodash");
 
 function formatDates(document) {
   const keys = _.keys(document.content);

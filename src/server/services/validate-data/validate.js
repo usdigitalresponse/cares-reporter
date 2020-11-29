@@ -78,7 +78,7 @@ function isValidSubrecipient(val, content, { subrecipientsHash }) {
 }
 
 function isUnitedStates(value) {
-  return value == "usa" || value == "united states"
+  return value == "usa" || value == "united states";
 }
 function isValidState(val, content) {
   return (

@@ -15,6 +15,7 @@
 <script>
 import DataTable from "../components/DataTable";
 import ProjectLink from "../components/ProjectLink";
+import _ from "lodash";
 export default {
   name: "Projects",
   components: {
@@ -35,6 +36,7 @@ export default {
           { name: "code", label: "Project Code" },
           { name: "name" },
           { name: "agency_code", label: "Agency Code" },
+          { name: "number_of_uploads", label: "Number of Uploads" },
           { component: ProjectLink }
         ]
       }
@@ -47,7 +49,17 @@ export default {
   },
   computed: {
     projects: function() {
-      return this.$store.state.projects;
+      const byId = _.keyBy(this.$store.state.projects, "id");
+      const uploads = _.groupBy(this.$store.state.uploads, u => {
+        const project = byId[u.project_id];
+        return _.get(project, "code", "");
+      });
+      return _.map(this.$store.state.projects, p => {
+        return {
+          ...p,
+          number_of_uploads: _.get(uploads, p.code, []).length
+        };
+      });
     }
   }
 };
