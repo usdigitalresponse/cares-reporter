@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  name: "EditLink",
+  name: "ProjectLink",
   props: {
     row: Object
   }
