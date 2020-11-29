@@ -10,6 +10,7 @@ import Login from "../views/Login.vue";
 import NewUpload from "../views/NewUpload.vue";
 import Project from "../views/Project.vue";
 import Projects from "../views/Projects.vue";
+import ProjectUploads from "../views/ProjectUploads.vue";
 import Upload from "../views/Upload.vue";
 import User from "../views/User.vue";
 import Users from "../views/Users.vue";
@@ -84,6 +85,12 @@ const routes = [
     path: "/projects/:id",
     name: "Project",
     component: Project,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: "/project_uploads/:id",
+    name: "ProjectUploads",
+    component: ProjectUploads,
     meta: { requiresLogin: true }
   },
   {

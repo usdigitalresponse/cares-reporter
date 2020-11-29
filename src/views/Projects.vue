@@ -15,6 +15,7 @@
 <script>
 import DataTable from "../components/DataTable";
 import ProjectLink from "../components/ProjectLink";
+import ProjectUploadsLink from "../components/ProjectUploadsLink";
 import _ from "lodash";
 export default {
   name: "Projects",
@@ -33,7 +34,7 @@ export default {
           }
         ],
         columns: [
-          { name: "code", label: "Project Code" },
+          { label: "Project Code", component: ProjectUploadsLink },
           { name: "name" },
           { name: "agency_code", label: "Agency Code" },
           { name: "number_of_uploads", label: "Number of Uploads" },
