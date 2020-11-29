@@ -28,10 +28,12 @@ import _ from "lodash-checkit";
 export default {
   name: "Login",
   data: function() {
+    const message = this.$route.query.message;
+    let messageClass = message ? "alert alert-danger" : "";
     return {
       email: "",
-      message: null,
-      messageClass: ""
+      message,
+      messageClass
     };
   },
   methods: {

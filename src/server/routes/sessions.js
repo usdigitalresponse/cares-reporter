@@ -9,13 +9,21 @@ const {
 } = require("../db");
 const { sendPasscode } = require("../lib/email");
 
+function isExpired(expires) {
+  const now = new Date();
+  return now > expires;
+}
+
 router.get("/", function(req, res) {
   const { passcode } = req.query;
   if (passcode) {
     accessToken(passcode).then(token => {
       if (!token) {
-        console.log("invalid passcode");
-        res.redirect("/login");
+        res.redirect(`/login?message=${encodeURIComponent("Invalid access token")}`);
+      } else if (isExpired(token.expires)) {
+        res.redirect(`/login?message=${encodeURIComponent("Access token has expired")}`);
+      } else if (token.used) {
+        res.redirect(`/login?message=${encodeURIComponent("Access token has already been used")}`);
       } else {
         markAccessTokenUsed(passcode).then(() => {
           res.cookie("userId", token.user_id, { signed: true });
