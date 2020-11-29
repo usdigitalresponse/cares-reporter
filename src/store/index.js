@@ -294,7 +294,6 @@ export default new Vuex.Store({
       return _.find(state.reportingPeriods, { id });
     },
     reportingTemplate: state => {
-      console.log("reportingTemplate:", state.applicationSettings);
       return (
         state.applicationSettings.reporting_template || "empty-template.xlsx"
       );

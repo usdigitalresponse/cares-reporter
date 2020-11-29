@@ -4,7 +4,7 @@ const { requireUser } = require("../access-helpers");
 const { user: getUser, users: getUsers, roles: getRoles } = require("../db");
 const { getTemplateSheets } = require("../services/get-template");
 const { makeConfig, makeTables, makeTemplate } = require("../lib/config");
-const _ = require('lodash');
+const _ = require("lodash");
 
 router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
@@ -13,7 +13,7 @@ router.get("/", requireUser, async function(req, res) {
   const config = makeConfig(getTemplateSheets());
   const tables = _.map(makeTables(config), t => {
     if (t.name === "aggregate awards < 50000") {
-      t.content.columns.unshift({name:"project_code"});
+      t.content.columns.unshift({ name:"project_code" });
     }
     return t;
   });
