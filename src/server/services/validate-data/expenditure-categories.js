@@ -16,7 +16,6 @@ const expenditureCategories = [
   "workers’ compensation",
   "expenses associated with the issuance of tax anticipation notes",
   "administrative expenses",
-  "other expenditure categories",
   "other expenditure amount"
 ];
 
