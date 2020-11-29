@@ -1,5 +1,6 @@
 <template>
-  <DataTable v-if="uploads" :table="table" :rows="rows" :user="user" />
+  <DataTable v-if="hasUploads" :table="table" :rows="rows" :user="user" />
+  <span v-else>No uploads</span>
 </template>
 
 <script>
@@ -9,7 +10,8 @@ import moment from "moment";
 export default {
   name: "UploadHistory",
   props: {
-    uploads: Array
+    uploads: Array,
+    views: Array
   },
   components: {
     DataTable
@@ -19,12 +21,7 @@ export default {
     return {
       user,
       table: {
-        views: [
-          {
-            name: "Group by Agency",
-            groupBy: "agency"
-          }
-        ],
+        views: this.views,
         columns: [
           { name: "filename" },
           { name: "agency" },
@@ -44,6 +41,9 @@ export default {
           uploaded: this.fromNow(u.created_at)
         };
       });
+    },
+    hasUploads() {
+      return this.uploads && this.uploads.length > 0;
     }
   },
   methods: {
