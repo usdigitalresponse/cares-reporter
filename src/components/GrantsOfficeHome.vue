@@ -59,7 +59,7 @@
       </div>
       <div class="row">
         <div class="col-12">
-          <UploadHistory :uploads="uploads" />
+          <UploadHistory :uploads="uploads" :views="uploadHistoryViews" />
         </div>
       </div>
     </div>
@@ -75,6 +75,16 @@ export default {
   name: "GrantsOfficeHome",
   components: {
     UploadHistory
+  },
+  data() {
+    return {
+      uploadHistoryViews:  [
+        {
+          name: "Group by Agency",
+          groupBy: "agency"
+        }
+      ]
+    };
   },
   computed: {
     currentReportingPeriod: function() {

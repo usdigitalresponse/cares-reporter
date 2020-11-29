@@ -4,8 +4,6 @@ const _ = require("lodash");
 function uploads() {
   return knex("uploads")
     .select("*")
-    .join("users", "uploads.user_id", "=", "users.id")
-    .select("uploads.*", "users.agency_id")
     .orderBy("uploads.created_at", "desc");
 }
 
