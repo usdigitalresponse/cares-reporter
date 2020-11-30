@@ -22,8 +22,6 @@ router.get("/", function(req, res) {
         res.redirect(`/login?message=${encodeURIComponent("Invalid access token")}`);
       } else if (isExpired(token.expires)) {
         res.redirect(`/login?message=${encodeURIComponent("Access token has expired")}`);
-      } else if (token.used) {
-        res.redirect(`/login?message=${encodeURIComponent("Access token has already been used")}`);
       } else {
         markAccessTokenUsed(passcode).then(() => {
           res.cookie("userId", token.user_id, { signed: true });
