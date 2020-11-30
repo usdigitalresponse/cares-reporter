@@ -28,7 +28,7 @@ import _ from "lodash-checkit";
 export default {
   name: "Login",
   data: function() {
-    const message = this.$route.query.message;
+    const message = _.get(this, "$route.query.message", null);
     let messageClass = message ? "alert alert-danger" : "";
     return {
       email: "",
