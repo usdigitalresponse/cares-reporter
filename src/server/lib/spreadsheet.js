@@ -341,7 +341,23 @@ function getCategorySheet(
 
     let written = false;
 
-    // this conditional is to address issue #22
+    /* this conditional is to address issue #22
+      Michael here is some additional background regarding the Loans tab
+      from our internal perspective this note below summarizes our
+      discussion from this morning among the RI team:
+
+      Treasury is treating loans differently than all other categories,
+      with expenditures referring to repayments by the borrower, with those
+      repayment values put in expenditure categories.  Since the RI loan
+      program is forgivable, with no true repayments (just return of funds
+      not used for the intended purpose), the Total Payment Amount and
+      Expenditure Categories should be blank.  As these loans are forgiven,
+      they will show up on the grants tab with expenditure
+      amounts/categories.  Convoluted, but not totally irrational…
+
+      Your proposed solution solves the issue and we will also refine our
+      guidance for future reporting cycles to our agencies.
+    */
     if (sheetName !== "Loans" || jsonRow["total payment amount"]) {
       written = addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut );
     }
