@@ -322,94 +322,35 @@ function getProjectsSheet(sheetRecords, columns) {
   return rows;
 }
 
+/*  getCategorySheet() handles sheets whose source rows have to be broken
+  down into multiple detail rows by expense category.
+  */
 function getCategorySheet(
   sheetName,
   sheetRecords,  // an array of document records
-  arrColumnNames // an array of output column names
+  outputColumnNames // an array of output column names
 ) {
-  // columnOrds is a kv where K is output column name, V is the ord of the
-  // column in the sheet
-  let columnOrds = {};
-  for ( let i = 0; i<arrColumnNames.length; i++ ) {
-    columnOrds[arrColumnNames[i]] = i;
-  }
+  let outputColumnOrds = getColumnOrds(outputColumnNames);
+  let expColumnOrd = getExpenditureColumnOrds(sheetName, outputColumnOrds);
 
   let rowsOut = [];
 
-  let columnOrd ={};
-  Object.keys(expenditureColumnNames[sheetName]).forEach( col => {
-    let columnName = expenditureColumnNames[sheetName][col];
-    // console.log(`Sheet ${sheetName}, col ${col} is ${columnName}, ord is ${columnOrds[columnName]}`)
-    columnOrd[col] = columnOrds[columnName];
-  });
-
   sheetRecords.forEach(jsonRecord => {
     let jsonRow = jsonRecord.content; // see exports.js/deduplicate()
-    let arrRow =[];
+    let arrRow = populateCommonFields(outputColumnNames, outputColumnOrds, jsonRow);
 
-    // populate the common fields
-    arrColumnNames.forEach(columnName => {
-      let cellValue = jsonRow[columnNameMap[columnName]];
-      if ( cellValue ) {
-        switch (columnTypeMap[columnName] ) {
-          case "string":
-            arrRow[columnOrds[columnName]] = String(cellValue);
-            break;
-          default:
-            arrRow[columnOrds[columnName]] = cellValue;
-            break;
-        }
-      }
-    } );
+    let written = false;
 
-    let written = 0;
-    Object.keys(jsonRow).forEach(key => {
-      let amount = Number(jsonRow[key]);
-      // ignore categories with zero expenditures
-      if ( !amount ) {
-        return;
-      }
+    // this conditional is to address issue #22
+    if (sheetName !== "Loans" || jsonRow["total payment amount"]) {
+      written = addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut );
+    }
 
-      let category = categoryMap[key] || null ;
-      let destRow = arrRow.slice();
-
-      switch (category) {
-        case null:
-        break;
-
-        case "Category Description":
-          // ignore for now, we will populate it when we get to
-          // "Other Expenditure Amount"
-          break;
-
-        case "Items Not Listed Above":
-          // If the column "other expenditure amount" is occupied in the
-          // input row, put that amount in the Cost or Expenditure Amount
-          // column, put "Items Not Listed Above" in the "Cost or
-          // Expenditure Category" (or "Loan Category") column, and put the
-          // contents of the "other expenditure categories" column in the
-          // the "Category Description" column.
-          destRow[columnOrd.amount] = amount;
-          destRow[columnOrd.category] = categoryMap[key];
-          destRow[columnOrd.description] = jsonRow[categoryDescriptionSourceColumn];
-          rowsOut.push(destRow);
-          written +=1;
-          break;
-
-        default: {
-          destRow[columnOrd.amount] = amount;
-          destRow[columnOrd.category] = categoryMap[key];
-          rowsOut.push(destRow);
-          written += 1;
-          break;
-        }
-      }
-    });
     if (!written){
       // write a row even if there has been no activity in this period
-      delete arrRow[columnOrd.project];
-      delete arrRow[columnOrd.start];
-      delete arrRow[columnOrd.end];
+      delete arrRow[expColumnOrd.project];
+      delete arrRow[expColumnOrd.start];
+      delete arrRow[expColumnOrd.end];
       rowsOut.push(arrRow);
     }
   });
@@ -530,6 +471,109 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
       return jsonRow[columnNameMap[columnName]] || null;
     });
   });
+}
+
+/* getColumnOrds returns a kv where
+  K = the destination column name,
+  V = the ord of the column in the output sheet
+  */
+function getColumnOrds( arrColumnNames ){
+  let columnOrds = {};
+  for ( let i = 0; i<arrColumnNames.length; i++ ) {
+    columnOrds[arrColumnNames[i]] = i;
+  }
+  return columnOrds;
+}
+
+/* getExpenditureColumnOrds() returns a kv where
+  K = the generic name of an expenditure column (e.g. "amount")
+  V = the actual name of that column for a particular sheet (e.g. "Payment Amount")
+  see field-name-mappings.js
+  */
+function getExpenditureColumnOrds(sheetName, columnOrds) {
+  let expColumnOrd ={};
+  Object.keys(expenditureColumnNames[sheetName]).forEach( key => {
+    let columnName = expenditureColumnNames[sheetName][key];
+    console.log(
+      `Sheet ${sheetName}, key ${key} is ${columnName}, ` +
+      `ord is ${columnOrds[columnName]}`
+    );
+    expColumnOrd[key] = columnOrds[columnName];
+  });
+  return expColumnOrd;
+}
+
+/* populateCommonFields() returns an AOA row array populated with the fields
+  common to all the detail rows.
+  */
+function populateCommonFields(outputColumnNames, outputColumnOrds, jsonRow){
+  let arrRow =[];
+  outputColumnNames.forEach(columnName => {
+    let cellValue = jsonRow[columnNameMap[columnName]];
+    if ( cellValue ) {
+      switch (columnTypeMap[columnName] ) {
+        case "string":
+          arrRow[outputColumnOrds[columnName]] = String(cellValue);
+          break;
+        default:
+          arrRow[outputColumnOrds[columnName]] = cellValue;
+          break;
+      }
+    }
+  } );
+  return arrRow;
+}
+
+/*  addDetailRows() adds one row to the rowsOut array for each occupied
+  category field in the jsonRow
+  */
+function addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut ) {
+  let written = false;
+  Object.keys(jsonRow).forEach(key => {
+    // keys are the detail category field names in the source jsonRow
+    let amount = Number(jsonRow[key]);
+
+    // ignore categories with zero expenditures
+    if ( !amount ) {
+      return;
+    }
+
+    let category = categoryMap[key] || null ;
+    let destRow = arrRow.slice();
+
+    switch (category) {
+      case null:
+      break;
+
+      case "Category Description":
+        // ignore for now, we will populate it when we get to
+        // "Other Expenditure Amount"
+        break;
+
+      case "Items Not Listed Above":
+        // If the column "other expenditure amount" is occupied in the
+        // input row, put that amount in the Cost or Expenditure Amount
+        // column, put "Items Not Listed Above" in the "Cost or
+        // Expenditure Category" (or "Loan Category") column, and put the
+        // contents of the "other expenditure categories" column in the
+        // the "Category Description" column.
+        destRow[expColumnOrd.amount] = amount;
+        destRow[expColumnOrd.category] = categoryMap[key];
+        destRow[expColumnOrd.description] = jsonRow[categoryDescriptionSourceColumn];
+        rowsOut.push(destRow);
+        written = true;
+        break;
+
+      default: {
+        destRow[expColumnOrd.amount] = amount;
+        destRow[expColumnOrd.category] = categoryMap[key];
+        rowsOut.push(destRow);
+        written = true;
+        break;
+      }
+    }
+  });
+  return written;
 }
 
 

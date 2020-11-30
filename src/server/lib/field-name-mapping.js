@@ -29,7 +29,7 @@ const sheetNameAliases = {
   subrecipients: "subrecipient"
 };
 
-/*  columnNameMap keys are column names in the Treasury Output Workbook,
+/* columnNameMap keys are column names in the Treasury Output Workbook,
   values are the column names in the Agency Input Workbooks, forced
   to lower case by getTemplateSheets()
 */
@@ -77,7 +77,7 @@ const columnNameMap = {
   "Obligation Date": "obligation date",
   "Obligation Project": "project id",
   "Organization Type": "organization type",
-  "Payment Amount": "payment amount",
+  // "Payment Amount": "total payment amount",
   "Payment Date": "payment date",
   "Payment Project": "project id",
   "Period of Performance End Date": "period of performance end date",
@@ -300,7 +300,6 @@ const expenditureColumnNames = {
     project: "Expenditure Project",
     start: "Expenditure Start Date",
     end: "Expenditure End Date"
-
   },
   Loans: {
     amount: "Payment Amount",
