@@ -5,7 +5,6 @@ const { requireUser } = require("../access-helpers");
 const {
   user: getUser,
   documentsWithProjectCode,
-  documents: getDocuments,
   documentsForAgency,
   createDocument
 } = require("../db");
