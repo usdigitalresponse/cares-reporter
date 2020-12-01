@@ -127,24 +127,24 @@ const columnTypeMap = {
   "Address Line 1": "string",
   "Address Line 2": "string",
   "Address Line 3": "string",
-  "Award Amount": "number",
+  "Award Amount": "amount",
   "Award Date": "date",
   "Award Description": "string",
   "Award Number": "string",
   "Award Payment Method": "string",
   "Category Description": "string",
   "City Name": "string",
-  "Contract Amount": "number",
+  "Contract Amount": "amount",
   "Contract Date": "date",
   "Contract Description": "string",
   "Contract Number": "string",
   "Contract Type": "string",
-  "Cost or Expenditure Amount": "number",
+  "Cost or Expenditure Amount": "amount",
   "Cost or Expenditure Category": "string",
   "Country Name": "string",
-  "Current Quarter Expenditure": "number",
-  "Current Quarter Expenditure/Payments": "number",
-  "Current Quarter Obligation": "number",
+  "Current Quarter Expenditure": "amount",
+  "Current Quarter Expenditure/Payments": "amount",
+  "Current Quarter Obligation": "amount",
   "Description": "string",
   "DUNS Number": "string",
   "Expenditure End Date": "date",
@@ -154,18 +154,18 @@ const columnTypeMap = {
   "Identification Number": "string",
   "Is awardee complying with terms and conditions of the grant?": "string",
   "Legal Name": "string",
-  "Loan Amount": "number",
+  "Loan Amount": "amount",
   "Loan Category": "string",
   "Loan Date": "date",
   "Loan Description": "string",
   "Loan Expiration Date": "date",
   "Loan Number": "string",
   "Non-Compliance Explanation": "string",
-  "Obligation Amount": "number",
+  "Obligation Amount": "amount",
   "Obligation Date": "date",
   "Obligation Project": "string",
   "Organization Type": "string",
-  "Payment Amount": "number",
+  "Payment Amount": "amount",
   "Payment Date": "date",
   "Payment Project": "string",
   "Period of Performance End Date": "date",
@@ -192,9 +192,9 @@ const columnTypeMap = {
   "Sub-Recipient Organization (Awardee)": "string",
   "Sub-Recipient Organization (Borrower)": "string",
   "Sub-Recipient Organization (Transferee/Government Unit)":"string",
-  "Transfer Amount": "number",
+  "Transfer Amount": "amount",
   "Transfer Date": "date",
-  "Transfer Number": "number",
+  "Transfer Number": "amount",
   "Transfer Type": "string",
   "Will these payments be repurposed for Future Use?":"string",
   "Zip+4": "string"
@@ -233,6 +233,8 @@ const columnAliases = {
 // In the Treasury data output spreadsheet each of these dollar amounts is
 // given a row of its own, and a category. The category is found in this
 // categoryMap, keyed by the input spreadsheet column name.
+//
+// See also src/server/services/validate-data/expenditure-categories.js
 //
 // List from Treasury Data Dictionary
 //   Administrative Expenses
@@ -327,6 +329,45 @@ const expenditureColumnNames = {
   }
 };
 
+/* subrecipientOrganizationType maps a change in the 20 11 30  treasury
+  template - issue #81
+  */
+// prettier-ignore
+const organizationTypeMap =
+{
+  "State Government": "State Government",
+  "County Government": "County Government",
+  "City or Township Government": "City or Township Government",
+  "Special District Government": "Special District Government",
+  "Independent School District": "Independent School District",
+  "Public/State Controlled Institution of Higher Education":
+    "Public/State Controlled Institution of Higher Education",
+  "Indian/Native American Tribal Government (Federally Recognized)":
+    "Indian/Native American Tribal Government (Federally Recognized)",
+  "Indian/Native American Tribal Designated Organization":
+    "Indian/Native American Tribal Designated Organization",
+  "Public/Indian Housing Authority": "Public/Indian Housing Authority",
+  "Nonprofit with 501C3 IRS Status (Other than IHE)":
+    "Nonprofit with 501C3 IRS Status (Other than an Institution of Higher Education)",
+  "Nonprofit without 501C3 IRS Status (Other than IHE)":
+    "Nonprofit without 501C3 IRS Status (Other than an Institution of Higher Education)",
+  "Private Institution of Higher Education":
+    "Private Institution of Higher Education",
+  "For-Profit Organization (Other than Small Business)":
+    "For-Profit Organization (Other than Small Business)",
+  "Small Business": "Small Business",
+  "Hispanic-serving Institution": "Hispanic-serving Institution",
+  "Historically Black College or University (HBCU)":
+    "Historically Black College or University (HBCU)",
+  "Tribally Controlled College or University (TCCU)":
+    "Tribally Controlled College or University (TCCU)",
+  "Alaska Native and Native Hawaiian Serving Institutions":
+    "Alaska Native and Native Hawaiian Serving Institutions",
+  "Non-domestic (non-U.S.) Entity":
+    "Non-domestic (non-U.S.) Entity",
+  "Other": "Other"
+};
+
 module.exports = {
   categoryDescriptionSourceColumn,
   categoryMap,
@@ -334,6 +375,7 @@ module.exports = {
   columnAliases,
   columnNameMap,
   columnTypeMap,
+  organizationTypeMap,
   sheetNameAliases,
   sheetNameMap
 };

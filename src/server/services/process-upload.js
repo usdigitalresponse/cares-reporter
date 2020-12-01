@@ -16,7 +16,7 @@ const { ValidationLog } = require("../lib/validation-log");
 const { validateData } = require("./validate-data");
 const {
   parseSpreadsheet,
-  removeSourceRow,
+  removeSourceRowField,
   spreadsheetToDocuments
 } = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
@@ -51,7 +51,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   const {
     documents: spreadsheetDocuments,
     valog: docValog
-  } = spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
+  } = await spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
   valog.append(docValog);
 
   let documents = removeEmptyDocuments(spreadsheetDocuments);
@@ -65,7 +65,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   }
 
   documents = await deduplicate(documents);
-  documents = removeSourceRow(documents);
+  documents = removeSourceRowField(documents);
 
   try {
     await fileInterface.writeFileCarefully(filename, data);
