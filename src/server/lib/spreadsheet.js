@@ -2,7 +2,10 @@
 const XLSX = require("xlsx");
 const _ = require("lodash");
 const { ValidationItem } = require("./validation-log");
-const { applicationSettings, currentReportingPeriod } = require("../db");
+const { applicationSettings,
+  currentReportingPeriod
+} = require("../db");
+
 const fixCellFormats = require("../services/fix-cell-formats");
 const {
   categoryDescriptionSourceColumn,
@@ -11,6 +14,7 @@ const {
   columnAliases,
   columnNameMap,
   columnTypeMap,
+  organizationTypeMap,
   sheetNameAliases,
   sheetNameMap
 } = require("./field-name-mapping");
@@ -69,6 +73,7 @@ function sheetToJson(sheet, toLower = true) {
 function parseSpreadsheet(workbook, templateSheets) {
   const valog = [];
 
+  // fix the sheet names
   const normalizedSheets = _.mapKeys(workbook.Sheets, (sheet, sheetName) => {
     return (
       sheetNameAliases[sheetName.toLowerCase().trim()]
@@ -76,6 +81,7 @@ function parseSpreadsheet(workbook, templateSheets) {
     );
   });
 
+  // convert the sheets from xlsx format to AOA format
   const parsedWorkbook = _.mapValues(
     normalizedSheets || {},
     sheet => {
@@ -123,49 +129,74 @@ function parseSpreadsheet(workbook, templateSheets) {
         <column A title>:<cell contents>,
         <column B title>:<cell contents>,
         ...
-      }
+      },
+      sourceRow: this is a temporary field for error logging that is not
+                  not written to the database
     }
   */
-function spreadsheetToDocuments(
+async function spreadsheetToDocuments(
   spreadsheet, // { <sheet name>:<two dimensional array>, ... }
   user_id,
   templateSheets
 ) {
   const valog = [];
   const documents = [];
+
   _.forIn(templateSheets, (templateSheet, type) => {
     const sheet = spreadsheet[type];
     // This case noted as a validation error in `parseSpreadsheet`
     // but allow for checking of additional errors.
     if (!sheet) return;
-    // These two are never needed for uploads.
-    if (["Summary", "Dropdowns"].includes(type)) return;
-    // These are mostly ignored, but may have some specific validations.
-    if (type === "Cover") return;
-    if (type === "Projects") return;
-    if (type === "Agencies") return;
-    // Mark any columns not in the template to be ignored
-    const cols = sheet[0].map(col => {
-      return templateSheet[0].includes(col) ? col : "ignore";
-    });
-    sheet.slice(1).forEach((row, i) => {
-      if (row.length === 0) return;
-      documents.push({
-        type,
-        user_id,
-        content: _.omit(_.zipObject(cols, row), ["ignore"]),
-        sourceRow:i+2 // one-based, not zero-based, and title row was omitted
+
+    let sheetName = type.trim().toLowerCase();
+
+    switch (sheetName) {
+    case "subrecipient":
+    case "certification":
+    case "cover":
+    case "projects":
+    case "contracts":
+    case "grants":
+    case "loans":
+    case "transfers":
+    case "direct":
+    case "aggregate awards < 50000":
+    case "aggregate payments individual": {
+
+      // Mark any columns not in the template to be ignored
+      const cols = sheet[0].map(col => {
+        return templateSheet[0].includes(col) ? col : "ignore";
       });
-    });
+
+      sheet.slice(1).forEach((row, i) => {
+        if (row.length === 0) return;
+        let jsonRow = _.omit(_.zipObject(cols, row), ["ignore"]);
+        if (sheetName === "subrecipient" && jsonRow["duns number"]) {
+          // populate the identification number field for easier deduplication
+          jsonRow["identification number"] = `DUNS${jsonRow["duns number"]}`;
+        }
+        documents.push({
+          type,
+          user_id,
+          content: jsonRow,
+          sourceRow:i+2 // one-based, not zero-based, and title row was omitted
+        });
+      });
+    }
+    break;
+
+    default:
+      return;
+    }
   });
   return { documents, valog };
 }
 
-/*  removeSourceRow() removes the sourceRow field we put into the document
+/*  removeSourceRowField() removes the sourceRow field we put into the document
   record to preserve the source row for validation reporting. We need to
   get rid of it before attempting to write the document to the db
   */
-function removeSourceRow(documents){
+function removeSourceRowField(documents){
   return documents.map(document=>{
     delete document.sourceRow;
     return document;
@@ -229,6 +260,7 @@ async function createTreasuryOutputWorkbook(
     // console.log(`Composing outputSheet ${outputSheetName}`)
     let outputColumnNames = outputSheetSpec.columns;
     // console.log(`Column names are ${outputColumnNames}`)
+
     // sometimes tabs are empty!
     let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || [];
     console.dir(`Processing ${sheetRecords.length} ${outputSheetName} records`);
@@ -341,7 +373,23 @@ function getCategorySheet(
 
     let written = false;
 
-    // this conditional is to address issue #22
+    /* this conditional is to address issue #22
+      Michael here is some additional background regarding the Loans tab
+      from our internal perspective this note below summarizes our
+      discussion from this morning among the RI team:
+
+      Treasury is treating loans differently than all other categories,
+      with expenditures referring to repayments by the borrower, with those
+      repayment values put in expenditure categories.  Since the RI loan
+      program is forgivable, with no true repayments (just return of funds
+      not used for the intended purpose), the Total Payment Amount and
+      Expenditure Categories should be blank.  As these loans are forgiven,
+      they will show up on the grants tab with expenditure
+      amounts/categories.  Convoluted, but not totally irrational…
+
+      Your proposed solution solves the issue and we will also refine our
+      guidance for future reporting cycles to our agencies.
+    */
     if (sheetName !== "Loans" || jsonRow["total payment amount"]) {
       written = addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut );
     }
@@ -455,9 +503,15 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
   return _.map(sheetRecords, jsonRecord => {
     let jsonRow = jsonRecord.content;
 
+    // fix issue #81
+    let organizationType = jsonRow["organization type"];
+    jsonRow["organization type"] = organizationTypeMap[organizationType];
+
     // Treasury Data Dictionary says that if there is a DUNS number the ID
     // field should be empty. But we have some records where the DUNS number
     // field is occupied by junk, so we should ignore that.
+    // Also, for easier deduplication, we keep a copy of the DUNS number in
+    // the identification number field, so we remove that copy here.
     if ( jsonRow[dunsSourceName] ) {
       if (/^\d{9}$/.exec(jsonRow[dunsSourceName])){ // check for correct format
         delete jsonRow[idSourceName];
@@ -511,10 +565,17 @@ function populateCommonFields(outputColumnNames, outputColumnOrds, jsonRow){
   outputColumnNames.forEach(columnName => {
     let cellValue = jsonRow[columnNameMap[columnName]];
     if ( cellValue ) {
+
       switch (columnTypeMap[columnName] ) {
         case "string":
           arrRow[outputColumnOrds[columnName]] = String(cellValue);
           break;
+
+        case "amount":
+          cellValue = Number(cellValue) || 0;
+          arrRow[outputColumnOrds[columnName]] = _.round(cellValue, 2);
+          break;
+
         default:
           arrRow[outputColumnOrds[columnName]] = cellValue;
           break;
@@ -584,7 +645,7 @@ module.exports = {
   uploadFilename,
   createTreasuryOutputWorkbook,
   sheetToJson,
-  removeSourceRow
+  removeSourceRowField
 };
 
 /*                                  *  *  *                                   */

@@ -80,6 +80,7 @@ function isValidSubrecipient(val, content, { subrecipientsHash }) {
 function isUnitedStates(value) {
   return value == "usa" || value == "united states";
 }
+
 function isValidState(val, content) {
   return (
     !isUnitedStates(content["primary place of performance country name"]) ||
@@ -195,9 +196,9 @@ function validateSingleDocument(tab, validations, message) {
     if (documents && documents.length == 1) {
       const { content } = documents[0];
       const row = 2;
-      valog = valog.concat(
-        validateFields(validations, content, tab, row, validateContext)
-      );
+      let results = validateFields(validations, content, tab, row, validateContext);
+      valog = valog.concat(results);
+
     } else {
       valog.push(new ValidationItem({ message, tab }));
     }

@@ -17,7 +17,14 @@ function purgeDuplicateSubrecipients( arrRecords ) {
   arrRecords.forEach( record => {
     switch (record.type) {
       case "subrecipient": {
-        let id = String(record.content["identification number"]);
+        // TODO - as of 20 12 01 we are not putting duplicate records into
+        // the database, but many are already in there, so we need this
+        // until we purge the database.
+        let id = String(
+          record.content["duns number"] ||
+          record.content["identification number"] ||
+          ""
+        );
         if (isDuplicate[id]) {
           return;
 
@@ -28,17 +35,6 @@ function purgeDuplicateSubrecipients( arrRecords ) {
         }
         break;
       }
-
-      // case "cover":
-      // case "certification":
-      // case "projects":
-      // case "contracts":
-      // case "grants":
-      // case "loans":
-      // case "transfers":
-      // case "direct":
-      // case "aggregate awards < 50000":
-      // case "aggregate payments individual":
       default:
         break;
     }
@@ -55,7 +51,8 @@ function documents() {
 function documentsInCurrentReportingPeriod() {
   return currentReportingPeriod().then(reportingPeriod => {
     console.log(
-      `reporting period is ${reportingPeriod.start_date} to ${reportingPeriod.end_date}`
+      `reporting period is ${reportingPeriod.start_date} `+
+      `to ${reportingPeriod.end_date}`
     );
     // TODO!
     // we really need to do periods 1 and 2 together for now ...
