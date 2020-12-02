@@ -83,16 +83,12 @@ function isUnitedStates(value) {
 
 function isValidState(val, content) {
   return (
-    !isUnitedStates(content["primary place of performance country name"]) ||
     dropdownIncludes("state code")(val)
   );
 }
 
 function isValidZip(val, content) {
-  return (
-    !isUnitedStates(content["primary place of performance country name"]) ||
-    /^\d{5}(-\d{4})?$/.test(`${val}`)
-  );
+  return /^\d{5}(-\d{4})?$/.test(`${val}`);
 }
 
 function matchesFilePart(key) {
@@ -124,6 +120,13 @@ function dropdownIncludes(key) {
 function whenBlank(key, validator) {
   return (val, content, context) => {
     return !!content[key] || validator(val, content, context);
+  };
+}
+
+function whenUS(key, validator) {
+  return (val, content, context) => {
+    return !isUnitedStates(content[key]) ||
+      validator(val, content, context);
   };
 }
 
@@ -230,5 +233,6 @@ module.exports = {
   validateFields,
   validateSingleDocument,
   whenBlank,
-  whenGreaterThanZero
+  whenGreaterThanZero,
+  whenUS
 };

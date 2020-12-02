@@ -5,7 +5,8 @@ const {
   isValidState,
   isValidZip,
   validateDocuments,
-  whenBlank
+  whenBlank,
+  whenUS
 } = require("./validate");
 
 const requiredFields = [
@@ -33,12 +34,12 @@ const requiredFields = [
   ],
   [
     "state code",
-    whenBlank("duns number", isValidState),
+    whenBlank("duns number", whenUS("country name", isValidState)),
     "State code must be a valid state code when DUNS number is not provided"
   ],
   [
     "zip",
-    whenBlank("duns number", isValidZip),
+    whenBlank("duns number", whenUS("country name", isValidZip)),
     "Zip must be a valid zip when DUNS number is not provided"
   ],
   [

@@ -17,7 +17,8 @@ const {
   validateFields,
   validateDocuments,
   whenBlank,
-  whenGreaterThanZero
+  whenGreaterThanZero,
+  whenUS
 } = requireSrc(__filename);
 const expect = require("chai").expect;
 
@@ -190,45 +191,102 @@ describe("validation helpers", () => {
         dateIsInPeriodOfPerformance
       )(45000, { "total expenditure amount": "" }, validateContext),
       true
-    ]
+    ],
+    [
+      "isValidState passes",
+      isValidState(
+        "WA",
+        {},
+        validateContext
+      ),
+      true
+    ],
+    [
+      "isValidState fails",
+      isValidState(
+        "ZZ",
+        {},
+        validateContext
+      ),
+      false
+    ],
+    [
+      "valid US zip passes",
+      isValidZip(
+        98101,
+        {},
+        validateContext
+      ),
+      true
+    ],
+    [
+      "valid US zip fails",
+      isValidZip(
+        981,
+        {},
+        validateContext
+      ),
+      false
+    ],
+    [
+      "whenUS conditional validation passes",
+      whenUS("country", isValidZip)(
+        98101,
+        { "country": "usa" },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "whenUS conditional validation passes",
+      whenUS("country", isValidZip)(
+        98101,
+        { "country": "united states" },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "whenUS conditional validation fails",
+      whenUS("country", isValidZip)(
+        981,
+        { "country": "usa" },
+        validateContext
+      ),
+      false
+    ],
+    [
+      "whenUS conditional validation fails",
+      whenUS("country", isValidZip)(
+        981,
+        { "country": "united states" },
+        validateContext
+      ),
+      false
+    ],
+    [
+      "whenUS conditional validation skipped",
+      whenUS("country", isValidZip)(
+        981,
+        { "country": "hk" },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "whenUS conditional validation skipped",
+      whenUS("country", isValidZip)(
+        '',
+        { "country": "hk" },
+        validateContext
+      ),
+      true
+    ],
   ];
   testCases.forEach(([name, b, expectedResult]) => {
     it(`${name} should return ${expectedResult}`, () => {
       expect(b).to.equal(expectedResult);
     });
-  });
-});
-
-describe("address validations", () => {
-  const us1 = { "primary place of performance country name": "usa" };
-  const us2 = { "primary place of performance country name": "united states" };
-  const hk = { "primary place of performance country name": "hong kong" };
-  it("valid US state passes", () => {
-    expect(isValidState("WA", us1)).to.equal(true);
-  });
-  it("valid United States state passes", () => {
-    expect(isValidState("WA", us2)).to.equal(true);
-  });
-  it("invalid US state fails", () => {
-    expect(isValidState("ZZ", us1)).to.equal(false);
-  });
-  it("invalid united states state fails", () => {
-    expect(isValidState("ZZ", us2)).to.equal(false);
-  });
-  it("valid US zip passes", () => {
-    expect(isValidZip(98101, us1)).to.equal(true);
-  });
-  it("valid United States zip passes", () => {
-    expect(isValidZip(98101, us2)).to.equal(true);
-  });
-  it("invalid US zip fails", () => {
-    expect(isValidZip(5, us1)).to.equal(false);
-  });
-  it("invalid united states zip fails", () => {
-    expect(isValidZip(6, us2)).to.equal(false);
-  });
-  it("non united states zip passes", () => {
-    expect(isValidZip(0, hk)).to.equal(true);
   });
 });
 
