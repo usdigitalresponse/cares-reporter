@@ -64,7 +64,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
     return { valog, upload: {} };
   }
 
-  documents = await deduplicate(documents);
+  // documents = await deduplicate(documents);
   documents = removeSourceRowField(documents);
 
   try {
