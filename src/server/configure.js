@@ -28,6 +28,7 @@ module.exports = app => {
   app.use("/api/sessions", require("./routes/sessions"));
   app.use("/api/uploads", require("./routes/uploads"));
   app.use("/api/users", require("./routes/users"));
+  app.use("/api/fix-subrecipients", require("./routes/fix-subrecipients"));
   app.use("/templates", express.static(__dirname + "/data"));
   if (process.env.NODE_ENV != "development") {
     const staticMiddleware = express.static(publicPath, staticConf);
