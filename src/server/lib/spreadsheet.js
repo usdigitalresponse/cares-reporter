@@ -555,7 +555,7 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
     let aoaRow = outputColumnNames.map(columnName => {
       return jsonRow[columnNameMap[columnName]] || null;
     });
-    if (jsonRecord.orphan) {
+    if (!jsonRecord.referenced) {
       arrOrphans.push(aoaRow);
 
     } else {

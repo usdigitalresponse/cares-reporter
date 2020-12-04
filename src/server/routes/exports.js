@@ -217,17 +217,19 @@ function deDuplicate(documents, objUploadMetadata) {
   console.log(
     `\nThere are ${Object.keys(subrecipientRecords).length} Subrecipients`
   );
-
+  let totalSubrecipients = Object.keys(subrecipientRecords).length;
   Object.keys(subrecipientReferences).forEach( subrecipientID => {
     if ( subrecipientRecords[subrecipientID] ) {
       delete subrecipientRecords[subrecipientID];
-      uniqueRecords[`subrecipient:${subrecipientID}`].orphan = true;
+      uniqueRecords[`subrecipient:${subrecipientID}`].referenced = true;
 
     } else {
       missing.push(subrecipientID);
     }
   });
-  console.log(`\nThere are ${Object.keys(subrecipientRecords).length} Orphans:`);
+  let referencedSubrecipients = Object.keys(subrecipientRecords).length;
+
+  console.log(`\nThere are ${totalSubrecipients-referencedSubrecipients} Orphans:`);
   // console.dir(subrecipientRecords);
   console.log("\nMissing:");
   console.dir(missing);
