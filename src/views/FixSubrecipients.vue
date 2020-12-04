@@ -34,14 +34,17 @@ export default {
   },
   computed: {
     uploads() {
-      return _.map(this.$store.state.uploads, u => {
-        return {
-          ...u,
-          subrecipients: _.filter(this.$store.state.documents, d => {
-            return d.upload_id == u.id && d.type == "subrecipient";
-          })
-        };
-      });
+      return _.chain(this.$store.state.uploads)
+        .map(u => {
+          return {
+            ...u,
+            subrecipients: _.filter(this.$store.state.documents, d => {
+              return d.upload_id == u.id && d.type == "subrecipient";
+            })
+          };
+        })
+        .sortBy("filename")
+        .value();
     }
   },
   methods: {
