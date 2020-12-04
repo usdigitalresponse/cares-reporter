@@ -15,7 +15,8 @@ const {
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
-  whenGreaterThanZero
+  whenGreaterThanZero,
+  whenUS
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -141,7 +142,7 @@ const requiredFields = [
   ],
   [
     "primary place of performance zip",
-    isValidZip,
+    whenUS("primary place of performance country name", isValidZip),
     "primary place of performance zip must not be blank"
   ],
   [

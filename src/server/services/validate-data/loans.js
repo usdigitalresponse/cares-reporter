@@ -10,7 +10,8 @@ const {
   isValidZip,
   matchesFilePart,
   numberIsLessThanOrEqual,
-  validateDocuments
+  validateDocuments,
+  whenUS
 } = require("./validate");
 
 // type pattern for this elements of the fields array is
@@ -62,7 +63,7 @@ const requiredFields = [
   ],
   [
     "primary place of performance zip",
-    isValidZip,
+    whenUS("primary place of performance country name", isValidZip),
     "primary place of business zip is not valid"
   ],
   [
