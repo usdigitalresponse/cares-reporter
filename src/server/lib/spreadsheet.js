@@ -207,8 +207,8 @@ function uploadFilename(filename) {
   return `${process.env.UPLOAD_DIRECTORY}/${filename}`;
 }
 
-function reportUnreferencedSubrecipients() {
-  return process.env.REPORT_UNREFERENCED_SUBRECIPIENTS || false;
+function audit() {
+  return process.env.AUDIT || false;
 }
 
 /*  createTreasuryOutputWorkbook() takes input records in the form of
@@ -256,12 +256,13 @@ async function createTreasuryOutputWorkbook(
   }
 
   const workbook = XLSX.utils.book_new();
+  let unreferencedSubrecipientsSheet = null;
 
   // console.log(`wbSpec.settings is:`)
   // console.dir(wbSpec.settings);
   wbSpec.settings.forEach(outputSheetSpec => {
     let outputSheetName = outputSheetSpec.sheetName;
-    // console.log(`Composing outputSheet ${outputSheetName}`);
+    console.log(`Composing outputSheet ${outputSheetName}`);
     let outputColumnNames = outputSheetSpec.columns;
     // console.log(`Column names are ${outputColumnNames}`)
 
@@ -306,22 +307,11 @@ async function createTreasuryOutputWorkbook(
         throw new Error(`Unhandled sheet type: ${outputSheetName}`);
     }
     if ( objSR ) {
-      if ( reportUnreferencedSubrecipients() ) {
-        rows = objSR.orphans;
-        rows.unshift(outputColumnNames);
-        let sheetOut = XLSX.utils.aoa_to_sheet(rows);
-        sheetOut = fixCellFormats(sheetOut);
-
-        try {
-          XLSX.utils.book_append_sheet(
-            workbook, sheetOut, `Unreferenced Sub Recipients`
-          );
-
-        } catch (err) {
-          console.dir(err);
-          throw err;
-        }
-      }
+      rows = objSR.orphans;
+      rows.unshift(outputColumnNames);
+      unreferencedSubrecipientsSheet = XLSX.utils.aoa_to_sheet(rows);
+      unreferencedSubrecipientsSheet =
+        fixCellFormats(unreferencedSubrecipientsSheet);
       rows = objSR.subRecipients;
     }
 
@@ -337,7 +327,9 @@ async function createTreasuryOutputWorkbook(
       throw err;
     }
 
-  });
+  });  if (audit()){
+    addAuditSheets(workbook, unreferencedSubrecipientsSheet, recordGroups);
+  }
   try {
     // eslint-disable-next-line
     var treasuryOutputWorkbook =
@@ -362,6 +354,46 @@ function getCoverPage(appSettings = {}, reportingPeriod = {}) {
   ];
 
   return rows;
+}
+
+function addAuditSheets (workbook, unreferencedSubrecipientsSheet, recordGroups ) {
+  let missingSubrecipientsSheet = getMissingSubrecipientsSheet(recordGroups);
+  try {
+    XLSX.utils.book_append_sheet(
+      workbook, unreferencedSubrecipientsSheet, `Unreferenced Sub Recipients`
+    );
+    XLSX.utils.book_append_sheet(
+      workbook, missingSubrecipientsSheet, "Missing Sub-Recipients"
+    );
+  } catch (err) {
+    console.dir(err);
+    throw err;
+  }
+}
+
+function  getMissingSubrecipientsSheet(recordGroups){
+  let outputColumnNames = [
+    "Sub-Recipient",
+    "Upload File",
+    "Upload Tab"
+  ];
+  let rows =[];
+  rows.push( outputColumnNames );
+  let sheetRecords;
+  try {
+    sheetRecords = recordGroups["missing_subrecipient"] || [];
+  } catch(err) {
+    console.dir(err);
+    throw err;
+  }
+  sheetRecords.forEach( record => {
+      rows.push( [
+      record.subrecipient_id,
+      record.upload_file,
+      record.tab
+    ] );
+  });
+  return XLSX.utils.aoa_to_sheet(rows);
 }
 
 function getProjectsSheet(sheetRecords, columns) {

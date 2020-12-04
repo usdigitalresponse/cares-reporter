@@ -46,7 +46,14 @@ async function getFilename() {
     title:state,
     current_reporting_period_id:period
   } = await applicationSettings();
-  return `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}.xlsx`;
+  let fileName = `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}`;
+
+  if ( process.env.AUDIT ) {
+    return fileName+".audit.xlsx";
+
+  } else {
+    return fileName+".xlsx";
+  }
 }
 
 async function processDocuments( res, config ) {
@@ -95,11 +102,17 @@ function deDuplicate(documents, objUploadMetadata) {
   let kvUploadAgency = {}; // KV table of { upload_id: agency code }
   let kvProjectStatus ={}; // KV table of { project id: project status }
 
+  let subrecipientRecords = {};
   documents.forEach(record => {
     switch (record.type) {
       case "cover":
         kvUploadAgency[record.upload_id] = record.content["agency code"];
         kvProjectStatus[record.content["project id"]] = record.content.status;
+        break;
+
+      case "subrecipient":
+        subrecipientRecords[record.content["identification number"]] =
+          record.upload_id;
         break;
       default:
         break;
@@ -108,7 +121,6 @@ function deDuplicate(documents, objUploadMetadata) {
 
   let uniqueRecords = {}; // keyed by concatenated id
   let uniqueID = 0; // this is for records we don't deduplicate
-  let subrecipientRecords = {};
   let subrecipientReferences = {};
 
   documents.forEach(record => {
@@ -165,7 +177,6 @@ function deDuplicate(documents, objUploadMetadata) {
         //     'organization type': 'For-Profit Organization...)'
         //   }
         // },
-        subrecipientRecords[record.content["identification number"]] = true;
         uniqueRecords[
           `subrecipient:${record.content["identification number"]}`
         ] = record;
@@ -181,7 +192,8 @@ function deDuplicate(documents, objUploadMetadata) {
       case  "direct": {
         let srID = record.content["subrecipient id"];
         if (srID) {
-          subrecipientReferences[srID] = true;
+          subrecipientReferences[srID] = record;
+
         } else {
           console.log(`${record.type} record is missing subrecipient ID`);
           console.dir(record.content);
@@ -224,7 +236,7 @@ function deDuplicate(documents, objUploadMetadata) {
       uniqueRecords[`subrecipient:${subrecipientID}`].referenced = true;
 
     } else {
-      missing.push(subrecipientID);
+      missing.push(subrecipientReferences[subrecipientID]);
     }
   });
   let referencedSubrecipients = Object.keys(subrecipientRecords).length;
@@ -236,6 +248,17 @@ function deDuplicate(documents, objUploadMetadata) {
 
   let rv = [];
   Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));
+  if ( process.env.AUDIT ) {
+    missing.forEach(record => {
+      rv.push({
+        id: 0,
+        type: "missing_subrecipient",
+        upload_file: objUploadMetadata[record.upload_id].filename,
+        tab: record.type,
+        subrecipient_id: record.content["subrecipient id"]
+      });
+    });
+  }
 
   return rv;
 }

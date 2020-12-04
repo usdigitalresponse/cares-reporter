@@ -1,3 +1,19 @@
+/*
+  The columns in the postgres document table are:
+    id
+    type - the spreadsheet tab name
+    content - json-coded row contents
+    created_at
+    upload_id
+    last_updated_at
+    last_updated_by
+    user_id
+
+  List them with
+    $ psql ohio postgres
+    ohio=# \d documents
+
+  */
 const knex = require("./connection");
 const _ = require("lodash");
 const { currentReportingPeriod } = require("./settings");
