@@ -30,10 +30,11 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
+# state confidential data
+snapshots/
+examples/
 uploads/
 mocha_uploads/
 
 notes.txt
 ~$*
-
-test-data-from-ohio/

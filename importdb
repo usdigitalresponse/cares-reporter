@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ ! $2 ] ; then
+  echo Usage is \$ importdb ri 2020-11-25T19_22Z
+  exit 1
+fi
+
+exampleDir=examples
+
+dropdb $1
+createdb $1
+
+rm uploads/*
+
+echo Working...
+
+# cares_reporter_bi26_user is from ri
+# cares_reporter_a2n0_user is from oh
+junk="cares_reporter_bi26_user|cares_reporter_a2n0_user|\
+tiger|topology|geometry|geography|spatial|raster|pg_similarity|postgis"
+# echo ${junk}
+
+egrep -v ${junk} ./${exampleDir}/${1}/${2}.sql\
+ | pcre2grep -M -v '(\n\n\\\.)'\
+ > ./${exampleDir}/${1}/${2}.min.sql
+
+psql $1 postgres < ./${exampleDir}/${1}/${2}.min.sql

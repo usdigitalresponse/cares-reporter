@@ -194,7 +194,7 @@ const columnTypeMap = {
   "Sub-Recipient Organization (Transferee/Government Unit)":"string",
   "Transfer Amount": "amount",
   "Transfer Date": "date",
-  "Transfer Number": "amount",
+  "Transfer Number": "string",
   "Transfer Type": "string",
   "Will these payments be repurposed for Future Use?":"string",
   "Zip+4": "string"
