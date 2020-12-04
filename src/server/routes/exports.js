@@ -6,21 +6,48 @@ const { getTemplateSheets } = require("../services/get-template");
 const { makeConfig } = require("../lib/config");
 const { createTreasuryOutputWorkbook } = require("../lib/spreadsheet");
 const { getUploadSummaries } = require("../db/uploads");
+const { applicationSettings } = require("../db/settings");
 const _ = require("lodash");
 
-router.get("/", requireUser, function(req, res) {
+router.get("/", requireUser, async function(req, res) {
 
   const treasuryTemplateSheets = getTemplateSheets("treasury");
 
   const config = makeConfig(treasuryTemplateSheets, "Treasury Template", []);
 
   if (!config) {
-    res.sendStatus(500);
-
-  } else {
-    processDocuments(res, config );
+    res.statusMessage = "Failed to make config";
+    return res.status(500).end();
   }
+
+  try{
+    // eslint-disable-next-line no-var
+    var outputWorkBook = await processDocuments(res, config );
+
+  } catch (err) {
+    res.statusMessage = "Failed to create output workbook";
+    return res.status(500).end();
+  }
+
+  const filename = await getFilename();
+  console.log(`Filename is ${filename}`);
+
+  res.header(
+    "Content-Disposition",
+    `attachment; filename="${filename}"`
+  );
+  res.header("Content-Type", "application/octet-stream");
+  res.send(Buffer.from(outputWorkBook, "binary"));
 });
+
+async function getFilename() {
+  const timeStamp = new Date().toISOString().split(".")[0].split(":").join("");
+  let {
+    title:state,
+    current_reporting_period_id:period
+  } = await applicationSettings();
+  return `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}.xlsx`;
+}
 
 async function processDocuments( res, config ) {
   try {
@@ -61,27 +88,18 @@ async function processDocuments( res, config ) {
 
   const groups = _.groupBy(rv, "type");
   console.log(`Found ${_.keys(groups).length} groups:`);
-
-  createTreasuryOutputWorkbook(config, groups).then(attachmentData => {
-    const filename = `${config.name}.xlsx`;
-    res.header(
-      "Content-Disposition",
-      `attachment; filename="${filename}"`
-    );
-    res.header("Content-Type", "application/octet-stream");
-    res.send(Buffer.from(attachmentData, "binary"));
-  });
+  return createTreasuryOutputWorkbook(config, groups);
 }
 
 function deDuplicate(documents, objUploadMetadata) {
-  let agencyCodes = {}; // KV table of { upload_id: agency code }
-  let objProjectStatus ={}; // KV table of { project id: project status }
+  let kvUploadAgency = {}; // KV table of { upload_id: agency code }
+  let kvProjectStatus ={}; // KV table of { project id: project status }
 
   documents.forEach(record => {
     switch (record.type) {
       case "cover":
-        agencyCodes[record.upload_id] = record.content["agency code"];
-        objProjectStatus[record.content["project id"]] = record.content.status;
+        kvUploadAgency[record.upload_id] = record.content["agency code"];
+        kvProjectStatus[record.content["project id"]] = record.content.status;
         break;
       default:
         break;
@@ -90,10 +108,13 @@ function deDuplicate(documents, objUploadMetadata) {
 
   let uniqueRecords = {}; // keyed by concatenated id
   let uniqueID = 0; // this is for records we don't deduplicate
+  let subrecipientRecords = {};
+  let subrecipientReferences = {};
+
   documents.forEach(record => {
     uniqueID += 1;
     let content = record.content;
-    let agencyID = agencyCodes[record.upload_id];
+    let agencyID = kvUploadAgency[record.upload_id];
     let agencyCode = content["agency code"] || agencyID;
 
     let projectID = content["project id"] ||
@@ -122,7 +143,7 @@ function deDuplicate(documents, objUploadMetadata) {
         // console.dir(record)
         // force ID to String - some of them may come in as Number
         record.content["project identification number"] = String(projectID);
-        record.content["status"] = objProjectStatus[projectID];
+        record.content["status"] = kvProjectStatus[projectID];
         uniqueRecords[`${agencyCode}:project:${projectID}`] = record;
         break;
 
@@ -130,6 +151,10 @@ function deDuplicate(documents, objUploadMetadata) {
         // subrecipient: {
         //   type: 'subrecipient',
         //   content: {
+        //     'duns number': <optional - if present it is duplicated in
+        //                     the 'identification number' field -- see
+        //                     spreadsheet.js/spreadsheetToDocuments()
+        //                    >
         //     'identification number': '57292',
         //     'legal name': 'ZOOM VIDEO COMMUNICATIONS INC',
         //     'address line 1': '55 ALMADEN BLVD STE 600',
@@ -140,7 +165,7 @@ function deDuplicate(documents, objUploadMetadata) {
         //     'organization type': 'For-Profit Organization...)'
         //   }
         // },
-
+        subrecipientRecords[record.content["identification number"]] = true;
         uniqueRecords[
           `subrecipient:${record.content["identification number"]}`
         ] = record;
@@ -153,12 +178,22 @@ function deDuplicate(documents, objUploadMetadata) {
       case  "grants":
       case  "loans":
       case  "transfers":
-      case  "direct":
-      case  "aggregate awards < 50000":
-      case  "aggregate payments individual":
+      case  "direct": {
+        let srID = record.content["subrecipient id"];
+        if (srID) {
+          subrecipientReferences[srID] = true;
+        } else {
+          console.log(`${record.type} record is missing subrecipient ID`);
+          console.dir(record.content);
+        }
         uniqueRecords[uniqueID] = record;
         break;
-
+      }
+      case  "aggregate awards < 50000":
+      case  "aggregate payments individual": {
+        uniqueRecords[uniqueID] = record;
+        break;
+      }
       default:
         console.log("Unrecognized record:");
         console.dir(record);
@@ -170,10 +205,34 @@ function deDuplicate(documents, objUploadMetadata) {
         //     date: 44153
         //   }
         // },
-
-      return;
+        break;
     }
   });
+
+  let missing = [];
+  // console.log("\nsubrecipientRecords:");
+  // console.dir(subrecipientRecords);
+  // console.log("\n subrecipientReferences:");
+  // console.dir(subrecipientReferences);
+  console.log(
+    `\nThere are ${Object.keys(subrecipientRecords).length} Subrecipients`
+  );
+  let totalSubrecipients = Object.keys(subrecipientRecords).length;
+  Object.keys(subrecipientReferences).forEach( subrecipientID => {
+    if ( subrecipientRecords[subrecipientID] ) {
+      delete subrecipientRecords[subrecipientID];
+      uniqueRecords[`subrecipient:${subrecipientID}`].referenced = true;
+
+    } else {
+      missing.push(subrecipientID);
+    }
+  });
+  let referencedSubrecipients = Object.keys(subrecipientRecords).length;
+
+  console.log(`\nThere are ${totalSubrecipients-referencedSubrecipients} Orphans:`);
+  // console.dir(subrecipientRecords);
+  console.log("\nMissing:");
+  console.dir(missing);
 
   let rv = [];
   Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));

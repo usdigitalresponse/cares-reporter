@@ -207,8 +207,12 @@ function uploadFilename(filename) {
   return `${process.env.UPLOAD_DIRECTORY}/${filename}`;
 }
 
+function reportUnreferencedSubrecipients() {
+  return process.env.REPORT_UNREFERENCED_SUBRECIPIENTS || false;
+}
+
 /*  createTreasuryOutputWorkbook() takes input records in the form of
-      { <type (this is the source sheet name)>: [
+      { <type (i.e. source sheet name)>: [
           { content: {
               <sourceColumnName>:<sourceColumnValue>,
               ...
@@ -257,15 +261,16 @@ async function createTreasuryOutputWorkbook(
   // console.dir(wbSpec.settings);
   wbSpec.settings.forEach(outputSheetSpec => {
     let outputSheetName = outputSheetSpec.sheetName;
-    // console.log(`Composing outputSheet ${outputSheetName}`)
+    // console.log(`Composing outputSheet ${outputSheetName}`);
     let outputColumnNames = outputSheetSpec.columns;
     // console.log(`Column names are ${outputColumnNames}`)
 
     // sometimes tabs are empty!
     let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || [];
-    console.dir(`Processing ${sheetRecords.length} ${outputSheetName} records`);
 
     let rows = [];
+    let objSR = null;
+
     switch (outputSheetName) {
       case "Cover Page":
         rows = getCoverPage(appSettings, reportingPeriod);
@@ -290,7 +295,7 @@ async function createTreasuryOutputWorkbook(
         break;
 
       case "Sub Recipient":
-        rows = getSubRecipientSheet(sheetRecords, outputColumnNames);
+        objSR = getSubRecipientSheet(sheetRecords, outputColumnNames);
         break;
 
       case "Aggregate Awards < 50000":
@@ -300,13 +305,37 @@ async function createTreasuryOutputWorkbook(
       default:
         throw new Error(`Unhandled sheet type: ${outputSheetName}`);
     }
+    if ( objSR ) {
+      if ( reportUnreferencedSubrecipients() ) {
+        rows = objSR.orphans;
+        rows.unshift(outputColumnNames);
+        let sheetOut = XLSX.utils.aoa_to_sheet(rows);
+        sheetOut = fixCellFormats(sheetOut);
+
+        try {
+          XLSX.utils.book_append_sheet(
+            workbook, sheetOut, `Unreferenced Sub Recipients`
+          );
+
+        } catch (err) {
+          console.dir(err);
+          throw err;
+        }
+      }
+      rows = objSR.subRecipients;
+    }
 
     rows.unshift(outputColumnNames);
-
     let sheetOut = XLSX.utils.aoa_to_sheet(rows);
     sheetOut = fixCellFormats(sheetOut);
 
-    XLSX.utils.book_append_sheet(workbook, sheetOut, outputSheetName);
+    try {
+      XLSX.utils.book_append_sheet(workbook, sheetOut, outputSheetName);
+
+    } catch (err) {
+      console.dir(err);
+      throw err;
+    }
 
   });
   try {
@@ -345,11 +374,11 @@ function getProjectsSheet(sheetRecords, columns) {
       // console.log("Bad project record:",jsRecord)
       return;
     }
-    let arrRow = columns.map(column => {
+    let aoaRow = columns.map(column => {
       const value = jsRow[columnNameMap[column]];
       return value ? value : null;
     });
-    rows.push( arrRow );
+    rows.push( aoaRow );
   });
   return rows;
 }
@@ -362,14 +391,13 @@ function getCategorySheet(
   sheetRecords,  // an array of document records
   outputColumnNames // an array of output column names
 ) {
-  let outputColumnOrds = getColumnOrds(outputColumnNames);
-  let expColumnOrd = getExpenditureColumnOrds(sheetName, outputColumnOrds);
-
+  let kvNameCol = getColumnOrds(outputColumnNames);
+  let kvExpenseNameCol = getExpenditureColumnOrds(sheetName, kvNameCol);
   let rowsOut = [];
 
   sheetRecords.forEach(jsonRecord => {
     let jsonRow = jsonRecord.content; // see exports.js/deduplicate()
-    let arrRow = populateCommonFields(outputColumnNames, outputColumnOrds, jsonRow);
+    let aoaRow = populateCommonFields(outputColumnNames, kvNameCol, jsonRow);
 
     let written = false;
 
@@ -391,15 +419,16 @@ function getCategorySheet(
       guidance for future reporting cycles to our agencies.
     */
     if (sheetName !== "Loans" || jsonRow["total payment amount"]) {
-      written = addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut );
+      written = addDetailRows(jsonRow, aoaRow, kvExpenseNameCol, rowsOut );
     }
 
     if (!written){
       // write a row even if there has been no activity in this period
-      delete arrRow[expColumnOrd.project];
-      delete arrRow[expColumnOrd.start];
-      delete arrRow[expColumnOrd.end];
-      rowsOut.push(arrRow);
+      // delete junk fields from empty records
+      delete aoaRow[kvExpenseNameCol.project];
+      delete aoaRow[kvExpenseNameCol.start];
+      delete aoaRow[kvExpenseNameCol.end];
+      rowsOut.push(aoaRow);
     }
   });
   return rowsOut;
@@ -500,7 +529,9 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
   let idSourceName = columnNameMap["Identification Number"];
 
   // translate the JSON records in this sheet into AOA rows
-  return _.map(sheetRecords, jsonRecord => {
+  let arrRows = [];
+  let arrOrphans = [];
+  sheetRecords.forEach( jsonRecord => {
     let jsonRow = jsonRecord.content;
 
     // fix issue #81
@@ -521,10 +552,20 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
       }
     }
     // return an AOA row
-    return outputColumnNames.map(columnName => {
+    let aoaRow = outputColumnNames.map(columnName => {
       return jsonRow[columnNameMap[columnName]] || null;
     });
+    if (!jsonRecord.referenced) {
+      arrOrphans.push(aoaRow);
+
+    } else {
+      arrRows.push(aoaRow);
+    }
   });
+  return {
+    orphans: arrOrphans,
+    subRecipients: arrRows
+  };
 }
 
 /* getColumnOrds returns a kv where
@@ -545,50 +586,46 @@ function getColumnOrds( arrColumnNames ){
   see field-name-mappings.js
   */
 function getExpenditureColumnOrds(sheetName, columnOrds) {
-  let expColumnOrd ={};
+  let kvExpenseNameCol ={};
   Object.keys(expenditureColumnNames[sheetName]).forEach( key => {
     let columnName = expenditureColumnNames[sheetName][key];
-    console.log(
-      `Sheet ${sheetName}, key ${key} is ${columnName}, ` +
-      `ord is ${columnOrds[columnName]}`
-    );
-    expColumnOrd[key] = columnOrds[columnName];
+    kvExpenseNameCol[key] = columnOrds[columnName];
   });
-  return expColumnOrd;
+  return kvExpenseNameCol;
 }
 
 /* populateCommonFields() returns an AOA row array populated with the fields
   common to all the detail rows.
   */
-function populateCommonFields(outputColumnNames, outputColumnOrds, jsonRow){
-  let arrRow =[];
+function populateCommonFields(outputColumnNames, kvNameCol, jsonRow){
+  let aoaRow =[];
   outputColumnNames.forEach(columnName => {
     let cellValue = jsonRow[columnNameMap[columnName]];
     if ( cellValue ) {
 
       switch (columnTypeMap[columnName] ) {
         case "string":
-          arrRow[outputColumnOrds[columnName]] = String(cellValue);
+          aoaRow[kvNameCol[columnName]] = String(cellValue);
           break;
 
         case "amount":
           cellValue = Number(cellValue) || 0;
-          arrRow[outputColumnOrds[columnName]] = _.round(cellValue, 2);
+          aoaRow[kvNameCol[columnName]] = _.round(cellValue, 2);
           break;
 
         default:
-          arrRow[outputColumnOrds[columnName]] = cellValue;
+          aoaRow[kvNameCol[columnName]] = cellValue;
           break;
       }
     }
   } );
-  return arrRow;
+  return aoaRow;
 }
 
 /*  addDetailRows() adds one row to the rowsOut array for each occupied
   category field in the jsonRow
   */
-function addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut ) {
+function addDetailRows(jsonRow, aoaRow, kvExpenseNameCol, rowsOut ) {
   let written = false;
   Object.keys(jsonRow).forEach(key => {
     // keys are the detail category field names in the source jsonRow
@@ -600,7 +637,7 @@ function addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut ) {
     }
 
     let category = categoryMap[key] || null ;
-    let destRow = arrRow.slice();
+    let destRow = aoaRow.slice(); // make a new copy
 
     switch (category) {
       case null:
@@ -618,16 +655,17 @@ function addDetailRows(jsonRow, arrRow, expColumnOrd, rowsOut ) {
         // Expenditure Category" (or "Loan Category") column, and put the
         // contents of the "other expenditure categories" column in the
         // the "Category Description" column.
-        destRow[expColumnOrd.amount] = amount;
-        destRow[expColumnOrd.category] = categoryMap[key];
-        destRow[expColumnOrd.description] = jsonRow[categoryDescriptionSourceColumn];
+        destRow[kvExpenseNameCol.amount] = amount;
+        destRow[kvExpenseNameCol.category] = categoryMap[key];
+        destRow[kvExpenseNameCol.description] =
+          jsonRow[categoryDescriptionSourceColumn];
         rowsOut.push(destRow);
         written = true;
         break;
 
       default: {
-        destRow[expColumnOrd.amount] = amount;
-        destRow[expColumnOrd.category] = categoryMap[key];
+        destRow[kvExpenseNameCol.amount] = amount;
+        destRow[kvExpenseNameCol.category] = categoryMap[key];
         rowsOut.push(destRow);
         written = true;
         break;
