@@ -179,6 +179,7 @@ async function spreadsheetToDocuments(
           type,
           user_id,
           content: jsonRow,
+          // content: clean(jsonRow),
           sourceRow:i+2 // one-based, not zero-based, and title row was omitted
         });
       });
@@ -207,8 +208,8 @@ function uploadFilename(filename) {
   return `${process.env.UPLOAD_DIRECTORY}/${filename}`;
 }
 
-function reportUnreferencedSubrecipients() {
-  return process.env.REPORT_UNREFERENCED_SUBRECIPIENTS || false;
+function audit() {
+  return process.env.AUDIT || false;
 }
 
 /*  createTreasuryOutputWorkbook() takes input records in the form of
@@ -256,12 +257,16 @@ async function createTreasuryOutputWorkbook(
   }
 
   const workbook = XLSX.utils.book_new();
+  let unreferencedSubrecipientsSheet = null;
 
-  // console.log(`wbSpec.settings is:`)
-  // console.dir(wbSpec.settings);
+  console.log(`Sheets are:`);
+  Object.keys(recordGroups).forEach(rg=>{
+    console.log(`\t${rg}: ${recordGroups[rg].length} records`);
+  });
+
   wbSpec.settings.forEach(outputSheetSpec => {
     let outputSheetName = outputSheetSpec.sheetName;
-    // console.log(`Composing outputSheet ${outputSheetName}`);
+    console.log(`Composing outputSheet ${outputSheetName}`);
     let outputColumnNames = outputSheetSpec.columns;
     // console.log(`Column names are ${outputColumnNames}`)
 
@@ -306,22 +311,11 @@ async function createTreasuryOutputWorkbook(
         throw new Error(`Unhandled sheet type: ${outputSheetName}`);
     }
     if ( objSR ) {
-      if ( reportUnreferencedSubrecipients() ) {
-        rows = objSR.orphans;
-        rows.unshift(outputColumnNames);
-        let sheetOut = XLSX.utils.aoa_to_sheet(rows);
-        sheetOut = fixCellFormats(sheetOut);
-
-        try {
-          XLSX.utils.book_append_sheet(
-            workbook, sheetOut, `Unreferenced Sub Recipients`
-          );
-
-        } catch (err) {
-          console.dir(err);
-          throw err;
-        }
-      }
+      rows = objSR.orphans;
+      rows.unshift(outputColumnNames);
+      unreferencedSubrecipientsSheet = XLSX.utils.aoa_to_sheet(rows);
+      unreferencedSubrecipientsSheet =
+        fixCellFormats(unreferencedSubrecipientsSheet);
       rows = objSR.subRecipients;
     }
 
@@ -337,7 +331,9 @@ async function createTreasuryOutputWorkbook(
       throw err;
     }
 
-  });
+  });  if (audit()){
+    addAuditSheets(workbook, unreferencedSubrecipientsSheet, recordGroups);
+  }
   try {
     // eslint-disable-next-line
     var treasuryOutputWorkbook =
@@ -362,6 +358,46 @@ function getCoverPage(appSettings = {}, reportingPeriod = {}) {
   ];
 
   return rows;
+}
+
+function addAuditSheets (workbook, unreferencedSubrecipientsSheet, recordGroups ) {
+  let missingSubrecipientsSheet = getMissingSubrecipientsSheet(recordGroups);
+  try {
+    XLSX.utils.book_append_sheet(
+      workbook, unreferencedSubrecipientsSheet, `Unreferenced Sub Recipients`
+    );
+    XLSX.utils.book_append_sheet(
+      workbook, missingSubrecipientsSheet, "Missing Sub-Recipients"
+    );
+  } catch (err) {
+    console.dir(err);
+    throw err;
+  }
+}
+
+function  getMissingSubrecipientsSheet(recordGroups){
+  let outputColumnNames = [
+    "Sub-Recipient",
+    "Upload File",
+    "Upload Tab"
+  ];
+  let rows =[];
+  rows.push( outputColumnNames );
+  let sheetRecords;
+  try {
+    sheetRecords = recordGroups["missing_subrecipient"] || [];
+  } catch(err) {
+    console.dir(err);
+    throw err;
+  }
+  sheetRecords.forEach( record => {
+      rows.push( [
+      record.subrecipient_id,
+      record.upload_file,
+      record.tab
+    ] );
+  });
+  return XLSX.utils.aoa_to_sheet(rows);
 }
 
 function getProjectsSheet(sheetRecords, columns) {
@@ -538,14 +574,26 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
     let organizationType = jsonRow["organization type"];
     jsonRow["organization type"] = organizationTypeMap[organizationType];
 
-    // Treasury Data Dictionary says that if there is a DUNS number the ID
-    // field should be empty. But we have some records where the DUNS number
-    // field is occupied by junk, so we should ignore that.
-    // Also, for easier deduplication, we keep a copy of the DUNS number in
-    // the identification number field, so we remove that copy here.
+    // According to the Treasury Data Dictionary: "If DUNS number is
+    // filled in, then the rest of the Sub-Recipient fields should not be
+    // filled in. The upload process will look up the rest of the fields
+    // on SAM.gov."
     if ( jsonRow[dunsSourceName] ) {
+
+      // But we have some records where the DUNS number field is occupied
+      // by junk, so we should ignore that.
       if (/^\d{9}$/.exec(jsonRow[dunsSourceName])){ // check for correct format
+
         delete jsonRow[idSourceName];
+        delete jsonRow[columnNameMap["Legal Name"]];
+        delete jsonRow[columnNameMap["Address Line 1"]];
+        delete jsonRow[columnNameMap["Address Line 2"]];
+        delete jsonRow[columnNameMap["Address Line 3"]];
+        delete jsonRow[columnNameMap["City Name"]];
+        delete jsonRow[columnNameMap["State Code"]];
+        delete jsonRow[columnNameMap["Zip+4"]];
+        delete jsonRow[columnNameMap["Country Name"]];
+        delete jsonRow[columnNameMap["Organization Type"]];
 
       } else if (jsonRow[idSourceName]) {
         delete jsonRow[dunsSourceName];
@@ -675,8 +723,47 @@ function addDetailRows(jsonRow, aoaRow, kvExpenseNameCol, rowsOut ) {
   return written;
 }
 
+/* clean() trims strings and rounds amounts
+  */
+function clean(objRecord) {
+  let objCleaned ={};
+  Object.keys(objRecord).forEach( key => {
+    let val = objRecord[key];
+    switch( columnTypeMap[key] ){
+      case "amount":
+        objCleaned[key]=_.round((Number(val) || 0), 2) || null;
+        break;
+
+      case "string":
+        objCleaned[key]=String(val).trim() || null;
+        break;
+
+      case "date":
+        objCleaned[key]=Number(val) || null;
+        break;
+
+      default:
+        if ( !val ) {
+          objCleaned[key]=null;
+
+        } else {
+          objCleaned[key]=val;
+        }
+        break;
+    }
+  });
+  // if (dirty){
+  //   console.log(`\n-------------`);
+  //   console.log(`\nobjRecord`);
+  //   console.dir(objRecord);
+  //   console.log(`\objCleaned`);
+  //   console.dir(objCleaned);
+  // }
+  return objCleaned;
+}
 
 module.exports = {
+  clean,
   loadSpreadsheet,
   parseSpreadsheet,
   spreadsheetToDocuments,
