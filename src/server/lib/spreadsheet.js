@@ -179,6 +179,7 @@ async function spreadsheetToDocuments(
           type,
           user_id,
           content: jsonRow,
+          // content: clean(jsonRow),
           sourceRow:i+2 // one-based, not zero-based, and title row was omitted
         });
       });
@@ -258,8 +259,11 @@ async function createTreasuryOutputWorkbook(
   const workbook = XLSX.utils.book_new();
   let unreferencedSubrecipientsSheet = null;
 
-  // console.log(`wbSpec.settings is:`)
-  // console.dir(wbSpec.settings);
+  console.log(`Sheets are:`);
+  Object.keys(recordGroups).forEach(rg=>{
+    console.log(`\t${rg}: ${recordGroups[rg].length} records`);
+  });
+
   wbSpec.settings.forEach(outputSheetSpec => {
     let outputSheetName = outputSheetSpec.sheetName;
     console.log(`Composing outputSheet ${outputSheetName}`);
@@ -570,14 +574,26 @@ function getSubRecipientSheet (sheetRecords, outputColumnNames) {
     let organizationType = jsonRow["organization type"];
     jsonRow["organization type"] = organizationTypeMap[organizationType];
 
-    // Treasury Data Dictionary says that if there is a DUNS number the ID
-    // field should be empty. But we have some records where the DUNS number
-    // field is occupied by junk, so we should ignore that.
-    // Also, for easier deduplication, we keep a copy of the DUNS number in
-    // the identification number field, so we remove that copy here.
+    // According to the Treasury Data Dictionary: "If DUNS number is
+    // filled in, then the rest of the Sub-Recipient fields should not be
+    // filled in. The upload process will look up the rest of the fields
+    // on SAM.gov."
     if ( jsonRow[dunsSourceName] ) {
+
+      // But we have some records where the DUNS number field is occupied
+      // by junk, so we should ignore that.
       if (/^\d{9}$/.exec(jsonRow[dunsSourceName])){ // check for correct format
+
         delete jsonRow[idSourceName];
+        delete jsonRow[columnNameMap["Legal Name"]];
+        delete jsonRow[columnNameMap["Address Line 1"]];
+        delete jsonRow[columnNameMap["Address Line 2"]];
+        delete jsonRow[columnNameMap["Address Line 3"]];
+        delete jsonRow[columnNameMap["City Name"]];
+        delete jsonRow[columnNameMap["State Code"]];
+        delete jsonRow[columnNameMap["Zip+4"]];
+        delete jsonRow[columnNameMap["Country Name"]];
+        delete jsonRow[columnNameMap["Organization Type"]];
 
       } else if (jsonRow[idSourceName]) {
         delete jsonRow[dunsSourceName];
@@ -707,8 +723,47 @@ function addDetailRows(jsonRow, aoaRow, kvExpenseNameCol, rowsOut ) {
   return written;
 }
 
+/* clean() trims strings and rounds amounts
+  */
+function clean(objRecord) {
+  let objCleaned ={};
+  Object.keys(objRecord).forEach( key => {
+    let val = objRecord[key];
+    switch( columnTypeMap[key] ){
+      case "amount":
+        objCleaned[key]=_.round((Number(val) || 0), 2) || null;
+        break;
+
+      case "string":
+        objCleaned[key]=String(val).trim() || null;
+        break;
+
+      case "date":
+        objCleaned[key]=Number(val) || null;
+        break;
+
+      default:
+        if ( !val ) {
+          objCleaned[key]=null;
+
+        } else {
+          objCleaned[key]=val;
+        }
+        break;
+    }
+  });
+  // if (dirty){
+  //   console.log(`\n-------------`);
+  //   console.log(`\nobjRecord`);
+  //   console.dir(objRecord);
+  //   console.log(`\objCleaned`);
+  //   console.dir(objCleaned);
+  // }
+  return objCleaned;
+}
 
 module.exports = {
+  clean,
   loadSpreadsheet,
   parseSpreadsheet,
   spreadsheetToDocuments,
