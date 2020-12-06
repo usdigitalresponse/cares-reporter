@@ -8,7 +8,7 @@ fi
 exampleDir=examples
 
 dropdb $1
-createdb $1
+createdb --owner=postgres $1
 
 rm uploads/*
 
@@ -20,8 +20,8 @@ junk="cares_reporter_bi26_user|cares_reporter_a2n0_user|\
 tiger|topology|geometry|geography|spatial|raster|pg_similarity|postgis"
 # echo ${junk}
 
-egrep -v ${junk} ./${exampleDir}/${1}/${2}.sql\
+egrep -v ${junk} ./${exampleDir}/${1}/sql/${2}.sql\
  | pcre2grep -M -v '(\n\n\\\.)'\
- > ./${exampleDir}/${1}/${2}.min.sql
+ > ./${exampleDir}/${1}/sql/${2}.min.sql
 
-psql $1 postgres < ./${exampleDir}/${1}/${2}.min.sql
+psql $1 postgres < ./${exampleDir}/${1}/sql/${2}.min.sql

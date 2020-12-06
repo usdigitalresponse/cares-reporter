@@ -4,25 +4,28 @@ const { requireUser } = require("../access-helpers");
 const { documentsInCurrentReportingPeriod } = require("../db");
 const { getTemplateSheets } = require("../services/get-template");
 const { makeConfig } = require("../lib/config");
-const { createTreasuryOutputWorkbook } = require("../lib/spreadsheet");
+const { createTreasuryOutputWorkbook, clean } = require("../lib/spreadsheet");
 const { getUploadSummaries } = require("../db/uploads");
 const { applicationSettings } = require("../db/settings");
+const { getSubRecipients, setSubRecipient } = require("../db/subrecipients");
+
 const _ = require("lodash");
 
 router.get("/", requireUser, async function(req, res) {
 
   const treasuryTemplateSheets = getTemplateSheets("treasury");
-
+  // console.dir(treasuryTemplateSheets);
   const config = makeConfig(treasuryTemplateSheets, "Treasury Template", []);
+  // console.dir(config);
 
   if (!config) {
     res.statusMessage = "Failed to make config";
     return res.status(500).end();
   }
 
+  let outputWorkBook;
   try{
-    // eslint-disable-next-line no-var
-    var outputWorkBook = await processDocuments(res, config );
+    outputWorkBook = await processDocuments(res, config);
 
   } catch (err) {
     res.statusMessage = "Failed to create output workbook";
@@ -46,36 +49,31 @@ async function getFilename() {
     title:state,
     current_reporting_period_id:period
   } = await applicationSettings();
-  return `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}.xlsx`;
+  let fileName = `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}`;
+
+  if ( process.env.AUDIT ) {
+    return fileName+".audit.xlsx";
+
+  } else {
+    return fileName+".xlsx";
+  }
 }
 
 async function processDocuments( res, config ) {
+
+  const mapUploadMetadata = new Map();
   try {
-    // eslint-disable-next-line
-    var arrUploadMetaData = await getUploadSummaries()
-    // console.dir(arrUploadMetaData[0])
-    // {
-    //   id: 1,
-    //   filename: 'DOA-076-093020-v1.xlsx',
-    //   created_at: 2020-11-19T15:14:34.481Z,
-    //   created_by: 'michael+admin@stanford.cc',
-    //   reporting_period_id: 1,
-    //   user_id: 1,
-    //   agency_id: 3,
-    //   project_id: 48
-    // }
+    let arrUploadMetaData = await getUploadSummaries();
+    arrUploadMetaData.forEach( rec => mapUploadMetadata.set(rec.id, rec));
 
   } catch ( err ) {
     res.statusMessage = "Failed to load upload summaries";
     return res.status(500).end();
   }
 
-  const objUploadMetadata = {};
-  arrUploadMetaData.forEach( rec => objUploadMetadata[rec.id] = rec );
-
+  let documents;
   try {
-    // eslint-disable-next-line
-    var documents = await documentsInCurrentReportingPeriod()
+    documents = await documentsInCurrentReportingPeriod();
 
   } catch ( err ) {
     res.statusMessage = "Failed to load document records";
@@ -83,42 +81,134 @@ async function processDocuments( res, config ) {
   }
 
   console.log(`Found ${documents.length} documents`);
-  let rv = deDuplicate(documents, objUploadMetadata);
+  let rv = await deDuplicate(documents, mapUploadMetadata);
   console.log(`Found ${rv.length} unique documents`);
 
   const groups = _.groupBy(rv, "type");
   console.log(`Found ${_.keys(groups).length} groups:`);
+
   return createTreasuryOutputWorkbook(config, groups);
 }
 
-function deDuplicate(documents, objUploadMetadata) {
-  let kvUploadAgency = {}; // KV table of { upload_id: agency code }
-  let kvProjectStatus ={}; // KV table of { project id: project status }
+async function deDuplicate(documents, mapUploadMetadata) {
 
-  documents.forEach(record => {
+  // get all the subrecipients currently in the subrecipients table
+  let arrSubRecipients = await getSubRecipients();
+  let mapSubrecipients = new Map(); // subrecipient id : <subrecipient record>
+  arrSubRecipients.forEach(subrecipientRecord => {
+    mapSubrecipients.set(
+      subrecipientRecord["identification number"],
+      subrecipientRecord
+    );
+  });
+
+  console.log(`${mapSubrecipients.size} subrecipients in the database`);
+
+  const {
+    mapUploadAgency,
+    mapProjectStatus
+  } = await pass1(documents, mapSubrecipients);
+
+  const {
+    uniqueRecords,
+    mapSubrecipientReferences
+  } = pass2(documents, mapUploadAgency, mapProjectStatus);
+  let rv = [];
+
+  Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));
+
+  let missing = [];
+
+  console.log(
+    `\nThere are ${mapSubrecipients.size} Subrecipients`
+  );
+
+  mapSubrecipientReferences.forEach( ( record, subrecipientID) => {
+    if ( !mapSubrecipients.has(subrecipientID) ) {
+      missing.push(record);
+    }
+  });
+
+  mapSubrecipients.forEach((v,k) => {
+    rv.push({
+      type: "subrecipient",
+      referenced: mapSubrecipientReferences.has(k),
+      content: v
+    });
+  });
+
+  console.log(`\n${mapSubrecipients.size} subrecipient records`);
+  console.log(`${mapSubrecipientReferences.size} are referenced`);
+  console.log(`${missing.length} missing references\n`);
+
+  if ( process.env.AUDIT ) {
+    missing.forEach(record => {
+      rv.push({
+        id: 0,
+        type: "missing_subrecipient",
+        upload_file: mapUploadMetadata.get(record.upload_id).filename,
+        tab: record.type,
+        subrecipient_id: record.content["subrecipient id"]
+      });
+    });
+  }
+
+  return rv;
+}
+
+/*  pass1() returns metadata maps and adds new subrecipients to the database
+  */
+async function pass1(documents, mapSubrecipients){
+  let mapUploadAgency = new Map(); // KV table of { upload_id: agency code }
+  let mapProjectStatus = new Map(); // KV table of { project id: project status }
+  // console.dir(mapSubrecipients);
+  documents.forEach(async record => {
     switch (record.type) {
       case "cover":
-        kvUploadAgency[record.upload_id] = record.content["agency code"];
-        kvProjectStatus[record.content["project id"]] = record.content.status;
+        mapUploadAgency.set(
+          record.upload_id,
+          record.content["agency code"].trim()
+        );
+        mapProjectStatus.set(
+          record.content["project id"],
+          (record.content.status || "").trim() || null // BUG in upload validations
+        );
         break;
+
+      case "subrecipient":{
+        let subrecipientID = record.content["identification number"].trim();
+
+        if ( !mapSubrecipients.has(subrecipientID) ) {
+          let recSubRecipient = clean(record.content);
+          mapSubrecipients.set(subrecipientID, recSubRecipient);
+          setSubRecipient(recSubRecipient); // no need to wait
+        }
+        break;
+      }
       default:
         break;
     }
   });
+  return { mapUploadAgency, mapProjectStatus };
+}
 
+/* pass2() cleans and deduplicates records, and combines them as needed for
+  the output tabs
+  */
+function pass2(documents, mapUploadAgency, mapProjectStatus) {
   let uniqueRecords = {}; // keyed by concatenated id
   let uniqueID = 0; // this is for records we don't deduplicate
-  let subrecipientRecords = {};
-  let subrecipientReferences = {};
+  let mapSubrecipientReferences = new Map();
 
   documents.forEach(record => {
     uniqueID += 1;
-    let content = record.content;
-    let agencyID = kvUploadAgency[record.upload_id];
-    let agencyCode = content["agency code"] || agencyID;
+    record.content = clean(record.content); // not needed after database is cleaned
 
-    let projectID = content["project id"] ||
-      content["project identification number"];
+    let agencyID = mapUploadAgency.get(record.upload_id);
+    let agencyCode = record.content["agency code"] || agencyID;
+
+    let projectID = record.content["project id"] ||
+          record.content["project identification number"];
 
     switch (record.type) {
       case "cover":
@@ -128,6 +218,11 @@ function deDuplicate(documents, objUploadMetadata) {
       case "certification":
         // ignore certification records
         break;
+
+      case "subrecipient":{
+        // handled in pass1
+        break;
+      }
 
       case "projects":
         // projects: {
@@ -141,34 +236,9 @@ function deDuplicate(documents, objUploadMetadata) {
         //   }
         // },
         // console.dir(record)
-        // force ID to String - some of them may come in as Number
-        record.content["project identification number"] = String(projectID);
-        record.content["status"] = kvProjectStatus[projectID];
+        record.content["project identification number"] = projectID;
+        record.content["status"] = mapProjectStatus.get(projectID);
         uniqueRecords[`${agencyCode}:project:${projectID}`] = record;
-        break;
-
-      case "subrecipient":
-        // subrecipient: {
-        //   type: 'subrecipient',
-        //   content: {
-        //     'duns number': <optional - if present it is duplicated in
-        //                     the 'identification number' field -- see
-        //                     spreadsheet.js/spreadsheetToDocuments()
-        //                    >
-        //     'identification number': '57292',
-        //     'legal name': 'ZOOM VIDEO COMMUNICATIONS INC',
-        //     'address line 1': '55 ALMADEN BLVD STE 600',
-        //     'city name': 'SAN JOSE',
-        //     'state code': 'CA',
-        //     zip: '95113',
-        //     'country name': 'United States',
-        //     'organization type': 'For-Profit Organization...)'
-        //   }
-        // },
-        subrecipientRecords[record.content["identification number"]] = true;
-        uniqueRecords[
-          `subrecipient:${record.content["identification number"]}`
-        ] = record;
         break;
 
       // we have to assume none of these are duplicates, because two identical
@@ -181,7 +251,8 @@ function deDuplicate(documents, objUploadMetadata) {
       case  "direct": {
         let srID = record.content["subrecipient id"];
         if (srID) {
-          subrecipientReferences[srID] = true;
+          mapSubrecipientReferences.set(srID, record);
+
         } else {
           console.log(`${record.type} record is missing subrecipient ID`);
           console.dir(record.content);
@@ -189,55 +260,23 @@ function deDuplicate(documents, objUploadMetadata) {
         uniqueRecords[uniqueID] = record;
         break;
       }
+
       case  "aggregate awards < 50000":
       case  "aggregate payments individual": {
         uniqueRecords[uniqueID] = record;
         break;
       }
+
       default:
         console.log("Unrecognized record:");
         console.dir(record);
-        // certification: {
-        //   type: 'certification',
-        //   content: {
-        //     certification: 'By signing this report, I certify ...',
-        //     'agency financial reviewer name': 'Amanda M. Rivers',
-        //     date: 44153
-        //   }
-        // },
         break;
     }
   });
-
-  let missing = [];
-  // console.log("\nsubrecipientRecords:");
-  // console.dir(subrecipientRecords);
-  // console.log("\n subrecipientReferences:");
-  // console.dir(subrecipientReferences);
-  console.log(
-    `\nThere are ${Object.keys(subrecipientRecords).length} Subrecipients`
-  );
-  let totalSubrecipients = Object.keys(subrecipientRecords).length;
-  Object.keys(subrecipientReferences).forEach( subrecipientID => {
-    if ( subrecipientRecords[subrecipientID] ) {
-      delete subrecipientRecords[subrecipientID];
-      uniqueRecords[`subrecipient:${subrecipientID}`].referenced = true;
-
-    } else {
-      missing.push(subrecipientID);
-    }
-  });
-  let referencedSubrecipients = Object.keys(subrecipientRecords).length;
-
-  console.log(`\nThere are ${totalSubrecipients-referencedSubrecipients} Orphans:`);
-  // console.dir(subrecipientRecords);
-  console.log("\nMissing:");
-  console.dir(missing);
-
-  let rv = [];
-  Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));
-
-  return rv;
+  return {
+    uniqueRecords,
+    mapSubrecipientReferences
+  };
 }
 
 module.exports = router;

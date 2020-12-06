@@ -21,6 +21,19 @@ function upload(id) {
     .then(r => r[0]);
 }
 
+/*  getUploadSummaries() returns a knex promise containing an array of
+    records like this:
+    {
+      id: 1,
+      filename: 'DOA-076-093020-v1.xlsx',
+      created_at: 2020-11-19T15:14:34.481Z,
+      created_by: 'michael+admin@stanford.cc',
+      reporting_period_id: 1,
+      user_id: 1,
+      agency_id: 3,
+      project_id: 48
+    }
+    */
 function getUploadSummaries() {
   return knex("uploads")
     .select("*");
