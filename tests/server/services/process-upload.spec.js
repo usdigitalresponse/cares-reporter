@@ -132,7 +132,7 @@ describe("services/process_upload", () => {
         .orderBy("upload_id");
       // Check the first upload
       expect(result1.valog.getLog()).to.have.length(0);
-      expect(afterFirstUpload).to.deep.equal([{ upload_id: 1 }]);
+      expect(afterFirstUpload).to.deep.equal([{ upload_id: result1.upload.id }]);
 
       // For the second upload use a file with similar content
       // but a different cover page, rather than
@@ -150,7 +150,7 @@ describe("services/process_upload", () => {
       const beforeReplace = await knex("documents")
         .distinct("upload_id")
         .orderBy("upload_id");
-      expect(beforeReplace).to.deep.equal([{ upload_id: 1 }, { upload_id: 2 }]);
+      expect(beforeReplace).to.deep.equal([{ upload_id: result1.upload.id }, { upload_id: result2.upload.id }]);
 
       // Do the replacement of upload of v1 by uploading a new version of that file
       // simulated here by changing the filename.
@@ -165,7 +165,7 @@ describe("services/process_upload", () => {
       const afterReplace = await knex("documents")
         .distinct("upload_id")
         .orderBy("upload_id");
-      expect(afterReplace).to.deep.equal([{ upload_id: 2 }, { upload_id: 3 }]);
+      expect(afterReplace).to.deep.equal([{ upload_id: result2.upload.id }, { upload_id: result3.upload.id }]);
     });
   });
 });

@@ -318,6 +318,25 @@ describe("validateFields", () => {
   });
 });
 
+describe("can exclude filters based on tags", () => {
+  const requiredFields = [
+    ["name", isNotBlank, "Name is required", { tags: ["v2"] }]
+  ];
+  const content = { name: "" };
+  it("includes filter with matching tag", () => {
+    const r = validateFields(requiredFields, content, "Test Tab", 1, { tags: ["v2"] });
+    expect(r).to.have.length(1);
+  });
+  it("ignores filter with non matching tag", () => {
+    const r = validateFields(requiredFields, content, "Test Tab", 1, { tags: ["v3"] });
+    expect(r).to.have.length(0);
+  });
+  it("ignores filter when context has no tags", () => {
+    const r = validateFields(requiredFields, content, "Test Tab", 1, {});
+    expect(r).to.have.length(0);
+  });
+});
+
 describe("custom message", () => {
   it("can include the invalid value in the message", () => {
     const validations = [
