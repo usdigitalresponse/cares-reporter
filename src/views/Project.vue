@@ -47,7 +47,8 @@ export default {
     fields: function() {
       return [
         { name: "code", required: true },
-        { name: "name", request: true },
+        { name: "name", required: true },
+        { name: "status", required: true },
         { name: "agency_id", required: true, allowedValues: this.agencies }
       ];
     },
