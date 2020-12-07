@@ -19,7 +19,6 @@
   */
 const knex = require("./connection");
 
-
 async function getSubRecipients() {
   let records = await knex("subrecipients")
     .select("*");

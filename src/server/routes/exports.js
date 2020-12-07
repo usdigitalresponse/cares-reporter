@@ -178,6 +178,9 @@ async function pass1(documents, mapSubrecipients){
       case "subrecipient":{
         let subrecipientID = record.content["identification number"].trim();
 
+        // If an upload contains a new subrecipient, add it to the table.
+        // Changes to existing subrecipients must be done by email request.
+        // (decided 20 12 07  States Call)
         if ( !mapSubrecipients.has(subrecipientID) ) {
           let recSubRecipient = clean(record.content);
           mapSubrecipients.set(subrecipientID, recSubRecipient);
