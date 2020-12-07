@@ -14,7 +14,8 @@ const resetUploadsAndDb = async () => {
   fs.rmdirSync(process.env.UPLOAD_DIRECTORY, { recursive: true });
   fs.mkdirSync(process.env.UPLOAD_DIRECTORY);
   await knex("documents").truncate();
-  await knex("uploads").truncate();
+  await knex("validation_messages").del();
+  await knex("uploads").del();
 };
 
 module.exports = { makeUploadArgs, resetUploadsAndDb };

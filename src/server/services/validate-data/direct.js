@@ -1,6 +1,7 @@
 const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
+  isMoreThan50K,
   isNumber,
   isNumberOrBlank,
   isPositiveNumber,
@@ -10,6 +11,7 @@ const {
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
+  whenNotBlank,
   whenGreaterThanZero
 } = require("./validate");
 
@@ -36,8 +38,9 @@ const requiredFields = [
 
   [
     "obligation amount",
-    isPositiveNumber,
-    "Obligation amount must be an amount greater than zero"
+    isMoreThan50K,
+    "Obligation amount must be more than $50,000",
+    { tags: ["v2"] }
   ],
 
   ["obligation date", isValidDate, 'Obligation date "{}" is not valid'],
