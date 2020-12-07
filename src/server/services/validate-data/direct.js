@@ -1,7 +1,7 @@
 const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
-  isMoreThan50K,
+  isAtLeast50K,
   isNumber,
   isNumberOrBlank,
   isPositiveNumber,
@@ -38,8 +38,8 @@ const requiredFields = [
 
   [
     "obligation amount",
-    isMoreThan50K,
-    "Obligation amount must be more than $50,000",
+    isAtLeast50K,
+    "Obligation amount must be at least $50,000",
     { tags: ["v2"] }
   ],
 
