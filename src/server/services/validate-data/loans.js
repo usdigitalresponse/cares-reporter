@@ -3,6 +3,7 @@ const {
   dropdownIncludes,
   isNotBlank,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isValidDate,
   isValidState,
@@ -11,6 +12,7 @@ const {
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
+  whenNotBlank,
   whenUS
 } = require("./validate");
 
@@ -81,7 +83,19 @@ const requiredFields = [
     "current quarter obligation",
     numberIsLessThanOrEqual("loan amount"),
     "Current quarter obligation must be less than or equal to loan amount"
-  ]
+  ],
+
+  [
+    "payment amount",
+    whenNotBlank("payment amount", isNumberOrBlank),
+    "Payment amount must be a number"
+  ],
+  [
+    "payment date",
+    whenNotBlank("payment amount", isValidDate),
+    "Payment date must be a valid date",
+    { isDateValue: true }
+  ],
 ];
 
 module.exports = validateDocuments("loans", requiredFields);
