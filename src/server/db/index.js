@@ -169,6 +169,7 @@ function projects() {
       "projects.id",
       "projects.code",
       "projects.name",
+      "projects.status",
       "agencies.code as agency_code",
       "agencies.name as agency_name"
     )
@@ -216,7 +217,8 @@ function updateProject(project) {
     .update({
       code: project.code,
       name: project.name,
-      agency_id: project.agency_id
+      agency_id: project.agency_id,
+      status: project.status
     });
 }
 

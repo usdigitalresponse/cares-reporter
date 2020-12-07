@@ -39,11 +39,12 @@ async function validateProject(req, res, next) {
 
 router.post("/", requireAdminUser, validateProject, function(req, res, next) {
   console.log("POST /projects", req.body);
-  const { code, name, agency_id } = req.body;
+  const { code, name, agency_id, status } = req.body;
   const project = {
     code,
     name,
-    agency_id
+    agency_id,
+    status
   };
   createProject(project)
     .then(result => res.json({ project: result }))
@@ -67,12 +68,13 @@ router.put("/:id", requireAdminUser, validateProject, async function(
     res.status(400).send("Project not found");
     return;
   }
-  const { code, name, agency_id } = req.body;
+  const { code, name, agency_id, status } = req.body;
   project = {
     ...project,
     code,
     name,
-    agency_id
+    agency_id,
+    status
   };
   updateProject(project)
     .then(result => res.json({ project: result }))
