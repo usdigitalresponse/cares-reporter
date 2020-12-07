@@ -135,6 +135,12 @@ function whenBlank(key, validator) {
   };
 }
 
+function whenNotBlank(key, validator) {
+  return (val, content, context) => {
+    return !content[key] || validator(val, content, context);
+  };
+}
+
 function whenUS(key, validator) {
   return (val, content, context) => {
     return !isUnitedStates(content[key]) ||
@@ -261,5 +267,6 @@ module.exports = {
   validateSingleDocument,
   whenBlank,
   whenGreaterThanZero,
+  whenNotBlank,
   whenUS
 };
