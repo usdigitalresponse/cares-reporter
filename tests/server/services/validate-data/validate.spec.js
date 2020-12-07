@@ -1,6 +1,7 @@
 const {
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
+  isAtLeast50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
@@ -282,6 +283,11 @@ describe("validation helpers", () => {
       ),
       true
     ],
+    ["isAtLeast50K fails", isAtLeast50K(undefined), false],
+    ["isAtLeast50K fails", isAtLeast50K(''), false],
+    ["isAtLeast50K fails", isAtLeast50K(5000.00), false],
+    ["isAtLeast50K passes", isAtLeast50K(50000.00), true],
+    ["isAtLeast50K passes", isAtLeast50K(150000.00), true],
   ];
   testCases.forEach(([name, b, expectedResult]) => {
     it(`${name} should return ${expectedResult}`, () => {
