@@ -2,6 +2,7 @@ const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
+  isEqual,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
@@ -63,6 +64,11 @@ const requiredFields = [
     "current quarter obligation",
     numberIsLessThanOrEqual("award amount"),
     "Current quarter obligation must be less than or equal to award amount"
+  ],
+  [
+    "award amount",
+    isEqual("current quarter obligation"),
+    "Award amount must equal obligation amount"
   ],
 
   [
