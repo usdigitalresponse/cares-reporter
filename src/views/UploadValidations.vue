@@ -1,12 +1,20 @@
 <template>
 <div class="validation-messages">
   <div v-if="uploadId">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item" aria-current="page">
+          <router-link to="/upload-validations">Uploads</router-link>
+        </li>
+        <li class="breadcrumb-item active">{{upload.filename}}</li>
+      </ol>
+    </nav>
     <div v-if="validating">
       Validating...
     </div>
     <div v-else>
       <div v-if="errors.length > 0">
-        <h4>Validation Errors: {{ upload.filename }}</h4>
+        <h4>Validation Errors: {{errors.length}}</h4>
         <table class="table">
           <thead>
             <tr>
@@ -25,11 +33,16 @@
         </table>
       </div>
       <div v-else>
-        <h4>No Validation Errors: {{ upload.filename }}</h4>
+        <h4>No Validation Errors</h4>
       </div>
     </div>
   </div>
   <div v-else>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Uploads</li>
+      </ol>
+    </nav>
     <table class="table table-striped">
       <thead>
         <tr>
