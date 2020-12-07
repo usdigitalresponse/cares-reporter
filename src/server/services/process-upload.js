@@ -13,59 +13,27 @@ const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
 const FileInterface = require("../lib/server-disk-interface");
 const { ValidationLog } = require("../lib/validation-log");
-const { validateData } = require("./validate-data");
 const {
   parseSpreadsheet,
   removeSourceRowField,
   spreadsheetToDocuments
 } = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
-// const { deduplicate } = require("../services/deduplicate");
 const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
+const { validateUpload } = require("./validate-upload");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
-  let valog = new ValidationLog();
-  const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
-  valog.append(filenameValog);
-  const templateSheets = await getTemplateSheets();
-  // console.log("templateSheets");
-  // console.dir(templateSheets);
-  if (!valog.success()) {
-    return { valog, upload: {} };
-  }
-  let workbookXlsx;
-  try {
-    workbookXlsx = xlsx.read(data, { type: "buffer" });
-  } catch (e) {
-    console.log("error", e);
-    valog.append(`Can't parse xlsx file ${filename}`);
-    return { valog, upload: {} };
-  }
-
-  const { spreadsheet, valog: parseValog } = parseSpreadsheet(
-    workbookXlsx,
-    templateSheets
-  );
-  valog.append(parseValog);
 
   const {
-    documents: spreadsheetDocuments,
-    valog: docValog
-  } = await spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
-  valog.append(docValog);
-
-  let documents = removeEmptyDocuments(spreadsheetDocuments);
-
-  const reportingPeriod = await currentReportingPeriod();
-  const dataValog = await validateData(documents, fileParts, reportingPeriod);
-  valog.append(dataValog);
-
+   valog,
+   documents,
+   spreadsheet,
+   fileParts,
+   reportingPeriod
+  } = await validateUpload({ filename, user_id, agency_id, data });
   if (!valog.success()) {
     return { valog, upload: {} };
   }
-
-  // documents = await deduplicate(documents);
-  documents = removeSourceRowField(documents);
 
   try {
     await fileInterface.writeFileCarefully(filename, data);

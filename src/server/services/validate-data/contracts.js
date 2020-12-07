@@ -3,6 +3,8 @@ const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
+  isEqual,
+  isMoreThan50K,
   isNotBlank,
   isNumberOrBlank,
   isPositiveNumber,
@@ -59,6 +61,17 @@ const requiredFields = [
     "contract amount",
     isPositiveNumber,
     "Contract amount must be an amount greater than zero"
+  ],
+  [
+    "contract amount",
+    isEqual("current quarter obligation"),
+    "Contract amount must equal obligation amount"
+  ],
+  [
+    "contract amount",
+    isMoreThan50K,
+    "Contract amount must be more than $50,000",
+    { tags: ["v2"] }
   ],
 
   [
