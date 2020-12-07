@@ -3,7 +3,7 @@ const {
   dateIsOnOrBefore,
   dropdownIncludes,
   isEqual,
-  isMoreThan50K,
+  isAtLeast50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
@@ -40,8 +40,8 @@ const requiredFields = [
   ["transfer number", isNotBlank, "Transfer number cannot be blank"],
   [
     "award amount",
-    isMoreThan50K,
-    "Award amount must be more than $50,000",
+    isAtLeast50K,
+    "Award amount must be at least $50,000",
     { tags: ["v2"] }
   ],
   [

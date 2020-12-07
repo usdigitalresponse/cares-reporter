@@ -4,7 +4,7 @@ const {
   dateIsOnOrBefore,
   dropdownIncludes,
   isEqual,
-  isMoreThan50K,
+  isAtLeast50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
@@ -49,8 +49,8 @@ const requiredFields = [
   ],
   [
     "award amount",
-    isMoreThan50K,
-    "Contract amount must be more than $50,000",
+    isAtLeast50K,
+    "Contract amount must be at least $50,000",
     { tags: ["v2"] }
   ],
 
