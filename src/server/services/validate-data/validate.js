@@ -46,8 +46,8 @@ function isPositiveNumber(val) {
   return _.isNumber(val) && val > 0;
 }
 
-function isMoreThan50K(val) {
-  return _.isNumber(val) && val > 50000;
+function isAtLeast50K(val) {
+  return _.isNumber(val) && val >= 50000;
 }
 
 function isEqual(column) {
@@ -248,7 +248,7 @@ module.exports = {
   dropdownIncludes,
   hasSubrecipientKey,
   isEqual,
-  isMoreThan50K,
+  isAtLeast50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
