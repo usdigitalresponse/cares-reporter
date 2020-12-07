@@ -36,6 +36,7 @@ export default {
         columns: [
           { label: "Project Code", component: ProjectUploadsLink },
           { name: "name" },
+          { name: "status" },
           { name: "agency_code", label: "Agency Code" },
           { name: "number_of_uploads", label: "Number of Uploads" },
           { component: ProjectLink }
