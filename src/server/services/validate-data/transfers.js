@@ -2,6 +2,8 @@ const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
+  isEqual,
+  isMoreThan50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
@@ -12,6 +14,7 @@ const {
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
+  whenNotBlank,
   whenGreaterThanZero
 } = require("./validate");
 
@@ -37,8 +40,9 @@ const requiredFields = [
   ["transfer number", isNotBlank, "Transfer number cannot be blank"],
   [
     "award amount",
-    isPositiveNumber,
-    "Award amount must be an amount greater than zero"
+    isMoreThan50K,
+    "Award amount must be more than $50,000",
+    { tags: ["v2"] }
   ],
   [
     "transfer type",
@@ -63,6 +67,11 @@ const requiredFields = [
     "current quarter obligation",
     numberIsLessThanOrEqual("award amount"),
     "Current quarter obligation must be less than or equal to award amount"
+  ],
+  [
+    "award amount",
+    isEqual("current quarter obligation"),
+    "Award amount must equal obligation amount"
   ],
 
   [
@@ -111,6 +120,16 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
+  ],
+  [
+    "other expenditure categories",
+    whenNotBlank("other expenditure amount", isNotBlank),
+    "Other Expenditure Categories cannot be blank if Other Expenditure Amount has an amount"
+  ],
+  [
+    "other expenditure amount",
+    whenNotBlank("other expenditure categories", isNumber),
+    "Other Expenditure Amount must be a number"
   ]
 ];
 

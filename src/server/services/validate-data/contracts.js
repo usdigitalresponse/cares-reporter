@@ -3,7 +3,10 @@ const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
+  isEqual,
+  isMoreThan50K,
   isNotBlank,
+  isNumber,
   isNumberOrBlank,
   isPositiveNumber,
   isSum,
@@ -14,7 +17,9 @@ const {
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
-  whenGreaterThanZero
+  whenGreaterThanZero,
+  whenNotBlank,
+  whenUS
 } = require("./validate");
 
 const expenditureCategories = require("./expenditure-categories");
@@ -58,6 +63,18 @@ const requiredFields = [
     "contract amount",
     isPositiveNumber,
     "Contract amount must be an amount greater than zero"
+  ],
+  [
+    "contract amount",
+    isEqual("current quarter obligation"),
+    "Contract amount must equal obligation amount",
+    { tags: ["v2" ] }
+  ],
+  [
+    "contract amount",
+    isMoreThan50K,
+    "Contract amount must be more than $50,000",
+    { tags: ["v2"] }
   ],
 
   [
@@ -147,7 +164,7 @@ const requiredFields = [
   ],
   [
     "primary place of performance zip",
-    isValidZip,
+    whenUS("primary place of performance country name", isValidZip),
     'Primary place of performance zip "{}" is not valid'
   ],
   [
@@ -175,6 +192,16 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount must be the sum of all expenditure amount columns"
+  ],
+  [
+    "other expenditure categories",
+    whenNotBlank("other expenditure amount", isNotBlank),
+    "Other Expenditure Categories cannot be blank if Other Expenditure Amount has an amount"
+  ],
+  [
+    "other expenditure amount",
+    whenNotBlank("other expenditure categories", isNumber),
+    "Other Expenditure Amount must be a number"
   ]
 ];
 

@@ -46,6 +46,18 @@ function isPositiveNumber(val) {
   return _.isNumber(val) && val > 0;
 }
 
+function isMoreThan50K(val) {
+  return _.isNumber(val) && val > 50000;
+}
+
+function isEqual(column) {
+  return (val, content) => {
+    const f1 = parseFloat(val) || 0.0;
+    const f2 = parseFloat(content[column]) || 0.0;
+    return Math.abs(f1-f2) < 0.01;
+  };
+}
+
 function isSum(columns) {
   return (val, content) => {
     let sum = _.reduce(
@@ -83,16 +95,12 @@ function isUnitedStates(value) {
 
 function isValidState(val, content) {
   return (
-    !isUnitedStates(content["primary place of performance country name"]) ||
     dropdownIncludes("state code")(val)
   );
 }
 
 function isValidZip(val, content) {
-  return (
-    !isUnitedStates(content["primary place of performance country name"]) ||
-    /^\d{5}(-\d{4})?$/.test(`${val}`)
-  );
+  return /^\d{5}(-\d{4})?$/.test(`${val}`);
 }
 
 function matchesFilePart(key) {
@@ -127,6 +135,19 @@ function whenBlank(key, validator) {
   };
 }
 
+function whenNotBlank(key, validator) {
+  return (val, content, context) => {
+    return !content[key] || validator(val, content, context);
+  };
+}
+
+function whenUS(key, validator) {
+  return (val, content, context) => {
+    return !isUnitedStates(content[key]) ||
+      validator(val, content, context);
+  };
+}
+
 function whenGreaterThanZero(key, validator) {
   return (val, content, context) => {
     return content[key] > 0 ? validator(val, content, context) : true;
@@ -145,6 +166,17 @@ function messageValue(val, options) {
   return val;
 }
 
+function includeValidator(options, context) {
+  const tags = _.get(options, 'tags');
+  if (!tags) {
+    return true;
+  }
+  if (!context.tags) {
+    return false;
+  }
+  return !_.isEmpty(_.intersection(tags, context.tags));
+}
+
 function validateFields(requiredFields, content, tab, row, context = {}) {
   // console.log("------ required fields are:");
   // console.dir(requiredFields);
@@ -153,21 +185,23 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
   // console.log("------content end");
   const valog = [];
   requiredFields.forEach(([key, validator, message, options]) => {
-    const val = content[key] || "";
-    if (!validator(val, content, context)) {
-      // console.log(val);
-      // console.dir(content);
-      // console.dir(context);
-      valog.push(
-        new ValidationItem({
-          message: addValueToMessage(
-            message || `Empty or invalid entry for ${key}: "{}"`,
-            messageValue(val, options)
-          ),
-          tab,
-          row
-        })
-      );
+    if (includeValidator(options, context)) {
+      const val = content[key] || "";
+      if (!validator(val, content, context)) {
+        // console.log(val);
+        // console.dir(content);
+        // console.dir(context);
+        valog.push(
+          new ValidationItem({
+            message: addValueToMessage(
+              message || `Empty or invalid entry for ${key}: "{}"`,
+              messageValue(val, options)
+            ),
+            tab,
+            row
+          })
+        );
+      }
     }
   });
   return valog;
@@ -213,6 +247,8 @@ module.exports = {
   dateIsOnOrAfter,
   dropdownIncludes,
   hasSubrecipientKey,
+  isEqual,
+  isMoreThan50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
@@ -230,5 +266,7 @@ module.exports = {
   validateFields,
   validateSingleDocument,
   whenBlank,
-  whenGreaterThanZero
+  whenGreaterThanZero,
+  whenNotBlank,
+  whenUS
 };
