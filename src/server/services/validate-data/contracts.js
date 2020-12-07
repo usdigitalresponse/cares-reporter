@@ -6,6 +6,7 @@ const {
   isEqual,
   isMoreThan50K,
   isNotBlank,
+  isNumber,
   isNumberOrBlank,
   isPositiveNumber,
   isSum,
@@ -17,6 +18,7 @@ const {
   numberIsLessThanOrEqual,
   validateDocuments,
   whenGreaterThanZero,
+  whenNotBlank,
   whenUS
 } = require("./validate");
 
@@ -65,7 +67,8 @@ const requiredFields = [
   [
     "contract amount",
     isEqual("current quarter obligation"),
-    "Contract amount must equal obligation amount"
+    "Contract amount must equal obligation amount",
+    { tags: ["v2" ] }
   ],
   [
     "contract amount",
@@ -189,6 +192,16 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount must be the sum of all expenditure amount columns"
+  ],
+  [
+    "other expenditure categories",
+    whenNotBlank("other expenditure amount", isNotBlank),
+    "Other Expenditure Categories cannot be blank if Other Expenditure Amount has an amount"
+  ],
+  [
+    "other expenditure amount",
+    whenNotBlank("other expenditure categories", isNumber),
+    "Other Expenditure Amount must be a number"
   ]
 ];
 

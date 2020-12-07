@@ -4,6 +4,7 @@ const {
   dateIsOnOrBefore,
   dropdownIncludes,
   isEqual,
+  isMoreThan50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
@@ -17,6 +18,7 @@ const {
   numberIsLessThanOrEqual,
   validateDocuments,
   whenGreaterThanZero,
+  whenNotBlank,
   whenUS
 } = require("./validate");
 
@@ -47,8 +49,9 @@ const requiredFields = [
   ],
   [
     "award amount",
-    isPositiveNumber,
-    "Award amount must be an amount greater than zero"
+    isMoreThan50K,
+    "Contract amount must be more than $50,000",
+    { tags: ["v2"] }
   ],
 
   ["award date", isValidDate, "Award date must be a valid date"],
@@ -185,6 +188,16 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
+  ],
+  [
+    "other expenditure categories",
+    whenNotBlank("other expenditure amount", isNotBlank),
+    "Other Expenditure Categories cannot be blank if Other Expenditure Amount has an amount"
+  ],
+  [
+    "other expenditure amount",
+    whenNotBlank("other expenditure categories", isNumber),
+    "Other Expenditure Amount must be a number"
   ]
 ];
 
