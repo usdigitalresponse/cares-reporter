@@ -3,6 +3,7 @@ const {
   dropdownIncludes,
   isNotBlank,
   isNumber,
+  isNumberOrBlank,
   isPositiveNumber,
   isValidDate,
   isValidState,
@@ -10,7 +11,9 @@ const {
   isValidZip,
   matchesFilePart,
   numberIsLessThanOrEqual,
-  validateDocuments
+  validateDocuments,
+  whenNotBlank,
+  whenUS
 } = require("./validate");
 
 // type pattern for this elements of the fields array is
@@ -62,7 +65,7 @@ const requiredFields = [
   ],
   [
     "primary place of performance zip",
-    isValidZip,
+    whenUS("primary place of performance country name", isValidZip),
     "primary place of business zip is not valid"
   ],
   [
@@ -80,7 +83,19 @@ const requiredFields = [
     "current quarter obligation",
     numberIsLessThanOrEqual("loan amount"),
     "Current quarter obligation must be less than or equal to loan amount"
-  ]
+  ],
+
+  [
+    "payment amount",
+    whenNotBlank("payment amount", isNumberOrBlank),
+    "Payment amount must be a number"
+  ],
+  [
+    "payment date",
+    whenNotBlank("payment amount", isValidDate),
+    "Payment date must be a valid date",
+    { isDateValue: true }
+  ],
 ];
 
 module.exports = validateDocuments("loans", requiredFields);
