@@ -48,7 +48,15 @@ export default {
       return [
         { name: "code", required: true },
         { name: "name", required: true },
-        { name: "status", required: true },
+        {
+          name: "status",
+          allowedValues: [
+            "Not started",
+            "Less than 50% completed",
+            "Completed 50% or more",
+            "Fully completed"
+          ]
+        },
         { name: "agency_id", required: true, allowedValues: this.agencies }
       ];
     },

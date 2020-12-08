@@ -35,7 +35,7 @@ describe("process-upload", () => {
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
       expect(err.message).to.equal(
-        'The project id "74" does not match the project id in the filename'
+        'The project id "074" does not match the project id in the filename'
       );
       expect(err.row).to.equal(2);
     });
