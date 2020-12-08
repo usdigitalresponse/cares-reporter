@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { requireUser } = require("../access-helpers");
-const { documentsInCurrentReportingPeriod } = require("../db");
+const { documentsInCurrentReportingPeriod,
+  projects,
+  updateProject
+} = require("../db");
 const { getTemplateSheets } = require("../services/get-template");
 const { makeConfig } = require("../lib/config");
 const { createTreasuryOutputWorkbook, clean } = require("../lib/spreadsheet");
@@ -101,13 +104,39 @@ async function deDuplicate(documents, mapUploadMetadata) {
       subrecipientRecord
     );
   });
-
   console.log(`${mapSubrecipients.size} subrecipients in the database`);
+
+  // get all the Projects currently in the Projects table
+  let arrProjects = await projects();
+  let mapProjects = new Map(); // project id : <project record>
+
+  arrProjects.forEach(projectRecord => {
+    // console.log(`project code is "${projectRecord.code}"`);
+    mapProjects.set(
+      projectRecord.code,
+      projectRecord
+    );
+  });
+  // mapProjects.forEach( (v,k) => {
+  //   console.log(`${v.id}\t${k}`);
+  // } );
+  /* {
+      '049' => {
+        id: 422,
+        code: '049',
+        name: "RIDE's Summer Learning Opportunities",
+        status: null,
+        agency_code: 'RIDE',
+        agency_name: 'Department of Elementary and Secondary Education'
+      },
+      ...
+    }
+    */
 
   const {
     mapUploadAgency,
     mapProjectStatus
-  } = await pass1(documents, mapSubrecipients);
+  } = await pass1(documents, mapSubrecipients, mapProjects);
 
   const {
     uniqueRecords,
@@ -158,22 +187,44 @@ async function deDuplicate(documents, mapUploadMetadata) {
 
 /*  pass1() returns metadata maps and adds new subrecipients to the database
   */
-async function pass1(documents, mapSubrecipients){
+async function pass1(documents, mapSubrecipients, mapProjects){
   let mapUploadAgency = new Map(); // KV table of { upload_id: agency code }
   let mapProjectStatus = new Map(); // KV table of { project id: project status }
   // console.dir(mapSubrecipients);
   documents.forEach(async record => {
     switch (record.type) {
-      case "cover":
+      case "cover":{
         mapUploadAgency.set(
           record.upload_id,
           record.content["agency code"].trim()
         );
-        mapProjectStatus.set(
-          record.content["project id"],
-          (record.content.status || "").trim() || null // BUG in upload validations
-        );
+        let projectCode = String(record.content["project id"] ||
+                  record.content["project identification number"] )|| null;
+
+        if (projectCode.length <3) {
+          projectCode = ("000" + projectCode).substr(-3);
+        }
+        record.content["project id"] = projectCode;
+
+        // let projectStatus = (record.content.status || "").trim() || null ;
+        let projectStatus = record.content.status;
+        if ( mapProjects.has(projectCode) && projectStatus ) {
+          let recProject = mapProjects.get(projectCode);
+          recProject.status = projectStatus;
+
+          mapProjects.set(projectCode, recProject);
+          // console.dir(recProject);
+          await updateProject(recProject); // no need to wait
+
+        } else {
+          console.log( `Record projectCode "${projectCode}" not in database`);
+        }
+
+        mapProjectStatus.set(projectCode,projectStatus);
+
+        // console.dir(String(record.content["project id"]));
         break;
+      }
 
       case "subrecipient":{
         let subrecipientID = record.content["identification number"].trim();
@@ -210,8 +261,7 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
     let agencyID = mapUploadAgency.get(record.upload_id);
     let agencyCode = record.content["agency code"] || agencyID;
 
-    let projectID = record.content["project id"] ||
-          record.content["project identification number"];
+    let projectID = record.content["project id"];
 
     switch (record.type) {
       case "cover":
