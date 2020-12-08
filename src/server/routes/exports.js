@@ -52,6 +52,7 @@ async function getFilename() {
     title:state,
     current_reporting_period_id:period
   } = await applicationSettings();
+  state = state.replace(/ /g,"-");
   let fileName = `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}`;
 
   if ( process.env.AUDIT ) {
@@ -104,7 +105,7 @@ async function deDuplicate(documents, mapUploadMetadata) {
       subrecipientRecord
     );
   });
-  console.log(`${mapSubrecipients.size} subrecipients in the database`);
+  // console.log(`${mapSubrecipients.size} subrecipients in the database`);
 
   // get all the Projects currently in the Projects table
   let arrProjects = await projects();
@@ -142,15 +143,17 @@ async function deDuplicate(documents, mapUploadMetadata) {
     uniqueRecords,
     mapSubrecipientReferences
   } = pass2(documents, mapUploadAgency, mapProjectStatus);
+
   let rv = [];
 
   Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));
 
+  console.log(`dedup: There are ${mapProjects.size} project records`);
+  console.log(`dedup: There are ${arrProjects.length} project records`);
+
   let missing = [];
 
-  console.log(
-    `\nThere are ${mapSubrecipients.size} Subrecipients`
-  );
+  // console.log( `\nThere are ${mapSubrecipients.size} Subrecipients`);
 
   mapSubrecipientReferences.forEach( ( record, subrecipientID) => {
     if ( !mapSubrecipients.has(subrecipientID) ) {
@@ -166,9 +169,9 @@ async function deDuplicate(documents, mapUploadMetadata) {
     });
   });
 
-  console.log(`\n${mapSubrecipients.size} subrecipient records`);
-  console.log(`${mapSubrecipientReferences.size} are referenced`);
-  console.log(`${missing.length} missing references\n`);
+  // console.log(`\n${mapSubrecipients.size} subrecipient records`);
+  // console.log(`${mapSubrecipientReferences.size} are referenced`);
+  // console.log(`${missing.length} missing references\n`);
 
   if ( process.env.AUDIT ) {
     missing.forEach(record => {
@@ -191,6 +194,7 @@ async function pass1(documents, mapSubrecipients, mapProjects){
   let mapUploadAgency = new Map(); // KV table of { upload_id: agency code }
   let mapProjectStatus = new Map(); // KV table of { project id: project status }
   // console.dir(mapSubrecipients);
+
   documents.forEach(async record => {
     switch (record.type) {
       case "cover":{
@@ -254,14 +258,15 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
   let uniqueID = 0; // this is for records we don't deduplicate
   let mapSubrecipientReferences = new Map();
 
+  let projectCount =0;
+  let emptyProjectsCount=0;
+
   documents.forEach(record => {
     uniqueID += 1;
     record.content = clean(record.content); // not needed after database is cleaned
 
     let agencyID = mapUploadAgency.get(record.upload_id);
     let agencyCode = record.content["agency code"] || agencyID;
-
-    let projectID = record.content["project id"];
 
     switch (record.type) {
       case "cover":
@@ -277,22 +282,31 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
         break;
       }
 
-      case "projects":
+      case "projects":{
         // projects: {
         //   type: 'projects',
         //   content: {
         //     'agency code': 'JUD',
         //     'project name': 'Providence Grand Jury Proceedings Under...',
         //     'project identification number': 202,
-        //     description: 'This Rhode Island Superior Court project...'
+        //      description: 'This Rhode Island Superior Court project...'
         //     'naming convention': 'JUD-202-093020-v1.xlsx'
         //   }
         // },
-        // console.dir(record)
-        record.content["project identification number"] = projectID;
-        record.content["status"] = mapProjectStatus.get(projectID);
-        uniqueRecords[`${agencyCode}:project:${projectID}`] = record;
+        // let projectID = record.content["project identification number"];
+
+        // if (projectID) {
+        //   projectCount += 1;
+        //   // console.dir(record.content);
+        //   record.content["status"] = mapProjectStatus.get(projectID);
+
+        //   uniqueRecords[`${agencyCode}:project:${projectID}`] = record;
+
+        // } else {
+        //   emptyProjectsCount += 1;
+        // }
         break;
+      }
 
       // we have to assume none of these are duplicates, because two identical
       // records could both be valid, since we don't have anything like an
@@ -307,8 +321,16 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
           mapSubrecipientReferences.set(srID, record);
 
         } else {
-          console.log(`${record.type} record is missing subrecipient ID`);
-          console.dir(record.content);
+          // console.log(`${record.type} record is missing subrecipient ID`);
+          // console.dir(record.content);
+          /* {
+            'agency code': 'ART01',
+            'project name': 'Coronavirus Relief - Art/Cultural Organizations',
+            'project identification number': '370503',
+            description: 'Economic relief to non-profit organizations whose primary mission is cultural, artistic, or performing arts to assist with business interruption costs',
+            'naming convention': 'ART01-370503-093020-v1.xlsx'
+          }
+          */
         }
         uniqueRecords[uniqueID] = record;
         break;
@@ -326,6 +348,8 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
         break;
     }
   });
+  console.log(`${projectCount} valid project records`);
+  console.log(`${emptyProjectsCount} empty project records`);
   return {
     uniqueRecords,
     mapSubrecipientReferences

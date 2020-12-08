@@ -1,7 +1,5 @@
-const xlsx = require("xlsx");
 const {
   agencyByCode,
-  currentReportingPeriod,
   user,
   createUpload,
   createDocuments,
@@ -9,18 +7,10 @@ const {
   projectByCode,
   transact
 } = require("../db");
-const { getTemplateSheets } = require("./get-template");
-const { parseFilename } = require("./parse-filename");
 const FileInterface = require("../lib/server-disk-interface");
-const { ValidationLog } = require("../lib/validation-log");
-const {
-  parseSpreadsheet,
-  removeSourceRowField,
-  spreadsheetToDocuments
-} = require("../lib/spreadsheet");
 const fileInterface = new FileInterface();
-const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 const { validateUpload } = require("./validate-upload");
+const { updateProject } = require("../db/projects");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
 
@@ -34,7 +24,12 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   if (!valog.success()) {
     return { valog, upload: {} };
   }
+  let err = await updateProject(fileParts.projectId, documents);
 
+  if (err) {
+    return { valog, upload: {} };
+
+  }
   try {
     await fileInterface.writeFileCarefully(filename, data);
   } catch (e) {

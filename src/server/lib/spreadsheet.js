@@ -18,6 +18,7 @@ const {
   sheetNameAliases,
   sheetNameMap
 } = require("./field-name-mapping");
+const { getProjects } = require("../db/projects");
 
 /* loadSpreadsheet() returns an array containing:
   [
@@ -235,7 +236,7 @@ function audit() {
     and composes these records into an output xlsx-formatted workbook.
   */
 async function createTreasuryOutputWorkbook(
-  wbSpec, // a config object - see config.js/makeConfig()
+  wbSpec, // a config object - see ./config.js/makeConfig()
   recordGroups  // a KV object where keys are sheet names, values are arrays
           // of document records of this type (aka spreadsheet rows from
           // these sheets)
@@ -273,14 +274,15 @@ async function createTreasuryOutputWorkbook(
     console.log(`\t${rg}: ${recordGroups[rg].length} records`);
   });
 
-  wbSpec.settings.forEach(outputSheetSpec => {
+  let sheetsOut = {};
+  await wbSpec.settings.forEach(async outputSheetSpec => {
     let outputSheetName = outputSheetSpec.sheetName;
-    console.log(`Composing outputSheet ${outputSheetName}`);
+    console.log(`\nComposing output Sheet ${outputSheetName}`);
     let outputColumnNames = outputSheetSpec.columns;
-    // console.log(`Column names are ${outputColumnNames}`)
 
     // sometimes tabs are empty!
     let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || [];
+    console.log(`${outputSheetName} has ${sheetRecords.length} records`);
 
     let rows = [];
     let objSR = null;
@@ -290,18 +292,18 @@ async function createTreasuryOutputWorkbook(
         rows = getCoverPage(appSettings, reportingPeriod);
         break;
 
-      case "Projects":
-        rows = getProjectsSheet(sheetRecords, outputColumnNames);
+      case "Projects":{
+        // doesn't work - doesn't wait!!
+        // rows = await getProjectsSheet();
+        // console.dir(rows);
         break;
-
+      }
       case "Contracts":
       case "Grants":
       case "Loans":
       case "Transfers":
       case "Direct":
-        console.log(`${outputSheetName} has ${sheetRecords.length} records`);
         rows = getCategorySheet(outputSheetName, sheetRecords, outputColumnNames);
-        console.log(`resulting in ${rows.length} rows`);
         break;
 
       case "Aggregate Payments Individual":
@@ -319,6 +321,8 @@ async function createTreasuryOutputWorkbook(
       default:
         throw new Error(`Unhandled sheet type: ${outputSheetName}`);
     }
+    console.log(`resulting in ${rows.length} rows`);
+
     if ( objSR ) {
       rows = objSR.orphans;
       rows.unshift(outputColumnNames);
@@ -329,20 +333,50 @@ async function createTreasuryOutputWorkbook(
     }
 
     rows.unshift(outputColumnNames);
-    let sheetOut = XLSX.utils.aoa_to_sheet(rows);
-    sheetOut = fixCellFormats(sheetOut);
 
+    console.log(`adding sheet ${outputSheetName}`);
+    console.log(`with ${rows.length} rows`);
+
+    let sheetOut = XLSX.utils.aoa_to_sheet(rows);
+
+    sheetOut = fixCellFormats(sheetOut);
+    sheetsOut[outputSheetName] = sheetOut;
+
+    // console.dir(outputColumnNames);
+  });
+
+  let projectsSheet =  await getProjectsSheet();
+  projectsSheet.unshift([
+    "Project Name",
+    "Project Identification Number",
+    "Description",
+    "Status"
+  ]);
+  sheetsOut["Projects"] = XLSX.utils.aoa_to_sheet(projectsSheet);
+
+  // console.log(`+++++++++++ returned from getProjectsSheet()`);
+  // console.dir(sheetsOut["Projects"]);
+
+  await wbSpec.settings.forEach( outputSheetSpec => {
+    let outputSheetName = outputSheetSpec.sheetName;
     try {
-      XLSX.utils.book_append_sheet(workbook, sheetOut, outputSheetName);
+      console.log(`adding ${outputSheetName} to workbook`);
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        sheetsOut[outputSheetName],
+        outputSheetName
+      );
 
     } catch (err) {
       console.dir(err);
       throw err;
     }
-
-  });  if (audit()){
+  });
+  if (audit()){
     addAuditSheets(workbook, unreferencedSubrecipientsSheet, recordGroups);
   }
+
   try {
     // eslint-disable-next-line
     var treasuryOutputWorkbook =
@@ -409,16 +443,49 @@ function  getMissingSubrecipientsSheet(recordGroups){
   return XLSX.utils.aoa_to_sheet(rows);
 }
 
-function getProjectsSheet(sheetRecords, columns) {
+async function getProjectsSheet() {
+  /* Treasury output sheet columns are:
+      Project Name
+      Project Identification Number
+      Description
+      Status
+      */
+  let projects = await getProjects();
+  let rows =[];
+  projects.forEach( project => {
+    rows.push([
+      project.name,
+      project.code,
+      project.description,
+      project.status
+    ]);
+  });
+
+  return rows;
+}
+
+function getProjectsSheet_old(sheetRecords, columns) {
+  // console.log(`\n\n getProjectsSheet: columns are`);
+  // console.dir(columns);
+
+  // Agency Code
+  // Project ID
+  // Status
+  // Reporting Period End Date
+  // Reporting Period Start Date
+  // CRF End Date
+
   let projectIDColumnName = columnNameMap["Project Identification Number"];
   let rows =[];
   sheetRecords.forEach(jsRecord => {
+    // console.dir(jsRecord);
     let jsRow = jsRecord.content;
     let projectID = jsRow[projectIDColumnName];
     if( !projectID || projectID === "undefined" ) {
-      // console.log("Bad project record:",jsRecord)
+      console.log("Bad project record:",jsRecord);
       return;
     }
+    // console.log("OK");
     let aoaRow = columns.map(column => {
       const value = jsRow[columnNameMap[column]];
       return value ? value : null;
