@@ -175,6 +175,15 @@ async function spreadsheetToDocuments(
           // populate the identification number field for easier deduplication
           jsonRow["identification number"] = `DUNS${jsonRow["duns number"]}`;
         }
+        if (sheetName === "cover") {
+          // note in the database this field is called "code", and "id" is
+          // not this, but the numeric record id.
+          let projectCode = String(jsonRow["project id"]);
+          if (projectCode.length < 3) {
+            projectCode = ("000" + projectCode).substr(-3);
+          }
+          jsonRow["project id"] = projectCode;
+        }
         documents.push({
           type,
           user_id,
