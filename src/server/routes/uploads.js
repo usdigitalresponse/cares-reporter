@@ -23,6 +23,9 @@ router.post(
   multerUpload.single("spreadsheet"),
   async (req, res, next) => {
     console.log("POST /api/uploads");
+    if (req.file) {
+      console.log("Filename:", req.file.originalname, "size:", req.file.size);
+    }
     const user = await getUser(req.signedCookies.userId);
     try {
       const { valog, upload } = await processUpload({
