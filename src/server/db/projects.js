@@ -94,12 +94,13 @@ async function getProjects() {
 function fixProjectCode(code) {
   code = String(code);
   if (code.length < 3 ){
-    code = ("000" + code).substr(-3);
+    code = (`000${code}`).substr(-3);
   }
   return code;
 }
 
 module.exports = {
+  fixProjectCode,
   getProjects,
   updateProject
 };
