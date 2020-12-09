@@ -1,39 +1,40 @@
 const express = require("express");
 const router = express.Router();
+const _ = require("lodash");
+
 const { requireUser } = require("../access-helpers");
 const { documentsInCurrentReportingPeriod,
   projects,
   updateProject
 } = require("../db");
-const { getTemplateSheets } = require("../services/get-template");
-const { makeConfig } = require("../lib/config");
-const { createTreasuryOutputWorkbook, clean } = require("../lib/spreadsheet");
 const { getUploadSummaries } = require("../db/uploads");
 const { applicationSettings } = require("../db/settings");
 const { getSubRecipients, setSubRecipient } = require("../db/subrecipients");
 
-const _ = require("lodash");
+const { getTemplateSheets } = require("../services/get-template");
+const { makeConfig } = require("../lib/config");
+const { createTreasuryOutputWorkbook } = require("../lib/treasury");
+const {  clean } = require("../lib/spreadsheet");
+const { fixProjectCode } = require("../db/projects");
 
 router.get("/", requireUser, async function(req, res) {
 
   const treasuryTemplateSheets = getTemplateSheets("treasury");
-  // console.dir(treasuryTemplateSheets);
   const config = makeConfig(treasuryTemplateSheets, "Treasury Template", []);
-  // console.dir(config);
 
   if (!config) {
     res.statusMessage = "Failed to make config";
     return res.status(500).end();
   }
 
-  let outputWorkBook;
-  try{
-    outputWorkBook = await processDocuments(res, config);
+  const { err, groups } = await getGroups();
 
-  } catch (err) {
-    res.statusMessage = "Failed to create output workbook";
+  if (err) {
+    res.statusMessage = err.message;
     return res.status(500).end();
   }
+
+  let outputWorkBook = await createTreasuryOutputWorkbook(config, groups);
 
   const filename = await getFilename();
   console.log(`Filename is ${filename}`);
@@ -63,35 +64,38 @@ async function getFilename() {
   }
 }
 
-async function processDocuments( res, config ) {
+async function getGroups() {
+  let err = null;
+  let groups = null;
 
   const mapUploadMetadata = new Map();
   try {
     let arrUploadMetaData = await getUploadSummaries();
     arrUploadMetaData.forEach( rec => mapUploadMetadata.set(rec.id, rec));
 
-  } catch ( err ) {
-    res.statusMessage = "Failed to load upload summaries";
-    return res.status(500).end();
+  } catch ( _err ) {
+    err = new Error("Failed to load upload summaries");
+    return { err, groups };
   }
 
   let documents;
   try {
     documents = await documentsInCurrentReportingPeriod();
 
-  } catch ( err ) {
-    res.statusMessage = "Failed to load document records";
-    return res.status(500).end();
+  } catch ( _err ) {
+    err = new Error("Failed to load document records");
+    return { err, groups };
   }
 
   console.log(`Found ${documents.length} documents`);
+
   let rv = await deDuplicate(documents, mapUploadMetadata);
   console.log(`Found ${rv.length} unique documents`);
 
-  const groups = _.groupBy(rv, "type");
+  groups = _.groupBy(rv, "type");
   console.log(`Found ${_.keys(groups).length} groups:`);
 
-  return createTreasuryOutputWorkbook(config, groups);
+  return { err, groups };
 }
 
 async function deDuplicate(documents, mapUploadMetadata) {
@@ -105,34 +109,17 @@ async function deDuplicate(documents, mapUploadMetadata) {
       subrecipientRecord
     );
   });
-  // console.log(`${mapSubrecipients.size} subrecipients in the database`);
 
   // get all the Projects currently in the Projects table
   let arrProjects = await projects();
   let mapProjects = new Map(); // project id : <project record>
 
   arrProjects.forEach(projectRecord => {
-    // console.log(`project code is "${projectRecord.code}"`);
     mapProjects.set(
       projectRecord.code,
       projectRecord
     );
   });
-  // mapProjects.forEach( (v,k) => {
-  //   console.log(`${v.id}\t${k}`);
-  // } );
-  /* {
-      '049' => {
-        id: 422,
-        code: '049',
-        name: "RIDE's Summer Learning Opportunities",
-        status: null,
-        agency_code: 'RIDE',
-        agency_name: 'Department of Elementary and Secondary Education'
-      },
-      ...
-    }
-    */
 
   const {
     mapUploadAgency,
@@ -148,12 +135,7 @@ async function deDuplicate(documents, mapUploadMetadata) {
 
   Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));
 
-  console.log(`dedup: There are ${mapProjects.size} project records`);
-  console.log(`dedup: There are ${arrProjects.length} project records`);
-
   let missing = [];
-
-  // console.log( `\nThere are ${mapSubrecipients.size} Subrecipients`);
 
   mapSubrecipientReferences.forEach( ( record, subrecipientID) => {
     if ( !mapSubrecipients.has(subrecipientID) ) {
@@ -168,10 +150,6 @@ async function deDuplicate(documents, mapUploadMetadata) {
       content: v
     });
   });
-
-  // console.log(`\n${mapSubrecipients.size} subrecipient records`);
-  // console.log(`${mapSubrecipientReferences.size} are referenced`);
-  // console.log(`${missing.length} missing references\n`);
 
   if ( process.env.AUDIT ) {
     missing.forEach(record => {
@@ -193,7 +171,6 @@ async function deDuplicate(documents, mapUploadMetadata) {
 async function pass1(documents, mapSubrecipients, mapProjects){
   let mapUploadAgency = new Map(); // KV table of { upload_id: agency code }
   let mapProjectStatus = new Map(); // KV table of { project id: project status }
-  // console.dir(mapSubrecipients);
 
   documents.forEach(async record => {
     switch (record.type) {
@@ -202,12 +179,7 @@ async function pass1(documents, mapSubrecipients, mapProjects){
           record.upload_id,
           record.content["agency code"].trim()
         );
-        let projectCode = String(record.content["project id"] ||
-                  record.content["project identification number"] )|| null;
-
-        if (projectCode.length <3) {
-          projectCode = ("000" + projectCode).substr(-3);
-        }
+        let projectCode = fixProjectCode(record.content["project id"] );
         record.content["project id"] = projectCode;
 
         // let projectStatus = (record.content.status || "").trim() || null ;
@@ -217,7 +189,6 @@ async function pass1(documents, mapSubrecipients, mapProjects){
           recProject.status = projectStatus;
 
           mapProjects.set(projectCode, recProject);
-          // console.dir(recProject);
           await updateProject(recProject); // no need to wait
 
         } else {
@@ -225,8 +196,6 @@ async function pass1(documents, mapSubrecipients, mapProjects){
         }
 
         mapProjectStatus.set(projectCode,projectStatus);
-
-        // console.dir(String(record.content["project id"]));
         break;
       }
 
@@ -253,20 +222,14 @@ async function pass1(documents, mapSubrecipients, mapProjects){
 /* pass2() cleans and deduplicates records, and combines them as needed for
   the output tabs
   */
-function pass2(documents, mapUploadAgency, mapProjectStatus) {
+function pass2(documents) {
   let uniqueRecords = {}; // keyed by concatenated id
   let uniqueID = 0; // this is for records we don't deduplicate
   let mapSubrecipientReferences = new Map();
 
-  let projectCount =0;
-  let emptyProjectsCount=0;
-
   documents.forEach(record => {
     uniqueID += 1;
     record.content = clean(record.content); // not needed after database is cleaned
-
-    let agencyID = mapUploadAgency.get(record.upload_id);
-    let agencyCode = record.content["agency code"] || agencyID;
 
     switch (record.type) {
       case "cover":
@@ -283,28 +246,9 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
       }
 
       case "projects":{
-        // projects: {
-        //   type: 'projects',
-        //   content: {
-        //     'agency code': 'JUD',
-        //     'project name': 'Providence Grand Jury Proceedings Under...',
-        //     'project identification number': 202,
-        //      description: 'This Rhode Island Superior Court project...'
-        //     'naming convention': 'JUD-202-093020-v1.xlsx'
-        //   }
-        // },
-        // let projectID = record.content["project identification number"];
-
-        // if (projectID) {
-        //   projectCount += 1;
-        //   // console.dir(record.content);
-        //   record.content["status"] = mapProjectStatus.get(projectID);
-
-        //   uniqueRecords[`${agencyCode}:project:${projectID}`] = record;
-
-        // } else {
-        //   emptyProjectsCount += 1;
-        // }
+        // Ignore projects records.
+        // The Projects tab in the Treasury output spreadsheet is populated from
+        // the projects db table by treasury.js/createTreasuryOutputWorkbook
         break;
       }
 
@@ -321,13 +265,13 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
           mapSubrecipientReferences.set(srID, record);
 
         } else {
-          // console.log(`${record.type} record is missing subrecipient ID`);
+          console.log(`${record.type} record is missing subrecipient ID`);
           // console.dir(record.content);
           /* {
             'agency code': 'ART01',
             'project name': 'Coronavirus Relief - Art/Cultural Organizations',
             'project identification number': '370503',
-            description: 'Economic relief to non-profit organizations whose primary mission is cultural, artistic, or performing arts to assist with business interruption costs',
+            description: 'Economic relief to non-profit organizations...',
             'naming convention': 'ART01-370503-093020-v1.xlsx'
           }
           */
@@ -348,8 +292,7 @@ function pass2(documents, mapUploadAgency, mapProjectStatus) {
         break;
     }
   });
-  console.log(`${projectCount} valid project records`);
-  console.log(`${emptyProjectsCount} empty project records`);
+
   return {
     uniqueRecords,
     mapSubrecipientReferences
