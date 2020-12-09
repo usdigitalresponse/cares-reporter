@@ -347,7 +347,7 @@ const categoryMap = {
   "public health expenses" :"Public Health Expenses",
   "small business assistance" :"Small Business Assistance",
   "unemployment benefits" :"Unemployment Benefits",
-  "workers’ compensation" :"Workers' Compensation",
+  "workers’ compensation" :"Workers Compensation",
   "other expenditure amount" :"Items Not Listed Above",
   "other expenditure categories" :"Category Description"
 };
