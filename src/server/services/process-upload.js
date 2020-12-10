@@ -4,13 +4,13 @@ const {
   createUpload,
   createDocuments,
   deleteDocuments,
-  projectByCode,
+  getProject,
   transact
 } = require("../db");
 const FileInterface = require("../lib/server-disk-interface");
 const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
-const { updateProject } = require("../db/projects");
+const { updateProjectStatus } = require("../db");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
 
@@ -24,12 +24,14 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   if (!valog.success()) {
     return { valog, upload: {} };
   }
-  let err = await updateProject(fileParts.projectId, documents);
 
+  let err = await updateProjectStatus(fileParts.projectId, documents);
   if (err) {
+    valog.append(err.message);
     return { valog, upload: {} };
 
   }
+
   try {
     await fileInterface.writeFileCarefully(filename, data);
   } catch (e) {
@@ -48,7 +50,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   let upload;
   let result;
   try {
-    const project = await projectByCode(fileParts.projectId);
+    const project = await getProject(fileParts.projectId);
     const agency = await agencyByCode(fileParts.agencyCode);
     if (agency[0]) {
       agency_id = agency[0].id;
@@ -62,7 +64,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
           created_by: current_user.email,
           user_id,
           agency_id,
-          project_id: project[0].id,
+          project_id: project.id,
           reporting_period_id: reportingPeriod.id
         },
         trx
@@ -77,7 +79,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
       const createResult = createDocuments(documents, trx);
       return createResult;
     });
-    console.log(`Inserted ${(result || {}).rowCount} documents.`);
+    // console.log(`Inserted ${(result || {}).rowCount} documents.`);
 
   } catch (e) {
     console.log(e);
