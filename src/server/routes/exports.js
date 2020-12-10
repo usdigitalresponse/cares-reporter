@@ -13,8 +13,8 @@ const { getSubRecipients, setSubRecipient } = require("../db/subrecipients");
 
 const { getTemplateSheets } = require("../services/get-template");
 const { makeConfig } = require("../lib/config");
-const { createTreasuryOutputWorkbook } = require("../lib/treasury");
-const {  clean } = require("../lib/spreadsheet");
+const treasury = require("../lib/treasury");
+const { clean } = require("../lib/spreadsheet");
 const { fixProjectCode } = require("../db/projects");
 
 router.get("/", requireUser, async function(req, res) {
@@ -34,10 +34,12 @@ router.get("/", requireUser, async function(req, res) {
     return res.status(500).end();
   }
 
-  let outputWorkBook = await createTreasuryOutputWorkbook(config, groups);
+  let outputWorkBook = await treasury.createOutputWorkbook(config, groups);
 
   const filename = await getFilename();
   console.log(`Filename is ${filename}`);
+
+  await treasury.writeOutputWorkbook(filename, outputWorkBook);
 
   res.header(
     "Content-Disposition",

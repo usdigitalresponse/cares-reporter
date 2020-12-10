@@ -4,7 +4,8 @@ const _ = require("lodash");
 const { applicationSettings,
   currentReportingPeriod
 } = require("../db");
-
+const FileInterface = require("../lib/server-disk-interface");
+const fileInterface = new FileInterface(process.env.TREASURY_DIRECTORY);
 const fixCellFormats = require("../services/fix-cell-formats");
 const {
   categoryDescriptionSourceColumn,
@@ -23,7 +24,7 @@ if ( process.env.VERBOSE ){
   log = console.log;
 }
 
-/*  createTreasuryOutputWorkbook() takes input records in the form of
+/*  createOutputWorkbook() takes input records in the form of
       { <type (i.e. source sheet name)>: [
           { content: {
               <sourceColumnName>:<sourceColumnValue>,
@@ -36,7 +37,7 @@ if ( process.env.VERBOSE ){
       }
     and composes these records into an output xlsx-formatted workbook.
   */
-async function createTreasuryOutputWorkbook(
+async function createOutputWorkbook(
   wbSpec, // a config object - see ./config.js/makeConfig()
   recordGroups  // a KV object where keys are sheet names, values are arrays
           // of document records of this type (aka spreadsheet rows from
@@ -44,8 +45,6 @@ async function createTreasuryOutputWorkbook(
 ) {
   try {
     var appSettings = await applicationSettings() // eslint-disable-line
-    // console.log("createTreasuryOutputWorkbook - appSettings are:");
-    // console.dir(appSettings);
     /*  {
           title: 'Rhode Island',
           current_reporting_period_id: 1,
@@ -559,8 +558,13 @@ function audit() {
   return process.env.AUDIT || false;
 }
 
+async function writeOutputWorkbook( filename, workbook ) {
+  return fileInterface.writeFileCarefully(filename, workbook);
+}
+
 module.exports = {
-  createTreasuryOutputWorkbook
+  createOutputWorkbook,
+  writeOutputWorkbook
 };
 
 /*                                  *  *  *                                   */
