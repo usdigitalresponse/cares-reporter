@@ -10,7 +10,7 @@ const {
 const FileInterface = require("../lib/server-disk-interface");
 const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
-const { updateProject } = require("../db/projects");
+const { updateProjectStatus } = require("../db");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
 
@@ -24,12 +24,14 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   if (!valog.success()) {
     return { valog, upload: {} };
   }
-  let err = await updateProject(fileParts.projectId, documents);
 
+  let err = await updateProjectStatus(fileParts.projectId, documents);
   if (err) {
+    valog.append(err.message);
     return { valog, upload: {} };
 
   }
+
   try {
     await fileInterface.writeFileCarefully(filename, data);
   } catch (e) {
@@ -77,7 +79,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
       const createResult = createDocuments(documents, trx);
       return createResult;
     });
-    console.log(`Inserted ${(result || {}).rowCount} documents.`);
+    // console.log(`Inserted ${(result || {}).rowCount} documents.`);
 
   } catch (e) {
     console.log(e);
