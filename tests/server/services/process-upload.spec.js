@@ -72,7 +72,10 @@ describe("services/process_upload", () => {
         `${dirRoot}file-success/EOHHS-075-06302020-simple-v1.xlsx`
       );
       const successResult = await processUpload(uploadArgs);
-      expect(successResult.valog.getLog()).to.be.empty;
+      expect(
+        successResult.valog.getLog(),
+        JSON.stringify(successResult.valog.getLog(), null, 2)
+      ).to.be.empty;
       const dupUploadResult = await processUpload(uploadArgs);
       expect(dupUploadResult.valog.getLog()[0].message).to.match(
         /The file .* is already in the database/
@@ -131,7 +134,11 @@ describe("services/process_upload", () => {
         .distinct("upload_id")
         .orderBy("upload_id");
       // Check the first upload
-      expect(result1.valog.getLog()).to.have.length(0);
+      expect(
+        result1.valog.getLog(),
+        JSON.stringify(result1.valog.getLog(), null, 2)
+      ).to.be.empty;
+
       expect(afterFirstUpload).to.deep.equal([{ upload_id: result1.upload.id }]);
 
       // For the second upload use a file with similar content

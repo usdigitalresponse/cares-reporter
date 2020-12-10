@@ -1,7 +1,7 @@
 const xlsx = require("xlsx");
 const { getTemplateSheets } = require("./get-template");
 const { upload: getUpload } = require("../db");
-const { 
+const {
   parseSpreadsheet,
   removeSourceRowField,
   spreadsheetToDocuments
@@ -15,7 +15,7 @@ const _ = require("lodash");
 async function fixSubrecipients(id) {
   let valog = new ValidationLog();
   const upload = await getUpload(id);
-  console.log('upload:', upload);
+  console.log("upload:", upload);
   const user_id = upload.user_id;
   const templateSheets = await getTemplateSheets();
 
@@ -23,8 +23,8 @@ async function fixSubrecipients(id) {
       fs.readFileSync(`${process.env.UPLOAD_DIRECTORY}/${upload.filename}`),
       { type: "buffer" }
   );
-  console.log('tabs:', _.keys(workbookXlsx.Sheets));
-  
+  console.log("tabs:", _.keys(workbookXlsx.Sheets));
+
   const { spreadsheet, valog: parseValog } = parseSpreadsheet(
     workbookXlsx,
     templateSheets
@@ -44,14 +44,14 @@ async function fixSubrecipients(id) {
         return {
           ...d,
           upload_id: upload.id
-        }
+        };
       })
       .value();
-  
-  console.log(subrecipients);
+
+  // console.log(subrecipients);
   const result = await knex.insert(subrecipients).into("documents");
-  console.log(`Inserted ${(result || {}).rowCount} documents.`);
+  // console.log(`Inserted ${(result || {}).rowCount} documents.`);
   return subrecipients;
 }
 
-module.exports = { fixSubrecipients }
+module.exports = { fixSubrecipients };
