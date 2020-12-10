@@ -1,7 +1,6 @@
 const xlsx = require("xlsx");
 const {
-  currentReportingPeriod,
-  applicationSettings: getApplicationSettings
+  currentReportingPeriod
 } = require("../db");
 const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
@@ -47,12 +46,10 @@ const validateUpload = async ({ filename, user_id, agency_id, data }) => {
   let documents = removeEmptyDocuments(spreadsheetDocuments);
 
   const reportingPeriod = await currentReportingPeriod();
-  const applicationSettings = await getApplicationSettings();
   const dataValog = await validateData(
     documents,
     fileParts,
-    reportingPeriod,
-    applicationSettings
+    reportingPeriod
   );
   valog.append(dataValog);
 
