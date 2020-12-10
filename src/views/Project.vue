@@ -48,6 +48,7 @@ export default {
       return [
         { name: "code", required: true },
         { name: "name", required: true },
+        { name: "description", rows: 6 },
         {
           name: "status",
           allowedValues: [
