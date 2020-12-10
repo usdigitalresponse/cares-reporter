@@ -3,10 +3,7 @@ const router = express.Router();
 const _ = require("lodash");
 
 const { requireUser } = require("../access-helpers");
-const { documentsInCurrentReportingPeriod,
-  projects,
-  updateProject
-} = require("../db");
+const { documentsInCurrentReportingPeriod, projects } = require("../db");
 const { getUploadSummaries } = require("../db/uploads");
 const { applicationSettings } = require("../db/settings");
 const { getSubRecipients, setSubRecipient } = require("../db/subrecipients");
@@ -191,13 +188,14 @@ async function pass1(documents, mapSubrecipients, mapProjects){
           recProject.status = projectStatus;
 
           mapProjects.set(projectCode, recProject);
-          await updateProject(recProject); // no need to wait
+          // project status is updated on file upload - don't do it here
+          // await updateProject(recProject); // no need to wait
 
         } else {
           console.log( `Record projectCode "${projectCode}" not in database`);
         }
 
-        mapProjectStatus.set(projectCode,projectStatus);
+        mapProjectStatus.set(projectCode, projectStatus);
         break;
       }
 
