@@ -1,10 +1,24 @@
 const fs = require("fs").promises;
+const fsSync = require("fs");
 const path = require("path");
 const multer = require("multer");
 
 class ServerDiskInterface {
+  // constructor(uploadDirectory = process.env.UPLOAD_DIRECTORY) {
+  //   this.uploadDirectory = uploadDirectory;
+  // }
   constructor(uploadDirectory = process.env.UPLOAD_DIRECTORY) {
     this.uploadDirectory = uploadDirectory;
+    try {
+      if (!fsSync.existsSync(uploadDirectory)) {
+        fsSync.mkdirSync(uploadDirectory);
+        console.log(`Directory ${uploadDirectory} created.`);
+      }
+
+    } catch (err) {
+      console.dir(err);
+      return err;
+    }
   }
 
   upload() {
@@ -37,3 +51,4 @@ class ServerDiskInterface {
 }
 
 module.exports = ServerDiskInterface;
+
