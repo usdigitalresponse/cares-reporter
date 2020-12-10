@@ -51,9 +51,7 @@ function projects() {
 
 
 function getProject(projectCode) {
-  return knex("projects")
-    .select("*")
-    .where("code", projectCode)
+  return projectByCode(projectCode)
     .then(r => r[0]);
 }
 
