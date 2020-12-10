@@ -24,6 +24,17 @@ const {
   uploadsForAgency
 } = require("./uploads");
 
+const {
+  createProject,
+  fixProjectCode,
+  getProject,
+  getProjects,
+  projectByCode,
+  projects,
+  updateProject,
+  updateProjectStatus
+} = require("./projects");
+
 function users() {
   return knex("users")
     .select("*")
@@ -163,61 +174,12 @@ function updateAgency(agency) {
     });
 }
 
-function projects() {
-  return knex("projects")
-    .select(
-      "projects.*",
-      "agencies.code as agency_code",
-      "agencies.name as agency_name"
-    )
-    .leftJoin("agencies", "projects.agency_id", "agencies.id")
-    .orderBy("name");
-}
-
-function getProject(id) {
-  return knex("projects")
-    .select("*")
-    .where("id", id)
-    .then(r => r[0]);
-}
-
-function projectByCode(code) {
-  return knex("projects")
-    .select("*")
-    .where({ code });
-}
-
 async function transact(callback) {
   let result;
   await knex.transaction(async queryBuilder => {
     result = await callback(queryBuilder);
   });
   return result;
-}
-
-function createProject(project) {
-  return knex
-    .insert(project)
-    .into("projects")
-    .returning(["id"])
-    .then(response => {
-      return {
-        ...project,
-        id: response[0].id
-      };
-    });
-}
-
-function updateProject(project) {
-  return knex("projects")
-    .where("id", project.id)
-    .update({
-      code: project.code,
-      name: project.name,
-      agency_id: project.agency_id,
-      status: project.status,
-      description: project.description
-    });
 }
 
 module.exports = {
@@ -237,17 +199,20 @@ module.exports = {
   deleteDocuments,
   documents,
   documentsForAgency,
-  getProject,
   documentsInCurrentReportingPeriod,
   documentsWithProjectCode,
+  fixProjectCode,
+  getProject,
+  getProjects,
   markAccessTokenUsed,
-  projects,
   projectByCode,
+  projects,
   reportingPeriods,
   roles,
   transact,
   updateAgency,
   updateProject,
+  updateProjectStatus,
   updateUser,
   upload,
   uploads,

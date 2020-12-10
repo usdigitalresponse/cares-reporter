@@ -2,57 +2,82 @@
 --------------------------------------------------------------------------------
 -                                 projects.js
 --------------------------------------------------------------------------------
-  fixCellFormats() attempts to identify the cells in a sheet that contain
-  dates or dollar amounts, and attempts to make them appear in Excel
-  correctly formatted.
+  A project record in postgres looks like this:
+   id          | integer |
+   code        | text    |
+   name        | text    |
+   agency_id   | integer |
+   status      | text    |
+   description | text    |
 */
 
 const knex = require("./connection");
 
-/* updateProject() updates a project record from an uploaded agency
+function createProject(project) {
+  return knex
+    .insert(project)
+    .into("projects")
+    .returning(["id"])
+    .then(response => {
+      return {
+        ...project,
+        id: response[0].id
+      };
+    });
+}
+
+function updateProject(project) {
+  return knex("projects")
+    .where("id", project.id)
+    .update({
+      code: project.code,
+      name: project.name,
+      agency_id: project.agency_id,
+      status: project.status,
+      description: project.description
+    });
+}
+
+function projects() {
+  return knex("projects")
+    .select(
+      "projects.*",
+      "agencies.code as agency_code",
+      "agencies.name as agency_name"
+    )
+    .leftJoin("agencies", "projects.agency_id", "agencies.id")
+    .orderBy("name");
+}
+
+
+function getProject(projectCode) {
+  return knex("projects")
+    .select("*")
+    .where("code", projectCode)
+    .then(r => r[0]);
+}
+
+function projectByCode(code) {
+  return knex("projects")
+    .select("*")
+    .where({ code });
+}
+
+/* updateProjectStatus() updates a project status from an uploaded agency
   spreadsheet
   */
-async function updateProject(projectCode, documents){
+async function updateProjectStatus(projectCode, documents){
   // get the project id for this upload from the cover page
   // then find that row in the projects page and use it to update
   // the database for that project.
   projectCode = fixProjectCode(projectCode);
-  let projectRecord=null;
-  // console.log(`UpdateProject() projectCode is - ${projectCode}`);
+  let projectRecord= await getProject(projectCode);
 
-  for (let i = 0; i<documents.length; i++) {
-    let row = documents[i];
-
-    if ( row.type === "projects"){
-      // console.dir(row);
-      /*{
-          type: 'projects',
-          user_id: '1',
-          content: {
-            'agency code': 'DPS01',
-            'project name': 'Coronavirus Relief - Depa...',
-            'project identification number': '763691',
-            description: "To provide funds to purchase pers...",
-            'naming convention': 'DPS01-763691-093020-v1.xlsx'
-          }
-        }
-        */
-      // console.log(`"${code}" === "${projectCode}": ${code === projectCode}`);
-      let code = fixProjectCode(row.content["project identification number"]);
-      if (code === projectCode) {
-        projectRecord = row.content;
-        break;
-      }
-    }
-  }
   if (!projectRecord) {
-    console.log(`Project record ${projectCode} not found.`);
     return new Error(`Project record ${projectCode} not found.`);
   }
-  // console.log(`projectRecord`);
-  // console.dir(projectRecord);
 
-  let status;
+  let status = null;
   for (let i = 0; i<documents.length; i++) {
     let row = documents[i];
     if ( row.type === "cover" ) {
@@ -60,26 +85,21 @@ async function updateProject(projectCode, documents){
       break;
     }
   }
-  // console.log(`Project ${projectCode} Status "${status}"`);
-  /*
-   id          | integer |
-   code        | text    |
-   name        | text    |
-   agency_id   | integer |
-   status      | text    |
-   description | text    |
-  */
+
+  if ( !status ) {
+    return new Error(`Status is missing from Cover sheet.`);
+  }
+
+  // console.log(`Project "${projectCode}" status is "${status}"`);
   let ok = await knex("projects")
     .where("code", projectCode)
     .update({
-      status:status,
-      description:projectRecord.description
+      status:status
     });
 
   // console.log(`updated project status and description`);
 
   if ( !ok ){
-    console.log(`Failed to update status of project ${projectCode}`);
     return new Error(`Failed to update status of project ${projectCode}`);
   }
 
@@ -100,9 +120,14 @@ function fixProjectCode(code) {
 }
 
 module.exports = {
+  createProject,
   fixProjectCode,
+  getProject,
   getProjects,
-  updateProject
+  projectByCode,
+  projects,
+  updateProject,
+  updateProjectStatus
 };
 
 /*                                 *  *  *                                    */
