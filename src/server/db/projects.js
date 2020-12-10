@@ -33,23 +33,22 @@ function updateProject(project) {
       code: project.code,
       name: project.name,
       agency_id: project.agency_id,
-      status: project.status
+      status: project.status,
+      description: project.description
     });
 }
 
 function projects() {
   return knex("projects")
     .select(
-      "projects.id",
-      "projects.code",
-      "projects.name",
-      "projects.status",
+      "projects.*",
       "agencies.code as agency_code",
       "agencies.name as agency_name"
     )
     .leftJoin("agencies", "projects.agency_id", "agencies.id")
     .orderBy("name");
 }
+
 
 function getProject(projectCode) {
   return knex("projects")
