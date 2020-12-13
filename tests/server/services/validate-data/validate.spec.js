@@ -1,4 +1,5 @@
 const {
+  initializeDropdowns,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   isAtLeast50K,
@@ -35,7 +36,7 @@ describe("validation helpers", () => {
     },
     reportingPeriod: {
       startDate: "2020-03-01",
-      endDate: "2020-12-30",
+      endDate: "2020-09-30",
       periodOfPerformanceEndDate: "2020-12-30"
     }
   };
@@ -194,24 +195,6 @@ describe("validation helpers", () => {
       true
     ],
     [
-      "isValidState passes",
-      isValidState(
-        "WA",
-        {},
-        validateContext
-      ),
-      true
-    ],
-    [
-      "isValidState fails",
-      isValidState(
-        "ZZ",
-        {},
-        validateContext
-      ),
-      false
-    ],
-    [
       "valid US zip passes",
       isValidZip(
         98101,
@@ -277,22 +260,31 @@ describe("validation helpers", () => {
     [
       "whenUS conditional validation skipped",
       whenUS("country", isValidZip)(
-        '',
+        "",
         { "country": "hk" },
         validateContext
       ),
       true
     ],
     ["isAtLeast50K fails", isAtLeast50K(undefined), false],
-    ["isAtLeast50K fails", isAtLeast50K(''), false],
+    ["isAtLeast50K fails", isAtLeast50K(""), false],
     ["isAtLeast50K fails", isAtLeast50K(5000.00), false],
     ["isAtLeast50K passes", isAtLeast50K(50000.00), true],
-    ["isAtLeast50K passes", isAtLeast50K(150000.00), true],
+    ["isAtLeast50K passes", isAtLeast50K(150000.00), true]
   ];
   testCases.forEach(([name, b, expectedResult]) => {
     it(`${name} should return ${expectedResult}`, () => {
       expect(b).to.equal(expectedResult);
     });
+  });
+  // isValidState() doesn't work in the testCases array,
+  // because it has to run after beforeEach() has initialized
+  // the dropdowns, so it has to be invoked inside an it() function.
+  it(`isValidState("WA") should return true`, () => {
+    expect(isValidState("WA", {}, validateContext)).to.equal(true);
+  });
+  it(`isValidState("ZZ") should return false`, () => {
+    expect(isValidState("ZZ", {}, validateContext)).to.equal(false);
   });
 });
 
@@ -383,3 +375,5 @@ describe("date conversion for messages", () => {
     expect(messageValue(44195)).to.equal(44195);
   });
 });
+
+/*                                 *  *  *                                    */

@@ -1,3 +1,9 @@
+
+let log = ()=>{};
+if ( process.env.VERBOSE ){
+  log = console.dir;
+}
+
 const xlsx = require("xlsx");
 const {
   currentReportingPeriod,
@@ -18,8 +24,10 @@ const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 const validateUpload = async ({ filename, user_id, agency_id, data }) => {
   let valog = new ValidationLog();
   const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
+
   valog.append(filenameValog);
   if (!valog.success()) {
+    log(`failed to validate file name`);
     return { valog, documents: {} };
   }
   let workbookXlsx;
@@ -36,12 +44,18 @@ const validateUpload = async ({ filename, user_id, agency_id, data }) => {
     workbookXlsx,
     templateSheets
   );
+  if (parseValog.length){
+    log(`parseValog failed`);
+  }
   valog.append(parseValog);
 
   const {
     documents: spreadsheetDocuments,
     valog: docValog
   } = await spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
+  if (docValog.length){
+    log(`docValog failed`);
+  }
   valog.append(docValog);
 
   let documents = removeEmptyDocuments(spreadsheetDocuments);
@@ -54,6 +68,10 @@ const validateUpload = async ({ filename, user_id, agency_id, data }) => {
     reportingPeriod,
     applicationSettings
   );
+  if (dataValog.length){
+    log(`dataValog failed`);
+    // console.dir(dataValog);
+  }
   valog.append(dataValog);
 
   if (!valog.success()) {
