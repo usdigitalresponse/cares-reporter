@@ -12,10 +12,13 @@ const {
 } = require("./documents");
 
 const {
-  applicationSettings,
   currentReportingPeriod,
-  reportingPeriods
+  applicationSettings
 } = require("./settings");
+
+const {
+  reportingPeriods
+} = require("./reporting-periods");
 
 const {
   createUpload,

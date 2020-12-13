@@ -1,11 +1,5 @@
 const knex = require("./connection");
 
-function reportingPeriods() {
-  return knex("reporting_periods")
-    .select("*")
-    .orderBy("end_date", "desc");
-}
-
 /*  applicationSettings() returns
   {
     title: 'Ohio',
@@ -33,19 +27,18 @@ function applicationSettings() {
     period_of_performance_end_date: 2020-12-30T06:00:00.000Z
   }
  */
-async function currentReportingPeriod() {
-  const result = await knex("application_settings")
+function currentReportingPeriod() {
+  return knex("application_settings")
     .join(
       "reporting_periods",
       "application_settings.current_reporting_period_id",
       "reporting_periods.id"
     )
-    .select("*");
-  return result[0];
+    .select("*")
+    .then(rv=> rv[0]);
 }
 
 module.exports = {
   applicationSettings,
-  currentReportingPeriod,
-  reportingPeriods
+  currentReportingPeriod
 };

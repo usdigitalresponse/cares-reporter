@@ -4,8 +4,11 @@ const { currentReportingPeriod } = require("../db/settings");
 const { format } = require("date-fns");
 
 const parseFilename = async filename => {
+  // console.log(`filename is ${filename}`);
   const currentPeriod = await currentReportingPeriod();
+  // console.dir(currentPeriod);
   const endDate = (currentPeriod || {}).end_date;
+  // console.log(`endDate is ${endDate}`);
   const expectedEndReportDate = format(endDate, "MMddyyyy");
   const valog = [];
   const [, name, ext] = filename.match(/^(.*)\.([^.]+)$/) || [];
