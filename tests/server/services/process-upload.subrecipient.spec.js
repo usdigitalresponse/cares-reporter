@@ -6,10 +6,11 @@ const dirRoot = `${__dirname}/../fixtures/`;
 
 describe("services/process-upload", () => {
   describe("subrecipients", () => {
+
     const dir = `${dirRoot}data-subrecipients/`;
     it("fails when missing both project_id and duns", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}/EOHHS-075-06302020-missing_id-v1.xlsx`
+        `${dir}/EOHHS-075-09302020-missing_id-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
@@ -20,7 +21,7 @@ describe("services/process-upload", () => {
     });
     it(`fails when there is no duns number and "city name" is missing.`, async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}/EOHHS-075-06302020-missing_sub_city_name-v1.xlsx`
+        `${dir}/EOHHS-075-09302020-missing_sub_city_name-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       const log = result.valog.getLog();
@@ -35,3 +36,4 @@ describe("services/process-upload", () => {
     });
   });
 });
+

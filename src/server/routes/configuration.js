@@ -1,10 +1,11 @@
+const _ = require("lodash");
 const express = require("express");
 const router = express.Router();
+
 const { requireUser } = require("../access-helpers");
 const { user: getUser, users: getUsers, roles: getRoles } = require("../db");
 const { getTemplateSheets } = require("../services/get-template");
 const { makeConfig, makeTables, makeTemplate } = require("../lib/config");
-const _ = require("lodash");
 
 router.get("/", requireUser, async function(req, res) {
   const user = await getUser(req.signedCookies.userId);
