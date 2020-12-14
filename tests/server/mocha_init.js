@@ -1,7 +1,7 @@
 require("dotenv").config();
 const knex = require("../../src/server/db/connection");
 const { setupAgencies } = require("./fixtures/add-dummy-data");
-const { initializeDropdowns }=require("../../src/server/services/get-template");
+const { initializeTemplates }=require("../../src/server/services/get-template");
 // `requireSrc(__filename)` is a convenience that performs a
 // `require` of the corresponding source file to the current `spec` file.
 // `or
@@ -12,7 +12,7 @@ global.requireSrc = f =>
 
 module.exports.mochaHooks = {
   beforeAll: async () => {
-    await initializeDropdowns();
+    await initializeTemplates();
     return await setupAgencies(knex);
   },
   afterAll: done => {

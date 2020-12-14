@@ -87,31 +87,8 @@ export default {
     };
   },
   computed: {
-    currentReportingPeriod: {
-
-      get: function () {
-        // return this.$store.getters.currentReportingPeriod;
-        return {
-          certified_at: null,
-          certified_by: null,
-          close_date: "2020-12-01T06:00:00.000Z",
-          end_date: "2020-09-30T05:00:00.000Z",
-          id: 2,
-          name: "2",
-          open_date: "2020-12-01T06:00:00.000Z",
-          period_of_performance_end_date: "2020-12-30T06:00:00.000Z",
-          reporting_template: "OBM Reporting Template.xlsx",
-          review_period_end_date: "2020-12-23T06:00:00.000Z",
-          review_period_start_date: "2020-12-16T06:00:00.000Z",
-          start_date: "2020-03-01T06:00:00.000Z",
-          validation_rule_tags: null
-        };
-      },
-      // setter
-      set: function (val) {
-        console.log(`setting currentReportingPeriod with ${val}`);
-        console.dir(val, { depth:4 });
-      }
+    currentReportingPeriod: function () {
+      return this.$store.getters.currentReportingPeriod;
     },
     template: function() {
       return _.find(this.$store.state.configuration.templates, t =>
