@@ -12,18 +12,17 @@ const { currentReportingPeriod } = require("../db/settings");
 let template = null;
 let templateSheets= null;
 let dropdownValues = null;
-// console.log(`before...`);
-// initializeDropdowns();
-// console.log(`after...`);
+// Uninitialized templates cause the Record Summary section of the home page
+// to be blank
+initializeTemplates();
 
 const {
   template: treasuryTemplate,
   templateSheets: treasuryTemplateSheets
 } = loadTreasuryTemplate(process.env.TREASURY_TEMPLATE);
-// console.dir(treasuryTemplateSheets)
 
 module.exports = {
-  initializeDropdowns,
+  initializeTemplates,
   getTemplateSheets,
   getDropdownValues,
   treasuryTemplate
@@ -137,13 +136,13 @@ function loadAgencyTemplate() {
   });
 }
 
-function initializeDropdowns(){
+function initializeTemplates(){
   return new Promise(
     (resolve, reject) => {
       if ( template !== null ) {
         resolve(`dropdowns already initialized`);
       }
-      log(`initializeDropdowns()`);
+      log(`initializeTemplates()`);
       loadAgencyTemplate().then(
         rv=>{
           log(`Agency template loaded...`);

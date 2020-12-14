@@ -19,7 +19,7 @@ const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
 const { updateProjectStatus } = require("../db");
 // needed for tests
-const { initializeDropdowns } = require("./get-template");
+const { initializeTemplates } = require("./get-template");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
   log(`processUpload(): filename is ${filename}`);
@@ -105,4 +105,4 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   return { valog, upload, spreadsheet };
 };
 
-module.exports = { processUpload, initializeDropdowns };
+module.exports = { processUpload, initializeTemplates };

@@ -1,5 +1,4 @@
 const {
-  initializeDropdowns,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   isAtLeast50K,
@@ -322,11 +321,23 @@ describe("can exclude filters based on tags", () => {
   ];
   const content = { name: "" };
   it("includes filter with matching tag", () => {
-    const r = validateFields(requiredFields, content, "Test Tab", 1, { tags: ["v2"] });
+    const r = validateFields(
+      requiredFields,
+      content,
+      "Test Tab",
+      1,
+      { tags: ["v2"] }
+    );
     expect(r).to.have.length(1);
   });
   it("ignores filter with non matching tag", () => {
-    const r = validateFields(requiredFields, content, "Test Tab", 1, { tags: ["v3"] });
+    const r = validateFields(
+      requiredFields,
+      content,
+      "Test Tab",
+      1,
+      { tags: ["v3"] }
+    );
     expect(r).to.have.length(0);
   });
   it("ignores filter when context has no tags", () => {

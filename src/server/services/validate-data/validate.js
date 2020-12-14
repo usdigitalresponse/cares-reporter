@@ -8,7 +8,7 @@ const { ValidationItem } = require("../../lib/validation-log");
 const { subrecipientKey } = require("./helpers");
 const ssf = require("ssf");
 const _ = require("lodash");
-const { getDropdownValues, initializeDropdowns } = require("../get-template");
+const { getDropdownValues, initializeTemplates } = require("../get-template");
 
 function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
@@ -262,7 +262,7 @@ function validateSingleDocument(tab, validations, message) {
 }
 
 module.exports = {
-  initializeDropdowns,
+  initializeTemplates,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
