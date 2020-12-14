@@ -9,9 +9,7 @@ const knex = require("./connection");
   }
   */
 function applicationSettings() {
-  return knex("application_settings")
-    .select("*")
-    .then(r => r[0]);
+  return currentReportingPeriod();
 }
 
 /* currentReportingPeriod() returns:
