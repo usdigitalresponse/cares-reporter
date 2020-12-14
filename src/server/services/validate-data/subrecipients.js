@@ -18,7 +18,7 @@ const requiredFields = [
   ["legal name", isNotBlank, "Legal name must not be blank"],
   [
     "organization type",
-    dropdownIncludes("organization type", true),
+    dropdownIncludes("organization type"),
     'Organization type "{}" is not valid'
   ],
 
@@ -44,7 +44,7 @@ const requiredFields = [
   ],
   [
     "country name",
-    whenBlank("duns number", dropdownIncludes("country", true)),
+    whenBlank("duns number", dropdownIncludes("country")),
     "Country name must be a valid country name when DUNS number is not provided"
   ]
 ];
