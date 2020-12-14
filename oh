@@ -1,1 +1,0 @@
-POSTGRES_URL=postgres://localhost/ohio AUDIT=true yarn serve
