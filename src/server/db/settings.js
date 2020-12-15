@@ -24,6 +24,17 @@ function applicationSettings() {
     end_date: 2020-09-30T05:00:00.000Z,
     period_of_performance_end_date: 2020-12-30T06:00:00.000Z
   }
+
+  reporting period record in db:
+    id
+    name
+    start_date
+    end_date
+    period_of_performance_end_date
+    certified_at
+    certified_by
+    reporting_template
+    validation_rule_tags
  */
 function currentReportingPeriod() {
   return knex("application_settings")
