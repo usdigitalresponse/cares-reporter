@@ -12,6 +12,21 @@ function applicationSettings() {
   return currentReportingPeriod();
 }
 
+// update application_settings set current_reporting_period_id=1;
+function setCurrentReportingPeriod(id) {
+  return knex("application_settings")
+    .update("current_reporting_period_id", id);
+}
+
+// update application_settings set current_reporting_period_id=1;
+function getCurrentReportingPeriodID() {
+  return knex("application_settings")
+    .select("*")
+    .then(r=>{
+      return r[0].current_reporting_period_id;
+    });
+}
+
 /* currentReportingPeriod() returns:
   {
     title: 'Ohio',
@@ -49,5 +64,7 @@ function currentReportingPeriod() {
 
 module.exports = {
   applicationSettings,
-  currentReportingPeriod
+  currentReportingPeriod,
+  getCurrentReportingPeriodID,
+  setCurrentReportingPeriod
 };

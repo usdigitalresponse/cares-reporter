@@ -10,7 +10,7 @@ const { makeUploadArgs, resetUploadsAndDb } = require("./helpers");
 const dirRoot = `${__dirname}/../fixtures/`;
 
 describe("services/process_upload", () => {
-  describe("baseline success", () => {
+  describe("process-upload.spec.js - baseline success", () => {
     const dir = `${dirRoot}file-success/`;
     it("processes without error", async () => {
       const uploadArgs = makeUploadArgs(

@@ -6,7 +6,7 @@ exports.seed = async function(knex) {
     {
       name: "1",
       start_date: "2020-03-01",
-      end_date: "2020-06-30",
+      end_date: "2020-09-30",
       period_of_performance_end_date: "2020-12-30",
       open_date:"2020-12-01",
       close_date:"2020-12-01",

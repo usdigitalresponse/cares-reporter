@@ -19,6 +19,7 @@
 const knex = require("./connection");
 
 module.exports = {
+  getReportingPeriod,
   reportingPeriods,
   periodSummaries,
   close
@@ -29,6 +30,13 @@ function reportingPeriods() {
   return knex("reporting_periods")
     .select("*")
     .orderBy("end_date", "desc");
+}
+
+function getReportingPeriod( period_id ) {
+  return knex("reporting_periods")
+    .select("*")
+    .where("id", period_id)
+    .then( r=>r[0] );
 }
 
 async function periodSummaries() {

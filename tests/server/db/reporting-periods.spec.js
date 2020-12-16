@@ -6,7 +6,7 @@ const {
 
 const expect = require("chai").expect;
 
-describe("baseline success", () => {
+describe("reporting-periods.spec.js - baseline success", () => {
   it("Returns a list of reporting periods", async () => {
 
     const result = await reportingPeriods();

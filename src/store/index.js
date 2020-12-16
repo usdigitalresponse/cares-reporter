@@ -146,6 +146,9 @@ export default new Vuex.Store({
           .then(r => r.json())
           .then(data => {
             const mutation = _.camelCase(`set_${attr}`);
+            if (attr==="configuration") {
+              console.dir(data[attr]);
+            }
             commit(mutation, data[attr]);
           });
       };
