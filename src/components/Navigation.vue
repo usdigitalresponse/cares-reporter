@@ -9,6 +9,18 @@
         {{ email }}
         <a href="#" @click="logout">Logout</a>
       </span>
+
+      <div class="row">
+        <div class="col-12">
+          <div>
+            Reporting Period:
+            {{ dateFormat(currentReportingPeriod.start_date) }} to
+            {{ dateFormat(currentReportingPeriod.end_date) }}
+          </div>
+        </div>
+      </div>
+
+
     </div>
     <div class="navigation">
       <ul class="nav nav-tabs mb-4" v-if="loggedIn">
@@ -63,6 +75,7 @@
 <script>
 import Messages from "./Messages";
 import { titleize } from "../helpers/form-helpers";
+import moment from "moment";
 
 export default {
   name: "Logout",
@@ -88,6 +101,27 @@ export default {
     tableNames: function() {
       return this.$store.getters.tableNames;
     },
+    currentReportingPeriod: {
+      set: p => {
+        // setter is needed to avoid an error when the "watch" on
+        // applicationSettings is triggered.
+        // No current (20 12 15) need to do anything with it, so we could
+        // just remove the watch instead of adding this setter.
+        if (p) {
+          // p is the current reporting period record
+          // console.log(`Current reporting period is ${p.id}`);
+        }
+      },
+      get: function () {
+        const rp = this.$store.getters.currentReportingPeriod;
+        if (rp){
+          return this.$store.getters.currentReportingPeriod;
+
+        }else {
+          return {};
+        }
+      }
+    },
     applicationTitle: function() {
       return this.$store.getters.applicationTitle;
     }
@@ -111,6 +145,11 @@ export default {
         return "nav-link dropdown-toggle active";
       }
       return "nav-link dropdown-toggle";
+    },
+    dateFormat: function(d) {
+      return moment(d)
+        .utc()
+        .format("MM-DD-YYYY");
     }
   }
 };

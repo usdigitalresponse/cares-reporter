@@ -3,7 +3,7 @@ const router = express.Router();
 const _ = require("lodash");
 
 const { requireUser } = require("../access-helpers");
-const { documentsInCurrentReportingPeriod, projects } = require("../db");
+const { documentsInPeriod, projects } = require("../db");
 const { getUploadSummaries } = require("../db/uploads");
 const { applicationSettings } = require("../db/settings");
 const { getSubRecipients, setSubRecipient } = require("../db/subrecipients");
@@ -79,7 +79,7 @@ async function getGroups() {
 
   let documents;
   try {
-    documents = await documentsInCurrentReportingPeriod();
+    documents = await documentsInPeriod();
 
   } catch ( _err ) {
     err = new Error("Failed to load document records");

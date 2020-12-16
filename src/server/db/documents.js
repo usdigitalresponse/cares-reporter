@@ -16,11 +16,25 @@
   */
 const knex = require("./connection");
 const _ = require("lodash");
-const { currentReportingPeriod } = require("./settings");
+const {
+  currentReportingPeriod,
+  getCurrentReportingPeriodID
+} = require("./settings");
+const { getReportingPeriod } = require("./reporting-periods");
 
-function documentsWithProjectCode() {
+async function documentsWithProjectCode(period_id) {
+  if ( !period_id ) {
+    period_id = await getCurrentReportingPeriodID();
+  }
+  let periodUploads = await knex("uploads")
+    .select("id")
+    .where({ "reporting_period_id": period_id })
+    .then( recs => recs.map( rec => rec.id));
+  // periodUploads = periodUploads.map( rec => rec.id);
+
   return knex("documents")
     .select("documents.*", "projects.code as project_code")
+    .whereIn("upload_id", periodUploads)
     .join("uploads", { "documents.upload_id": "uploads.id" })
     .join("projects", { "uploads.project_id": "projects.id" })
     .then( purgeDuplicateSubrecipients);
@@ -64,17 +78,20 @@ function documents() {
   return knex("documents").select("*").then(purgeDuplicateSubrecipients);
 }
 
-function documentsInCurrentReportingPeriod() {
-  return currentReportingPeriod().then(reportingPeriod => {
+function documentsInPeriod( period_id ) {
+  let period;
+  if ( period_id ) {
+    period = getReportingPeriod( period_id );
+
+  } else {
+    period = currentReportingPeriod();
+  }
+
+  return period.then(reportingPeriod => {
     console.log(
       `reporting period is ${reportingPeriod.start_date} `+
       `to ${reportingPeriod.end_date}`
     );
-    // TODO!
-    // we really need to do periods 1 and 2 together for now ...
-    // so best way is to fix the start and end dates reported by
-    // currentReportingPeriod()
-    // return knex("documents").select("*");
     return documents();
   });
 }
@@ -128,7 +145,7 @@ module.exports = {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsInCurrentReportingPeriod,
+  documentsInPeriod,
   documentsForAgency,
   documentsOfType,
   documentsWithProjectCode

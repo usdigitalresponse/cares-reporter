@@ -24,10 +24,12 @@ function formatDates(document) {
 }
 
 router.get("/", requireUser, async function(req, res) {
+  const { period_id } = req.query;
   const user = await getUser(req.signedCookies.userId);
   const rawDocuments = user.agency_id
-    ? await documentsForAgency(user.agency_id)
-    : await documentsWithProjectCode();
+    ? await documentsForAgency(user.agency_id, period_id)
+    : await documentsWithProjectCode(period_id);
+
   const documents = rawDocuments.map(formatDates);
   return res.json({ documents });
 });

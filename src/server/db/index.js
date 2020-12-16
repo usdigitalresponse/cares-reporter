@@ -6,7 +6,7 @@ const {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsInCurrentReportingPeriod,
+  documentsInPeriod,
   documentsForAgency,
   documentsWithProjectCode
 } = require("./documents");
@@ -17,6 +17,7 @@ const {
 } = require("./settings");
 
 const {
+  getReportingPeriod,
   reportingPeriods
 } = require("./reporting-periods");
 
@@ -202,11 +203,12 @@ module.exports = {
   deleteDocuments,
   documents,
   documentsForAgency,
-  documentsInCurrentReportingPeriod,
+  documentsInPeriod,
   documentsWithProjectCode,
   fixProjectCode,
   getProject,
   getProjects,
+  getReportingPeriod,
   markAccessTokenUsed,
   projectByCode,
   projects,

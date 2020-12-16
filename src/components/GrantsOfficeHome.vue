@@ -1,15 +1,6 @@
 <template>
   <div class="home">
     <div>
-      <div class="row" v-if="currentReportingPeriod">
-        <div class="col-12">
-          <h3>
-            Reporting Period:
-            {{ dateFormat(currentReportingPeriod.start_date) }} to
-            {{ dateFormat(currentReportingPeriod.end_date) }}
-          </h3>
-        </div>
-      </div>
       <div class="row buttons mt-5">
         <div class="col-4">
           <a :href="downloadUrl()" class="btn btn-primary"
