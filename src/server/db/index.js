@@ -17,6 +17,7 @@ const {
 } = require("./settings");
 
 const {
+  closeReportingPeriod,
   getReportingPeriod,
   reportingPeriods
 } = require("./reporting-periods");
@@ -192,6 +193,7 @@ module.exports = {
   agencyByCode,
   agencyById,
   applicationSettings,
+  closeReportingPeriod,
   createAccessToken,
   createAgency,
   createDocument,
