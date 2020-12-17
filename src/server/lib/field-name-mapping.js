@@ -77,7 +77,10 @@ const columnNameMap = {
   "Obligation Date": "obligation date",
   "Obligation Project": "project id",
   "Organization Type": "organization type",
-  // "Payment Amount": "total payment amount",
+
+  // 20 12 16 was commented out - why? Needed for Loans tab
+  "Payment Amount": "total payment amount",
+
   "Payment Date": "payment date",
   "Payment Project": "project id",
   "Period of Performance End Date": "period of performance end date",
