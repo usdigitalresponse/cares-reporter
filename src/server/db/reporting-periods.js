@@ -2,36 +2,44 @@
 --------------------------------------------------------------------------------
 -                           db/reporting-periods.js
 --------------------------------------------------------------------------------
-  A period-summary record in postgres looks like this:
+  A reporting_periods record in postgres looks like this:
 
-  {
-    "id" - auto-increment
-    "period" - a digit
-    "project" - a project code
-    "type" - the name of the tab - Contract, Grant, Loan, Transfer or Direct
-    "cumulative_obligation" - currency
-    "cumulative_expenditure"- currency
-    "certified_by" - user id
-    "certified_at" - timestamp
-  });
+               Column             |           Type           |
+  --------------------------------+--------------------------+
+   id                             | integer                  |
+   name                           | text                     |
+   start_date                     | date                     |
+   end_date                       | date                     |
+   period_of_performance_end_date | date                     |
+   certified_at                   | timestamp with time zone |
+   certified_by                   | text                     |
+   reporting_template             | text                     |
+   validation_rule_tags           | text[]                   |
+   open_date                      | date                     |
+   close_date                     | date                     |
+   review_period_start_date       | date                     |
+   review_period_end_date         | date                     |
 
 */
 const knex = require("./connection");
+const { getPeriodSummaries } = require("./period-summaries");
 
 module.exports = {
+  closeReportingPeriod,
   getReportingPeriod,
-  reportingPeriods,
-  periodSummaries,
-  close
+  reportingPeriods
 };
 
-
+/*  reportingPeriods() returns all the records from the reporting_periods table
+  */
 function reportingPeriods() {
   return knex("reporting_periods")
     .select("*")
     .orderBy("end_date", "desc");
 }
 
+/* getReportingPeriod() returns a record from the reporting_periods table.
+  */
 function getReportingPeriod( period_id ) {
   return knex("reporting_periods")
     .select("*")
@@ -39,27 +47,17 @@ function getReportingPeriod( period_id ) {
     .then( r=>r[0] );
 }
 
-async function periodSummaries() {
-  return "Get -- OK";
+/* closeReportingPeriod() closes a reporting period by writing the period
+  summaries to the database.
+  */
+async function closeReportingPeriod(reporting_period_id) {
+  let { periodSummaries, closed } = getPeriodSummaries(reporting_period_id);
+  if (closed) {
+    throw new Error(`Reporting period ${reporting_period_id} is already closed`);
+  }
 
-  // return new Promise(
-  //   () => {
-  //   },
-  //   err => {
-  //     console.log(err.message);
-  //   }
-  // );
-}
-
-async function close() {
-  return "Closing current reporting period -- OK";
-  // return new Promise(
-  //   () => {
-  //   },
-  //   err => {
-  //     console.log(err.message);
-  //   }
-  // );
+  return knex("period_summaries")
+    .insert(periodSummaries);
 }
 
 /*                                 *  *  *                                    */

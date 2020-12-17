@@ -1,3 +1,26 @@
+/*
+--------------------------------------------------------------------------------
+-                     tests/db/reporting-periods.spec.js
+--------------------------------------------------------------------------------
+  A reporting_periods record in postgres looks like this:
+
+               Column             |           Type           |
+  --------------------------------+--------------------------+
+   id                             | integer                  |
+   name                           | text                     |
+   start_date                     | date                     |
+   end_date                       | date                     |
+   period_of_performance_end_date | date                     |
+   certified_at                   | timestamp with time zone |
+   certified_by                   | text                     |
+   reporting_template             | text                     |
+   validation_rule_tags           | text[]                   |
+   open_date                      | date                     |
+   close_date                     | date                     |
+   review_period_start_date       | date                     |
+   review_period_end_date         | date                     |
+
+*/
 const {
   close,
   periodSummaries,
@@ -39,3 +62,5 @@ describe("reporting-periods.spec.js - baseline success", () => {
   });
 
 });
+
+/*                                 *  *  *                                    */
