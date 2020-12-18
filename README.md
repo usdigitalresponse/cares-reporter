@@ -38,7 +38,7 @@ yarn build
 
 ### Run tests
 
-#### Unit  
+#### Unit
 ```
 yarn test:unit
 ```
