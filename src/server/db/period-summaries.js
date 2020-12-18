@@ -6,8 +6,9 @@
 
     id                  | integer       |
     reporting_period_id | integer       |
-    project_id          | integer       |
-    type                | text          |
+    project_code        | text          |
+    award_type          | text          |
+    award_number        | text          |
     current_obligation  | numeric(19,2) |
     current_expenditure | numeric(19,2) |
 */
@@ -15,6 +16,7 @@ const knex = require("./connection");
 const { documentsWithProjectCode } = require("./documents");
 
 module.exports = {
+  closeReportingPeriod,
   getPeriodSummaries
 };
 
@@ -23,9 +25,10 @@ module.exports = {
   reporting period.
   */
 async function getPeriodSummaries(reporting_period_id) {
+  let errLog =[];
   let periodSummaries = await knex("period_summaries")
   .select("*")
-  .where("id", reporting_period_id);
+  .where("reporting_period_id", reporting_period_id);
 
   if (periodSummaries.length) {
     return { periodSummaries, closed:true };
@@ -35,34 +38,53 @@ async function getPeriodSummaries(reporting_period_id) {
   let mapPeriodSummaries = new Map();
   let documents = await documentsWithProjectCode(reporting_period_id);
   documents.forEach(document => {
-    let amount = document.content["cost or expenditure amount"] || 0;
+    let awardNumber;
     let obligation = document.content["current quarter obligation"];
+    let amount = document.content["cost or expenditure amount"] || 0;
+    let jsonRow = document.content;
+
+    switch ( document.type ) {
+      case "contracts":
+        awardNumber = jsonRow["contract number"];
+        break;
+      case "grants":
+        awardNumber = jsonRow["award number"];
+        break;
+      case "loans":
+        awardNumber = jsonRow["loan number"];
+        amount = jsonRow["total payment amount"];
+        break;
+      case "transfers":
+        awardNumber = jsonRow["transfer number"];
+        break;
+      case "direct":
+        // date needed in key for Airtable issue #92
+        awardNumber = `${jsonRow["subrecipient id"]}:${jsonRow["obligation date"]}`;
+        break;
+    }
 
     switch ( document.type ) {
       case "contracts":
       case "grants":
       case "loans":
-        amount = document.content["total payment amount"];
-        // eslint-disable-next-line no-fallthrough
       case "transfers":
       case "direct":{
-        let key =`${document.project_code}:${document.type}`;
+        let key =`${document.project_code}:${document.type}:${awardNumber}`;
         let rec = mapPeriodSummaries.get(key);
         if (rec) {
-          rec.current_expenditure += amount;
           if (obligation !== rec.current_obligation) {
-            console.log(`Multiple current quarter obligations for ${key} - ${obligation}`);
-            console.dir(rec);
-            // throw new Error(
-            //   `Multiple current quarter obligations for the same project`
-            // );
+            errLog.push(
+              `Multiple current quarter obligations for ${key} - ${obligation}`
+            );
           }
+          rec.current_expenditure += amount;
 
         } else {
           mapPeriodSummaries.set(key, {
             reporting_period_id : reporting_period_id,
-            project_id : document.project_code,
-            type: document.type,
+            project_code : document.project_code,
+            award_type: document.type,
+            award_number: awardNumber,
             current_obligation: obligation,
             current_expenditure: amount
           });
@@ -78,8 +100,39 @@ async function getPeriodSummaries(reporting_period_id) {
   mapPeriodSummaries.forEach(
     periodSummary => periodSummaries.push(periodSummary)
   );
-  console.dir(periodSummaries);
-  return { periodSummaries, closed:false };
+  // console.dir(periodSummaries);
+  return { periodSummaries, closed:false, errors: errLog };
 }
 
+/* closeReportingPeriod() closes a reporting period by writing the period
+  summaries to the database.
+  */
+async function closeReportingPeriod(reporting_period_id) {
+  let errLog = [];
+
+  let { periodSummaries, closed } = await getPeriodSummaries(reporting_period_id);
+
+  if (closed) {
+    return [`Reporting period ${reporting_period_id} is already closed`];
+  }
+
+  periodSummaries.forEach(async periodSummary => {
+    try {
+      await knex("period_summaries").insert(periodSummary);
+
+    } catch (err) {
+      errLog.push(err.detail);
+    }
+  });
+  if (errLog.length) {
+    return errLog;
+  }
+
+  closed = (await getPeriodSummaries(reporting_period_id)).closed;
+  if ( !closed ) {
+    return [`Failed to close reporting period ${reporting_period_id}`];
+  }
+
+  return null;
+}
 /*                                 *  *  *                                    */
