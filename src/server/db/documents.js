@@ -16,11 +16,13 @@
   */
 const knex = require("./connection");
 const _ = require("lodash");
+
 const {
   currentReportingPeriod,
   getCurrentReportingPeriodID
 } = require("./settings");
-const { getReportingPeriod } = require("./reporting-periods");
+
+const reportingPeriods = require("./reporting-periods");
 
 async function documentsWithProjectCode(period_id) {
   if ( !period_id ) {
@@ -81,7 +83,7 @@ function documents() {
 function documentsInPeriod( period_id ) {
   let period;
   if ( period_id ) {
-    period = getReportingPeriod( period_id );
+    period = reportingPeriods.get( period_id );
 
   } else {
     period = currentReportingPeriod();

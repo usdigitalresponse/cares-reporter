@@ -22,12 +22,11 @@
 
 */
 const knex = require("./connection");
-const { getPeriodSummaries } = require("./period-summaries");
 
 module.exports = {
-  closeReportingPeriod,
-  getReportingPeriod,
-  reportingPeriods
+  // close: closeReportingPeriod, // moved to period-summaries.js
+  get: getReportingPeriod
+  // reportingPeriods
 };
 
 /*  reportingPeriods() returns all the records from the reporting_periods table
@@ -41,23 +40,14 @@ function reportingPeriods() {
 /* getReportingPeriod() returns a record from the reporting_periods table.
   */
 function getReportingPeriod( period_id ) {
+  if (!period_id) {
+    return reportingPeriods();
+  }
+
   return knex("reporting_periods")
     .select("*")
     .where("id", period_id)
     .then( r=>r[0] );
-}
-
-/* closeReportingPeriod() closes a reporting period by writing the period
-  summaries to the database.
-  */
-async function closeReportingPeriod(reporting_period_id) {
-  let { periodSummaries, closed } = getPeriodSummaries(reporting_period_id);
-  if (closed) {
-    throw new Error(`Reporting period ${reporting_period_id} is already closed`);
-  }
-
-  return knex("period_summaries")
-    .insert(periodSummaries);
 }
 
 /*                                 *  *  *                                    */
