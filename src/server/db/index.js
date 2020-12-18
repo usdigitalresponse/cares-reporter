@@ -16,11 +16,13 @@ const {
   applicationSettings
 } = require("./settings");
 
+const reportingPeriods = require("./reporting-periods");
+
 const {
   closeReportingPeriod,
-  getReportingPeriod,
-  reportingPeriods
-} = require("./reporting-periods");
+  getPeriodSummaries
+} = require("./period-summaries");
+
 
 const {
   createUpload,
@@ -193,7 +195,6 @@ module.exports = {
   agencyByCode,
   agencyById,
   applicationSettings,
-  closeReportingPeriod,
   createAccessToken,
   createAgency,
   createDocument,
@@ -208,13 +209,15 @@ module.exports = {
   documentsInPeriod,
   documentsWithProjectCode,
   fixProjectCode,
+  getPeriodSummaries,
   getProject,
   getProjects,
-  getReportingPeriod,
+  knex,
   markAccessTokenUsed,
   projectByCode,
   projects,
   reportingPeriods,
+  closeReportingPeriod,
   roles,
   transact,
   updateAgency,
