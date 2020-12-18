@@ -19,14 +19,15 @@
    close_date                     | date                     |
    review_period_start_date       | date                     |
    review_period_end_date         | date                     |
-
+   final_report_file              | text                     |
 */
 const knex = require("./connection");
 
 module.exports = {
   // close: closeReportingPeriod, // moved to period-summaries.js
-  get: getReportingPeriod
-  // reportingPeriods
+  get: getReportingPeriod,
+  isClosed,
+  reportingPeriods
 };
 
 /*  reportingPeriods() returns all the records from the reporting_periods table
@@ -48,6 +49,11 @@ function getReportingPeriod( period_id ) {
     .select("*")
     .where("id", period_id)
     .then( r=>r[0] );
+}
+
+function isClosed(period_id) {
+  return getReportingPeriod(period_id)
+  .then(period => Boolean(period.certified_at));
 }
 
 /*                                 *  *  *                                    */

@@ -52,7 +52,7 @@ describe("period-summaries.spec.js - baseline success", () => {
     if (summaries.periodSummaries.length !== 3161){
       // console.log(summaries.periodSummaries.length);
       // console.dir(summaries);
-      throw new Error(`Expected 3157 period summaries, got ${summaries.periodSummaries.length}`);
+      throw new Error(`Expected 3161 period summaries, got ${summaries.periodSummaries.length}`);
     }
     if (summaries.closed) {
       throw new Error(`Period ${period} should not be closed`);
@@ -71,8 +71,13 @@ describe("period-summaries.spec.js - baseline success", () => {
       throw new Error(`Returned summaries from the wrong period`);
     }
   });
+  it("Fails to close period 2 (because period 1 is open)", async function () {
+    const period = 2;
+    let err = await closeReportingPeriod(period);
+    expect(err[0]).to.equal("Failed to close reporting period 2");
+  });
 
-  it("Closes period 1", async function () {
+  it.skip("Closes period 1", async function () {
     this.timeout(5000);
 
     const period = 1;
@@ -88,14 +93,21 @@ describe("period-summaries.spec.js - baseline success", () => {
     if (summaries.periodSummaries.length !== 3161){
       // console.log(summaries.periodSummaries.length);
       console.dir(summaries,{ depth:1 });
-      throw new Error(`Expected 3157 period summaries, got ${summaries.periodSummaries.length}`);
+      throw new Error(`Expected 3161 period summaries, got ${summaries.periodSummaries.length}`);
     }
     if (!summaries.closed) {
       throw new Error(`Period ${period} should be closed`);
     }
   });
+  it("Succeeds in closing period 2", async function () {
+    const period = 2;
+    let err = await closeReportingPeriod(period);
+    if (err) {
+      console.dir(err);
+      throw new Error(err[0]);
+    }
+  });
   it("Close knex", async () => {
     await knex.destroy();
   });
-
 });

@@ -6,9 +6,8 @@ exports.up = function(knex) {
       table.date("close_date");
       table.date("review_period_start_date");
       table.date("review_period_end_date");
-
+      table.text("final_report_file");
     });
-
 };
 
 exports.down = function(knex) {
@@ -18,6 +17,6 @@ exports.down = function(knex) {
       table.dropColumn("close_date");
       table.dropColumn("review_period_start_date");
       table.dropColumn("review_period_end_date");
+      table.dropColumn("final_report_file");
     });
-
 };
