@@ -6,7 +6,6 @@ const {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsInPeriod,
   documentsForAgency,
   documentsWithProjectCode
 } = require("./documents");
@@ -206,7 +205,6 @@ module.exports = {
   deleteDocuments,
   documents,
   documentsForAgency,
-  documentsInPeriod,
   documentsWithProjectCode,
   fixProjectCode,
   getPeriodSummaries,

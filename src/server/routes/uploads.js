@@ -12,10 +12,11 @@ const multer = require("multer");
 const multerUpload = multer({ storage: multer.memoryStorage() });
 
 router.get("/", requireUser, async function(req, res) {
+  const { period_id } = req.query;
   const user = await getUser(req.signedCookies.userId);
   const docs = user.agency_id
-    ? await uploadsForAgency(user.agency_id)
-    : await uploads();
+    ? await uploadsForAgency(user.agency_id, period_id)
+    : await uploads(period_id);
   return res.json({ uploads: docs });
 });
 

@@ -1,12 +1,10 @@
 const {
-  documentsForAgency,
   documentsWithProjectCode
 } = requireSrc(__filename);
 const { processUpload } = requireSrc(`${__dirname}/../services/process-upload`);
 
-const { makeUploadArgs, resetUploadsAndDb } = require("../services/helpers");
+const { makeUploadArgs } = require("../services/helpers");
 const {
-  currentReportingPeriod,
   setCurrentReportingPeriod } = requireSrc(`${__dirname}/../db/settings`);
 
 const dirRoot = `${__dirname}/../fixtures/`;

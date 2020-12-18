@@ -37,6 +37,13 @@ async function getPeriodSummaries(reporting_period_id) {
   periodSummaries = [];
   let mapPeriodSummaries = new Map();
   let documents = await documentsWithProjectCode(reporting_period_id);
+  if (documents.length === 0){
+    return { periodSummaries,
+      closed:false,
+      errors: [`No records in period ${reporting_period_id}`]
+    };
+  }
+
   documents.forEach(document => {
     let awardNumber;
     let obligation = document.content["current quarter obligation"];
@@ -114,6 +121,17 @@ async function closeReportingPeriod(reporting_period_id) {
 
   if (closed) {
     return [`Reporting period ${reporting_period_id} is already closed`];
+
+  } else if (reporting_period_id > 2) {
+    let{ closed } = await getPeriodSummaries(reporting_period_id-1);
+    if ( !closed ) {
+      return [`Prior reporting period ${reporting_period_id-1} is not closed`];
+    }
+  }
+
+  if (periodSummaries.length === 0 ){
+    // we want to close a reporting period with no uploads! Because periods
+    // 1 and 2 are the same period.
   }
 
   periodSummaries.forEach(async periodSummary => {
@@ -128,7 +146,10 @@ async function closeReportingPeriod(reporting_period_id) {
     return errLog;
   }
 
-  closed = (await getPeriodSummaries(reporting_period_id)).closed;
+  const rv = await getPeriodSummaries(reporting_period_id);
+  console.dir(rv);
+  closed = rv.closed;
+
   if ( !closed ) {
     return [`Failed to close reporting period ${reporting_period_id}`];
   }
