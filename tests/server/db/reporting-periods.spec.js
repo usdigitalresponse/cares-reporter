@@ -21,46 +21,37 @@
    review_period_end_date         | date                     |
 
 */
-const {
-  close,
-  periodSummaries,
-  reportingPeriods
-} = requireSrc(__filename);
+const reportingPeriods = requireSrc(__filename);
 
 const expect = require("chai").expect;
 
 describe("reporting-periods.spec.js - baseline success", () => {
   it("Returns a list of reporting periods", async () => {
 
-    const result = await reportingPeriods();
-    // console.dir(result);
-    // expect(
-    //   result.valog.getLog(),
-    //   JSON.stringify(result.valog.getLog(), null, 2)
-    // ).to.be.empty;
+    const result = await reportingPeriods.get();
+    if (result.length !== 6) {
+      // console.dir(result);
+      throw new Error(`Expected 6 periods, got ${result.length}`);
+    }
     return result;
   });
-  it("Returns the period summaries", async () => {
+  it("Returns one reporting period", async () => {
 
-    const result = await periodSummaries();
-    // console.dir(result);
-    // expect(
-    //   result.valog.getLog(),
-    //   JSON.stringify(result.valog.getLog(), null, 2)
-    // ).to.be.empty;
+    const result = await reportingPeriods.get(2);
+    if (Array.isArray(result)) {
+      // console.dir(result);
+      throw new Error(`Expected 1 period, got ${result.length}`);
+    }
+    if (result.id !== 2) {
+      // console.dir(result);
+      throw new Error(`Expected period 2, got period ${result.id}`);
+    }
     return result;
   });
-  it("Closes the current reporting period", async () => {
-
-    const result = await close();
-    console.dir(result);
-    // expect(
-    //   result.valog.getLog(),
-    //   JSON.stringify(result.valog.getLog(), null, 2)
-    // ).to.be.empty;
-    return result;
+  it.skip("Closes a reporting period", async () => {
+    // skipped because the reporting period close test is in
+    // period-summaries.spec.js
   });
-
 });
 
 /*                                 *  *  *                                    */
