@@ -2,12 +2,14 @@ const knex = require("./connection");
 
 // setCurrentReportingPeriod()
 function setCurrentReportingPeriod(id) {
+  console.log(`setCurrentReportingPeriod(${id})`);
   return knex("application_settings")
     .update("current_reporting_period_id", id);
 }
 
 // update application_settings set current_reporting_period_id=1;
 function getCurrentReportingPeriodID() {
+  console.log(`getCurrentReportingPeriodID()`);
   return knex("application_settings")
     .select("*")
     .then(r=>{
@@ -52,7 +54,23 @@ function applicationSettings() {
     reporting_template
     validation_rule_tags
  */
-function currentReportingPeriodSettings() {
+async function currentReportingPeriodSettings() {
+  console.log(`database is ${process.env.POSTGRES_URL}`);
+  console.log(`currentReportingPeriodSettings()`);
+
+  try {
+    console.dir(await knex("information_schema.tables")
+      .select(`table_name`)
+      .where({ table_schema: "public" })
+    );
+      // FROM information_schema.tables
+      // WHERE table_schema = 'public'
+      // ORDER BY table_name;`));
+
+  } catch (err) {
+    console.log(`The error is: ${err.message}`);
+  }
+
   return knex("application_settings")
     .join(
       "reporting_periods",
