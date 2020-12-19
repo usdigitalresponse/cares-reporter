@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:server": "./tests/server/mocha_wrapper.sh",
-    "test:server-periods": "POSTGRES_URL=postgres://localhost/rptest mocha tests/server-periods/db/period-summaries.spec.js",
+    "test:server-periods": "POSTGRES_URL=postgres://localhost/rptest TREASURY_TEMPLATE=treasury-template.xlsx TREASURY_DIRECTORY=./uploads/treasury mocha tests/server-periods/db/period-summaries.spec.js",
     "lint": "vue-cli-service lint",
     "prod": "NODE_ENV=production node src/server",
     "oh": "POSTGRES_URL=postgres://localhost/ohio AUDIT=true UPLOAD_DIRECTORY=\"./uploads/oh\" TREASURY_DIRECTORY=\"./treasury-reports/oh\" yarn serve",

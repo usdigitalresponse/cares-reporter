@@ -14,32 +14,67 @@
 */
 const knex = require("./connection");
 const { documentsWithProjectCode } = require("./documents");
+const { getCurrentReportingPeriodID } = require("./settings");
+const { isClosed } = require("./reporting-periods");
 
 module.exports = {
-  closeReportingPeriod,
-  getPeriodSummaries
+  getPeriodSummaries: getSummaries
 };
 
-/*  getPeriodSummaries() returns the summaries for a reporting period. If no
+/*  getSummaries() returns the summaries for a reporting period. If no
   reporting period is specified, it returns summaries for the current
   reporting period.
   */
-async function getPeriodSummaries(reporting_period_id) {
-  let errLog =[];
+async function getSummaries(reporting_period_id) {
+  if (!reporting_period_id){
+    reporting_period_id = await getCurrentReportingPeriodID();
+  }
   let periodSummaries = await knex("period_summaries")
   .select("*")
   .where("reporting_period_id", reporting_period_id);
 
   if (periodSummaries.length) {
-    return { periodSummaries, closed:true };
+    return { periodSummaries, errors: [] };
   }
 
-  periodSummaries = [];
+
+  let summaryData = await generateSummaries(reporting_period_id);
+
+  if (summaryData.errors.length) {
+    return summaryData;
+  }
+
+  if ( await isClosed(reporting_period_id) ) {
+    summaryData.errors = await saveSummaries(summaryData.periodSummaries);
+  }
+
+  return summaryData;
+}
+
+async function saveSummaries(periodSummaries) {
+  let errLog =[];
+
+  for (let i=0; i<periodSummaries.length; i++) {
+    try {
+      await knex("period_summaries").insert(periodSummaries[i]);
+
+    } catch (err) {
+      errLog.push(err.detail);
+    }
+  }
+
+  return errLog;
+}
+
+async function generateSummaries(reporting_period_id) {
+  let periodSummaries = [];
+  let errLog =[];
+
   let mapPeriodSummaries = new Map();
   let documents = await documentsWithProjectCode(reporting_period_id);
   if (documents.length === 0){
-    return { periodSummaries,
-      closed:false,
+    return {
+      periodSummaries,
       errors: [`No records in period ${reporting_period_id}`]
     };
   }
@@ -108,52 +143,7 @@ async function getPeriodSummaries(reporting_period_id) {
     periodSummary => periodSummaries.push(periodSummary)
   );
   // console.dir(periodSummaries);
-  return { periodSummaries, closed:false, errors: errLog };
+  return { periodSummaries, errors: errLog };
 }
 
-/* closeReportingPeriod() closes a reporting period by writing the period
-  summaries to the database.
-  */
-async function closeReportingPeriod(reporting_period_id) {
-  let errLog = [];
-
-  let { periodSummaries, closed } = await getPeriodSummaries(reporting_period_id);
-
-  if (closed) {
-    return [`Reporting period ${reporting_period_id} is already closed`];
-
-  } else if (reporting_period_id > 2) {
-    let{ closed } = await getPeriodSummaries(reporting_period_id-1);
-    if ( !closed ) {
-      return [`Prior reporting period ${reporting_period_id-1} is not closed`];
-    }
-  }
-
-  if (periodSummaries.length === 0 ){
-    // we want to close a reporting period with no uploads! Because periods
-    // 1 and 2 are the same period.
-  }
-
-  periodSummaries.forEach(async periodSummary => {
-    try {
-      await knex("period_summaries").insert(periodSummary);
-
-    } catch (err) {
-      errLog.push(err.detail);
-    }
-  });
-  if (errLog.length) {
-    return errLog;
-  }
-
-  const rv = await getPeriodSummaries(reporting_period_id);
-  console.dir(rv);
-  closed = rv.closed;
-
-  if ( !closed ) {
-    return [`Failed to close reporting period ${reporting_period_id}`];
-  }
-
-  return null;
-}
 /*                                 *  *  *                                    */

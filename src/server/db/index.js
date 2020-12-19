@@ -11,14 +11,13 @@ const {
 } = require("./documents");
 
 const {
-  currentReportingPeriod,
+  currentReportingPeriodSettings,
   applicationSettings
 } = require("./settings");
 
 const reportingPeriods = require("./reporting-periods");
 
 const {
-  closeReportingPeriod,
   getPeriodSummaries
 } = require("./period-summaries");
 
@@ -201,7 +200,7 @@ module.exports = {
   createProject,
   createUpload,
   createUser,
-  currentReportingPeriod,
+  currentReportingPeriodSettings,
   deleteDocuments,
   documents,
   documentsForAgency,
@@ -215,7 +214,6 @@ module.exports = {
   projectByCode,
   projects,
   reportingPeriods,
-  closeReportingPeriod,
   roles,
   transact,
   updateAgency,

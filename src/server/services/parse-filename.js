@@ -1,11 +1,11 @@
 const { ValidationItem } = require("../lib/validation-log");
 const { agencyByCode, projectByCode } = require("../db");
-const { currentReportingPeriod } = require("../db/settings");
+const { currentReportingPeriodSettings } = require("../db/settings");
 const { format } = require("date-fns");
 
 const parseFilename = async filename => {
   // console.log(`filename is ${filename}`);
-  const currentPeriod = await currentReportingPeriod();
+  const currentPeriod = await currentReportingPeriodSettings();
   // console.dir(currentPeriod);
   const endDate = (currentPeriod || {}).end_date;
   // console.log(`endDate is ${endDate}`);
@@ -69,7 +69,7 @@ const parseFilename = async filename => {
     }
   }
 
-  if (!endDate) throw new Error(`Error finding currentReportingPeriod`);
+  if (!endDate) throw new Error(`Error finding current reporting period`);
   const shortExpectedEndReportDate = format(endDate, "MMddyy");
   const reportingDate = nameParts.shift() || "";
   if (

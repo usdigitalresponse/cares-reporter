@@ -1,5 +1,5 @@
 const {
-  currentReportingPeriod,
+  currentReportingPeriodSettings,
   setCurrentReportingPeriod
 } = requireSrc(__filename);
 
@@ -9,7 +9,7 @@ const expect = require("chai").expect;
 describe("settings.spec.js - baseline success", () => {
   it("Returns the current reporting period", async () => {
 
-    const result = await currentReportingPeriod();
+    const result = await currentReportingPeriodSettings();
     // console.dir(result);
     expect(
       result.current_reporting_period_id
@@ -17,7 +17,7 @@ describe("settings.spec.js - baseline success", () => {
   });
   it("Changes the current reporting period", async () => {
     await setCurrentReportingPeriod(1);
-    const result = await currentReportingPeriod();
+    const result = await currentReportingPeriodSettings();
     // console.dir(result);
     await setCurrentReportingPeriod(2); // restore it for later tests
     expect(
