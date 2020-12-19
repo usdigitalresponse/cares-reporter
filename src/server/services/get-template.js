@@ -68,9 +68,7 @@ function loadTreasuryTemplate(fileName) {
 function loadTemplate(fileName) {
   let xlsxTemplate = { Sheets: {} };
 
-  // let filePath = path.normalize(`${__dirname}/../data/${fileName}`);
-  let filePath = path.resolve(__dirname,`../data/${fileName}`).trim();
-  console.log(`loadTemplate: filePath is |${filePath}|`);
+  let filePath = path.resolve(__dirname,`../data/${fileName}`);
 
   // Just let it throw on launch - we can't run without it
   xlsxTemplate = xlsx.read( fs.readFileSync(filePath), { type: "buffer" } );
