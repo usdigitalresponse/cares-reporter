@@ -6,7 +6,7 @@ if ( process.env.VERBOSE ){
 
 const xlsx = require("xlsx");
 const {
-  currentReportingPeriod
+  currentReportingPeriodSettings
 } = require("../db");
 const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
@@ -59,7 +59,7 @@ const validateUpload = async ({ filename, user_id, agency_id, data }) => {
 
   let documents = removeEmptyDocuments(spreadsheetDocuments);
 
-  const reportingPeriod = await currentReportingPeriod();
+  const reportingPeriod = await currentReportingPeriodSettings();
   const dataValog = await validateData(
     documents,
     fileParts,

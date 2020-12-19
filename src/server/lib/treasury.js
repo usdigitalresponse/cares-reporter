@@ -1,12 +1,24 @@
 const XLSX = require("xlsx");
 const _ = require("lodash");
 
-const { applicationSettings,
-  currentReportingPeriod
-} = require("../db");
+const {
+  applicationSettings,
+  currentReportingPeriodSettings
+} = require("../db/settings");
+const { documentsWithProjectCode } = require("../db/documents");
+const { getProjects, fixProjectCode, projects } = require("../db/projects");
+const { getSubRecipients, setSubRecipient } = require("../db/subrecipients");
+const { getUploadSummaries } = require("../db/uploads");
+
+const { getTemplateSheets } = require("../services/get-template");
+
+const { makeConfig } = require("../lib/config");
+const { clean } = require("../lib/spreadsheet");
 const FileInterface = require("../lib/server-disk-interface");
 const fileInterface = new FileInterface(process.env.TREASURY_DIRECTORY);
+
 const fixCellFormats = require("../services/fix-cell-formats");
+
 const {
   categoryDescriptionSourceColumn,
   categoryMap,
@@ -17,7 +29,6 @@ const {
   sheetNameMap
 } = require("./field-name-mapping");
 
-const { getProjects } = require("../db/projects");
 
 let log = ()=>{};
 if ( process.env.VERBOSE ){
@@ -43,28 +54,8 @@ async function createOutputWorkbook(
           // of document records of this type (aka spreadsheet rows from
           // these sheets)
 ) {
-  try {
-    var appSettings = await applicationSettings() // eslint-disable-line
-    /*  {
-          title: 'Rhode Island',
-          current_reporting_period_id: 1,
-          reporting_template: null,
-          duns_number: null
-        }
-    */
-
-  } catch (err) {
-    console.dir(err);
-    return {};
-  }
-
-  try {
-    var reportingPeriod = await currentReportingPeriod() // eslint-disable-line
-
-  } catch (err) {
-    console.dir(err);
-    return {};
-  }
+  let appSettings = await applicationSettings();
+  let reportingPeriod = await currentReportingPeriodSettings();
 
   const workbook = XLSX.utils.book_new();
 
@@ -144,14 +135,8 @@ async function createOutputWorkbook(
     addAuditSheets(workbook, sheetsOut, recordGroups);
   }
 
-  try {
-    // eslint-disable-next-line
-    var treasuryOutputWorkbook =
-      XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
-
-  } catch (err) {
-    console.dir(err);
-  }
+  let treasuryOutputWorkbook =
+    XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
 
   return treasuryOutputWorkbook;
 }
@@ -562,8 +547,351 @@ async function writeOutputWorkbook( filename, workbook ) {
   return fileInterface.writeFileCarefully(filename, workbook);
 }
 
+
+async function getNewFilename() {
+  const timeStamp = new Date().toISOString().split(".")[0].split(":").join("");
+  let {
+    title:state,
+    current_reporting_period_id:period
+  } = await applicationSettings();
+  state = state.replace(/ /g,"-");
+  let fileName = `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}`;
+  // console.log(`Filename is ${fileName}`);
+
+  if ( process.env.AUDIT ) {
+    return fileName+".audit.xlsx";
+
+  } else {
+    return fileName+".xlsx";
+  }
+}
+
+/*  latestReport() returns the file name of the latest Treasury Report
+  generated for a period.
+  If no period is specified, it returns the latest report from the current
+  period.
+  */
+async function latestReport(period_id) {
+  let allFiles = await fileInterface.listFiles();
+  /* [
+      "Rhode-Island-Period-1-CRF-Report-to-OIG-V.2020-12-10T052459.xlsx",
+      "Rhode-Island-Period-1-CRF-Report-to-OIG-V.2020-12-14T161922.xlsx",
+      "Rhode-Island-Period-1-CRF-Report-to-OIG-V.2020-12-11T120351.xlsx",
+      "Rhode-Island-Period-1-CRF-Report-to-OIG-V.2020-12-10T165454.xlsx"
+    ]
+  */
+  if (!period_id){
+    period_id = await applicationSettings().current_reporting_period_id;
+  }
+
+  let fileNames = allFiles.sort();
+  fileNames.unshift("sentry");
+
+  let fileName;
+  let filePeriod;
+
+  do {
+    fileName = fileNames.pop();
+    filePeriod = (fileName.match(/-Period-(\d+)-/) || [])[1];
+
+  } while ( fileNames.length && Number(filePeriod) !== Number(period_id) );
+
+  if ( !fileNames.length ){
+    throw new Error(
+      `No Treasury report has been generated for period ${period_id}`
+    );
+  }
+
+  return fileName;
+}
+
+/*  getCurrentReport generates a fresh Treasury Report spreadsheet
+    and writes it out if successful.
+    */
+async function getCurrentReport(){
+  const treasuryTemplateSheets = getTemplateSheets("treasury");
+  const config = makeConfig(treasuryTemplateSheets, "Treasury Template", []);
+
+  const groups = await getGroups();
+
+  if (_.isError(groups)) {
+    return groups;
+  }
+
+  try {
+    // eslint-disable-next-line no-var
+    var outputWorkBook = await createOutputWorkbook(config, groups);
+
+  } catch(err) {
+    return err;
+  }
+
+  if (_.isError(outputWorkBook)) {
+    return outputWorkBook;
+  }
+
+  const filename = await getNewFilename();
+  await writeOutputWorkbook(filename, outputWorkBook);
+
+  return { filename, outputWorkBook };
+}
+
+async function getPriorReport(period_id) {
+  let fileName = await latestReport(period_id);
+  if (_.isError(fileName)){
+    return fileName;
+  }
+
+  try {
+    let outputWorkBook = await fileInterface.readFile(fileName);
+    return({ fileName, outputWorkBook });
+
+  } catch (err) {
+    return err;
+  }
+}
+
+async function getGroups() {
+  let groups = null;
+
+  const mapUploadMetadata = new Map();
+  try {
+    let arrUploadMetaData = await getUploadSummaries();
+    arrUploadMetaData.forEach( rec => mapUploadMetadata.set(rec.id, rec));
+
+  } catch ( _err ) {
+    return new Error("Failed to load upload summaries");
+  }
+
+  let documents;
+  try {
+    documents = await documentsWithProjectCode();
+
+  } catch ( _err ) {
+    return new Error("Failed to load document records");
+  }
+
+  console.log(`Found ${documents.length} documents`);
+
+  let rv = await deDuplicate(documents, mapUploadMetadata);
+  console.log(`Found ${rv.length} unique documents`);
+
+  groups = _.groupBy(rv, "type");
+  console.log(`Found ${_.keys(groups).length} groups:`);
+
+  return groups;
+}
+
+
+async function deDuplicate(documents, mapUploadMetadata) {
+
+  // get all the subrecipients currently in the subrecipients table
+  let arrSubRecipients = await getSubRecipients();
+  let mapSubrecipients = new Map(); // subrecipient id : <subrecipient record>
+  arrSubRecipients.forEach(subrecipientRecord => {
+    mapSubrecipients.set(
+      subrecipientRecord["identification number"],
+      subrecipientRecord
+    );
+  });
+
+  // get all the Projects currently in the Projects table
+  let arrProjects = await projects();
+  let mapProjects = new Map(); // project id : <project record>
+
+  arrProjects.forEach(projectRecord => {
+    mapProjects.set(
+      projectRecord.code,
+      projectRecord
+    );
+  });
+
+  const {
+    mapUploadAgency,
+    mapProjectStatus
+  } = await pass1(documents, mapSubrecipients, mapProjects);
+
+  const {
+    uniqueRecords,
+    mapSubrecipientReferences
+  } = pass2(documents, mapUploadAgency, mapProjectStatus);
+
+  let rv = [];
+
+  Object.keys(uniqueRecords).forEach(key => rv.push(uniqueRecords[key]));
+
+  let missing = [];
+
+  mapSubrecipientReferences.forEach( ( record, subrecipientID) => {
+    if ( !mapSubrecipients.has(subrecipientID) ) {
+      missing.push(record);
+    }
+  });
+
+  mapSubrecipients.forEach((v,k) => {
+    rv.push({
+      type: "subrecipient",
+      referenced: mapSubrecipientReferences.has(k),
+      content: v
+    });
+  });
+
+  if ( process.env.AUDIT ) {
+    missing.forEach(record => {
+      rv.push({
+        id: 0,
+        type: "missing_subrecipient",
+        upload_file: mapUploadMetadata.get(record.upload_id).filename,
+        tab: record.type,
+        subrecipient_id: record.content["subrecipient id"]
+      });
+    });
+  }
+
+  return rv;
+}
+
+
+/*  pass1() returns metadata maps and adds new subrecipients to the database
+  */
+async function pass1(documents, mapSubrecipients, mapProjects){
+  let mapUploadAgency = new Map(); // KV table of { upload_id: agency code }
+  let mapProjectStatus = new Map(); // KV table of { project id: project status }
+
+  documents.forEach(async record => {
+    switch (record.type) {
+      case "cover":{
+        mapUploadAgency.set(
+          record.upload_id,
+          record.content["agency code"].trim()
+        );
+        let projectCode = fixProjectCode(record.content["project id"] );
+        record.content["project id"] = projectCode;
+
+        // let projectStatus = (record.content.status || "").trim() || null ;
+        let projectStatus = record.content.status;
+        if ( mapProjects.has(projectCode) && projectStatus ) {
+          let recProject = mapProjects.get(projectCode);
+          recProject.status = projectStatus;
+
+          mapProjects.set(projectCode, recProject);
+          // project status is updated on file upload - don't do it here
+          // await updateProject(recProject); // no need to wait
+
+        } else {
+          console.log( `Record projectCode "${projectCode}" not in database`);
+        }
+
+        mapProjectStatus.set(projectCode, projectStatus);
+        break;
+      }
+
+      case "subrecipient":{
+        let subrecipientID = record.content["identification number"].trim();
+
+        // If an upload contains a new subrecipient, add it to the table.
+        // Changes to existing subrecipients must be done by email request.
+        // (decided 20 12 07  States Call)
+        if ( !mapSubrecipients.has(subrecipientID) ) {
+          let recSubRecipient = clean(record.content);
+          mapSubrecipients.set(subrecipientID, recSubRecipient);
+          setSubRecipient(recSubRecipient); // no need to wait
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  });
+  return { mapUploadAgency, mapProjectStatus };
+}
+
+/* pass2() cleans and deduplicates records, and combines them as needed for
+  the output tabs
+  */
+function pass2(documents) {
+  let uniqueRecords = {}; // keyed by concatenated id
+  let uniqueID = 0; // this is for records we don't deduplicate
+  let mapSubrecipientReferences = new Map();
+
+  documents.forEach(record => {
+    uniqueID += 1;
+    record.content = clean(record.content); // not needed after database is cleaned
+
+    switch (record.type) {
+      case "cover":
+        // ignore cover records
+        break;
+
+      case "certification":
+        // ignore certification records
+        break;
+
+      case "subrecipient":{
+        // handled in pass1
+        break;
+      }
+
+      case "projects":{
+        // Ignore projects records.
+        // The Projects tab in the Treasury output spreadsheet is populated from
+        // the projects db table by treasury.js/createTreasuryOutputWorkbook
+        break;
+      }
+
+      // we have to assume none of these are duplicates, because two identical
+      // records could both be valid, since we don't have anything like an
+      // invoice number and there could be two expenditures in the same period
+      case  "contracts":
+      case  "grants":
+      case  "loans":
+      case  "transfers":
+      case  "direct": {
+        let srID = record.content["subrecipient id"];
+        if (srID) {
+          mapSubrecipientReferences.set(srID, record);
+
+        } else {
+          console.log(`${record.type} record is missing subrecipient ID`);
+          // console.dir(record.content);
+          /* {
+            'agency code': 'ART01',
+            'project name': 'Coronavirus Relief - Art/Cultural Organizations',
+            'project identification number': '370503',
+            description: 'Economic relief to non-profit organizations...',
+            'naming convention': 'ART01-370503-093020-v1.xlsx'
+          }
+          */
+        }
+        uniqueRecords[uniqueID] = record;
+        break;
+      }
+
+      case  "aggregate awards < 50000":
+      case  "aggregate payments individual": {
+        uniqueRecords[uniqueID] = record;
+        break;
+      }
+
+      default:
+        console.log("Unrecognized record:");
+        console.dir(record);
+        break;
+    }
+  });
+
+  return {
+    uniqueRecords,
+    mapSubrecipientReferences
+  };
+}
+
+
+
 module.exports = {
-  createOutputWorkbook,
+  getCurrentReport,
+  getPriorReport,
+  latestReport,
   writeOutputWorkbook
 };
 

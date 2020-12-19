@@ -18,8 +18,6 @@ const FileInterface = require("../lib/server-disk-interface");
 const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
 const { updateProjectStatus } = require("../db");
-// needed for tests
-const { initializeTemplates } = require("./get-template");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
   log(`processUpload(): filename is ${filename}`);
@@ -105,4 +103,4 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   return { valog, upload, spreadsheet };
 };
 
-module.exports = { processUpload, initializeTemplates };
+module.exports = { processUpload };

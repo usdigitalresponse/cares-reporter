@@ -18,10 +18,6 @@ const knex = require("./connection");
 const _ = require("lodash");
 
 const {
-  currentReportingPeriod
-} = require("./settings");
-
-const {
   getPeriodUploadIDs
 } = require("./uploads");
 
