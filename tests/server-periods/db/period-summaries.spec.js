@@ -4,15 +4,9 @@
 --------------------------------------------------------------------------------
 
   IMPORTANT!!
-  for this to work you need to have
-  1. loaded the rptest database into postgres
-  2. put a file called something like
-    Ohio-Period-1-CRF-Report-to-OIG-V.2020-12-10T034416.xlsx
-    into the cares-reporter/uploads/treasury directory.
-
-  If the rptest database is not yet populated, do this:
-    $ createdb --owner=postgres rptest
-    $ psql rptest postgres < tests/server/fixtures/period-summaries/rptest.sql
+  for this to work you need to have unzipped the
+    tests/server-periods/fixtures/rptest.sql.zip
+  file.
 
   Invoke this test with:
     $ yarn test:server-periods
@@ -33,37 +27,13 @@
 */
 
 const {
-  knex,
   getPeriodSummaries,
   reportingPeriods
 } = require(`${process.cwd()}/src/server/db`);
 
 const expect = require("chai").expect;
-describe("wait for dropdowns to load",()=>{
-  it("wait a second", function (done){
-    this.timeout(5000);
-    setTimeout(()=>{done();}, 10);
-  });
-});
-describe("period-summaries.spec.js - baseline success", () => {
-  it(`Resets the test database`, async function(){
-    this.timeout(3000);
 
-    await knex(`period_summaries`).delete();
-
-    const clearFields = {
-      certified_by:null,
-      certified_at:null,
-      final_report_file:null
-    };
-    await knex(`reporting_periods`).where({ id:1 }).update( clearFields );
-    await knex(`reporting_periods`).where({ id:2 }).update( clearFields );
-
-    await knex(`application_settings`)
-      .update({ current_reporting_period_id:1 });
-
-  });
-
+describe("baseline success", () => {
   it("Returns a list of reporting period summaries", async () => {
     let summaries;
     const period = 1;
@@ -156,8 +126,5 @@ describe("period-summaries.spec.js - baseline success", () => {
       `No Treasury report has been generated for period ${period}`
     );
   });
-
-  it("Close knex", async () => {
-    await knex.destroy();
-  });
 });
+
