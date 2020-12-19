@@ -12,10 +12,31 @@
 
       <div class="row">
         <div class="col-12">
-          <div>
+          <span>
             Reporting Period:
-            {{ dateFormat(currentReportingPeriod.start_date) }} to
+          </span>
+          <div class="dropdown">
+          <a
+            :class="dropdownClass('/documents/')"
+            data-toggle="dropdown"
+            href="#"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            {{ dateFormat(currentReportingPeriod.start_date) }}
+            to
             {{ dateFormat(currentReportingPeriod.end_date) }}
+          </a>
+          <div class="dropdown-menu">
+            <router-link
+              class="dropdown-item"
+              :key="name"
+              :to="`/documents/${name}`"
+              v-for="name in tableNames"
+              >{{ titleize(name) }}</router-link
+            >
+          </div>
           </div>
         </div>
       </div>
