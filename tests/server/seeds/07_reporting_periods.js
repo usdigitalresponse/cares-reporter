@@ -34,7 +34,8 @@ exports.seed = async function(knex) {
       close_date:"2021-01-11",
       review_period_start_date:"2021-01-12",
       review_period_end_date:"2021-01-20",
-      reporting_template: "empty-template.xlsx"
+      reporting_template: "empty-template.xlsx",
+      validation_rule_tags: [ "cumulative" ]
     },
     {
       name: "4",

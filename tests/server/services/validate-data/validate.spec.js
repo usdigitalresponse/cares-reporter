@@ -1,4 +1,5 @@
 const {
+  contractMatches,
   cumulativeAmountIsEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
@@ -40,11 +41,29 @@ describe("validation helpers", () => {
       periodOfPerformanceEndDate: "2020-12-30"
     },
     firstReportingPeriodStartDate: "2020-03-01",
-    periodSummaries: [
-      { project_code: "1", current_obligation: 100.0, current_expenditure: 10.00 },
-      { project_code: "1", current_obligation: 200.0, current_expenditure: 20.00 },
-      { project_code: "2", current_obligation: 200.0, current_expenditure: 20.00 }
-    ]
+    periodSummaries: {
+      periodSummaries: [
+        {
+          project_code: "1",
+          award_number: "1001",
+          award_type: "contracts",
+          current_obligation: 100.0,
+          current_expenditure: 10.00
+        },
+        { project_code: "1",
+          award_number: "1001",
+          award_type: "contracts",
+          current_obligation: 200.0,
+          current_expenditure: 20.00
+        },
+        { project_code: "2",
+          award_number: "2002",
+          award_type: "contracts",
+          current_obligation: 200.0,
+          current_expenditure: 20.00
+        }
+      ]
+    }
   };
   const testCases = [
     ["blank string", isNotBlank(""), false],
@@ -280,25 +299,25 @@ describe("validation helpers", () => {
 
     [
       "cumulativeAmountIsEqual passes for obligation",
-      cumulativeAmountIsEqual("current quarter obligation", d => d.project_code === "1" )(
+      cumulativeAmountIsEqual("current quarter obligation", contractMatches)(
         600.0,
-        { "current quarter obligation": 300.0 },
+        { "project id": "1", "contract number": "1001", "current quarter obligation": 300.0 },
         validateContext
       ),
       true
     ],
     [
       "cumulativeAmountIsEqual passes for expenditure",
-      cumulativeAmountIsEqual("total expenditure amount", d => d.project_code === "1" )(
+      cumulativeAmountIsEqual("total expenditure amount", contractMatches)(
         60.0,
-        { "total expenditure amount": 30.0 },
+        { "project id": "1", "contract number": "1001", "total expenditure amount": 30.0 },
         validateContext
       ),
       true
     ],
     [
       "cumulativeAmountIsEqual fails",
-      cumulativeAmountIsEqual("current quarter obligation", d => d.project_code === "1" )(
+      cumulativeAmountIsEqual("current quarter obligation", contractMatches)(
         200.0,
         { "current quarter obligation": 300.0 },
         validateContext
