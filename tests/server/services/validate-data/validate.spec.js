@@ -41,9 +41,9 @@ describe("validation helpers", () => {
     },
     firstReportingPeriodStartDate: "2020-03-01",
     periodSummaries: [
-      { project_code: "1", current_obligation: 100.0 },
-      { project_code: "1", current_obligation: 200.0 },
-      { project_code: "2", current_obligation: 200.0 }
+      { project_code: "1", current_obligation: 100.0, current_expenditure: 10.00 },
+      { project_code: "1", current_obligation: 200.0, current_expenditure: 20.00 },
+      { project_code: "2", current_obligation: 200.0, current_expenditure: 20.00 }
     ]
   };
   const testCases = [
@@ -279,10 +279,19 @@ describe("validation helpers", () => {
     ["isAtLeast50K passes", isAtLeast50K(150000.00), true],
 
     [
-      "cumulativeAmountIsEqual passes",
+      "cumulativeAmountIsEqual passes for obligation",
       cumulativeAmountIsEqual("current quarter obligation", d => d.project_code === "1" )(
         600.0,
         { "current quarter obligation": 300.0 },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "cumulativeAmountIsEqual passes for expenditure",
+      cumulativeAmountIsEqual("total expenditure amount", d => d.project_code === "1" )(
+        60.0,
+        { "total expenditure amount": 30.0 },
         validateContext
       ),
       true
