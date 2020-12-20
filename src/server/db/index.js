@@ -17,7 +17,10 @@ const {
 } = require("./settings");
 
 const reportingPeriods = require("./reporting-periods");
-const { get: getReportingPeriod } = require("./reporting-periods");
+const {
+ get: getReportingPeriod,
+ getFirstReportingPeriodStartDate
+ } = require("./reporting-periods");
 
 const {
   closeReportingPeriod,
@@ -211,6 +214,7 @@ module.exports = {
   documentsInPeriod,
   documentsWithProjectCode,
   fixProjectCode,
+  getFirstReportingPeriodStartDate,
   getPeriodSummaries,
   getPriorPeriodSummaries,
   getProject,

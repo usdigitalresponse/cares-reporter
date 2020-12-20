@@ -7,6 +7,7 @@ if ( process.env.VERBOSE ){
 const xlsx = require("xlsx");
 const {
   currentReportingPeriod,
+  getFirstReportingPeriodStartDate,
   getReportingPeriod,
   getPriorPeriodSummaries
 } = require("../db");
@@ -68,11 +69,13 @@ const validateUpload = async ({ filename, user_id, agency_id, data, reporting_pe
   let documents = removeEmptyDocuments(spreadsheetDocuments);
 
   const priorPeriodSummaries = await getPriorPeriodSummaries(reportingPeriod.id);
+  const firstReportingPeriodStartDate = await getFirstReportingPeriodStartDate();
   const dataValog = await validateData(
     documents,
     fileParts,
     reportingPeriod,
-    priorPeriodSummaries
+    priorPeriodSummaries,
+    firstReportingPeriodStartDate
   );
   if (dataValog.length){
     log(`dataValog failed`);
