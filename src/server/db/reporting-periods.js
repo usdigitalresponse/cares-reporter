@@ -25,6 +25,7 @@ const knex = require("./connection");
 
 module.exports = {
   // close: closeReportingPeriod, // moved to period-summaries.js
+  getFirstReportingPeriodStartDate,
   get: getReportingPeriod
   // reportingPeriods
 };
@@ -48,6 +49,14 @@ function getReportingPeriod( period_id ) {
     .select("*")
     .where("id", period_id)
     .then( r=>r[0] );
+}
+
+/* getFirstReportingPeriodStartDate() returns earliest start date
+  */
+function getFirstReportingPeriodStartDate() {
+  return knex("reporting_periods")
+    .min("start_date")
+    .then( r=>r[0].min );
 }
 
 /*                                 *  *  *                                    */

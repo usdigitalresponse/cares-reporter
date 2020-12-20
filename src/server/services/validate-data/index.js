@@ -12,13 +12,13 @@ const tabValidators = [
 const { getSubrecipientsHash } = require("./helpers");
 const { format } = require("date-fns");
 
-const validateData = (documents, fileParts, reportingPeriod, periodSummaries ) => {
+const validateData = (documents, fileParts, reportingPeriod, periodSummaries, firstReportingPeriodStartDate ) => {
   const groupedDocuments = _.groupBy(documents, "type");
   const subrecipientsHash = getSubrecipientsHash(groupedDocuments.subrecipient);
 
   const validateContext = {
     fileParts,
-    firstReportingPeriodStartDate: "2020-03-01", // FIXME read this from reporting periods table?
+    firstReportingPeriodStartDate: format(firstReportingPeriodStartDate, "yyyy-MM-dd"),
     reportingPeriod: {
       startDate: format(reportingPeriod.start_date, "yyyy-MM-dd"),
       endDate: format(reportingPeriod.end_date, "yyyy-MM-dd"),
