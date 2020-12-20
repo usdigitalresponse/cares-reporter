@@ -132,6 +132,10 @@ function loanMatches(content) {
   return summaryMatches("loans", "loan number", content);
 }
 
+function transferMatches(content) {
+  return summaryMatches("transfers", "transfer number", content);
+}
+
 function cumulativeAmountIsEqual(key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
     const summaries = _.get(periodSummaries, 'periodSummaries');
@@ -354,6 +358,7 @@ module.exports = {
   messageValue,
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
+  transferMatches,
   validateDocuments,
   validateFields,
   validateSingleDocument,

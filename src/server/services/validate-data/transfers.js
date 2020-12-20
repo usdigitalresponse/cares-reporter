@@ -1,4 +1,5 @@
 const {
+  cumulativeAmountIsEqual,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -13,6 +14,7 @@ const {
   isValidSubrecipient,
   matchesFilePart,
   numberIsLessThanOrEqual,
+  transferMatches,
   validateDocuments,
   whenNotBlank,
   whenGreaterThanZero
@@ -71,7 +73,14 @@ const requiredFields = [
   [
     "award amount",
     isEqual("current quarter obligation"),
-    "Award amount must equal obligation amount"
+    "Award amount must equal obligation amount",
+    { tags: ["v2"] }
+  ],
+  [
+    "award amount",
+    cumulativeAmountIsEqual("current quarter obligation" , transferMatches),
+    "Award amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
   ],
 
   [
