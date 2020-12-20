@@ -102,30 +102,41 @@ function withoutLeadingZeroes(v) {
   return `${v}`.replace(/^0+/,'');
 }
 
-function summaryMatches(type, content) {
+function summaryMatches(type, id, content) {
   return (s) => {
+    // console.log('summary:', s);
+    // console.log('content:', content);
+    // console.log(s.award_type === type);
+    // console.log(withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']));
+    // console.log(content[id] === s.award_number);
     return s.award_type === type &&
       withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
-      content['contract number'] === s.award_number;
+      content[id] === s.award_number;
   };
 }
 
 function contractMatches(content) {
-  return summaryMatches("contracts", content);
+  return summaryMatches("contracts", "contract number", content);
+}
+
+function directMatches(content) {
+  return summaryMatches("direct", "subrecipient id", content);
 }
 
 function cumulativeAmountIsEqual(key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
     const summaries = _.get(periodSummaries, 'periodSummaries');
-    // console.log('periodSummaries:', summaries);
     const currentPeriodAmount = Number(content[key]) || 0.0;
     const previousPeriodsAmount = _.chain(summaries)
         .filter(filterPredicate(content))
         .map(periodSummaryKey(key))
         .reduce((acc, s) => acc + Number(s) || 0.0, 0.0)
         .value();
-    // console.log('cumulativeAmountIsEqual', key, currentPeriodAmount, previousPeriodsAmount, val);
-    return _.round(val, 2) == _.round(previousPeriodsAmount + currentPeriodAmount, 2);
+    // console.log('periodSummaries:', summaries);
+    // console.log('cumulativeAmountIsEqual: ', key, currentPeriodAmount, previousPeriodsAmount, val);
+    const isEqual = _.round(val, 2) == _.round(previousPeriodsAmount + currentPeriodAmount, 2);
+    // console.log('isEqual:', isEqual);
+    return isEqual;
   };
 }
 
@@ -310,6 +321,7 @@ module.exports = {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dateIsOnOrAfter,
+  directMatches,
   dropdownIncludes,
   hasSubrecipientKey,
   initializeTemplates,
