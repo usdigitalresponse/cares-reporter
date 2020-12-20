@@ -2,19 +2,25 @@ const knex = require("./connection");
 
 // setCurrentReportingPeriod()
 function setCurrentReportingPeriod(id) {
-  console.log(`setCurrentReportingPeriod(${id})`);
   return knex("application_settings")
     .update("current_reporting_period_id", id);
 }
 
 // update application_settings set current_reporting_period_id=1;
-function getCurrentReportingPeriodID() {
-  console.log(`getCurrentReportingPeriodID()`);
-  return knex("application_settings")
+async function getCurrentReportingPeriodID() {
+  let crpID;
+  try {
+    crpID = await knex("application_settings")
     .select("*")
     .then(r=>{
       return r[0].current_reporting_period_id;
     });
+
+  } catch (err) {
+    console.dir(err);
+    return err;
+  }
+  return crpID;
 }
 
 
@@ -55,30 +61,44 @@ function applicationSettings() {
     validation_rule_tags
  */
 async function currentReportingPeriodSettings() {
-  console.log(`database is ${process.env.POSTGRES_URL}`);
-  console.log(`currentReportingPeriodSettings()`);
-
+  // Knex suddenly stopped working for this 20 12 19!
+  let rv;
   try {
-    console.dir(await knex("information_schema.tables")
-      .select(`table_name`)
-      .where({ table_schema: "public" })
-    );
-      // FROM information_schema.tables
-      // WHERE table_schema = 'public'
-      // ORDER BY table_name;`));
-
+    rv = await knex("application_settings")
+      .join(
+        "reporting_periods",
+        "application_settings.current_reporting_period_id",
+        "reporting_periods.id"
+      )
+      .select("*")
+      .then(rv=> rv[0]);
   } catch (err) {
-    console.log(`The error is: ${err.message}`);
+    console.dir(err);
   }
+  return rv;
+  // return  usePgClient();
+}
 
-  return knex("application_settings")
-    .join(
-      "reporting_periods",
-      "application_settings.current_reporting_period_id",
-      "reporting_periods.id"
-    )
-    .select("*")
-    .then(rv=> rv[0]);
+async function usePgClient() {
+  const { Client } = require("pg");
+  console.log(`process.env.POSTGRES_URL is ${process.env.POSTGRES_URL}`);
+
+  const pg = new Client({
+    // https://node-postgres.com/api/client
+    user: "postgres",
+    database: process.env.POSTGRES_URL
+  } );
+  await pg.connect();
+  const res = await pg.query(`
+    SELECT *
+    FROM application_settings, reporting_periods
+    WHERE application_settings.current_reporting_period_id
+        = reporting_periods.id
+    ;
+  `);
+  await pg.end();
+
+  return(res.rows[0]);
 }
 
 module.exports = {

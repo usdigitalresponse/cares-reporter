@@ -15,7 +15,7 @@ let templateSheets= null;
 let dropdownValues = null;
 // Uninitialized templates cause the Record Summary section of the home page
 // to be blank
-initializeTemplates();
+// initializeTemplates();
 
 const {
   template: treasuryTemplate,
