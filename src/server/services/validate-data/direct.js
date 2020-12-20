@@ -1,4 +1,6 @@
 const {
+  directMatches,
+  cumulativeAmountIsEqual,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   isAtLeast50K,
@@ -61,7 +63,12 @@ const requiredFields = [
     numberIsLessThanOrEqual("obligation amount"),
     "Current quarter obligation must be less than or equal to obligation amount"
   ],
-
+  [
+    "obligation amount",
+    cumulativeAmountIsEqual("current quarter obligation" , directMatches),
+    "Obligation amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
+  ],
   [
     "expenditure start date",
     whenGreaterThanZero("total expenditure amount", isValidDate),
