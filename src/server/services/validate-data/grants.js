@@ -84,6 +84,12 @@ const requiredFields = [
     { isDateValue: true }
   ],
   [
+    "period of performance start date",
+    dateIsInPeriodOfPerformance,
+    'Period of performance start date "{}" must be in the period of performance',
+    { isDateValue: true }
+  ],
+  [
     "period of performance end date",
     whenGreaterThanZero("total expenditure amount", isValidDate),
     'Period of performance end date "{}" is not a valid date',
