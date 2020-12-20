@@ -13,10 +13,11 @@ const {
 
 const {
   currentReportingPeriod,
-  applicationSettings
+  applicationSettings,
 } = require("./settings");
 
 const reportingPeriods = require("./reporting-periods");
+const { get: getReportingPeriod } = require("./reporting-periods");
 
 const {
   closeReportingPeriod,
@@ -214,6 +215,7 @@ module.exports = {
   getPriorPeriodSummaries,
   getProject,
   getProjects,
+  getReportingPeriod,
   knex,
   markAccessTokenUsed,
   projectByCode,
