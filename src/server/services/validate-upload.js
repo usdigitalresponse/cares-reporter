@@ -23,8 +23,14 @@ const {
 const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 
 const validateUpload = async ({ filename, user_id, agency_id, data, reporting_period_id }) => {
+  if (!reporting_period_id) {
+    const period = await currentReportingPeriod()
+    reporting_period_id = period.id;
+  }
+  const reportingPeriod = await getReportingPeriod(reporting_period_id);
+
   let valog = new ValidationLog();
-  const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
+  const { valog: filenameValog, ...fileParts } = await parseFilename(filename, reportingPeriod);
 
   valog.append(filenameValog);
   if (!valog.success()) {
@@ -61,11 +67,6 @@ const validateUpload = async ({ filename, user_id, agency_id, data, reporting_pe
 
   let documents = removeEmptyDocuments(spreadsheetDocuments);
 
-  if (!reporting_period_id) {
-    const period = await currentReportingPeriod()
-    reporting_period_id = period.id;
-  }
-  const reportingPeriod = await getReportingPeriod(reporting_period_id);
   const priorPeriodSummaries = await getPriorPeriodSummaries(reportingPeriod.id);
   const dataValog = await validateData(
     documents,
