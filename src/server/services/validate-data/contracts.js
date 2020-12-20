@@ -49,6 +49,12 @@ const requiredFields = [
     { isDateValue: true }
   ],
   [
+    "period of performance start date",
+    dateIsInPeriodOfPerformance,
+    'Period of performance start date "{}" must be in the period of performance',
+    { isDateValue: true }
+  ],
+  [
     "period of performance end date",
     dateIsInPeriodOfPerformance,
     'Period of performance end date "{}" must be in the period of performance',

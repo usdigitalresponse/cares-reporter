@@ -12,7 +12,7 @@ const { getDropdownValues, initializeTemplates } = require("../get-template");
 
 function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
-  return dt <= reportingPeriod.periodOfPerformanceEndDate;
+  return dt >= "2020-03-01" && dt <= reportingPeriod.periodOfPerformanceEndDate;
 }
 
 function dateIsInReportingPeriod(val, content, { firstReportingPeriodStartDate, reportingPeriod }) {
