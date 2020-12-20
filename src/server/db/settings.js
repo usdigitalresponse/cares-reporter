@@ -1,18 +1,6 @@
 const knex = require("./connection");
 
-/*  applicationSettings() returns
-  {
-    title: 'Ohio',
-    current_reporting_period_id: 1,
-    reporting_template: 'OBM Reporting Template.xlsx',
-    duns_number: '809031776'
-  }
-  */
-function applicationSettings() {
-  return currentReportingPeriod();
-}
-
-// update application_settings set current_reporting_period_id=1;
+// setCurrentReportingPeriod()
 function setCurrentReportingPeriod(id) {
   return knex("application_settings")
     .update("current_reporting_period_id", id);
@@ -27,7 +15,20 @@ function getCurrentReportingPeriodID() {
     });
 }
 
-/* currentReportingPeriod() returns:
+
+/*  applicationSettings() returns
+  {
+    title: 'Ohio',
+    current_reporting_period_id: 1,
+    reporting_template: 'OBM Reporting Template.xlsx',
+    duns_number: '809031776'
+  }
+  */
+function applicationSettings() {
+  return currentReportingPeriodSettings();
+}
+
+/* currentReportingPeriodSettings() returns:
   {
     title: 'Ohio',
     current_reporting_period_id: 1,
@@ -51,7 +52,7 @@ function getCurrentReportingPeriodID() {
     reporting_template
     validation_rule_tags
  */
-function currentReportingPeriod() {
+function currentReportingPeriodSettings() {
   return knex("application_settings")
     .join(
       "reporting_periods",
@@ -64,7 +65,9 @@ function currentReportingPeriod() {
 
 module.exports = {
   applicationSettings,
-  currentReportingPeriod,
+  currentReportingPeriodSettings,
   getCurrentReportingPeriodID,
   setCurrentReportingPeriod
 };
+
+/*                                 *  *  *                                    */

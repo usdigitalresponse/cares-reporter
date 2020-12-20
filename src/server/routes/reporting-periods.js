@@ -9,6 +9,7 @@ const express = require("express");
 const router = express.Router();
 
 const { requireUser, requireAdminUser } = require("../access-helpers");
+const { user: getUser } = require("../db");
 
 const {
   periodSummaries,
@@ -26,9 +27,15 @@ router.get("/summaries/", requireUser, async function(req, res) {
 router.post("/close/", requireAdminUser, async (req, res) => {
   console.log(`POST /period-summaries/`);
 
+  const user = await getUser(req.signedCookies.userId);
+
+  let err = await reportingPeriods.close(user);
+
   res.json({
     status: "OK"
   });
 });
 
 module.exports = router;
+
+/*                                 *  *  *                                    */

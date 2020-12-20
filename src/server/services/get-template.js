@@ -3,12 +3,13 @@ let log = ()=>{};
 if ( process.env.VERBOSE ){
   log = console.dir;
 }
+let path = require("path");
 
 const fs = require("fs");
 const xlsx = require("xlsx");
 const _ = require("lodash");
 const { sheetToJson } = require("../lib/spreadsheet");
-const { currentReportingPeriod } = require("../db/settings");
+const { currentReportingPeriodSettings } = require("../db/settings");
 let template = null;
 let templateSheets= null;
 let dropdownValues = null;
@@ -50,17 +51,11 @@ function getTemplateSheets(t = "agency") {
 function loadTreasuryTemplate(fileName) {
   let xlsxTemplate = { Sheets: {} };
 
-  // console.log(`Loading : ${fileName}`);
-  // prettier-ignore
-  try {
-    xlsxTemplate = xlsx.read(
-      fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      { type: "buffer" }
-    );
-    // console.log("Template loaded");
-  } catch (e) {
-    console.log("Unable to load template:", e.message);
-  }
+  let filePath = path.resolve(__dirname,`../data/${fileName}`);
+  // console.log(`loadTreasuryTemplate: filePath is |${filePath}|`);
+
+  // Just let it throw on launch - we can't run without it
+  xlsxTemplate = xlsx.read( fs.readFileSync(filePath), { type: "buffer" } );
 
   const objAoaSheets = {};
   _.keys(xlsxTemplate.Sheets).forEach(sheetName => {
@@ -73,17 +68,11 @@ function loadTreasuryTemplate(fileName) {
 function loadTemplate(fileName) {
   let xlsxTemplate = { Sheets: {} };
 
-  // console.log(`loadTemplate(${fileName})`);
-  // prettier-ignore
-  try {
-    xlsxTemplate = xlsx.read(
-      fs.readFileSync(`${__dirname}/../data/${fileName}`),
-      { type: "buffer" }
-    );
-    // console.log("Template loaded");
-  } catch (e) {
-    console.log("Unable to loadTemplate(${fileName}:", e.message);
-  }
+  let filePath = path.resolve(__dirname,`../data/${fileName}`);
+
+  // Just let it throw on launch - we can't run without it
+  xlsxTemplate = xlsx.read( fs.readFileSync(filePath), { type: "buffer" } );
+
   const objAoaSheets = {};
 
   _.keys(xlsxTemplate.Sheets).forEach(tabName => {
@@ -120,8 +109,9 @@ function loadDropdownValues(dropdownTab) {
 function loadAgencyTemplate() {
 
   return new Promise ((resolve, reject) => {
-    currentReportingPeriod().then(
+    currentReportingPeriodSettings().then(
       crp => {
+        // console.dir(crp);
         const templateFileName = crp.reporting_template;
         if (templateFileName === null) {
           const err =
@@ -137,6 +127,7 @@ function loadAgencyTemplate() {
 }
 
 function initializeTemplates(){
+  console.log(`initializeTemplates...`);
   return new Promise(
     (resolve, reject) => {
       if ( template !== null ) {

@@ -1,12 +1,10 @@
 const {
-  documentsForAgency,
   documentsWithProjectCode
 } = requireSrc(__filename);
 const { processUpload } = requireSrc(`${__dirname}/../services/process-upload`);
 
-const { makeUploadArgs, resetUploadsAndDb } = require("../services/helpers");
+const { makeUploadArgs } = require("../services/helpers");
 const {
-  currentReportingPeriod,
   setCurrentReportingPeriod } = requireSrc(`${__dirname}/../db/settings`);
 
 const dirRoot = `${__dirname}/../fixtures/`;
@@ -54,7 +52,7 @@ describe("documents.spec.js - baseline success", () => {
   });
 
   it("Returns no documents from another reporting period", async () => {
-    // console.dir(await currentReportingPeriod()); // 2
+    // console.dir(await currentReportingPeriodSettings()); // 2
     await setCurrentReportingPeriod(3);
     const result = await documentsWithProjectCode();
     // console.dir(result.length);
