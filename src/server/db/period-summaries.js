@@ -14,30 +14,73 @@
 */
 const knex = require("./connection");
 const { documentsWithProjectCode } = require("./documents");
+const { getCurrentReportingPeriodID } = require("./settings");
+const { isClosed } = require("./reporting-periods");
 
 module.exports = {
   closeReportingPeriod,
-  getPeriodSummaries,
+  getPeriodSummaries:  getSummaries,
   getPriorPeriodSummaries
 };
 
-/*  getPeriodSummaries() returns the summaries for a reporting period. If no
+/*  getSummaries() returns the summaries for a reporting period. If no
   reporting period is specified, it returns summaries for the current
   reporting period.
   */
-async function getPeriodSummaries(reporting_period_id) {
-  let errLog =[];
+async function getSummaries(reporting_period_id) {
+  if (!reporting_period_id){
+    reporting_period_id = await getCurrentReportingPeriodID();
+  }
   let periodSummaries = await knex("period_summaries")
   .select("*")
   .where("reporting_period_id", reporting_period_id);
 
   if (periodSummaries.length) {
-    return { periodSummaries, closed:true };
+    return { periodSummaries, errors: [] };
   }
 
-  periodSummaries = [];
+
+  let summaryData = await generateSummaries(reporting_period_id);
+
+  if (summaryData.errors.length) {
+    return summaryData;
+  }
+
+  if ( await isClosed(reporting_period_id) ) {
+    summaryData.errors = await saveSummaries(summaryData.periodSummaries);
+  }
+
+  return summaryData;
+}
+
+async function saveSummaries(periodSummaries) {
+  let errLog =[];
+
+  for (let i=0; i<periodSummaries.length; i++) {
+    try {
+      await knex("period_summaries").insert(periodSummaries[i]);
+
+    } catch (err) {
+      errLog.push(err.detail);
+    }
+  }
+
+  return errLog;
+}
+
+async function generateSummaries(reporting_period_id) {
+  let periodSummaries = [];
+  let errLog =[];
+
   let mapPeriodSummaries = new Map();
   let documents = await documentsWithProjectCode(reporting_period_id);
+  if (documents.length === 0){
+    return {
+      periodSummaries,
+      errors: [`No records in period ${reporting_period_id}`]
+    };
+  }
+
   documents.forEach(document => {
     let awardNumber;
     let obligation = document.content["current quarter obligation"];
@@ -102,9 +145,8 @@ async function getPeriodSummaries(reporting_period_id) {
     periodSummary => periodSummaries.push(periodSummary)
   );
   // console.dir(periodSummaries);
-  return { periodSummaries, closed:false, errors: errLog };
+  return { periodSummaries, errors: errLog };
 }
-
 
 /* getPriorPeriodSummares() finds all the summaries for periods before the report_period_id argument
   */
@@ -119,7 +161,7 @@ async function getPriorPeriodSummaries(reporting_period_id) {
   if (!result) {
     return { periodSummaries: [] };
   }
-  return getPeriodSummaries(result.id);
+  return getSummaries(result.id);
 }
 
 /* closeReportingPeriod() closes a reporting period by writing the period

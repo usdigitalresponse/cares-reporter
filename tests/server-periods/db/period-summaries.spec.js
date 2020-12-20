@@ -3,9 +3,10 @@
 -                      tests/db/period-summaries.spec.js
 --------------------------------------------------------------------------------
 
-  If the rptest database is not yet populated, do this:
-    $ createdb --owner=postgres rptest
-    $ psql rptest postgres < tests/server/fixtures/period-summaries/rptest.sql
+  IMPORTANT!!
+  for this to work you need to have unzipped the
+    tests/server-periods/fixtures/rptest.sql.zip
+  file.
 
   Invoke this test with:
     $ yarn test:server-periods
@@ -26,18 +27,13 @@
 */
 
 const {
-  knex,
   getPeriodSummaries,
-  closeReportingPeriod
+  reportingPeriods
 } = require(`${process.cwd()}/src/server/db`);
 
 const expect = require("chai").expect;
 
-describe("period-summaries.spec.js - baseline success", () => {
-  it(`Clears the reporting summaries from the test database`, async () => {
-    await knex(`period_summaries`)
-      .delete();
-  });
+describe("baseline success", () => {
   it("Returns a list of reporting period summaries", async () => {
     let summaries;
     const period = 1;
@@ -52,7 +48,9 @@ describe("period-summaries.spec.js - baseline success", () => {
     if (summaries.periodSummaries.length !== 3161){
       // console.log(summaries.periodSummaries.length);
       // console.dir(summaries);
-      throw new Error(`Expected 3157 period summaries, got ${summaries.periodSummaries.length}`);
+      throw new Error(
+        `Expected 3161 period summaries, got ${summaries.periodSummaries.length}`
+      );
     }
     if (summaries.closed) {
       throw new Error(`Period ${period} should not be closed`);
@@ -71,16 +69,34 @@ describe("period-summaries.spec.js - baseline success", () => {
       throw new Error(`Returned summaries from the wrong period`);
     }
   });
+  it("Fails to close period 2 (because period 1 is open)", async () => {
+    const period = 2;
+    let err = null;
+    try {
+      await reportingPeriods.close("walter@dahlberg.com", period);
+
+    } catch(_err) {
+      err = _err;
+    }
+
+    expect(err.message).to.equal(
+      `The current reporting period is not period ${period}`
+    );
+  });
 
   it("Closes period 1", async function () {
     this.timeout(5000);
 
     const period = 1;
-    let err = await closeReportingPeriod(period);
-    if (err) {
-      console.dir(err);
-      throw new Error(err[0]);
+    let err = null;
+    try {
+      await reportingPeriods.close("walter@dahlberg.com", period);
+
+    } catch(_err) {
+      err = _err;
     }
+
+    expect(err).to.equal(null);
 
     let summaries = await getPeriodSummaries(period);
 
@@ -88,14 +104,27 @@ describe("period-summaries.spec.js - baseline success", () => {
     if (summaries.periodSummaries.length !== 3161){
       // console.log(summaries.periodSummaries.length);
       console.dir(summaries,{ depth:1 });
-      throw new Error(`Expected 3157 period summaries, got ${summaries.periodSummaries.length}`);
+      throw new Error(
+        `Expected 3161 period summaries, got ${summaries.periodSummaries.length}`
+      );
     }
-    if (!summaries.closed) {
+    if (!(await reportingPeriods.isClosed(1))) {
       throw new Error(`Period ${period} should be closed`);
     }
   });
-  it("Close knex", async () => {
-    await knex.destroy();
-  });
+  it("Fails to close period 2 (because there is no Treasury file)", async () => {
+    const period = 2;
+    let err=null;
 
+    try {
+      await reportingPeriods.close("walter@dahlberg.com", period);
+
+    } catch(_err) {
+      err = _err;
+    }
+    expect(err.message).to.equal(
+      `No Treasury report has been generated for period ${period}`
+    );
+  });
 });
+

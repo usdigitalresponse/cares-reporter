@@ -6,14 +6,13 @@ const {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsInPeriod,
   documentsForAgency,
   documentsWithProjectCode
 } = require("./documents");
 
 const {
-  currentReportingPeriod,
-  applicationSettings,
+  currentReportingPeriodSettings,
+  applicationSettings
 } = require("./settings");
 
 const reportingPeriods = require("./reporting-periods");
@@ -207,11 +206,10 @@ module.exports = {
   createProject,
   createUpload,
   createUser,
-  currentReportingPeriod,
+  currentReportingPeriodSettings,
   deleteDocuments,
   documents,
   documentsForAgency,
-  documentsInPeriod,
   documentsWithProjectCode,
   fixProjectCode,
   getFirstReportingPeriodStartDate,
@@ -225,7 +223,6 @@ module.exports = {
   projectByCode,
   projects,
   reportingPeriods,
-  closeReportingPeriod,
   roles,
   transact,
   updateAgency,

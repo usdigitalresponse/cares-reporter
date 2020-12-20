@@ -18,25 +18,16 @@ const knex = require("./connection");
 const _ = require("lodash");
 
 const {
-  currentReportingPeriod,
-  getCurrentReportingPeriodID
-} = require("./settings");
-
-const reportingPeriods = require("./reporting-periods");
+  getPeriodUploadIDs
+} = require("./uploads");
 
 async function documentsWithProjectCode(period_id) {
-  if ( !period_id ) {
-    period_id = await getCurrentReportingPeriodID();
-  }
-  let periodUploads = await knex("uploads")
-    .select("id")
-    .where({ "reporting_period_id": period_id })
-    .then( recs => recs.map( rec => rec.id));
-  // periodUploads = periodUploads.map( rec => rec.id);
+
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
 
   return knex("documents")
     .select("documents.*", "projects.code as project_code")
-    .whereIn("upload_id", periodUploads)
+    .whereIn("upload_id", periodUploadIDs)
     .join("uploads", { "documents.upload_id": "uploads.id" })
     .join("projects", { "uploads.project_id": "projects.id" })
     .then( purgeDuplicateSubrecipients);
@@ -76,37 +67,30 @@ function purgeDuplicateSubrecipients( arrRecords ) {
   return arrRecordsOut;
 }
 
-function documents() {
-  return knex("documents").select("*").then(purgeDuplicateSubrecipients);
+async function documents(period_id) {
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
+
+  return knex("documents")
+  .select("*")
+  .whereIn("upload_id", periodUploadIDs)
+  .then(purgeDuplicateSubrecipients);
 }
 
-function documentsInPeriod( period_id ) {
-  let period;
-  if ( period_id ) {
-    period = reportingPeriods.get( period_id );
+async function documentsOfType(type, period_id) {
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
 
-  } else {
-    period = currentReportingPeriod();
-  }
-
-  return period.then(reportingPeriod => {
-    console.log(
-      `reporting period is ${reportingPeriod.start_date} `+
-      `to ${reportingPeriod.end_date}`
-    );
-    return documents();
-  });
-}
-
-function documentsOfType(type) {
   return knex("documents")
     .select("*")
+    .whereIn("upload_id", periodUploadIDs)
     .where("type", type);
 }
 
-function documentsForAgency(agency_id) {
+async function documentsForAgency(agency_id, period_id) {
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
+
   return knex("documents")
     .select("documents.*", "projects.code as project_code")
+    .whereIn("upload_id", periodUploadIDs)
     .join("uploads", { "documents.upload_id": "uploads.id" })
     .join("projects", { "uploads.project_id": "projects.id" })
     .join("users", { "documents.user_id": "users.id" })
@@ -147,7 +131,6 @@ module.exports = {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsInPeriod,
   documentsForAgency,
   documentsOfType,
   documentsWithProjectCode

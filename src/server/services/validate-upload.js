@@ -6,7 +6,7 @@ if ( process.env.VERBOSE ){
 
 const xlsx = require("xlsx");
 const {
-  currentReportingPeriod,
+  currentReportingPeriodSettings,
   getFirstReportingPeriodStartDate,
   getReportingPeriod,
   getPriorPeriodSummaries
@@ -25,7 +25,7 @@ const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 
 const validateUpload = async ({ filename, user_id, agency_id, data, reporting_period_id }) => {
   if (!reporting_period_id) {
-    const period = await currentReportingPeriod()
+    const period = await currentReportingPeriodSettings();
     reporting_period_id = period.id;
   }
   const reportingPeriod = await getReportingPeriod(reporting_period_id);
