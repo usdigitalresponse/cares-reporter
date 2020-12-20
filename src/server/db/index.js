@@ -20,7 +20,8 @@ const reportingPeriods = require("./reporting-periods");
 
 const {
   closeReportingPeriod,
-  getPeriodSummaries
+  getPeriodSummaries,
+  getPriorPeriodSummaries
 } = require("./period-summaries");
 
 
@@ -210,6 +211,7 @@ module.exports = {
   documentsWithProjectCode,
   fixProjectCode,
   getPeriodSummaries,
+  getPriorPeriodSummaries,
   getProject,
   getProjects,
   knex,

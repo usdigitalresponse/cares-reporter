@@ -17,7 +17,8 @@ const { documentsWithProjectCode } = require("./documents");
 
 module.exports = {
   closeReportingPeriod,
-  getPeriodSummaries
+  getPeriodSummaries,
+  getPriorPeriodSummaries
 };
 
 /*  getPeriodSummaries() returns the summaries for a reporting period. If no
@@ -102,6 +103,13 @@ async function getPeriodSummaries(reporting_period_id) {
   );
   // console.dir(periodSummaries);
   return { periodSummaries, closed:false, errors: errLog };
+}
+
+
+/* getPriorPeriodSummares() finds all the summaries for periods before the report_period_id argument
+  */
+async function getPriorPeriodSummaries(reporting_period_id) {
+  return getPeriodSummaries(reporting_period_id); // FIXME
 }
 
 /* closeReportingPeriod() closes a reporting period by writing the period

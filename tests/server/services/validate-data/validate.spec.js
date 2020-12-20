@@ -1,4 +1,5 @@
 const {
+  cumulativeAmountIsEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   isAtLeast50K,
@@ -37,7 +38,12 @@ describe("validation helpers", () => {
       startDate: "2020-03-01",
       endDate: "2020-09-30",
       periodOfPerformanceEndDate: "2020-12-30"
-    }
+    },
+    periodSummaries: [
+      { project_code: "1", current_obligation: 100.0 },
+      { project_code: "1", current_obligation: 200.0 },
+      { project_code: "2", current_obligation: 200.0 }
+    ]
   };
   const testCases = [
     ["blank string", isNotBlank(""), false],
@@ -269,7 +275,26 @@ describe("validation helpers", () => {
     ["isAtLeast50K fails", isAtLeast50K(""), false],
     ["isAtLeast50K fails", isAtLeast50K(5000.00), false],
     ["isAtLeast50K passes", isAtLeast50K(50000.00), true],
-    ["isAtLeast50K passes", isAtLeast50K(150000.00), true]
+    ["isAtLeast50K passes", isAtLeast50K(150000.00), true],
+
+    [
+      "cumulativeAmountIsEqual passes",
+      cumulativeAmountIsEqual("obligation", d => d.project_code === "1" )(
+        600.0,
+        { obligation: 300.0 },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "cumulativeAmountIsEqual fails",
+      cumulativeAmountIsEqual("obligation", d => d.project_code === "1" )(
+        200.0,
+        { obligation: 300.0 },
+        validateContext
+      ),
+      false
+    ],
   ];
   testCases.forEach(([name, b, expectedResult]) => {
     it(`${name} should return ${expectedResult}`, () => {
