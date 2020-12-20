@@ -109,7 +109,7 @@ async function getPeriodSummaries(reporting_period_id) {
 /* getPriorPeriodSummares() finds all the summaries for periods before the report_period_id argument
   */
 async function getPriorPeriodSummaries(reporting_period_id) {
-  return getPeriodSummaries(reporting_period_id); // FIXME
+  return getPeriodSummaries(reporting_period_id-1); // FIXME
 }
 
 /* closeReportingPeriod() closes a reporting period by writing the period

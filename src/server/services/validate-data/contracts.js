@@ -1,4 +1,5 @@
 const {
+  contractMatches,
   cumulativeAmountIsEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
@@ -79,7 +80,7 @@ const requiredFields = [
   ],
   [
     "contract amount",
-    cumulativeAmountIsEqual("current quarter obligation" , () => true),
+    cumulativeAmountIsEqual("current quarter obligation" , contractMatches),
     "Contract amount must equal cumulative obligation amount",
     { tags: ["cumulative"] }
   ],

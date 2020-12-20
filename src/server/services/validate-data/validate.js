@@ -98,16 +98,34 @@ function periodSummaryKey(key) {
   }
 }
 
+function withoutLeadingZeroes(v) {
+  return `${v}`.replace(/^0+/,'');
+}
+
+function summaryMatches(type, content) {
+  return (s) => {
+    return s.award_type === type &&
+      withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
+      content['contract number'] === s.award_number;
+  };
+}
+
+function contractMatches(content) {
+  return summaryMatches("contracts", content);
+}
+
 function cumulativeAmountIsEqual(key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
+    const summaries = _.get(periodSummaries, 'periodSummaries');
+    // console.log('periodSummaries:', summaries);
     const currentPeriodAmount = Number(content[key]) || 0.0;
-    const sum = _.chain(periodSummaries)
-        .filter(filterPredicate)
+    const previousPeriodsAmount = _.chain(summaries)
+        .filter(filterPredicate(content))
         .map(periodSummaryKey(key))
-        .reduce((acc, s) => acc + Number(s) || 0.0, currentPeriodAmount)
+        .reduce((acc, s) => acc + Number(s) || 0.0, 0.0)
         .value();
-    console.log('cumulativeAmountIsEqual', key, sum, val);
-    return _.round(val, 2) == _.round(sum, 2);
+    // console.log('cumulativeAmountIsEqual', key, currentPeriodAmount, previousPeriodsAmount, val);
+    return _.round(val, 2) == _.round(previousPeriodsAmount + currentPeriodAmount, 2);
   };
 }
 
@@ -286,7 +304,7 @@ function validateSingleDocument(tab, validations, message) {
 }
 
 module.exports = {
-  initializeTemplates,
+  contractMatches,
   cumulativeAmountIsEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
@@ -294,6 +312,7 @@ module.exports = {
   dateIsOnOrAfter,
   dropdownIncludes,
   hasSubrecipientKey,
+  initializeTemplates,
   isEqual,
   isAtLeast50K,
   isNotBlank,
