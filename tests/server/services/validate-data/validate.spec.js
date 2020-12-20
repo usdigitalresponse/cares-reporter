@@ -279,18 +279,18 @@ describe("validation helpers", () => {
 
     [
       "cumulativeAmountIsEqual passes",
-      cumulativeAmountIsEqual("obligation", d => d.project_code === "1" )(
+      cumulativeAmountIsEqual("current quarter obligation", d => d.project_code === "1" )(
         600.0,
-        { obligation: 300.0 },
+        { "current quarter obligation": 300.0 },
         validateContext
       ),
       true
     ],
     [
       "cumulativeAmountIsEqual fails",
-      cumulativeAmountIsEqual("obligation", d => d.project_code === "1" )(
+      cumulativeAmountIsEqual("current quarter obligation", d => d.project_code === "1" )(
         200.0,
-        { obligation: 300.0 },
+        { "current quarter obligation": 300.0 },
         validateContext
       ),
       false
