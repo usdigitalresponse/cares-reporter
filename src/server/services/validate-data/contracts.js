@@ -104,8 +104,8 @@ const requiredFields = [
   ],
   [
     "contract date",
-    dateIsOnOrBefore("period of performance start date"),
-    'Contract date "{}" must be on or before the period of performance start date',
+    dateIsInPeriodOfPerformance,
+    'Contract date "{}" must be in the period of performance',
     { isDateValue: true }
   ],
   [
@@ -135,6 +135,12 @@ const requiredFields = [
     "expenditure start date",
     whenGreaterThanZero("total expenditure amount", isValidDate),
     'Expenditure state date "{}" is not a valid date',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure start date",
+    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'Expenditure state date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
   [

@@ -70,8 +70,8 @@ const requiredFields = [
   ],
   [
     "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", isValidDate),
-    'Expenditure start date "{}" is not valid',
+    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'Expenditure state date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
   [
