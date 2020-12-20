@@ -1,8 +1,10 @@
 const {
+  cumulativeAmountIsEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
+  grantMatches,
   isEqual,
   isAtLeast50K,
   isNotBlank,
@@ -188,7 +190,14 @@ const requiredFields = [
   [
     "award amount",
     isEqual("current quarter obligation"),
-    "Award amount must equal obligation amount"
+    "Award amount must equal obligation amount",
+    { tags: ["v2"] }
+  ],
+  [
+    "award amount",
+    cumulativeAmountIsEqual("current quarter obligation" , grantMatches),
+    "Award amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
   ],
 
   [
