@@ -111,7 +111,7 @@ function summaryMatches(type, id, content) {
     // console.log(content[id] === s.award_number);
     return s.award_type === type &&
       withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
-      content[id] === s.award_number;
+      `${content[id]}` === s.award_number;
   };
 }
 
@@ -123,6 +123,10 @@ function directMatches(content) {
   return summaryMatches("direct", "subrecipient id", content);
 }
 
+function grantMatches(content) {
+  return summaryMatches("grants", "award number", content);
+}
+
 function cumulativeAmountIsEqual(key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
     const summaries = _.get(periodSummaries, 'periodSummaries');
@@ -132,10 +136,12 @@ function cumulativeAmountIsEqual(key, filterPredicate) {
         .map(periodSummaryKey(key))
         .reduce((acc, s) => acc + Number(s) || 0.0, 0.0)
         .value();
-    // console.log('periodSummaries:', summaries);
-    // console.log('cumulativeAmountIsEqual: ', key, currentPeriodAmount, previousPeriodsAmount, val);
     const isEqual = _.round(val, 2) == _.round(previousPeriodsAmount + currentPeriodAmount, 2);
-    // console.log('isEqual:', isEqual);
+    // if (!isEqual) {
+    //   console.log('isEqual:', isEqual);
+    //   console.log('periodSummaries:', summaries);
+    //   console.log('cumulativeAmountIsEqual: ', key, currentPeriodAmount, previousPeriodsAmount, val);
+    // }
     return isEqual;
   };
 }
@@ -322,6 +328,7 @@ module.exports = {
   dateIsOnOrBefore,
   dateIsOnOrAfter,
   directMatches,
+  grantMatches,
   dropdownIncludes,
   hasSubrecipientKey,
   initializeTemplates,

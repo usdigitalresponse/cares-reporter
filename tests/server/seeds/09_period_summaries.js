@@ -18,6 +18,14 @@ exports.seed = async function(knex) {
       reporting_period_id: 2,
       current_obligation: 100000000.00,
       current_expenditure: 0.00
+    },
+    {
+      project_code: "075",
+      award_type: "grants",
+      award_number: "1234",
+      reporting_period_id: 2,
+      current_obligation: 10000000.00,
+      current_expenditure: 0.00
     }
   ]);
 };
