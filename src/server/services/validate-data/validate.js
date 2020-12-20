@@ -87,14 +87,19 @@ function isSum(columns) {
   };
 }
 
+function periodSummaryKey(key) {
+  return "current_obligation"; // to start, only use case is current_quarter_obligation -> current_obligation
+}
+
 function cumulativeAmountIsEqual(key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
     const currentPeriodAmount = Number(content[key]) || 0.0;
     const sum = _.chain(periodSummaries)
         .filter(filterPredicate)
-        .map(`current_${key}`)
+        .map(periodSummaryKey(key))
         .reduce((acc, s) => acc + Number(s) || 0.0, currentPeriodAmount)
         .value();
+    console.log('cumulativeAmountIsEqual', key, sum, val);
     return _.round(val, 2) == _.round(sum, 2);
   };
 }
