@@ -87,6 +87,18 @@ function isSum(columns) {
   };
 }
 
+function cumulativeAmountIsEqual(key, filterPredicate) {
+  return (val, content, { periodSummaries }) => {
+    const currentPeriodAmount = Number(content[key]) || 0.0;
+    const sum = _.chain(periodSummaries)
+        .filter(filterPredicate)
+        .map(`current_${key}`)
+        .reduce((acc, s) => acc + Number(s) || 0.0, currentPeriodAmount)
+        .value();
+    return _.round(val, 2) == _.round(sum, 2);
+  };
+}
+
 function isValidDate(val) {
   return !_.isNaN(new Date(val).getTime());
 }
@@ -263,6 +275,7 @@ function validateSingleDocument(tab, validations, message) {
 
 module.exports = {
   initializeTemplates,
+  cumulativeAmountIsEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,

@@ -12,7 +12,7 @@ const tabValidators = [
 const { getSubrecipientsHash } = require("./helpers");
 const { format } = require("date-fns");
 
-const validateData = (documents, fileParts, reportingPeriod ) => {
+const validateData = (documents, fileParts, reportingPeriod, periodSummaries ) => {
   const groupedDocuments = _.groupBy(documents, "type");
   const subrecipientsHash = getSubrecipientsHash(groupedDocuments.subrecipient);
 
@@ -27,7 +27,8 @@ const validateData = (documents, fileParts, reportingPeriod ) => {
       )
     },
     subrecipientsHash,
-    tags: reportingPeriod.validation_rule_tags
+    tags: reportingPeriod.validation_rule_tags,
+    periodSummaries
   };
   return _.flatMap(tabValidators, tabValidator => {
     return _.take(tabValidator(groupedDocuments, validateContext), 100);
