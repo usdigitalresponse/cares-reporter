@@ -109,7 +109,17 @@ async function getPeriodSummaries(reporting_period_id) {
 /* getPriorPeriodSummares() finds all the summaries for periods before the report_period_id argument
   */
 async function getPriorPeriodSummaries(reporting_period_id) {
-  return getPeriodSummaries(reporting_period_id-1); // FIXME
+
+  const query = `select p.id, p.start_date, p.end_date
+    from reporting_periods p, reporting_periods r
+    where p.end_date < r.start_date and r.id = ${reporting_period_id}
+    order by p.end_date, p.id desc
+    limit 1`;
+  const result = await knex.raw(query).then(r => r.rows ? r.rows[0] : null);
+  if (!result) {
+    return { periodSummaries: [] };
+  }
+  return getPeriodSummaries(result.id);
 }
 
 /* closeReportingPeriod() closes a reporting period by writing the period
