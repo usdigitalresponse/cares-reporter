@@ -39,6 +39,7 @@ describe("validation helpers", () => {
       endDate: "2020-09-30",
       periodOfPerformanceEndDate: "2020-12-30"
     },
+    firstReportingPeriodStartDate: "2020-03-01",
     periodSummaries: [
       { project_code: "1", current_obligation: 100.0 },
       { project_code: "1", current_obligation: 200.0 },
