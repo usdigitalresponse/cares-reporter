@@ -31,7 +31,10 @@ describe("services/process_upload", () => {
       const uploadArgs = makeUploadArgs(
         `${dir}EOHHS-075-12312020-simple-v1.xlsx`
       );
-      uploadArgs.reporting_period_id  = 3; // FIXME seems like a hack
+      uploadArgs.reporting_period_id = await knex("reporting_periods")
+        .where("end_date", "2020-12-31")
+        .then(r => r[0].id);
+      // console.log("uploadArgs", uploadArgs);
       const result = await processUpload(uploadArgs);
       expect(
         result.valog.getLog(),
