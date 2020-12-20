@@ -15,9 +15,9 @@ function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
   return dt <= reportingPeriod.periodOfPerformanceEndDate;
 }
 
-function dateIsInReportingPeriod(val, content, { reportingPeriod }) {
+function dateIsInReportingPeriod(val, content, { firstReportingPeriodStartDate, reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
-  return dt >= reportingPeriod.startDate && dt <= reportingPeriod.endDate;
+  return dt >= firstReportingPeriodStartDate && dt <= reportingPeriod.endDate;
 }
 
 function dateIsOnOrBefore(key) {

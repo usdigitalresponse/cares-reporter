@@ -18,6 +18,7 @@ const validateData = (documents, fileParts, reportingPeriod, periodSummaries ) =
 
   const validateContext = {
     fileParts,
+    firstReportingPeriodStartDate: "2020-03-01", // FIXME read this from reporting periods table?
     reportingPeriod: {
       startDate: format(reportingPeriod.start_date, "yyyy-MM-dd"),
       endDate: format(reportingPeriod.end_date, "yyyy-MM-dd"),
