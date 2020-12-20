@@ -104,14 +104,15 @@ function withoutLeadingZeroes(v) {
 
 function summaryMatches(type, id, content) {
   return (s) => {
+    const isMatch = s.award_type === type &&
+      withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
+      `${content[id]}` === s.award_number;
     // console.log('summary:', s);
     // console.log('content:', content);
     // console.log(s.award_type === type);
     // console.log(withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']));
     // console.log(content[id] === s.award_number);
-    return s.award_type === type &&
-      withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
-      `${content[id]}` === s.award_number;
+    return isMatch;
   };
 }
 
@@ -127,6 +128,10 @@ function grantMatches(content) {
   return summaryMatches("grants", "award number", content);
 }
 
+function loanMatches(content) {
+  return summaryMatches("loans", "loan number", content);
+}
+
 function cumulativeAmountIsEqual(key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
     const summaries = _.get(periodSummaries, 'periodSummaries');
@@ -139,6 +144,7 @@ function cumulativeAmountIsEqual(key, filterPredicate) {
     const isEqual = _.round(val, 2) == _.round(previousPeriodsAmount + currentPeriodAmount, 2);
     // if (!isEqual) {
     //   console.log('isEqual:', isEqual);
+    //   console.log(key, content[key]);
     //   console.log('periodSummaries:', summaries);
     //   console.log('cumulativeAmountIsEqual: ', key, currentPeriodAmount, previousPeriodsAmount, val);
     // }
@@ -343,6 +349,7 @@ module.exports = {
   isValidState,
   isValidSubrecipient,
   isValidZip,
+  loanMatches,
   matchesFilePart,
   messageValue,
   numberIsLessThanOrEqual,

@@ -1,4 +1,5 @@
 const {
+  cumulativeAmountIsEqual,
   dateIsInReportingPeriod,
   dropdownIncludes,
   isNotBlank,
@@ -9,6 +10,7 @@ const {
   isValidState,
   isValidSubrecipient,
   isValidZip,
+  loanMatches,
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
@@ -83,6 +85,12 @@ const requiredFields = [
     "current quarter obligation",
     numberIsLessThanOrEqual("loan amount"),
     "Current quarter obligation must be less than or equal to loan amount"
+  ],
+  [
+    "loan amount",
+    cumulativeAmountIsEqual("current quarter obligation" , loanMatches),
+    "Loan amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
   ],
 
   [
