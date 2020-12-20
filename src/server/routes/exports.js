@@ -4,17 +4,19 @@ const _ = require("lodash");
 
 const { requireUser } = require("../access-helpers");
 const treasury = require("../lib/treasury");
+const { getPeriodID } = require("../db/reporting-periods");
 
 const { reportingPeriods } = require("../db");
 
 router.get("/", requireUser, async function(req, res) {
+  const period_id = await getPeriodID(req.query.period_id);
 
   let report;
-  if (await reportingPeriods.isCurrent(req.query.period_id )){
+  if (await reportingPeriods.isCurrent(period_id )){
     report = await treasury.getCurrentReport();
 
   } else {
-    report = await treasury.getPriorReport(req.query.period_id);
+    report = await treasury.getPriorReport(period_id);
   }
 
   if ( _.isError(report) ) {

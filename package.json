@@ -11,7 +11,9 @@
     "lint": "vue-cli-service lint",
     "prod": "NODE_ENV=production node src/server",
     "oh": "POSTGRES_URL=postgres://localhost/ohio AUDIT=true UPLOAD_DIRECTORY=\"./uploads/oh\" TREASURY_DIRECTORY=\"./treasury-reports/oh\" yarn serve",
-    "ri": "POSTGRES_URL=postgres://localhost/ri AUDIT=true UPLOAD_DIRECTORY=\"./uploads/ri\" TREASURY_DIRECTORY=\"./treasury-reports/ri\" yarn serve"
+    "ri": "POSTGRES_URL=postgres://localhost/ri AUDIT=true UPLOAD_DIRECTORY=\"./uploads/ri\" TREASURY_DIRECTORY=\"./treasury-reports/ri\" yarn serve",
+    "rp": "POSTGRES_URL=postgres://localhost/rptest AUDIT=true UPLOAD_DIRECTORY=\"./uploads/rp\" TREASURY_DIRECTORY=\"./treasury-reports/rp\" yarn serve",
+    "reset:rptest": "dropdb rptest && createdb --owner=postgres rptest && psql rptest postgres < tests/server-periods/fixtures/rptest.sql"
   },
   "dependencies": {
     "@vue/cli": "^4.5.4",
@@ -30,7 +32,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "numeral": "^2.0.6",
-    "pg": "^8.3.2",
+    "pg": "^8.5.1",
     "uuid": "^8.3.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
