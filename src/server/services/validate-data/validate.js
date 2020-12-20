@@ -88,7 +88,14 @@ function isSum(columns) {
 }
 
 function periodSummaryKey(key) {
-  return "current_obligation"; // to start, only use case is current_quarter_obligation -> current_obligation
+  switch(key) {
+    case "current quarter obligation":
+      return "current_obligation";
+    case "total expenditure amount":
+      return "current_expenditure";
+    default:
+      return "";
+  }
 }
 
 function cumulativeAmountIsEqual(key, filterPredicate) {
