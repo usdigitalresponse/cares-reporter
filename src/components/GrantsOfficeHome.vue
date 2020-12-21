@@ -8,7 +8,7 @@
           >
         </div>
         <div class="col-4">
-          <div @click="doUpload" class="btn btn-secondary">
+          <div @click="startUpload" class="btn btn-secondary">
             {{uploadPrompt}}
           </div>
         </div>
@@ -132,7 +132,8 @@ export default {
         .utc()
         .format("MM-DD-YYYY");
     },
-    doUpload: function(){
+    startUpload: function(e){
+      e.preventDefault();
       if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
         this.$router.push({ path: "/new_upload" });
       }
