@@ -1,18 +1,9 @@
 <template>
   <div class="home">
-    <div class="row" v-if="currentReportingPeriod">
-      <div class="col-12">
-        <h3>
-          Reporting Period:
-          {{ dateFormat(currentReportingPeriod.start_date) }} to
-          {{ dateFormat(currentReportingPeriod.end_date) }}
-        </h3>
-      </div>
-    </div>
     <div class="row buttons mt-5">
       <div class="col-6">
         <button class="btn btn-primary" @click="startUpload">
-          Upload Spreadsheet
+          {{uploadPrompt}}
         </button>
       </div>
       <div class="col-6">
@@ -46,6 +37,14 @@ export default {
     };
   },
   computed: {
+    uploadPrompt: function(){
+      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
+        return `Upload Agency Spreadsheet`;
+
+      } else {
+        return `Can't upload to this period`;
+      }
+    },
     currentReportingPeriod: function() {
       return this.$store.getters.currentReportingPeriod;
     },
@@ -65,7 +64,9 @@ export default {
   methods: {
     startUpload(e) {
       e.preventDefault();
-      this.$router.push({ path: "/new_upload" });
+      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
+        this.$router.push({ path: "/new_upload" });
+      }
     },
     dateFormat: function(d) {
       return moment(d)

@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const ssf = require("ssf");
 const { requireUser } = require("../access-helpers");
+const { getPeriodID } = require("../db/reporting-periods");
+
 const {
   user: getUser,
   documentsWithProjectCode,
@@ -24,7 +26,8 @@ function formatDates(document) {
 }
 
 router.get("/", requireUser, async function(req, res) {
-  const { period_id } = req.query;
+  const period_id = await getPeriodID(req.query.period_id);
+
   const user = await getUser(req.signedCookies.userId);
   const rawDocuments = user.agency_id
     ? await documentsForAgency(user.agency_id, period_id)

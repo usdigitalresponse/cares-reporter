@@ -67,7 +67,8 @@ function loadTreasuryTemplate(fileName) {
 
 function loadTemplate(fileName) {
   let xlsxTemplate = { Sheets: {} };
-
+  console.log(fileName);
+  console.log(`Database is ${process.env.POSTGRES_URL}`);
   let filePath = path.resolve(__dirname,`../data/${fileName}`);
 
   // Just let it throw on launch - we can't run without it
