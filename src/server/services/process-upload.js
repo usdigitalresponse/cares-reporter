@@ -1,3 +1,9 @@
+
+let log = ()=>{};
+if ( process.env.VERBOSE ){
+  log = console.dir;
+}
+
 const {
   agencyByCode,
   user,
@@ -7,13 +13,16 @@ const {
   getProject,
   transact
 } = require("../db");
+
 const FileInterface = require("../lib/server-disk-interface");
 const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
 const { updateProjectStatus } = require("../db");
+// needed for tests
+const { initializeTemplates } = require("./get-template");
 
 const processUpload = async ({ filename, user_id, agency_id, data }) => {
-
+  log(`processUpload(): filename is ${filename}`);
   const {
    valog,
    documents,
@@ -22,6 +31,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
    reportingPeriod
   } = await validateUpload({ filename, user_id, agency_id, data });
   if (!valog.success()) {
+    log(`valog.success() is false`);
     return { valog, upload: {} };
   }
 
@@ -95,4 +105,4 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   return { valog, upload, spreadsheet };
 };
 
-module.exports = { processUpload };
+module.exports = { processUpload, initializeTemplates };

@@ -22,11 +22,13 @@ function makeConfig(
     "Dropdowns",
     "Summary",
     "Projects",
+    "Agency Use",
     "cover",
     "cover page",
     "dropdowns",
     "summary",
-    "projects"
+    "projects",
+    "agency use"
   ]
 ) {
   const sheets = _.omit(allSheets, ignoreSheets);
