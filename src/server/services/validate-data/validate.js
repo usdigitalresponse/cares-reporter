@@ -1,8 +1,14 @@
+
+let log = ()=>{};
+if ( process.env.VERBOSE ){
+  log = console.dir;
+}
+
 const { ValidationItem } = require("../../lib/validation-log");
-const { dropdownValues } = require("../get-template");
 const { subrecipientKey } = require("./helpers");
 const ssf = require("ssf");
 const _ = require("lodash");
+const { getDropdownValues, initializeTemplates } = require("../get-template");
 
 function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
@@ -75,7 +81,7 @@ function isSum(columns) {
     val = _.round(val,2);
     sum = _.round(sum,2);   // parseFloat returns junk in the 11th decimal place
     if (val !== sum ) {
-      console.log(`val is ${val}, sum is ${sum}`);
+      // console.log(`val is ${val}, sum is ${sum}`);
     }
     return val == sum;
   };
@@ -94,6 +100,7 @@ function isUnitedStates(value) {
 }
 
 function isValidState(val, content) {
+  log(`isValidState(${val})`);
   return (
     dropdownIncludes("state code")(val)
   );
@@ -126,7 +133,20 @@ function numberIsGreaterThanOrEqual(key) {
 }
 
 function dropdownIncludes(key) {
-  return val => _.get(dropdownValues, key, []).includes(val.toLowerCase());
+
+  return val => {
+    let allDropdowns = getDropdownValues();
+    if (!allDropdowns) {
+      console.log(`DROPDOWN VALUES NOT INITIALIZED!! (${key})`);
+      return false;
+    }
+    let dropdownValues = _.get(allDropdowns, key, []);
+
+    let rv = _.includes(dropdownValues, val.toLowerCase());
+    log(`${key}:${val} is ${rv ? "present" : "missing"}`);
+    // log(dropdownValues);
+    return rv;
+  };
 }
 
 function whenBlank(key, validator) {
@@ -167,7 +187,7 @@ function messageValue(val, options) {
 }
 
 function includeValidator(options, context) {
-  const tags = _.get(options, 'tags');
+  const tags = _.get(options, "tags");
   if (!tags) {
     return true;
   }
@@ -188,8 +208,9 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
     if (includeValidator(options, context)) {
       const val = content[key] || "";
       if (!validator(val, content, context)) {
-        // console.log(val);
+        // console.log(`val ${val}, content:`);
         // console.dir(content);
+        // console.log(`val ${val}, context:`);
         // console.dir(context);
         valog.push(
           new ValidationItem({
@@ -241,6 +262,7 @@ function validateSingleDocument(tab, validations, message) {
 }
 
 module.exports = {
+  initializeTemplates,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,

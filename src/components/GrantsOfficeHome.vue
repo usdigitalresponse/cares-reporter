@@ -87,7 +87,7 @@ export default {
     };
   },
   computed: {
-    currentReportingPeriod: function() {
+    currentReportingPeriod: function () {
       return this.$store.getters.currentReportingPeriod;
     },
     template: function() {
