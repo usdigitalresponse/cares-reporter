@@ -1,5 +1,6 @@
 const {
   cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   dropdownIncludes,
@@ -80,6 +81,12 @@ const requiredFields = [
     "award amount",
     cumulativeAmountIsEqual("current quarter obligation" , transferMatches),
     "Award amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
+  ],
+  [
+    "award amount",
+    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , transferMatches),
+    "Cumulative expenditure amount must be less than or equal to award amount",
     { tags: ["cumulative"] }
   ],
 

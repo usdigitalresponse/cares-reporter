@@ -1,5 +1,6 @@
 const {
   cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInReportingPeriod,
   dropdownIncludes,
   isNotBlank,
@@ -92,7 +93,12 @@ const requiredFields = [
     "Loan amount must equal cumulative obligation amount",
     { tags: ["cumulative"] }
   ],
-
+  [
+    "loan amount",
+    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , loanMatches),
+    "Cumulative expenditure amount must be less than or equal to loan amount",
+    { tags: ["cumulative"] }
+  ],
   [
     "payment amount",
     whenNotBlank("payment amount", isNumberOrBlank),
