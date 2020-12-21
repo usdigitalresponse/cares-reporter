@@ -139,7 +139,7 @@ export default new Vuex.Store({
       state.messages = [...state.messages, message];
     },
     setViewPeriodID(state, period_id) {
-      console.log(`=================== ${period_id}`);
+      // console.log(`=================== ${period_id}`);
       state.viewPeriodID = period_id;
     }
   },
@@ -243,11 +243,9 @@ export default new Vuex.Store({
       });
     },
     viewPeriodID({ commit }, period_id) {
-      console.log(`store.actions.viewPeriodID(${period_id})`);
       commit("setViewPeriodID", period_id);
       const doFetch = (attr, query) => {
         let url = `/api/${attr}${query}`;
-        console.log(`invoking ${url}`);
         fetch(url, { credentials: "include" })
           .then(r => r.json())
           .then(data => {
@@ -255,7 +253,6 @@ export default new Vuex.Store({
             if (attr==="configuration") {
               console.dir(data[attr]);
             }
-            console.log(`mutating: ${mutation}`);
             commit(mutation, data[attr]);
           });
       };
@@ -328,7 +325,14 @@ export default new Vuex.Store({
       const id = Number(state.viewPeriodID
       || state.applicationSettings.current_reporting_period_id
       );
-      return _.find(state.reportingPeriods, { id });
+
+      return _.find(state.reportingPeriods, { id }) || { id:0,name:"" };
+    },
+    currentPeriodID: state => {
+      return Number(state.applicationSettings.current_reporting_period_id);
+    },
+    viewPeriodID: state => {
+      return Number(state.viewPeriodID);
     },
     reportingTemplate: state => {
       return (

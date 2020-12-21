@@ -24,7 +24,7 @@ CREATE EXTENSION IF NOT EXISTS bloom WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION bloom; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION bloom; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION bloom IS 'bloom access method - signature file based index';
@@ -38,7 +38,7 @@ CREATE EXTENSION IF NOT EXISTS btree_gin WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION btree_gin; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION btree_gin; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION btree_gin IS 'support for indexing common datatypes in GIN';
@@ -52,7 +52,7 @@ CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION btree_gist; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION btree_gist; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION btree_gist IS 'support for indexing common datatypes in GiST';
@@ -66,7 +66,7 @@ CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION citext; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION citext; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings';
@@ -80,7 +80,7 @@ CREATE EXTENSION IF NOT EXISTS cube WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION cube; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION cube; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION cube IS 'data type for multidimensional cubes';
@@ -94,7 +94,7 @@ CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION dblink; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION dblink; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from within a database';
@@ -108,7 +108,7 @@ CREATE EXTENSION IF NOT EXISTS dict_int WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION dict_int; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION dict_int; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION dict_int IS 'text search dictionary template for integers';
@@ -122,7 +122,7 @@ CREATE EXTENSION IF NOT EXISTS dict_xsyn WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION dict_xsyn; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION dict_xsyn; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION dict_xsyn IS 'text search dictionary template for extended synonym processing';
@@ -136,7 +136,7 @@ CREATE EXTENSION IF NOT EXISTS earthdistance WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION earthdistance; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION earthdistance; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION earthdistance IS 'calculate great-circle distances on the surface of the Earth';
@@ -150,7 +150,7 @@ CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION fuzzystrmatch; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION fuzzystrmatch; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance between strings';
@@ -164,7 +164,7 @@ CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION hstore; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION hstore; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION hstore IS 'data type for storing sets of (key, value) pairs';
@@ -178,7 +178,7 @@ CREATE EXTENSION IF NOT EXISTS intagg WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION intagg; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION intagg; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION intagg IS 'integer aggregator and enumerator (obsolete)';
@@ -192,7 +192,7 @@ CREATE EXTENSION IF NOT EXISTS intarray WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION intarray; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION intarray; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION intarray IS 'functions, operators, and index support for 1-D arrays of integers';
@@ -206,7 +206,7 @@ CREATE EXTENSION IF NOT EXISTS isn WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION isn; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION isn; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION isn IS 'data types for international product numbering standards';
@@ -220,7 +220,7 @@ CREATE EXTENSION IF NOT EXISTS lo WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION lo; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION lo; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION lo IS 'Large Object maintenance';
@@ -234,7 +234,7 @@ CREATE EXTENSION IF NOT EXISTS ltree WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION ltree; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION ltree; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION ltree IS 'data type for hierarchical tree-like structures';
@@ -248,7 +248,7 @@ CREATE EXTENSION IF NOT EXISTS pg_buffercache WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_buffercache; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_buffercache; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_buffercache IS 'examine the shared buffer cache';
@@ -262,7 +262,7 @@ CREATE EXTENSION IF NOT EXISTS pg_prewarm WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_prewarm; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_prewarm; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_prewarm IS 'prewarm relation data';
@@ -276,7 +276,7 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
@@ -290,7 +290,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
@@ -304,7 +304,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
@@ -318,7 +318,7 @@ CREATE EXTENSION IF NOT EXISTS pgrowlocks WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pgrowlocks; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pgrowlocks; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pgrowlocks IS 'show row-level locking information';
@@ -332,7 +332,7 @@ CREATE EXTENSION IF NOT EXISTS pgstattuple WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pgstattuple; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pgstattuple; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pgstattuple IS 'show tuple-level statistics';
@@ -346,7 +346,7 @@ CREATE EXTENSION IF NOT EXISTS tablefunc WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION tablefunc; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION tablefunc; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION tablefunc IS 'functions that manipulate whole tables, including crosstab';
@@ -360,7 +360,7 @@ CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION unaccent; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION unaccent; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
@@ -374,7 +374,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
@@ -18934,7 +18934,7 @@ COPY public.reporting_periods (id, name, start_date, end_date, period_of_perform
 5	September, 2021	2021-07-01	2021-09-30	2020-12-30	\N	\N	OBM Reporting Template.xlsx	\N	2021-07-22	2021-10-12	2021-10-13	2021-10-20	\N
 3	March, 2021	2021-01-01	2021-03-31	2020-12-30	\N	\N	OBM Reporting Template.xlsx	\N	2021-01-22	2021-04-12	2021-04-13	2021-04-20	\N
 4	June, 2021	2021-04-01	2021-06-30	2020-12-30	\N	\N	OBM Reporting Template.xlsx	\N	2021-04-22	2021-07-12	2021-07-13	2021-07-20	\N
-1	September 2020	2020-03-01	2020-09-30	2020-12-30	2020-12-20 12:43:57.082-06	walter@dahlberg.com	OBM Reporting Template.xlsx	{v2}	\N	\N	\N	\N	Ohio-Period-1-CRF-Report-to-OIG-V.2020-12-10T034416.xlsx
+1	September, 2020	2020-03-01	2020-09-30	2020-12-30	2020-12-20 12:43:57.082-06	walter@dahlberg.com	OBM Reporting Template.xlsx	{v2}	\N	\N	\N	\N	Ohio-Period-1-CRF-Report-to-OIG-V.2020-12-10T034416.xlsx
 \.
 
 

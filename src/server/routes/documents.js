@@ -29,7 +29,6 @@ router.get("/", requireUser, async function(req, res) {
   const period_id = await getPeriodID(req.query.period_id);
 
   const user = await getUser(req.signedCookies.userId);
-  console.log(`period_id is ${period_id}`);
   const rawDocuments = user.agency_id
     ? await documentsForAgency(user.agency_id, period_id)
     : await documentsWithProjectCode(period_id);

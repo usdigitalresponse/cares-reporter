@@ -126,28 +126,14 @@ export default {
     periodNames: function() {
       return this.$store.getters.periodNames;
     },
-    viewPeriod: {
-      get: function(){
-        console.log(`Navigation.vue/computed/viewPeriod.get()`);
-        return this.$store.getters.viewPeriod || { name:"wally" };
-      },
-      set: function(arg){
-        console.log(`Navigation.vue/computed/viewPeriod.set(${arg.name})`);
-        console.dir(arg);
-      }
+    viewPeriod: function(){
+      return this.$store.getters.viewPeriod;
     },
     applicationTitle: function() {
       return this.$store.getters.applicationTitle;
     }
   },
   watch: {
-    "$store.state.viewPeriodID": function(arg) {
-      console.log(`Navigation.vue watch "$store.state.viewPeriod" arg is ${arg}`);
-       console.log(`this.$store.getters.periodNames is`);
-       console.dir(`${this.$store.getters.viewPeriod}`);
-
-      this.viewPeriod = this.$store.getters.viewPeriod;
-    }
   },
 
   methods: {
@@ -178,7 +164,6 @@ export default {
     setViewPeriodID: function(e){
       return this.$store
       .dispatch("viewPeriodID", e.target.attributes["period-id"].value || 0)
-      // .then(() => this.onDone())
       .catch(e => (this.errorMessage = e.message));
     }
   }
