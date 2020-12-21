@@ -8,9 +8,9 @@
           >
         </div>
         <div class="col-4">
-          <a href="/new_upload" class="btn btn-secondary"
-            >Upload Agency Spreadsheet</a
-          >
+          <div @click="startUpload" class="btn btn-secondary">
+            {{uploadPrompt}}
+          </div>
         </div>
         <div class="col-4">
           <a :href="downloadTemplateUrl" class="btn btn-secondary" download
@@ -78,19 +78,12 @@ export default {
     };
   },
   computed: {
-    currentReportingPeriod: {
-      set: p => {
-        // setter is needed to avoid an error when the "watch" on
-        // applicationSettings is triggered.
-        // No current (20 12 15) need to do anything with it, so we could
-        // just remove the watch instead of adding this setter.
-        if (p) {
-          // p is the current reporting period record
-          // console.log(`Current reporting period is ${p.id}`);
-        }
-      },
-      get: function () {
-        return this.$store.getters.currentReportingPeriod;
+    uploadPrompt: function(){
+      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
+        return `Upload Agency Spreadsheet`;
+
+      } else {
+        return `Can't upload to this period`;
       }
     },
     template: function() {
@@ -113,17 +106,13 @@ export default {
     }
   },
   watch: {
-    "$store.state.applicationSettings": function() {
-      this.currentReportingPeriod = this.$store.getters.currentReportingPeriod;
-    },
-    "$store.state.reportingPeriods": function() {
-      this.currentReportingPeriod = this.$store.getters.currentReportingPeriod;
-    }
   },
   methods: {
     titleize,
     downloadUrl() {
-      return `/api/exports`;
+      let period_id = this.$store.getters.viewPeriod.id ||  0;
+      // console.dir(this.$store.getters.viewPeriod);
+      return `/api/exports?period_id=${period_id}`;
     },
     documentCount(tableName) {
       const records = this.groups[tableName];
@@ -133,7 +122,7 @@ export default {
       return `/documents/${table.name}`;
     },
     uploadUrl(upload) {
-      return `/uploads/${upload.id}`;
+      return `/uploads/${upload.id || 0}`;
     },
     fromNow: function(t) {
       return moment(t).fromNow();
@@ -142,6 +131,12 @@ export default {
       return moment(d)
         .utc()
         .format("MM-DD-YYYY");
+    },
+    startUpload: function(e){
+      e.preventDefault();
+      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
+        this.$router.push({ path: "/new_upload" });
+      }
     }
   }
 };

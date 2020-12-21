@@ -11,11 +11,33 @@
       </span>
 
       <div class="row">
-        <div class="col-12">
+        <div class="col-12 viewperiod">
           <div>
-            Reporting Period:
-            {{ dateFormat(currentReportingPeriod.start_date) }} to
-            {{ dateFormat(currentReportingPeriod.end_date) }}
+            Reporting Period Ending:
+          </div>
+          <div class="dropdown">
+            <div
+              :class="dropdownClass('/documents/')"
+              data-toggle="dropdown"
+              href="#"
+              role="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              {{ viewPeriod.name }}
+            </div>
+            <div class="dropdown-menu">
+              <div
+                class="dropdown-item"
+                :key="name"
+                v-for="(name, key) in periodNames"
+                >
+                <div @click="setViewPeriodID" :period-id=(key+1)>
+                  {{ name }}
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -101,31 +123,19 @@ export default {
     tableNames: function() {
       return this.$store.getters.tableNames;
     },
-    currentReportingPeriod: {
-      set: p => {
-        // setter is needed to avoid an error when the "watch" on
-        // applicationSettings is triggered.
-        // No current (20 12 15) need to do anything with it, so we could
-        // just remove the watch instead of adding this setter.
-        if (p) {
-          // p is the current reporting period record
-          // console.log(`Current reporting period is ${p.id}`);
-        }
-      },
-      get: function () {
-        const rp = this.$store.getters.currentReportingPeriod;
-        if (rp){
-          return this.$store.getters.currentReportingPeriod;
-
-        }else {
-          return {};
-        }
-      }
+    periodNames: function() {
+      return this.$store.getters.periodNames;
+    },
+    viewPeriod: function(){
+      return this.$store.getters.viewPeriod;
     },
     applicationTitle: function() {
       return this.$store.getters.applicationTitle;
     }
   },
+  watch: {
+  },
+
   methods: {
     titleize,
     logout(e) {
@@ -150,6 +160,11 @@ export default {
       return moment(d)
         .utc()
         .format("MM-DD-YYYY");
+    },
+    setViewPeriodID: function(e){
+      return this.$store
+      .dispatch("viewPeriodID", e.target.attributes["period-id"].value || 0)
+      .catch(e => (this.errorMessage = e.message));
     }
   }
 };
@@ -171,5 +186,12 @@ export default {
 nav {
   margin: 10px auto;
   width: 90%;
+}
+.viewperiod {
+  display:flex;
+}
+.viewperiod>div:first-child {
+  flex:0 0 auto;
+  padding:.5rem 0;
 }
 </style>

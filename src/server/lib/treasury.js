@@ -29,7 +29,6 @@ const {
   sheetNameMap
 } = require("./field-name-mapping");
 
-
 let log = ()=>{};
 if ( process.env.VERBOSE ){
   log = console.log;

@@ -68,7 +68,8 @@ export default new Vuex.Store({
     agencies: [],
     projects: [],
     reportingPeriods: [],
-    messages: []
+    messages: [],
+    viewPeriodID:null
   },
   mutations: {
     setUser(state, user) {
@@ -136,6 +137,10 @@ export default new Vuex.Store({
     },
     addMessage(state, message) {
       state.messages = [...state.messages, message];
+    },
+    setViewPeriodID(state, period_id) {
+      // console.log(`=================== ${period_id}`);
+      state.viewPeriodID = period_id;
     }
   },
   actions: {
@@ -236,12 +241,32 @@ export default new Vuex.Store({
       return put(`/api/agencies/${agency.id}`, agency).then(() => {
         commit("updateAgency", agency);
       });
+    },
+    viewPeriodID({ commit }, period_id) {
+      commit("setViewPeriodID", period_id);
+      const doFetch = (attr, query) => {
+        let url = `/api/${attr}${query}`;
+        fetch(url, { credentials: "include" })
+          .then(r => r.json())
+          .then(data => {
+            const mutation = _.camelCase(`set_${attr}`);
+            if (attr==="configuration") {
+              console.dir(data[attr]);
+            }
+            commit(mutation, data[attr]);
+          });
+      };
+      doFetch("documents",`?period_id=${period_id}`);
+      doFetch("uploads",`?period_id=${period_id}`);
     }
   },
   modules: {},
   getters: {
     tableNames: state => {
       return _.map(state.configuration.tables, "name");
+    },
+    periodNames: state => {
+      return _.map(state.reportingPeriods, "name");
     },
     tables: state => {
       return _.map(state.configuration.tables, t => {
@@ -295,6 +320,19 @@ export default new Vuex.Store({
         return null;
       }
       return _.find(state.reportingPeriods, { id });
+    },
+    viewPeriod: state => {
+      const id = Number(state.viewPeriodID
+      || state.applicationSettings.current_reporting_period_id
+      );
+
+      return _.find(state.reportingPeriods, { id }) || { id:0,name:"" };
+    },
+    currentPeriodID: state => {
+      return Number(state.applicationSettings.current_reporting_period_id);
+    },
+    viewPeriodID: state => {
+      return Number(state.viewPeriodID);
     },
     reportingTemplate: state => {
       return (
