@@ -3,11 +3,12 @@ const { agencyByCode, projectByCode } = require("../db");
 const { currentReportingPeriodSettings } = require("../db/settings");
 const { format } = require("date-fns");
 
-const parseFilename = async filename => {
+const parseFilename = async (filename, reportingPeriod) => {
   // console.log(`filename is ${filename}`);
+  const endDate = (reportingPeriod || {}).end_date;
+  if (!endDate) throw new Error(`Error finding reportingPeriod`);
   const currentPeriod = await currentReportingPeriodSettings();
   // console.dir(currentPeriod);
-  const endDate = (currentPeriod || {}).end_date;
   // console.log(`endDate is ${endDate}`);
   const expectedEndReportDate = format(endDate, "MMddyyyy");
   const valog = [];
@@ -69,7 +70,6 @@ const parseFilename = async filename => {
     }
   }
 
-  if (!endDate) throw new Error(`Error finding current reporting period`);
   const shortExpectedEndReportDate = format(endDate, "MMddyy");
   const reportingDate = nameParts.shift() || "";
   if (

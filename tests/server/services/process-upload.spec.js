@@ -25,6 +25,25 @@ describe("services/process_upload", () => {
     });
   });
 
+  describe("second reporting period - baseline success", () => {
+    const dir = `${dirRoot}file-success/`;
+    it("processes without error", async () => {
+      const uploadArgs = makeUploadArgs(
+        `${dir}EOHHS-075-12312020-simple-v1.xlsx`
+      );
+      uploadArgs.reporting_period_id = await knex("reporting_periods")
+        .where("end_date", "2020-12-31")
+        .then(r => r[0].id);
+      // console.log("uploadArgs", uploadArgs);
+      const result = await processUpload(uploadArgs);
+      expect(
+        result.valog.getLog(),
+        JSON.stringify(result.valog.getLog(), null, 2)
+      ).to.be.empty;
+      return result;
+    });
+  });
+
   describe("filename failures", () => {
     const dir = `${dirRoot}file-name/`;
     const filenameTests = [

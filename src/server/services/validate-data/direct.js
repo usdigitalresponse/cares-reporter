@@ -1,4 +1,7 @@
 const {
+  directMatches,
+  cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   isAtLeast50K,
@@ -61,7 +64,12 @@ const requiredFields = [
     numberIsLessThanOrEqual("obligation amount"),
     "Current quarter obligation must be less than or equal to obligation amount"
   ],
-
+  [
+    "obligation amount",
+    cumulativeAmountIsEqual("current quarter obligation" , directMatches),
+    "Obligation amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
+  ],
   [
     "expenditure start date",
     whenGreaterThanZero("total expenditure amount", isValidDate),
@@ -70,8 +78,8 @@ const requiredFields = [
   ],
   [
     "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", isValidDate),
-    'Expenditure start date "{}" is not valid',
+    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'Expenditure state date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
   [
@@ -99,6 +107,12 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
+  ],
+  [
+    "obligation amount",
+    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , directMatches),
+    "Cumulative expenditure amount must be less than or equal to obligation amount",
+    { tags: ["cumulative"] }
   ]
 ];
 

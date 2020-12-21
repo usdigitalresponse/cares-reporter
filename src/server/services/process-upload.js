@@ -19,7 +19,7 @@ const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
 const { updateProjectStatus } = require("../db");
 
-const processUpload = async ({ filename, user_id, agency_id, data }) => {
+const processUpload = async ({ filename, user_id, agency_id, data, reporting_period_id = null }) => {
   log(`processUpload(): filename is ${filename}`);
   const {
    valog,
@@ -27,7 +27,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
    spreadsheet,
    fileParts,
    reportingPeriod
-  } = await validateUpload({ filename, user_id, agency_id, data });
+  } = await validateUpload({ filename, user_id, agency_id, data, reporting_period_id });
   if (!valog.success()) {
     log(`valog.success() is false`);
     return { valog, upload: {} };
