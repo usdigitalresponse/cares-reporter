@@ -93,6 +93,21 @@ export default {
         return this.$store.getters.currentReportingPeriod;
       }
     },
+    viewPeriod: {
+      set: p => {
+        // setter is needed to avoid an error when the "watch" on
+        // applicationSettings is triggered.
+        // No current (20 12 15) need to do anything with it, so we could
+        // just remove the watch instead of adding this setter.
+        if (p) {
+          // p is the current reporting period record
+          console.log(`Current reporting period is ${p.id}`);
+        }
+      },
+      get: function () {
+        return this.$store.state.viewPeriod;
+      }
+    },
     template: function() {
       return _.find(this.$store.state.configuration.templates, t =>
         t.name.match(/agency/i)
@@ -116,8 +131,8 @@ export default {
     "$store.state.applicationSettings": function() {
       this.currentReportingPeriod = this.$store.getters.currentReportingPeriod;
     },
-    "$store.state.reportingPeriods": function() {
-      this.currentReportingPeriod = this.$store.getters.currentReportingPeriod;
+    "$store.state.viewPeriod": function() {
+      this.viewPeriod = this.$store.getters.viewPeriod;
     }
   },
   methods: {

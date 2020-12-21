@@ -15,7 +15,7 @@ let templateSheets= null;
 let dropdownValues = null;
 // Uninitialized templates cause the Record Summary section of the home page
 // to be blank
-// initializeTemplates();
+initializeTemplates();
 
 const {
   template: treasuryTemplate,
@@ -112,7 +112,7 @@ function loadAgencyTemplate() {
   return new Promise ((resolve, reject) => {
     currentReportingPeriodSettings().then(
       crp => {
-        console.dir(crp);
+        // console.dir(crp);
         const templateFileName = crp.reporting_template;
         if (templateFileName === null) {
           const err =
