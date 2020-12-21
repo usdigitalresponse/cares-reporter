@@ -7,12 +7,20 @@ function setCurrentReportingPeriod(id) {
 }
 
 // update application_settings set current_reporting_period_id=1;
-function getCurrentReportingPeriodID() {
-  return knex("application_settings")
+async function getCurrentReportingPeriodID() {
+  let crpID;
+  try {
+    crpID = await knex("application_settings")
     .select("*")
     .then(r=>{
       return r[0].current_reporting_period_id;
     });
+
+  } catch (err) {
+    console.dir(err);
+    return err;
+  }
+  return crpID;
 }
 
 
@@ -52,15 +60,21 @@ function applicationSettings() {
     reporting_template
     validation_rule_tags
  */
-function currentReportingPeriodSettings() {
-  return knex("application_settings")
-    .join(
-      "reporting_periods",
-      "application_settings.current_reporting_period_id",
-      "reporting_periods.id"
-    )
-    .select("*")
-    .then(rv=> rv[0]);
+async function currentReportingPeriodSettings() {
+  let rv;
+  try {
+    rv = await knex("application_settings")
+      .join(
+        "reporting_periods",
+        "application_settings.current_reporting_period_id",
+        "reporting_periods.id"
+      )
+      .select("*")
+      .then(rv=> rv[0]);
+  } catch (err) {
+    console.dir(err);
+  }
+  return rv;
 }
 
 module.exports = {

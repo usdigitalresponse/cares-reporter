@@ -33,7 +33,9 @@ const {
 module.exports = {
   close: closeReportingPeriod,
   get: getReportingPeriod,
+
   getFirstReportingPeriodStartDate,
+  getPeriodID,
   isCurrent,
   isClosed,
   reportingPeriods
@@ -76,13 +78,21 @@ function isClosed(period_id) {
   });
 }
 
+/*  getPeriodID() returns the argument unchanged unless it is falsy, in which
+  case it returns the current reporting period ID.
+  */
+async function getPeriodID(periodID) {
+  return Number(periodID) || await getCurrentReportingPeriodID();
+}
+
 /*  isCurrent() returns the current reporting period ID if the argument is
     falsy, or if it matches the current reporting period ID
   */
 async function isCurrent(periodID) {
+    console.log(`isCurrent()`);
   const currentID = await getCurrentReportingPeriodID();
 
-  if ( !periodID || Number(periodID) === Number(currentID) ) {
+  if ( !periodID || (Number(periodID) === Number(currentID)) ) {
     return currentID;
   }
   return false;
@@ -95,7 +105,7 @@ async function closeReportingPeriod(user, period) {
 
   if (period && period !== reporting_period_id) {
     throw new Error(
-      `The current reporting period is not period ${period}`
+      `The current reporting period (${reporting_period_id}) is not period ${period}`
     );
   }
 

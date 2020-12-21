@@ -16,6 +16,7 @@ const knex = require("./connection");
 const { documentsWithProjectCode } = require("./documents");
 const { getCurrentReportingPeriodID } = require("./settings");
 const { isClosed } = require("./reporting-periods");
+const _=require("lodash");
 
 module.exports = {
   closeReportingPeriod,
@@ -29,7 +30,11 @@ module.exports = {
   */
 async function getSummaries(reporting_period_id) {
   if (!reporting_period_id){
+    console.log(`getSummaries()`);
     reporting_period_id = await getCurrentReportingPeriodID();
+    if (_.isError(reporting_period_id)) {
+      throw new Error("this is bad");
+    }
   }
   let periodSummaries = await knex("period_summaries")
   .select("*")
@@ -74,6 +79,11 @@ async function generateSummaries(reporting_period_id) {
 
   let mapPeriodSummaries = new Map();
   let documents = await documentsWithProjectCode(reporting_period_id);
+  if (_.isError(documents)){
+    return {
+      errors: documents.message
+    };
+  }
   if (documents.length === 0){
     return {
       periodSummaries,
