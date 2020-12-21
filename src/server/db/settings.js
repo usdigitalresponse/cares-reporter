@@ -61,7 +61,6 @@ function applicationSettings() {
     validation_rule_tags
  */
 async function currentReportingPeriodSettings() {
-  // Knex suddenly stopped working for this 20 12 19!
   let rv;
   try {
     rv = await knex("application_settings")
@@ -76,29 +75,6 @@ async function currentReportingPeriodSettings() {
     console.dir(err);
   }
   return rv;
-  // return  usePgClient();
-}
-
-async function usePgClient() {
-  const { Client } = require("pg");
-  console.log(`process.env.POSTGRES_URL is ${process.env.POSTGRES_URL}`);
-
-  const pg = new Client({
-    // https://node-postgres.com/api/client
-    user: "postgres",
-    database: process.env.POSTGRES_URL
-  } );
-  await pg.connect();
-  const res = await pg.query(`
-    SELECT *
-    FROM application_settings, reporting_periods
-    WHERE application_settings.current_reporting_period_id
-        = reporting_periods.id
-    ;
-  `);
-  await pg.end();
-
-  return(res.rows[0]);
 }
 
 module.exports = {
