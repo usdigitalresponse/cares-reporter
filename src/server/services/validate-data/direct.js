@@ -1,6 +1,7 @@
 const {
   directMatches,
   cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   isAtLeast50K,
@@ -106,6 +107,12 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
+  ],
+  [
+    "obligation amount",
+    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , directMatches),
+    "Cumulative expenditure amount must be less than or equal to obligation amount",
+    { tags: ["cumulative"] }
   ]
 ];
 

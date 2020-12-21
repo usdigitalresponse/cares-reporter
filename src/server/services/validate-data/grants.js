@@ -1,5 +1,6 @@
 const {
   cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
@@ -209,6 +210,12 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
+  ],
+  [
+    "award amount",
+    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , grantMatches),
+    "Cumulative expenditure amount must be less than or equal to award amount",
+    { tags: ["cumulative"] }
   ],
   [
     "other expenditure categories",

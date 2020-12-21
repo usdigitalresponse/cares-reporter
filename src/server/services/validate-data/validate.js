@@ -136,23 +136,28 @@ function transferMatches(content) {
   return summaryMatches("transfers", "transfer number", content);
 }
 
-function cumulativeAmountIsEqual(key, filterPredicate) {
-  return (val, content, { periodSummaries }) => {
+function cumulativeAmount(key,  content, periodSummaries, filterPredicate) {
     const summaries = _.get(periodSummaries, 'periodSummaries');
-    const currentPeriodAmount = Number(content[key]) || 0.0;
-    const previousPeriodsAmount = _.chain(summaries)
+    return _.chain(summaries)
         .filter(filterPredicate(content))
         .map(periodSummaryKey(key))
         .reduce((acc, s) => acc + Number(s) || 0.0, 0.0)
         .value();
-    const isEqual = _.round(val, 2) == _.round(previousPeriodsAmount + currentPeriodAmount, 2);
-    // if (!isEqual) {
-    //   console.log('isEqual:', isEqual);
-    //   console.log(key, content[key]);
-    //   console.log('periodSummaries:', summaries);
-    //   console.log('cumulativeAmountIsEqual: ', key, currentPeriodAmount, previousPeriodsAmount, val);
-    // }
-    return isEqual;
+}
+
+function cumulativeAmountIsEqual(key, filterPredicate) {
+  return (val, content, { periodSummaries }) => {
+    const currentPeriodAmount = Number(content[key]) || 0.0;
+    const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate);
+    return _.round(val, 2) == _.round(currentPeriodAmount + previousPeriodsAmount, 2);
+  };
+}
+
+function cumulativeAmountIsLessThanOrEqual(key, filterPredicate) {
+  return (val, content, { periodSummaries }) => {
+    const currentPeriodAmount = Number(content[key]) || 0.0;
+    const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate);
+    return _.round(currentPeriodAmount + previousPeriodsAmount, 2) <= _.round(val, 2);
   };
 }
 
@@ -333,6 +338,7 @@ function validateSingleDocument(tab, validations, message) {
 module.exports = {
   contractMatches,
   cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
