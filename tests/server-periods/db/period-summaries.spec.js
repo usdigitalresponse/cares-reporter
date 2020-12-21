@@ -80,7 +80,7 @@ describe("baseline success", () => {
     }
 
     expect(err.message).to.equal(
-      `The current reporting period is not period ${period}`
+      `The current reporting period (1) is not period ${period}`
     );
   });
 

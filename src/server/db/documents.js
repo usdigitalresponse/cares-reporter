@@ -24,13 +24,20 @@ const {
 async function documentsWithProjectCode(period_id) {
 
   let periodUploadIDs = await getPeriodUploadIDs(period_id);
+  let rv;
 
-  return knex("documents")
+  try {
+    rv = await knex("documents")
     .select("documents.*", "projects.code as project_code")
     .whereIn("upload_id", periodUploadIDs)
     .join("uploads", { "documents.upload_id": "uploads.id" })
     .join("projects", { "uploads.project_id": "projects.id" })
     .then( purgeDuplicateSubrecipients);
+
+  } catch(err) {
+    return err;
+  }
+  return rv;
 }
 
 function purgeDuplicateSubrecipients( arrRecords ) {
@@ -68,6 +75,7 @@ function purgeDuplicateSubrecipients( arrRecords ) {
 }
 
 async function documents(period_id) {
+  console.log(`documents()`);
   let periodUploadIDs = await getPeriodUploadIDs(period_id);
 
   return knex("documents")
@@ -77,6 +85,7 @@ async function documents(period_id) {
 }
 
 async function documentsOfType(type, period_id) {
+  console.log(`documentsOfType()`);
   let periodUploadIDs = await getPeriodUploadIDs(period_id);
 
   return knex("documents")
@@ -86,15 +95,22 @@ async function documentsOfType(type, period_id) {
 }
 
 async function documentsForAgency(agency_id, period_id) {
+  console.log(`documentsForAgency()`);
   let periodUploadIDs = await getPeriodUploadIDs(period_id);
 
-  return knex("documents")
-    .select("documents.*", "projects.code as project_code")
-    .whereIn("upload_id", periodUploadIDs)
-    .join("uploads", { "documents.upload_id": "uploads.id" })
-    .join("projects", { "uploads.project_id": "projects.id" })
-    .join("users", { "documents.user_id": "users.id" })
-    .where("users.agency_id", agency_id);
+  let docs;
+  try{
+    docs = await knex("documents")
+      .select("documents.*", "projects.code as project_code")
+      .whereIn("upload_id", periodUploadIDs)
+      .join("uploads", { "documents.upload_id": "uploads.id" })
+      .join("projects", { "uploads.project_id": "projects.id" })
+      .join("users", { "documents.user_id": "users.id" })
+      .where("users.agency_id", agency_id);
+  } catch(err) {
+    console.dir(err);
+  }
+  return docs;
 }
 
 function createDocument(document) {

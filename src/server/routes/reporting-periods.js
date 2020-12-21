@@ -12,16 +12,29 @@ const { requireUser, requireAdminUser } = require("../access-helpers");
 const { user: getUser } = require("../db");
 
 const {
-  periodSummaries,
-  reportingPeriods
+  getPeriodSummaries
 } = require("../db");
+const {
+  getPeriodID,
+  reportingPeriods
+} = require("../db/reporting-periods");
 
-router.get("/", requireUser, function(req, res) {
-  reportingPeriods().then(reporting_periods => res.json({ reporting_periods }));
+router.get("/", requireUser, async function(req, res) {
+  let currentPeriodID = await getPeriodID();
+  let allPeriods = await reportingPeriods();
+  let reporting_periods=[];
+
+  allPeriods.forEach(period => {
+    if (period.id <= currentPeriodID){
+      reporting_periods[period.id-1]=period;
+    }
+  });
+
+  return res.json({ reporting_periods });
 });
 
 router.get("/summaries/", requireUser, async function(req, res) {
-  return periodSummaries().then(summaries => res.json({ summaries }));
+  return getPeriodSummaries().then(summaries => res.json({ summaries }));
 });
 
 router.post("/close/", requireAdminUser, async (req, res) => {

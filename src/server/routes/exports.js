@@ -4,17 +4,21 @@ const _ = require("lodash");
 
 const { requireUser } = require("../access-helpers");
 const treasury = require("../lib/treasury");
+const { getPeriodID } = require("../db/reporting-periods");
 
 const { reportingPeriods } = require("../db");
 
 router.get("/", requireUser, async function(req, res) {
+  const period_id = await getPeriodID(req.query.period_id);
 
   let report;
-  if (await reportingPeriods.isCurrent(req.query.period_id )){
+  if (await reportingPeriods.isCurrent(period_id )){
+    console.log(`period_id ${period_id} is current`);
     report = await treasury.getCurrentReport();
 
   } else {
-    report = await treasury.getPriorReport(req.query.period_id);
+    console.log(`period_id ${period_id} is not current - sending old report`);
+    report = await treasury.getPriorReport(period_id);
   }
 
   if ( _.isError(report) ) {
@@ -24,7 +28,7 @@ router.get("/", requireUser, async function(req, res) {
 
   res.header(
     "Content-Disposition",
-    `attachment; filename="${report.filename}"`
+    `attachment; filename="${report.fileName}"`
   );
   res.header("Content-Type", "application/octet-stream");
   res.send(Buffer.from(report.outputWorkBook, "binary"));
