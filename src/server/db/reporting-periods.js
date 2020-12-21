@@ -33,6 +33,7 @@ const {
 module.exports = {
   close: closeReportingPeriod,
   get: getReportingPeriod,
+  getFirstReportingPeriodStartDate,
   isCurrent,
   isClosed,
   reportingPeriods
@@ -57,6 +58,14 @@ function getReportingPeriod( period_id ) {
     .select("*")
     .where("id", period_id)
     .then( r=>r[0] );
+}
+
+/* getFirstReportingPeriodStartDate() returns earliest start date
+  */
+function getFirstReportingPeriodStartDate() {
+  return knex("reporting_periods")
+    .min("start_date")
+    .then( r=>r[0].min );
 }
 
 function isClosed(period_id) {

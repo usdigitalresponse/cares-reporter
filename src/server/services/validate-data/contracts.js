@@ -1,4 +1,7 @@
 const {
+  contractMatches,
+  cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
@@ -48,6 +51,12 @@ const requiredFields = [
     { isDateValue: true }
   ],
   [
+    "period of performance start date",
+    dateIsInPeriodOfPerformance,
+    'Period of performance start date "{}" must be in the period of performance',
+    { isDateValue: true }
+  ],
+  [
     "period of performance end date",
     dateIsInPeriodOfPerformance,
     'Period of performance end date "{}" must be in the period of performance',
@@ -68,7 +77,13 @@ const requiredFields = [
     "contract amount",
     isEqual("current quarter obligation"),
     "Contract amount must equal obligation amount",
-    { tags: ["v2" ] }
+    { tags: ["v2"] }
+  ],
+  [
+    "contract amount",
+    cumulativeAmountIsEqual("current quarter obligation" , contractMatches),
+    "Contract amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
   ],
   [
     "contract amount",
@@ -91,8 +106,8 @@ const requiredFields = [
   ],
   [
     "contract date",
-    dateIsOnOrBefore("period of performance start date"),
-    'Contract date "{}" must be on or before the period of performance start date',
+    dateIsInPeriodOfPerformance,
+    'Contract date "{}" must be in the period of performance',
     { isDateValue: true }
   ],
   [
@@ -122,6 +137,12 @@ const requiredFields = [
     "expenditure start date",
     whenGreaterThanZero("total expenditure amount", isValidDate),
     'Expenditure state date "{}" is not a valid date',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure start date",
+    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'Expenditure state date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
   [
@@ -182,7 +203,6 @@ const requiredFields = [
     numberIsLessThanOrEqual("contract amount"),
     "Current quarter obligation must be less than or equal to the contract amount"
   ],
-
   [
     "total expenditure amount",
     isNumberOrBlank,
@@ -192,6 +212,12 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount must be the sum of all expenditure amount columns"
+  ],
+  [
+    "contract amount",
+    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , contractMatches),
+    "Cumulative expenditure amount must be less than or equal to contract amount",
+    { tags: ["cumulative"] }
   ],
   [
     "other expenditure categories",

@@ -18,7 +18,9 @@ const { getCurrentReportingPeriodID } = require("./settings");
 const { isClosed } = require("./reporting-periods");
 
 module.exports = {
-  getPeriodSummaries: getSummaries
+  closeReportingPeriod,
+  getPeriodSummaries:  getSummaries,
+  getPriorPeriodSummaries
 };
 
 /*  getSummaries() returns the summaries for a reporting period. If no
@@ -146,4 +148,51 @@ async function generateSummaries(reporting_period_id) {
   return { periodSummaries, errors: errLog };
 }
 
+/* getPriorPeriodSummares() finds all the summaries for periods before the report_period_id argument
+  */
+async function getPriorPeriodSummaries(reporting_period_id) {
+
+  const query = `select p.id, p.start_date, p.end_date
+    from reporting_periods p, reporting_periods r
+    where p.end_date < r.start_date and r.id = ${reporting_period_id}
+    order by p.end_date, p.id desc
+    limit 1`;
+  const result = await knex.raw(query).then(r => r.rows ? r.rows[0] : null);
+  if (!result) {
+    return { periodSummaries: [] };
+  }
+  return getSummaries(result.id);
+}
+
+/* closeReportingPeriod() closes a reporting period by writing the period
+  summaries to the database.
+  */
+async function closeReportingPeriod(reporting_period_id) {
+  let errLog = [];
+
+  let { periodSummaries, closed } = await getPeriodSummaries(reporting_period_id);
+
+  if (closed) {
+    return [`Reporting period ${reporting_period_id} is already closed`];
+  }
+
+  periodSummaries.forEach(async periodSummary => {
+    try {
+      await knex("period_summaries").insert(periodSummary);
+
+    } catch (err) {
+      errLog.push(err.detail);
+    }
+  });
+  if (errLog.length) {
+    return errLog;
+  }
+
+  closed = (await getPeriodSummaries(reporting_period_id)).closed;
+  if ( !closed ) {
+    return [`Failed to close reporting period ${reporting_period_id}`];
+  }
+
+  return null;
+}
 /*                                 *  *  *                                    */
