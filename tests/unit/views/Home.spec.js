@@ -48,6 +48,7 @@ describe("Home.vue", () => {
       stubs: ["router-link", "router-view"]
     });
     const r = wrapper.find("button.btn-primary");
+    console.dir(r.text());
     expect(r.text()).to.include("Upload Spreadsheet");
   });
 });
