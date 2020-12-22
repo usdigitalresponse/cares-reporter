@@ -5,7 +5,8 @@ const { processUpload } = requireSrc(`${__dirname}/../services/process-upload`);
 
 const { makeUploadArgs } = require("../services/helpers");
 const {
-  setCurrentReportingPeriod } = requireSrc(`${__dirname}/../db/settings`);
+  setCurrentReportingPeriod
+} = requireSrc(`${__dirname}/../db/settings`);
 
 const dirRoot = `${__dirname}/../fixtures/`;
 
@@ -28,10 +29,28 @@ describe("documents.spec.js - baseline success", () => {
     return result;
   });
 
-  it("Uploads a file in reporting period 2", async () => {
+  it("Fails to upload a file in reporting period 2", async () => {
 
     const uploadArgs = makeUploadArgs(
       `${dir}GOV-075-09302020-simple-v1.xlsx`
+    );
+
+    await setCurrentReportingPeriod(2);
+    const result = await processUpload(uploadArgs);
+    expect(
+      result.valog.getLog()[0].message
+      // JSON.stringify(result.valog.getLog()[0].message, null, 2)
+    ).to.equal(
+      "The reporting period end date in the filename is \"09302020\" "
+      + "but should be \"12312020\" or \"123120\""
+    );
+    return result;
+  });
+
+  it.skip("Uploads a file in reporting period 2", async () => {
+
+    const uploadArgs = makeUploadArgs(
+      `${dir}EOHHS-075-12312020-simple-v1.xlsx`
     );
 
     await setCurrentReportingPeriod(2);
@@ -63,7 +82,7 @@ describe("documents.spec.js - baseline success", () => {
     // console.dir(await currentReportingPeriod()); // 2
     await setCurrentReportingPeriod(2);
     const result = await documentsWithProjectCode(1);
-    // console.dir(result.length);
+    // console.dir(result);
     expect( result.length ).to.equal(35);
   });
 });
