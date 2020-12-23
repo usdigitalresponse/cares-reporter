@@ -338,6 +338,14 @@ export default new Vuex.Store({
       return (
         state.applicationSettings.reporting_template || "empty-template.xlsx"
       );
+    },
+    viewPeriodIsCurrent: state => {
+      // period zero is an alias to the current reporting period.
+      if ( !state.viewPeriodID ){
+        return true;
+      }
+      return Number(state.viewPeriodID) ===
+        Number(state.applicationSettings.current_reporting_period_id);
     }
   }
 });

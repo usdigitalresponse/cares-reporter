@@ -1,4 +1,4 @@
-// uploads.js handles uploading an agency spreadsheet to the database.
+// uploads.js handles uploading an agency report spreadsheet to the database.
 
 const express = require("express");
 const fs = require("fs");

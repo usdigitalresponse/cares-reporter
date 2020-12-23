@@ -1,15 +1,19 @@
 <template>
   <div class="home">
     <div class="row buttons mt-5">
-      <div class="col-6">
+      <div class="col-6" v-show="this.$store.getters.viewPeriodIsCurrent">
         <button class="btn btn-primary" @click="startUpload">
-          {{uploadPrompt}}
+          Upload Spreadsheet
         </button>
       </div>
-      <div class="col-6">
+      <div class="col-6" v-show="this.$store.getters.viewPeriodIsCurrent">
         <a :href="downloadTemplateUrl" class="btn btn-secondary" download
           >Download Empty Template</a
         >
+      </div>
+
+      <div class="closed" v-show="!(this.$store.getters.viewPeriodIsCurrent)">
+        This reporting period is closed.
       </div>
     </div>
     <h3 class="mt-3">Upload History</h3>
@@ -37,14 +41,6 @@ export default {
     };
   },
   computed: {
-    uploadPrompt: function(){
-      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
-        return `Upload Agency Spreadsheet`;
-
-      } else {
-        return `Can't upload to this period`;
-      }
-    },
     currentReportingPeriod: function() {
       return this.$store.getters.currentReportingPeriod;
     },
@@ -89,5 +85,8 @@ pre {
 }
 .buttons {
   text-align: center;
+}
+.closed {
+    padding: .5rem 0;
 }
 </style>

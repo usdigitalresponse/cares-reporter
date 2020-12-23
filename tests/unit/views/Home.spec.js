@@ -16,6 +16,8 @@ describe("Home.vue", () => {
       },
       getters: {
         user: () => ({ email: "admin@example.com", role: "admin" }),
+        periodNames: () => ["September, 2020", "December, 2020"],
+        viewPeriod: () => ({ id:1 }),
         reportingTemplate: () => "template.xlsx"
       }
     });
@@ -35,6 +37,8 @@ describe("Home.vue", () => {
         }
       },
       getters: {
+        periodNames: () => ["September, 2020", "December, 2020"],
+        viewPeriod: () => ({ id:1 }),
         user: () => ({ email: "admin@example.com", role: "reporter" })
       }
     });
@@ -44,6 +48,7 @@ describe("Home.vue", () => {
       stubs: ["router-link", "router-view"]
     });
     const r = wrapper.find("button.btn-primary");
+    console.dir(r.text());
     expect(r.text()).to.include("Upload Spreadsheet");
   });
 });

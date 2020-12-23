@@ -5,6 +5,10 @@ const expect = require("chai").expect;
 const util = require("util");
 const setTimeoutPromise = util.promisify(setTimeout);
 
+const {
+  setCurrentReportingPeriod
+} = requireSrc(`${__dirname}/../db/settings`);
+
 const { makeUploadArgs, resetUploadsAndDb } = require("./helpers");
 
 const dirRoot = `${__dirname}/../fixtures/`;
@@ -24,10 +28,10 @@ describe("services/process_upload", () => {
       return result;
     });
   });
-
   describe("second reporting period - baseline success", () => {
     const dir = `${dirRoot}file-success/`;
     it("processes without error", async () => {
+      await setCurrentReportingPeriod(2);
       const uploadArgs = makeUploadArgs(
         `${dir}EOHHS-075-12312020-simple-v1.xlsx`
       );
@@ -40,6 +44,21 @@ describe("services/process_upload", () => {
         result.valog.getLog(),
         JSON.stringify(result.valog.getLog(), null, 2)
       ).to.be.empty;
+      return result;
+    });
+    it("rejects a file with a prior period date", async () => {
+      // seed 08_app_settings.js sets the current reporting period ID to 2
+      const uploadArgs = makeUploadArgs(
+        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
+      );
+      const result = await processUpload(uploadArgs);
+      // console.dir(result.valog.getLog());
+      expect(
+        result.valog.getLog()[0].message
+      ).to.equal(
+        `The reporting period end date in the filename is "09302020" `
+        + `but should be "12312020" or "123120"`
+      );
       return result;
     });
   });
@@ -78,8 +97,10 @@ describe("services/process_upload", () => {
         expects: /Uploaded file name must match pattern.*/
       }
     ];
+
     filenameTests.forEach(ftest => {
       it(ftest.label, async () => {
+        await setCurrentReportingPeriod(1);
         const uploadArgs = makeUploadArgs(dir + ftest.file);
         const result = await processUpload(uploadArgs);
         expect(result.valog.getLog()[0].message).to.match(ftest.expects);
