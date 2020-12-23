@@ -14,7 +14,20 @@ const { makeUploadArgs, resetUploadsAndDb } = require("./helpers");
 const dirRoot = `${__dirname}/../fixtures/`;
 
 describe("services/process_upload", () => {
-
+  describe("process-upload.spec.js - baseline success", () => {
+    const dir = `${dirRoot}file-success/`;
+    it("processes without error", async () => {
+      const uploadArgs = makeUploadArgs(
+        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
+      );
+      const result = await processUpload(uploadArgs);
+      expect(
+        result.valog.getLog(),
+        JSON.stringify(result.valog.getLog(), null, 2)
+      ).to.be.empty;
+      return result;
+    });
+  });
   describe("second reporting period - baseline success", () => {
     const dir = `${dirRoot}file-success/`;
     it("processes without error", async () => {

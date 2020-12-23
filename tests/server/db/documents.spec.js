@@ -47,7 +47,7 @@ describe("documents.spec.js - baseline success", () => {
     return result;
   });
 
-  it.skip("Uploads a file in reporting period 2", async () => {
+  it("Uploads a file in reporting period 2", async () => {
 
     const uploadArgs = makeUploadArgs(
       `${dir}EOHHS-075-12312020-simple-v1.xlsx`
