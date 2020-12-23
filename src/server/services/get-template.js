@@ -107,48 +107,29 @@ function loadDropdownValues(dropdownTab) {
   return dropdownValues;
 }
 
-function loadAgencyTemplate() {
-
-  return new Promise ((resolve, reject) => {
-    currentReportingPeriodSettings().then(
-      crp => {
-        // console.dir(crp);
-        const templateFileName = crp.reporting_template;
-        if (templateFileName === null) {
-          const err =
-            new Error(`Current reporting period has no reporting_template`);
-          reject(err);
-        }
-        let objTemplate = loadTemplate(templateFileName);
-        return resolve( objTemplate );
-      },
-      err => { reject(err); }
-    );
-  });
+async function loadAgencyTemplate() {
+  let crp = await currentReportingPeriodSettings();
+  // console.dir(crp);
+  const templateFileName = crp.reporting_template;
+  if (templateFileName === null) {
+    throw  new Error(`Current reporting period has no reporting_template`);
+  }
+  let objTemplate = loadTemplate(templateFileName);
+  return objTemplate;
 }
 
-function initializeTemplates(){
-  console.log(`initializeTemplates...`);
-  return new Promise(
-    (resolve, reject) => {
-      if ( template !== null ) {
-        resolve(`dropdowns already initialized`);
-      }
-      log(`initializeTemplates()`);
-      loadAgencyTemplate().then(
-        rv=>{
-          log(`Agency template loaded...`);
-
-          template = rv.template;
-          templateSheets = rv.templateSheets;
-          dropdownValues = loadDropdownValues(template.Sheets.Dropdowns);
-          log(`Dropdown values loaded...`);
-          resolve( "OK" );
-        },
-        reject
-      );
-    }
-  );
+async function initializeTemplates(){
+  log(`initializeTemplates...`);
+  if ( template !== null ) {
+    return `dropdowns already initialized`;
+  }
+  let rv = await loadAgencyTemplate();
+  log(`Agency template loaded...`);
+  template = rv.template;
+  templateSheets = rv.templateSheets;
+  dropdownValues = loadDropdownValues(template.Sheets.Dropdowns);
+  log(`Dropdown values loaded...`);
+  return "OK";
 }
 
 /*                                 *  *  *                                    */

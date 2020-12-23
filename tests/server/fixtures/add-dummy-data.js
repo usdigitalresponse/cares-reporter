@@ -4,7 +4,9 @@ const setupAgencies = knex => {
     { name: "Office of Management and Budget", code: "OMB" },
     { name: "Department of Health", code: "DOH" },
     { name: "Executive Office of Health and Human Services", code: "EOHHS" }
-  ]);
+  ]).then(()=>{
+    return `Agency data added OK`;
+  });
 };
 
 module.exports = {
@@ -15,7 +17,7 @@ module.exports = {
 if (require.main === module) {
   require("dotenv").config();
   const knex = require("../../../src/server/db/connection");
-  setupAgencies(knex).then(() => {
+  return setupAgencies(knex).then(() => {
     knex.destroy();
   });
 }

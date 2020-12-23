@@ -19,15 +19,29 @@ const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
 const { updateProjectStatus } = require("../db");
 
-const processUpload = async ({ filename, user_id, agency_id, data, reporting_period_id = null }) => {
+const processUpload = async ({
+  filename,
+  user_id,
+  agency_id,
+  data,
+  reporting_period_id = null
+}) => {
   log(`processUpload(): filename is ${filename}`);
+
   const {
-   valog,
-   documents,
-   spreadsheet,
-   fileParts,
-   reportingPeriod
-  } = await validateUpload({ filename, user_id, agency_id, data, reporting_period_id });
+    valog,
+    documents,
+    spreadsheet,
+    fileParts,
+    reportingPeriod
+  } = await validateUpload({
+    filename,
+    user_id,
+    agency_id,
+    data,
+    reporting_period_id
+  });
+
   if (!valog.success()) {
     log(`valog.success() is false`);
     return { valog, upload: {} };
@@ -56,7 +70,7 @@ const processUpload = async ({ filename, user_id, agency_id, data, reporting_per
   }
 
   let upload;
-  let result;
+  let result; // eslint-disable-line
   try {
     const project = await getProject(fileParts.projectId);
     const agency = await agencyByCode(fileParts.agencyCode);
