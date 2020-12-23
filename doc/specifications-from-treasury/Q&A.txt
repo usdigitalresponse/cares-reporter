@@ -1,0 +1,13 @@
+On Tue, Dec 22, 2020 at 10:10 AM Sullivan, Laura E (DOA) <Laura.E.Sullivan@omb.ri.gov> wrote:
+
+Q. Will any date validations in GrantSolutions be changed for the reporting period ending 12/31/20?
+A. Once the legislation is signed into law, we will quickly adjust the system validations for the performance end date and award dates to no later than 12/30/21.
+
+Q. For existing awards (reported in cycle 1-2), will changes to the Place of Performance (Contracts, Grants, Loans) and/or description fields (Contracts, Grants, Loans, Transfers, Direct Payments) in subsequent reporting cycles trigger validation errors when uploaded to Treasury? A list or updated data dictionary that identifies fields that may be modified in subsequent reports would be helpful.
+A. Changes to Place of Performance and description fields will need to be completed via the UI.  Award amounts will be able to be updated via the data upload.  GrantSolutions will provide a list of fields that can be modified in subsequent reports.
+
+Q. For existing awards (reported in cycle 1-2), will changes to the Project title and/or description in subsequent reporting cycles trigger validation errors when uploaded to Treasury?
+A. Project Titles cannot be changed for previously reported data.  If a change is needed to the Project Title, a new Project should be created.  Once the new Project is created, the obligation and expenditure associated with the prior Project needs to be "zeroed" out with a negative amount and the new Project inserted.
+
+Q. Currently, the Expenditure End Date must be ≤ the Period of Performance End Date.  However, expenditures and adjustments are commonly made after the period of performance.  Please advise if this validation will change for future reporting periods.
+A. The current validation will remain in place for Cycle 3.  GrantSolutions suggests that Rhode Island share your concern/suggestion with Treasury OIG, if you have not already done so.
