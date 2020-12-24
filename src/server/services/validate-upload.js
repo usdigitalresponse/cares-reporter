@@ -8,8 +8,8 @@ const xlsx = require("xlsx");
 const {
   currentReportingPeriodSettings,
   getFirstReportingPeriodStartDate,
-  getReportingPeriod,
-  getPriorPeriodSummaries
+  getPriorPeriodSummaries,
+  getReportingPeriod
 } = require("../db");
 const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
@@ -23,7 +23,14 @@ const {
 
 const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 
-const validateUpload = async ({ filename, user_id, agency_id, data, reporting_period_id }) => {
+const validateUpload = async ({
+  filename,
+  user_id,
+  agency_id, // eslint-disable-line
+  data,
+  reporting_period_id
+}) => {
+
   if (!reporting_period_id) {
     const period = await currentReportingPeriodSettings();
     reporting_period_id = period.id;
@@ -31,13 +38,15 @@ const validateUpload = async ({ filename, user_id, agency_id, data, reporting_pe
   const reportingPeriod = await getReportingPeriod(reporting_period_id);
 
   let valog = new ValidationLog();
-  const { valog: filenameValog, ...fileParts } = await parseFilename(filename, reportingPeriod);
+  const { valog: filenameValog, ...fileParts } =
+    await parseFilename(filename, reportingPeriod);
 
   valog.append(filenameValog);
   if (!valog.success()) {
     log(`failed to validate file name`);
     return { valog, documents: {} };
   }
+
   let workbookXlsx;
   try {
     workbookXlsx = xlsx.read(data, { type: "buffer" });

@@ -29,9 +29,9 @@ describe("reporting-periods.spec.js - baseline success", () => {
   it("Returns a list of reporting periods", async () => {
 
     const result = await reportingPeriods.get();
-    if (result.length !== 6) {
+    if (result.length !== 5) {
       // console.dir(result);
-      throw new Error(`Expected 6 periods, got ${result.length}`);
+      throw new Error(`Expected 5 periods, got ${result.length}`);
     }
     return result;
   });

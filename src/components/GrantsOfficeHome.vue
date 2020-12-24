@@ -7,15 +7,18 @@
             >Download Treasury Report</a
           >
         </div>
-        <div class="col-4">
+        <div class="closed" v-show="!(this.$store.getters.viewPeriodIsCurrent)">
+          This reporting period is closed.
+        </div>
+        <div class="col-4" v-show="this.$store.getters.viewPeriodIsCurrent">
           <div @click="startUpload" class="btn btn-secondary">
-            {{uploadPrompt}}
+            Upload Agency Spreadsheet
           </div>
         </div>
-        <div class="col-4">
-          <a :href="downloadTemplateUrl" class="btn btn-secondary" download
-            >Download Empty Template</a
-          >
+        <div class="col-4" v-show="this.$store.getters.viewPeriodIsCurrent">
+          <a :href="downloadTemplateUrl" class="btn btn-secondary">
+            Download Empty Template
+          </a>
         </div>
       </div>
       <div class="row mt-5">
@@ -78,13 +81,8 @@ export default {
     };
   },
   computed: {
-    uploadPrompt: function(){
-      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
-        return `Upload Agency Spreadsheet`;
-
-      } else {
-        return `Can't upload to this period`;
-      }
+    isClosed: function() {
+      return !(this.$store.getters.viewPeriodIsCurrent);
     },
     template: function() {
       return _.find(this.$store.state.configuration.templates, t =>
@@ -159,5 +157,8 @@ pre {
 }
 .buttons {
   text-align: center;
+}
+.closed {
+    padding: .5rem 0;
 }
 </style>
