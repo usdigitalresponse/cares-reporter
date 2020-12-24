@@ -195,7 +195,7 @@ const requiredFields = [
   ],
   [
     "current quarter obligation",
-    isPositiveNumber,
+    isNumberOrBlank,
     "Current quarter obligation must be an amount greater than zero"
   ],
   [

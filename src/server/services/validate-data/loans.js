@@ -79,7 +79,7 @@ const requiredFields = [
 
   [
     "current quarter obligation",
-    isNumber,
+    isNumberOrBlank,
     "Current quarter obligation must be an amount"
   ],
   [
