@@ -15,6 +15,7 @@ describe("UploadData.vue", () => {
       },
       getters: {
         tableNames: () => ["Products", "Product Type"],
+        periodNames: () => ["September, 2020", "December, 2020"],
         template: () => () => ({ id: 1, name: "Template 1" })
       }
     });
