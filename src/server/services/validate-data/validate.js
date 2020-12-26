@@ -26,6 +26,11 @@ function dateIsOnOrBefore(key) {
   };
 }
 
+function dateIsOnOrBeforeCRFEndDate(val, content, { reportingPeriod }) {
+  const dt = ssf.format("yyyy-MM-dd", val);
+  return dt <= reportingPeriod.crfEndDate;
+}
+
 function dateIsOnOrAfter(key) {
   return (val, content) => {
     return new Date(val).getTime() >= new Date(content[key]).getTime();
@@ -351,6 +356,7 @@ module.exports = {
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
+  dateIsOnOrBeforeCRFEndDate,
   dateIsOnOrAfter,
   directMatches,
   grantMatches,
