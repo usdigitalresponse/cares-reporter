@@ -38,7 +38,8 @@ describe("validation helpers", () => {
     reportingPeriod: {
       startDate: "2020-03-01",
       endDate: "2020-09-30",
-      periodOfPerformanceEndDate: "2020-12-30"
+      periodOfPerformanceEndDate: "2020-12-30",
+      crfEndDate: "2020-12-30"
     },
     firstReportingPeriodStartDate: "2020-03-01",
     periodSummaries: {

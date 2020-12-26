@@ -4,6 +4,7 @@ const {
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
+  dateIsOnOrBeforeCRFEndDate,
   dropdownIncludes,
   grantMatches,
   isEqual,
@@ -102,9 +103,9 @@ const requiredFields = [
     "period of performance end date",
     whenGreaterThanZero(
       "total expenditure amount",
-      dateIsInPeriodOfPerformance
+      dateIsOnOrBeforeCRFEndDate,
     ),
-    'Period of performance end date "{}" is not in the period or performance',
+    'Period of performance end date "{}" must be on or before CRF end date',
     { isDateValue: true }
   ],
   [
