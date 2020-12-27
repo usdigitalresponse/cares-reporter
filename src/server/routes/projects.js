@@ -5,7 +5,7 @@ const router = express.Router();
 const {
   agencyById,
   projects,
-  getProject,
+  projectById,
   createProject,
   updateProject
 } = require("../db");
@@ -64,7 +64,7 @@ router.put("/:id", requireAdminUser, validateProject, async function(
   next
 ) {
   console.log("PUT /projects/:id", req.body);
-  let project = await getProject(req.params.id);
+  let project = await projectById(req.params.id);
   if (!project) {
     res.status(400).send("Project not found");
     return;
