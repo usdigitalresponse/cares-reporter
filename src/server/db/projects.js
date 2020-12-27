@@ -61,6 +61,13 @@ function projectByCode(code) {
     .where({ code });
 }
 
+function projectById(id) {
+  return knex("projects")
+    .select("*")
+    .where({ id })
+    .then(r => r[0]);
+}
+
 /* updateProjectStatus() updates a project status from an uploaded agency
   spreadsheet
   */
@@ -123,6 +130,7 @@ module.exports = {
   getProject,
   getProjects,
   projectByCode,
+  projectById,
   projects,
   updateProject,
   updateProjectStatus
