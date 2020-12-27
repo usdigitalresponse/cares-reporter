@@ -25,7 +25,8 @@ const validateData = (documents, fileParts, reportingPeriod, periodSummaries, fi
       periodOfPerformanceEndDate: format(
         reportingPeriod.period_of_performance_end_date,
         "yyyy-MM-dd"
-      )
+      ),
+      crfEndDate: format(reportingPeriod.crf_end_date, "yyyy-MM-dd")
     },
     subrecipientsHash,
     tags: reportingPeriod.validation_rule_tags,
