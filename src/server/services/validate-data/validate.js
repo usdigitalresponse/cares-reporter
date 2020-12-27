@@ -26,6 +26,11 @@ function dateIsOnOrBefore(key) {
   };
 }
 
+function dateIsOnOrBeforeCRFEndDate(val, content, { reportingPeriod }) {
+  const dt = ssf.format("yyyy-MM-dd", val);
+  return dt <= reportingPeriod.crfEndDate;
+}
+
 function dateIsOnOrAfter(key) {
   return (val, content) => {
     return new Date(val).getTime() >= new Date(content[key]).getTime();
@@ -149,7 +154,16 @@ function cumulativeAmountIsEqual(key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
     const currentPeriodAmount = Number(content[key]) || 0.0;
     const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate);
-    return _.round(val, 2) == _.round(currentPeriodAmount + previousPeriodsAmount, 2);
+    const b = _.round(val, 2) == _.round(currentPeriodAmount + previousPeriodsAmount, 2);
+    if (!b) {
+        console.log('cumulativeAmountIsEqual:',
+          key,
+          val,
+          'current:', currentPeriodAmount,
+          'previous:', previousPeriodsAmount,
+          'total:', currentPeriodAmount + previousPeriodsAmount);
+    }
+    return b;
   };
 }
 
@@ -342,6 +356,7 @@ module.exports = {
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
+  dateIsOnOrBeforeCRFEndDate,
   dateIsOnOrAfter,
   directMatches,
   grantMatches,
