@@ -28,7 +28,6 @@ describe("services/process_upload", () => {
       return result;
     });
   });
-
   describe("filename failures", () => {
     const dir = `${dirRoot}file-name/`;
     const filenameTests = [

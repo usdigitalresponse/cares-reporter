@@ -12,6 +12,7 @@ exports.seed = async function(knex) {
       close_date:"2020-12-01",
       review_period_start_date:"2020-12-16",
       review_period_end_date:"2020-12-23",
+
       reporting_template: "empty-template.xlsx",
       crf_end_date: "2020-12-30"
     },
@@ -25,6 +26,7 @@ exports.seed = async function(knex) {
       review_period_start_date:"2021-01-12",
       review_period_end_date:"2021-01-20",
       reporting_template: "empty-template.xlsx",
+
       validation_rule_tags: ["cumulative"],
       crf_end_date: "2020-12-30"
     },
