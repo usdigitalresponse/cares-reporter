@@ -41,6 +41,7 @@ const {
   getProject,
   getProjects,
   projectByCode,
+  projectById,
   projects,
   updateProject,
   updateProjectStatus
@@ -221,6 +222,7 @@ module.exports = {
   knex,
   markAccessTokenUsed,
   projectByCode,
+  projectById,
   projects,
   reportingPeriods,
   roles,

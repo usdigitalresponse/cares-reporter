@@ -5,6 +5,7 @@ const {
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
+  dateIsOnOrBeforeCRFEndDate,
   dropdownIncludes,
   isEqual,
   isAtLeast50K,
@@ -58,8 +59,8 @@ const requiredFields = [
   ],
   [
     "period of performance end date",
-    dateIsInPeriodOfPerformance,
-    'Period of performance end date "{}" must be in the period of performance',
+    dateIsOnOrBeforeCRFEndDate,
+    'Period of performance end date "{}" must be on or before CRF end date',
     { isDateValue: true }
   ],
   ["contract number", isNotBlank, "Contract number cannot be blank"],
@@ -195,7 +196,7 @@ const requiredFields = [
   ],
   [
     "current quarter obligation",
-    isPositiveNumber,
+    isNumberOrBlank,
     "Current quarter obligation must be an amount greater than zero"
   ],
   [

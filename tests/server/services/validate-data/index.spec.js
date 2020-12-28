@@ -49,6 +49,7 @@ describe("validateData", () => {
       start_date: new Date(2020, 3, 1),
       end_date: new Date(2020, 9, 30),
       period_of_performance_end_date: new Date(2020, 12, 30),
+      crf_end_date: new Date(2020, 12, 30),
       validation_rule_tags: []
     }
     const fileParts = { agencyCode: "1", projectId: "100" };
@@ -60,6 +61,7 @@ describe("validateData", () => {
       start_date: new Date(2020, 3, 1),
       end_date: new Date(2020, 9, 30),
       period_of_performance_end_date: new Date(2020, 12, 30),
+      crf_end_date: new Date(2020, 12, 30),
       validation_rule_tags: ["v2"]
     }
     const fileParts = { agencyCode: "1", projectId: "100" };
