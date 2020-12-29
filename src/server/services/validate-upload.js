@@ -7,10 +7,11 @@ if ( process.env.VERBOSE ){
 const xlsx = require("xlsx");
 const {
   currentReportingPeriodSettings,
-  getFirstReportingPeriodStartDate,
-  getPriorPeriodSummaries,
-  getReportingPeriod
+  getPriorPeriodSummaries
 } = require("../db");
+
+const reportingPeriods = require("../db/reporting-periods");
+
 const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
 const { ValidationLog } = require("../lib/validation-log");
@@ -35,7 +36,7 @@ const validateUpload = async ({
     const period = await currentReportingPeriodSettings();
     reporting_period_id = period.id;
   }
-  const reportingPeriod = await getReportingPeriod(reporting_period_id);
+  const reportingPeriod = await reportingPeriods.get(reporting_period_id);
 
   let valog = new ValidationLog();
   const { valog: filenameValog, ...fileParts } =
@@ -78,7 +79,7 @@ const validateUpload = async ({
   let documents = removeEmptyDocuments(spreadsheetDocuments);
 
   const priorPeriodSummaries = await getPriorPeriodSummaries(reportingPeriod.id);
-  const firstReportingPeriodStartDate = await getFirstReportingPeriodStartDate();
+  const firstReportingPeriodStartDate = await reportingPeriods.getFirstStartDate();
   const dataValog = await validateData(
     documents,
     fileParts,

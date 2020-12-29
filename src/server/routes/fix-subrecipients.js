@@ -4,7 +4,7 @@ const { fixSubrecipients } = require("../services/fix-subrecipients");
 
 const router = express.Router();
 
-router.post("/:id", requireAdminUser, async (req, res, next) => {
+router.post("/:id", requireAdminUser, async (req, res) => {
   console.log("POST /fix-subrecipients/:id");
   return res.json({ documents: await fixSubrecipients(req.params.id) });
 });
