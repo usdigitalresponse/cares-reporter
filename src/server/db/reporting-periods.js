@@ -30,20 +30,23 @@ const {
   setCurrentReportingPeriod
 } = require("./settings");
 
+const { writeSummaries } = require("./period-summaries");
+
 module.exports = {
   close: closeReportingPeriod,
-  get: getReportingPeriod,
 
-  getFirstReportingPeriodStartDate,
-  getPeriodID,
+  get: getReportingPeriod,
+  getFirstStartDate: getFirstReportingPeriodStartDate,
+
+  getID: getPeriodID,
   isCurrent,
   isClosed,
-  reportingPeriods
+  getAll
 };
 
-/*  reportingPeriods() returns all the records from the reporting_periods table
+/*  getAll() returns all the records from the reporting_periods table
   */
-function reportingPeriods() {
+function getAll() {
   return knex("reporting_periods")
     .select("*")
     .orderBy("end_date", "desc");
@@ -53,7 +56,7 @@ function reportingPeriods() {
   */
 function getReportingPeriod( period_id ) {
   if (!period_id) {
-    return reportingPeriods();
+    return getAll();
   }
 
   return knex("reporting_periods")
@@ -89,7 +92,6 @@ async function getPeriodID(periodID) {
     falsy, or if it matches the current reporting period ID
   */
 async function isCurrent(periodID) {
-    console.log(`isCurrent()`);
   const currentID = await getCurrentReportingPeriodID();
 
   if ( !periodID || (Number(periodID) === Number(currentID)) ) {
@@ -103,7 +105,9 @@ async function isCurrent(periodID) {
 async function closeReportingPeriod(user, period) {
   let reporting_period_id = await getCurrentReportingPeriodID();
 
-  if (period && period !== reporting_period_id) {
+  period = period || reporting_period_id;
+
+  if (period !== reporting_period_id) {
     throw new Error(
       `The current reporting period (${reporting_period_id}) is not period ${period}`
     );
@@ -123,7 +127,13 @@ async function closeReportingPeriod(user, period) {
   }
 
   // throws if there is no report in the period
-  let latestTreasuryReport = await treasury.latestReport(period);
+  let latestTreasuryReport = await treasury.latestReport(reporting_period_id);
+
+  let errLog = await writeSummaries(reporting_period_id);
+
+  if ( errLog && errLog.length > 0 ) {
+    throw new Error(errLog[0]);
+  }
 
   await knex("reporting_periods")
     .where({ id: reporting_period_id })
@@ -134,6 +144,7 @@ async function closeReportingPeriod(user, period) {
     });
 
   await setCurrentReportingPeriod(reporting_period_id+1);
+
 
   return null;
 }

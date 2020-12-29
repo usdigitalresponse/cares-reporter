@@ -15,14 +15,33 @@
 const knex = require("./connection");
 const { documentsWithProjectCode } = require("./documents");
 const { getCurrentReportingPeriodID } = require("./settings");
-const { isClosed } = require("./reporting-periods");
+
 const _=require("lodash");
 
 module.exports = {
   closeReportingPeriod,
   getPeriodSummaries:  getSummaries,
-  getPriorPeriodSummaries
+  getPriorPeriodSummaries,
+  readSummaries,    // used by tests
+  writeSummaries
 };
+
+async function readSummaries(reporting_period_id=1) {
+  let periodSummaries = await knex("period_summaries")
+  .select("*")
+  .where("reporting_period_id", reporting_period_id);
+  return periodSummaries;
+}
+
+async function writeSummaries(reporting_period_id) {
+  let summaryData = await generateSummaries(reporting_period_id);
+
+  if (summaryData.errors.length) {
+    return summaryData.errors;
+  }
+
+  return await saveSummaries(summaryData.periodSummaries);
+}
 
 /*  getSummaries() returns the summaries for a reporting period. If no
   reporting period is specified, it returns summaries for the current
@@ -33,27 +52,16 @@ async function getSummaries(reporting_period_id) {
     console.log(`getSummaries()`);
     reporting_period_id = await getCurrentReportingPeriodID();
     if (_.isError(reporting_period_id)) {
-      throw new Error("this is bad");
+      throw new Error("Failed to get current reporting period ID");
     }
   }
-  let periodSummaries = await knex("period_summaries")
-  .select("*")
-  .where("reporting_period_id", reporting_period_id);
+  let periodSummaries = await readSummaries(reporting_period_id);
 
   if (periodSummaries.length) {
     return { periodSummaries, errors: [] };
   }
 
-
   let summaryData = await generateSummaries(reporting_period_id);
-
-  if (summaryData.errors.length) {
-    return summaryData;
-  }
-
-  if ( await isClosed(reporting_period_id) ) {
-    summaryData.errors = await saveSummaries(summaryData.periodSummaries);
-  }
 
   return summaryData;
 }
@@ -81,7 +89,7 @@ async function generateSummaries(reporting_period_id) {
   let documents = await documentsWithProjectCode(reporting_period_id);
   if (_.isError(documents)){
     return {
-      errors: documents.message
+      errors: [documents.message]
     };
   }
   if (documents.length === 0){
@@ -94,7 +102,7 @@ async function generateSummaries(reporting_period_id) {
   documents.forEach(document => {
     let awardNumber;
     let obligation = document.content["current quarter obligation"];
-    let amount = document.content["cost or expenditure amount"] || 0;
+    let amount = document.content["total expenditure amount"] || 0;
     let jsonRow = document.content;
 
     switch ( document.type ) {
@@ -106,7 +114,7 @@ async function generateSummaries(reporting_period_id) {
         break;
       case "loans":
         awardNumber = jsonRow["loan number"];
-        amount = jsonRow["total payment amount"];
+        amount = jsonRow["loan amount"] || 0;
         break;
       case "transfers":
         awardNumber = jsonRow["transfer number"];
@@ -158,7 +166,8 @@ async function generateSummaries(reporting_period_id) {
   return { periodSummaries, errors: errLog };
 }
 
-/* getPriorPeriodSummares() finds all the summaries for periods before the report_period_id argument
+/* getPriorPeriodSummares() finds all the summaries for periods before
+  the report_period_id argument.
   */
 async function getPriorPeriodSummaries(reporting_period_id) {
 
@@ -180,7 +189,7 @@ async function getPriorPeriodSummaries(reporting_period_id) {
 async function closeReportingPeriod(reporting_period_id) {
   let errLog = [];
 
-  let { periodSummaries, closed } = await getPeriodSummaries(reporting_period_id);
+  let { periodSummaries, closed } = await getSummaries(reporting_period_id);
 
   if (closed) {
     return [`Reporting period ${reporting_period_id} is already closed`];
@@ -198,7 +207,7 @@ async function closeReportingPeriod(reporting_period_id) {
     return errLog;
   }
 
-  closed = (await getPeriodSummaries(reporting_period_id)).closed;
+  closed = (await getSummaries(reporting_period_id)).closed;
   if ( !closed ) {
     return [`Failed to close reporting period ${reporting_period_id}`];
   }
