@@ -26,10 +26,10 @@
     $ psql rptest postgres < tests/server/fixtures/period-summaries/rptest.sql
 */
 
-const {
-  getPeriodSummaries,
-  reportingPeriods
-} = require(`${process.cwd()}/src/server/db`);
+const { getPeriodSummaries, readSummaries } =
+  requireSrc(`${__dirname}/../../server/db`);
+const reportingPeriods =
+  requireSrc(`${__dirname}/../../server/db/reporting-periods`);
 
 const expect = require("chai").expect;
 
@@ -37,6 +37,11 @@ describe("baseline success", () => {
   it("Returns a list of reporting period summaries", async () => {
     let summaries;
     const period = 1;
+
+    summaries = await readSummaries(period);
+    if (summaries.length) {
+      throw new Error(`There should be no stored summaries for open periods`);
+    }
 
     summaries = await getPeriodSummaries(period);
 
@@ -60,6 +65,11 @@ describe("baseline success", () => {
   it("Returns an empty list of reporting period summaries", async () => {
     let summaries;
     const period = 4;
+
+    summaries = await readSummaries(period);
+    if (summaries.length) {
+      throw new Error(`There should be no stored summaries for open periods`);
+    }
 
     summaries = await getPeriodSummaries(period);
 
@@ -108,8 +118,15 @@ describe("baseline success", () => {
         `Expected 3161 period summaries, got ${summaries.periodSummaries.length}`
       );
     }
+
     if (!(await reportingPeriods.isClosed(1))) {
       throw new Error(`Period ${period} should be closed`);
+    }
+
+    summaries = await readSummaries(period);
+    if (summaries.length !== 3161) {
+      // console.dir(summaries);
+      throw new Error(`Summaries should be stored for closed periods`);
     }
   });
   it("Fails to close period 2 (because there is no Treasury file)", async () => {
@@ -125,6 +142,12 @@ describe("baseline success", () => {
     expect(err.message).to.equal(
       `No Treasury report has been generated for period ${period}`
     );
+
+    let summaries = await readSummaries(period);
+    if (summaries.length) {
+      throw new Error(`There should be no stored summaries for open periods`);
+    }
+
   });
 });
 
