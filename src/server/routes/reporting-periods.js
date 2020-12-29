@@ -10,18 +10,12 @@ const router = express.Router();
 
 const { requireUser, requireAdminUser } = require("../access-helpers");
 const { user: getUser } = require("../db");
-
-const {
-  getPeriodSummaries
-} = require("../db");
-const {
-  getPeriodID,
-  reportingPeriods
-} = require("../db/reporting-periods");
+const { getPeriodSummaries } = require("../db");
+const reportingPeriods = require("../db/reporting-periods");
 
 router.get("/", requireUser, async function(req, res) {
-  let currentPeriodID = await getPeriodID();
-  let allPeriods = await reportingPeriods();
+  let currentPeriodID = await reportingPeriods.getID();
+  let allPeriods = await reportingPeriods.getAll();
   let reporting_periods=[];
 
   allPeriods.forEach(period => {
@@ -42,7 +36,12 @@ router.post("/close/", requireAdminUser, async (req, res) => {
 
   const user = await getUser(req.signedCookies.userId);
 
-  let err = await reportingPeriods.close(user);
+  try {
+    await reportingPeriods.close(user);
+
+  } catch(err) {
+    return res.status(500).send(err.message);
+  }
 
   res.json({
     status: "OK"
