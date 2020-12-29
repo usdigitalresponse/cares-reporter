@@ -12,18 +12,23 @@ const { getDropdownValues, initializeTemplates } = require("../get-template");
 
 function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
-  return dt <= reportingPeriod.periodOfPerformanceEndDate;
+  return dt >= "2020-03-01" && dt <= reportingPeriod.periodOfPerformanceEndDate;
 }
 
-function dateIsInReportingPeriod(val, content, { reportingPeriod }) {
+function dateIsInReportingPeriod(val, content, { firstReportingPeriodStartDate, reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
-  return dt >= reportingPeriod.startDate && dt <= reportingPeriod.endDate;
+  return dt >= firstReportingPeriodStartDate && dt <= reportingPeriod.endDate;
 }
 
 function dateIsOnOrBefore(key) {
   return (val, content) => {
     return new Date(val).getTime() <= new Date(content[key]).getTime();
   };
+}
+
+function dateIsOnOrBeforeCRFEndDate(val, content, { reportingPeriod }) {
+  const dt = ssf.format("yyyy-MM-dd", val);
+  return dt <= reportingPeriod.crfEndDate;
 }
 
 function dateIsOnOrAfter(key) {
@@ -84,6 +89,89 @@ function isSum(columns) {
       // console.log(`val is ${val}, sum is ${sum}`);
     }
     return val == sum;
+  };
+}
+
+function periodSummaryKey(key) {
+  switch(key) {
+    case "current quarter obligation":
+      return "current_obligation";
+    case "total expenditure amount":
+      return "current_expenditure";
+    default:
+      return "";
+  }
+}
+
+function withoutLeadingZeroes(v) {
+  return `${v}`.replace(/^0+/,'');
+}
+
+function summaryMatches(type, id, content) {
+  return (s) => {
+    const isMatch = s.award_type === type &&
+      withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
+      `${content[id]}` === s.award_number;
+    // console.log('summary:', s);
+    // console.log('content:', content);
+    // console.log(s.award_type === type);
+    // console.log(withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']));
+    // console.log(content[id] === s.award_number);
+    return isMatch;
+  };
+}
+
+function contractMatches(content) {
+  return summaryMatches("contracts", "contract number", content);
+}
+
+function directMatches(content) {
+  return summaryMatches("direct", "subrecipient id", content);
+}
+
+function grantMatches(content) {
+  return summaryMatches("grants", "award number", content);
+}
+
+function loanMatches(content) {
+  return summaryMatches("loans", "loan number", content);
+}
+
+function transferMatches(content) {
+  return summaryMatches("transfers", "transfer number", content);
+}
+
+function cumulativeAmount(key,  content, periodSummaries, filterPredicate) {
+    const summaries = _.get(periodSummaries, 'periodSummaries');
+    return _.chain(summaries)
+        .filter(filterPredicate(content))
+        .map(periodSummaryKey(key))
+        .reduce((acc, s) => acc + Number(s) || 0.0, 0.0)
+        .value();
+}
+
+function cumulativeAmountIsEqual(key, filterPredicate) {
+  return (val, content, { periodSummaries }) => {
+    const currentPeriodAmount = Number(content[key]) || 0.0;
+    const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate);
+    const b = _.round(val, 2) == _.round(currentPeriodAmount + previousPeriodsAmount, 2);
+    if (!b) {
+        console.log('cumulativeAmountIsEqual:',
+          key,
+          val,
+          'current:', currentPeriodAmount,
+          'previous:', previousPeriodsAmount,
+          'total:', currentPeriodAmount + previousPeriodsAmount);
+    }
+    return b;
+  };
+}
+
+function cumulativeAmountIsLessThanOrEqual(key, filterPredicate) {
+  return (val, content, { periodSummaries }) => {
+    const currentPeriodAmount = Number(content[key]) || 0.0;
+    const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate);
+    return _.round(currentPeriodAmount + previousPeriodsAmount, 2) <= _.round(val, 2);
   };
 }
 
@@ -262,13 +350,19 @@ function validateSingleDocument(tab, validations, message) {
 }
 
 module.exports = {
-  initializeTemplates,
+  contractMatches,
+  cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
+  dateIsOnOrBeforeCRFEndDate,
   dateIsOnOrAfter,
+  directMatches,
+  grantMatches,
   dropdownIncludes,
   hasSubrecipientKey,
+  initializeTemplates,
   isEqual,
   isAtLeast50K,
   isNotBlank,
@@ -280,10 +374,12 @@ module.exports = {
   isValidState,
   isValidSubrecipient,
   isValidZip,
+  loanMatches,
   matchesFilePart,
   messageValue,
   numberIsLessThanOrEqual,
   numberIsGreaterThanOrEqual,
+  transferMatches,
   validateDocuments,
   validateFields,
   validateSingleDocument,

@@ -1,30 +1,24 @@
 <template>
   <div class="home">
     <div>
-      <div class="row" v-if="currentReportingPeriod">
-        <div class="col-12">
-          <h3>
-            Reporting Period:
-            {{ dateFormat(currentReportingPeriod.start_date) }} to
-            {{ dateFormat(currentReportingPeriod.end_date) }}
-          </h3>
-        </div>
-      </div>
       <div class="row buttons mt-5">
         <div class="col-4">
           <a :href="downloadUrl()" class="btn btn-primary"
             >Download Treasury Report</a
           >
         </div>
-        <div class="col-4">
-          <a href="/new_upload" class="btn btn-secondary"
-            >Upload Agency Spreadsheet</a
-          >
+        <div class="closed" v-show="!(this.$store.getters.viewPeriodIsCurrent)">
+          This reporting period is closed.
         </div>
-        <div class="col-4">
-          <a :href="downloadTemplateUrl" class="btn btn-secondary" download
-            >Download Empty Template</a
-          >
+        <div class="col-4" v-show="this.$store.getters.viewPeriodIsCurrent">
+          <div @click="startUpload" class="btn btn-secondary">
+            Upload Agency Spreadsheet
+          </div>
+        </div>
+        <div class="col-4" v-show="this.$store.getters.viewPeriodIsCurrent">
+          <a :href="downloadTemplateUrl" class="btn btn-secondary">
+            Download Empty Template
+          </a>
         </div>
       </div>
       <div class="row mt-5">
@@ -87,8 +81,8 @@ export default {
     };
   },
   computed: {
-    currentReportingPeriod: function () {
-      return this.$store.getters.currentReportingPeriod;
+    isClosed: function() {
+      return !(this.$store.getters.viewPeriodIsCurrent);
     },
     template: function() {
       return _.find(this.$store.state.configuration.templates, t =>
@@ -110,17 +104,13 @@ export default {
     }
   },
   watch: {
-    "$store.state.applicationSettings": function() {
-      this.currentReportingPeriod = this.$store.getters.currentReportingPeriod;
-    },
-    "$store.state.reportingPeriods": function() {
-      this.currentReportingPeriod = this.$store.getters.currentReportingPeriod;
-    }
   },
   methods: {
     titleize,
     downloadUrl() {
-      return `/api/exports`;
+      let period_id = this.$store.getters.viewPeriod.id ||  0;
+      // console.dir(this.$store.getters.viewPeriod);
+      return `/api/exports?period_id=${period_id}`;
     },
     documentCount(tableName) {
       const records = this.groups[tableName];
@@ -130,7 +120,7 @@ export default {
       return `/documents/${table.name}`;
     },
     uploadUrl(upload) {
-      return `/uploads/${upload.id}`;
+      return `/uploads/${upload.id || 0}`;
     },
     fromNow: function(t) {
       return moment(t).fromNow();
@@ -139,6 +129,12 @@ export default {
       return moment(d)
         .utc()
         .format("MM-DD-YYYY");
+    },
+    startUpload: function(e){
+      e.preventDefault();
+      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
+        this.$router.push({ path: "/new_upload" });
+      }
     }
   }
 };
@@ -161,5 +157,8 @@ pre {
 }
 .buttons {
   text-align: center;
+}
+.closed {
+    padding: .5rem 0;
 }
 </style>

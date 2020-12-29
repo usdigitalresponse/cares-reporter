@@ -5,12 +5,16 @@ const expect = require("chai").expect;
 const util = require("util");
 const setTimeoutPromise = util.promisify(setTimeout);
 
+const {
+  setCurrentReportingPeriod
+} = requireSrc(`${__dirname}/../db/settings`);
+
 const { makeUploadArgs, resetUploadsAndDb } = require("./helpers");
 
 const dirRoot = `${__dirname}/../fixtures/`;
 
 describe("services/process_upload", () => {
-  describe("baseline success", () => {
+  describe("process-upload.spec.js - baseline success", () => {
     const dir = `${dirRoot}file-success/`;
     it("processes without error", async () => {
       const uploadArgs = makeUploadArgs(
@@ -24,7 +28,6 @@ describe("services/process_upload", () => {
       return result;
     });
   });
-
   describe("filename failures", () => {
     const dir = `${dirRoot}file-name/`;
     const filenameTests = [
@@ -59,8 +62,10 @@ describe("services/process_upload", () => {
         expects: /Uploaded file name must match pattern.*/
       }
     ];
+
     filenameTests.forEach(ftest => {
       it(ftest.label, async () => {
+        await setCurrentReportingPeriod(1);
         const uploadArgs = makeUploadArgs(dir + ftest.file);
         const result = await processUpload(uploadArgs);
         expect(result.valog.getLog()[0].message).to.match(ftest.expects);

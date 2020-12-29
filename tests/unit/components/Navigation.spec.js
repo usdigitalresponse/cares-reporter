@@ -12,6 +12,8 @@ describe("Navigation.vue", () => {
     store = new Vuex.Store({
       getters: {
         tableNames: () => ["Products", "Product Type"],
+        periodNames: () => ["September, 2020", "December, 2020"],
+        viewPeriod: () => ({ id:1 }),
         user: () => ({ email: "user@example.com", role: "admin" }),
         applicationTitle: () => "CARES Reporter",
         agencyName: () => id => `Agency ${id}`
