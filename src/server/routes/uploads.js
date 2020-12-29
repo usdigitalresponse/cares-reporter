@@ -8,13 +8,13 @@ const { requireUser } = require("../access-helpers");
 const { user: getUser, upload, uploads, uploadsForAgency } = require("../db");
 const { uploadFilename, loadSpreadsheet } = require("../lib/spreadsheet");
 const { processUpload } = require("../services/process-upload");
-const { getPeriodID } = require("../db/reporting-periods");
+const reportingPeriods = require("../db/reporting-periods");
 
 const multer = require("multer");
 const multerUpload = multer({ storage: multer.memoryStorage() });
 
 router.get("/", requireUser, async function(req, res) {
-  const period_id = await getPeriodID(req.query.period_id);
+  const period_id = await reportingPeriods.getID(req.query.period_id);
   const user = await getUser(req.signedCookies.userId);
   const docs = user.agency_id
     ? await uploadsForAgency(user.agency_id, period_id)

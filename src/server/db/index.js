@@ -15,16 +15,10 @@ const {
   applicationSettings
 } = require("./settings");
 
-const reportingPeriods = require("./reporting-periods");
 const {
- get: getReportingPeriod,
- getFirstReportingPeriodStartDate
- } = require("./reporting-periods");
-
-const {
-  closeReportingPeriod,
   getPeriodSummaries,
-  getPriorPeriodSummaries
+  getPriorPeriodSummaries,
+  readSummaries
 } = require("./period-summaries");
 
 
@@ -213,18 +207,16 @@ module.exports = {
   documentsForAgency,
   documentsWithProjectCode,
   fixProjectCode,
-  getFirstReportingPeriodStartDate,
   getPeriodSummaries,
   getPriorPeriodSummaries,
   getProject,
   getProjects,
-  getReportingPeriod,
   knex,
   markAccessTokenUsed,
   projectByCode,
   projectById,
   projects,
-  reportingPeriods,
+  readSummaries,
   roles,
   transact,
   updateAgency,
