@@ -23,7 +23,7 @@ module.exports = app => {
   app.use("/api/documents", require("./routes/documents"));
   app.use("/api/exports", require("./routes/exports"));
   app.use("/api/files", require("./routes/files"));
-  app.use("/api/fix-subrecipients", require("./routes/fix-subrecipients"));
+  // app.use("/api/fix-subrecipients", require("./routes/fix-subrecipients"));
   app.use("/api/imports", require("./routes/imports"));
   app.use("/api/projects", require("./routes/projects"));
   app.use("/api/reporting_periods", require("./routes/reporting-periods"));

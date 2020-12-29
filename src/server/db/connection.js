@@ -1,6 +1,6 @@
 const db = process.env.POSTGRES_URL;
 
-console.log("Connecting to database:", db);
+console.log("\nConnecting to database:", db);
 const knex = require("knex")({
   client: "pg",
   connection: db

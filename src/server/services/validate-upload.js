@@ -6,7 +6,10 @@ if ( process.env.VERBOSE ){
 
 const xlsx = require("xlsx");
 const {
-  currentReportingPeriod
+  currentReportingPeriodSettings,
+  getFirstReportingPeriodStartDate,
+  getPriorPeriodSummaries,
+  getReportingPeriod
 } = require("../db");
 const { getTemplateSheets } = require("./get-template");
 const { parseFilename } = require("./parse-filename");
@@ -20,15 +23,30 @@ const {
 
 const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
 
-const validateUpload = async ({ filename, user_id, agency_id, data }) => {
+const validateUpload = async ({
+  filename,
+  user_id,
+  agency_id, // eslint-disable-line
+  data,
+  reporting_period_id
+}) => {
+
+  if (!reporting_period_id) {
+    const period = await currentReportingPeriodSettings();
+    reporting_period_id = period.id;
+  }
+  const reportingPeriod = await getReportingPeriod(reporting_period_id);
+
   let valog = new ValidationLog();
-  const { valog: filenameValog, ...fileParts } = await parseFilename(filename);
+  const { valog: filenameValog, ...fileParts } =
+    await parseFilename(filename, reportingPeriod);
 
   valog.append(filenameValog);
   if (!valog.success()) {
     log(`failed to validate file name`);
     return { valog, documents: {} };
   }
+
   let workbookXlsx;
   try {
     workbookXlsx = xlsx.read(data, { type: "buffer" });
@@ -59,11 +77,14 @@ const validateUpload = async ({ filename, user_id, agency_id, data }) => {
 
   let documents = removeEmptyDocuments(spreadsheetDocuments);
 
-  const reportingPeriod = await currentReportingPeriod();
+  const priorPeriodSummaries = await getPriorPeriodSummaries(reportingPeriod.id);
+  const firstReportingPeriodStartDate = await getFirstReportingPeriodStartDate();
   const dataValog = await validateData(
     documents,
     fileParts,
-    reportingPeriod
+    reportingPeriod,
+    priorPeriodSummaries,
+    firstReportingPeriodStartDate
   );
   if (dataValog.length){
     log(`dataValog failed`);

@@ -1,24 +1,19 @@
 <template>
   <div class="home">
-    <div class="row" v-if="currentReportingPeriod">
-      <div class="col-12">
-        <h3>
-          Reporting Period:
-          {{ dateFormat(currentReportingPeriod.start_date) }} to
-          {{ dateFormat(currentReportingPeriod.end_date) }}
-        </h3>
-      </div>
-    </div>
     <div class="row buttons mt-5">
-      <div class="col-6">
+      <div class="col-6" v-show="this.$store.getters.viewPeriodIsCurrent">
         <button class="btn btn-primary" @click="startUpload">
           Upload Spreadsheet
         </button>
       </div>
-      <div class="col-6">
+      <div class="col-6" v-show="this.$store.getters.viewPeriodIsCurrent">
         <a :href="downloadTemplateUrl" class="btn btn-secondary" download
           >Download Empty Template</a
         >
+      </div>
+
+      <div class="closed" v-show="!(this.$store.getters.viewPeriodIsCurrent)">
+        This reporting period is closed.
       </div>
     </div>
     <h3 class="mt-3">Upload History</h3>
@@ -65,7 +60,9 @@ export default {
   methods: {
     startUpload(e) {
       e.preventDefault();
-      this.$router.push({ path: "/new_upload" });
+      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
+        this.$router.push({ path: "/new_upload" });
+      }
     },
     dateFormat: function(d) {
       return moment(d)
@@ -88,5 +85,8 @@ pre {
 }
 .buttons {
   text-align: center;
+}
+.closed {
+    padding: .5rem 0;
 }
 </style>

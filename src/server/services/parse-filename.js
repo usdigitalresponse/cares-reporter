@@ -1,16 +1,23 @@
+
+let log = ()=>{};
+if ( process.env.VERBOSE ){
+  log = console.dir;
+}
 const { ValidationItem } = require("../lib/validation-log");
-const { agencyByCode, projectByCode } = require("../db");
-const { currentReportingPeriod } = require("../db/settings");
+const { agencies, agencyByCode, projectByCode } = require("../db");
 const { format } = require("date-fns");
 
-const parseFilename = async filename => {
-  // console.log(`filename is ${filename}`);
-  const currentPeriod = await currentReportingPeriod();
-  // console.dir(currentPeriod);
-  const endDate = (currentPeriod || {}).end_date;
-  // console.log(`endDate is ${endDate}`);
+const parseFilename = async (filename, reportingPeriod) => {
+  log(`filename is ${filename}`);
+  log(`Agencies are:`);
+  log(await agencies());
+  const endDate = (reportingPeriod || {}).end_date;
+  if (!endDate) throw new Error(`Error finding reportingPeriod`);
+  log(reportingPeriod);
+  log(`endDate is ${endDate}`);
   const expectedEndReportDate = format(endDate, "MMddyyyy");
   const valog = [];
+
   const [, name, ext] = filename.match(/^(.*)\.([^.]+)$/) || [];
   if (ext !== "xlsx") {
     valog.push(
@@ -25,7 +32,8 @@ const parseFilename = async filename => {
     valog.push(
       new ValidationItem({
         message: `Uploaded file name must match pattern
-      <agency abbrev>-<project id>-<reporting due date>-<optional-desc>-v<version number>.xlsx
+      <agency abbrev>-<project id>-<reporting due date>-<optional-desc>`
+      + `-v<version number>.xlsx
       Example: EOH-013-${expectedEndReportDate}-v1.xlsx
       `
       })
@@ -69,7 +77,6 @@ const parseFilename = async filename => {
     }
   }
 
-  if (!endDate) throw new Error(`Error finding currentReportingPeriod`);
   const shortExpectedEndReportDate = format(endDate, "MMddyy");
   const reportingDate = nameParts.shift() || "";
   if (
@@ -78,7 +85,9 @@ const parseFilename = async filename => {
   ) {
     valog.push(
       new ValidationItem({
-        message: `The reporting period end date in the filename is "${reportingDate}" but should be "${expectedEndReportDate}" or "${shortExpectedEndReportDate}"`
+        message: `The reporting period end date in the filename is `
+        + `"${reportingDate}" but should be "${expectedEndReportDate}" or `
+        + `"${shortExpectedEndReportDate}"`
       })
     );
   }
