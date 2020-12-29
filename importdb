@@ -1,7 +1,8 @@
 #!/bin/bash
 
 if [ ! $2 ] ; then
-  echo Usage is \$ importdb ri 2020-11-25T19_22Z
+  echo Usage is \$
+  ./importdb ri 2020-12-28T19_23Z
   exit 1
 fi
 
@@ -9,8 +10,9 @@ exampleDir=examples
 
 dropdb $1
 createdb --owner=postgres $1
+# psql $1 postgres < ./${exampleDir}/clear.sql
 
-rm uploads/*
+# rm uploads/*
 
 echo Working...
 
