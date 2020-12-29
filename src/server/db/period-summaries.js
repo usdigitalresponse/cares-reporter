@@ -89,7 +89,7 @@ async function generateSummaries(reporting_period_id) {
   let documents = await documentsWithProjectCode(reporting_period_id);
   if (_.isError(documents)){
     return {
-      errors: documents.message
+      errors: [documents.message]
     };
   }
   if (documents.length === 0){
@@ -102,7 +102,7 @@ async function generateSummaries(reporting_period_id) {
   documents.forEach(document => {
     let awardNumber;
     let obligation = document.content["current quarter obligation"];
-    let amount = document.content["cost or expenditure amount"] || 0;
+    let amount = document.content["total expenditure amount"] || 0;
     let jsonRow = document.content;
 
     switch ( document.type ) {
@@ -114,7 +114,7 @@ async function generateSummaries(reporting_period_id) {
         break;
       case "loans":
         awardNumber = jsonRow["loan number"];
-        amount = jsonRow["total payment amount"];
+        amount = jsonRow["loan amount"] || 0;
         break;
       case "transfers":
         awardNumber = jsonRow["transfer number"];

@@ -105,7 +105,9 @@ async function isCurrent(periodID) {
 async function closeReportingPeriod(user, period) {
   let reporting_period_id = await getCurrentReportingPeriodID();
 
-  if (period && period !== reporting_period_id) {
+  period = period || reporting_period_id;
+
+  if (period !== reporting_period_id) {
     throw new Error(
       `The current reporting period (${reporting_period_id}) is not period ${period}`
     );
@@ -125,7 +127,7 @@ async function closeReportingPeriod(user, period) {
   }
 
   // throws if there is no report in the period
-  let latestTreasuryReport = await treasury.latestReport(period);
+  let latestTreasuryReport = await treasury.latestReport(reporting_period_id);
 
   let errLog = await writeSummaries(reporting_period_id);
 
