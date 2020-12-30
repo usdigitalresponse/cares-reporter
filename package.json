@@ -21,8 +21,8 @@
     "prod": "NODE_ENV=production node src/server"
   },
   "dependencies": {
-    "@vue/cli": "^4.5.4",
-    "aws-sdk": "^2.792.0",
+    "@vue/cli": "^4.5.9",
+    "aws-sdk": "^2.798.0",
     "body-parser": "^1.19.0",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
@@ -40,7 +40,7 @@
     "pg": "^8.5.1",
     "uuid": "^8.3.0",
     "vue": "^2.6.11",
-    "vue-router": "^3.2.0",
+    "vue-router": "^3.4.9",
     "vuex": "^3.4.0",
     "xlsx": "^0.16.6"
   },
