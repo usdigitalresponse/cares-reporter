@@ -1,4 +1,4 @@
-// uploads.js handles uploading an agency spreadsheet to the database.
+// uploads.js handles uploading an agency report spreadsheet to the database.
 
 const express = require("express");
 const fs = require("fs");
@@ -8,14 +8,17 @@ const { requireUser } = require("../access-helpers");
 const { user: getUser, upload, uploads, uploadsForAgency } = require("../db");
 const { uploadFilename, loadSpreadsheet } = require("../lib/spreadsheet");
 const { processUpload } = require("../services/process-upload");
+const reportingPeriods = require("../db/reporting-periods");
+
 const multer = require("multer");
 const multerUpload = multer({ storage: multer.memoryStorage() });
 
 router.get("/", requireUser, async function(req, res) {
+  const period_id = await reportingPeriods.getID(req.query.period_id);
   const user = await getUser(req.signedCookies.userId);
   const docs = user.agency_id
-    ? await uploadsForAgency(user.agency_id)
-    : await uploads();
+    ? await uploadsForAgency(user.agency_id, period_id)
+    : await uploads(period_id);
   return res.json({ uploads: docs });
 });
 

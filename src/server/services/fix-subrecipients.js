@@ -1,3 +1,6 @@
+/* fix-subrecipients() replaced subrecipient records that had been erroneously
+  deleted in a bad commit. It is no longer needed.
+*/
 const xlsx = require("xlsx");
 const { getTemplateSheets } = require("./get-template");
 const { upload: getUpload } = require("../db");

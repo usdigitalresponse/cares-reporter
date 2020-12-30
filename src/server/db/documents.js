@@ -16,14 +16,28 @@
   */
 const knex = require("./connection");
 const _ = require("lodash");
-const { currentReportingPeriod } = require("./settings");
 
-function documentsWithProjectCode() {
-  return knex("documents")
+const {
+  getPeriodUploadIDs
+} = require("./uploads");
+
+async function documentsWithProjectCode(period_id) {
+
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
+  let rv;
+
+  try {
+    rv = await knex("documents")
     .select("documents.*", "projects.code as project_code")
+    .whereIn("upload_id", periodUploadIDs)
     .join("uploads", { "documents.upload_id": "uploads.id" })
     .join("projects", { "uploads.project_id": "projects.id" })
     .then( purgeDuplicateSubrecipients);
+
+  } catch(err) {
+    return err;
+  }
+  return rv;
 }
 
 function purgeDuplicateSubrecipients( arrRecords ) {
@@ -60,38 +74,43 @@ function purgeDuplicateSubrecipients( arrRecords ) {
   return arrRecordsOut;
 }
 
-function documents() {
-  return knex("documents").select("*").then(purgeDuplicateSubrecipients);
+async function documents(period_id) {
+  console.log(`documents()`);
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
+
+  return knex("documents")
+  .select("*")
+  .whereIn("upload_id", periodUploadIDs)
+  .then(purgeDuplicateSubrecipients);
 }
 
-function documentsInCurrentReportingPeriod() {
-  return currentReportingPeriod().then(reportingPeriod => {
-    console.log(
-      `reporting period is ${reportingPeriod.start_date} `+
-      `to ${reportingPeriod.end_date}`
-    );
-    // TODO!
-    // we really need to do periods 1 and 2 together for now ...
-    // so best way is to fix the start and end dates reported by
-    // currentReportingPeriod()
-    // return knex("documents").select("*");
-    return documents();
-  });
-}
+async function documentsOfType(type, period_id) {
+  console.log(`documentsOfType()`);
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
 
-function documentsOfType(type) {
   return knex("documents")
     .select("*")
+    .whereIn("upload_id", periodUploadIDs)
     .where("type", type);
 }
 
-function documentsForAgency(agency_id) {
-  return knex("documents")
-    .select("documents.*", "projects.code as project_code")
-    .join("uploads", { "documents.upload_id": "uploads.id" })
-    .join("projects", { "uploads.project_id": "projects.id" })
-    .join("users", { "documents.user_id": "users.id" })
-    .where("users.agency_id", agency_id);
+async function documentsForAgency(agency_id, period_id) {
+  console.log(`documentsForAgency()`);
+  let periodUploadIDs = await getPeriodUploadIDs(period_id);
+
+  let docs;
+  try{
+    docs = await knex("documents")
+      .select("documents.*", "projects.code as project_code")
+      .whereIn("upload_id", periodUploadIDs)
+      .join("uploads", { "documents.upload_id": "uploads.id" })
+      .join("projects", { "uploads.project_id": "projects.id" })
+      .join("users", { "documents.user_id": "users.id" })
+      .where("users.agency_id", agency_id);
+  } catch(err) {
+    console.dir(err);
+  }
+  return docs;
 }
 
 function createDocument(document) {
@@ -128,7 +147,6 @@ module.exports = {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsInCurrentReportingPeriod,
   documentsForAgency,
   documentsOfType,
   documentsWithProjectCode

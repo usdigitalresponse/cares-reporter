@@ -6,16 +6,21 @@ const {
   createDocuments,
   deleteDocuments,
   documents,
-  documentsInCurrentReportingPeriod,
   documentsForAgency,
   documentsWithProjectCode
 } = require("./documents");
 
 const {
-  applicationSettings,
-  currentReportingPeriod,
-  reportingPeriods
+  currentReportingPeriodSettings,
+  applicationSettings
 } = require("./settings");
+
+const {
+  getPeriodSummaries,
+  getPriorPeriodSummaries,
+  readSummaries
+} = require("./period-summaries");
+
 
 const {
   createUpload,
@@ -30,6 +35,7 @@ const {
   getProject,
   getProjects,
   projectByCode,
+  projectById,
   projects,
   updateProject,
   updateProjectStatus
@@ -195,19 +201,22 @@ module.exports = {
   createProject,
   createUpload,
   createUser,
-  currentReportingPeriod,
+  currentReportingPeriodSettings,
   deleteDocuments,
   documents,
   documentsForAgency,
-  documentsInCurrentReportingPeriod,
   documentsWithProjectCode,
   fixProjectCode,
+  getPeriodSummaries,
+  getPriorPeriodSummaries,
   getProject,
   getProjects,
+  knex,
   markAccessTokenUsed,
   projectByCode,
+  projectById,
   projects,
-  reportingPeriods,
+  readSummaries,
   roles,
   transact,
   updateAgency,

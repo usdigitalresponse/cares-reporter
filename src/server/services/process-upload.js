@@ -1,3 +1,9 @@
+
+let log = ()=>{};
+if ( process.env.VERBOSE ){
+  log = console.dir;
+}
+
 const {
   agencyByCode,
   user,
@@ -7,21 +13,37 @@ const {
   getProject,
   transact
 } = require("../db");
+
 const FileInterface = require("../lib/server-disk-interface");
 const fileInterface = new FileInterface();
 const { validateUpload } = require("./validate-upload");
 const { updateProjectStatus } = require("../db");
 
-const processUpload = async ({ filename, user_id, agency_id, data }) => {
+const processUpload = async ({
+  filename,
+  user_id,
+  agency_id,
+  data,
+  reporting_period_id = null
+}) => {
+  log(`processUpload(): filename is ${filename}`);
 
   const {
-   valog,
-   documents,
-   spreadsheet,
-   fileParts,
-   reportingPeriod
-  } = await validateUpload({ filename, user_id, agency_id, data });
+    valog,
+    documents,
+    spreadsheet,
+    fileParts,
+    reportingPeriod
+  } = await validateUpload({
+    filename,
+    user_id,
+    agency_id,
+    data,
+    reporting_period_id
+  });
+
   if (!valog.success()) {
+    log(`valog.success() is false`);
     return { valog, upload: {} };
   }
 
@@ -48,7 +70,7 @@ const processUpload = async ({ filename, user_id, agency_id, data }) => {
   }
 
   let upload;
-  let result;
+  let result; // eslint-disable-line
   try {
     const project = await getProject(fileParts.projectId);
     const agency = await agencyByCode(fileParts.agencyCode);

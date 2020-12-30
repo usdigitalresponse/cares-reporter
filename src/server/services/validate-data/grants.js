@@ -1,8 +1,12 @@
 const {
+  cumulativeAmountIsEqual,
+  cumulativeAmountIsLessThanOrEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
+  dateIsOnOrBeforeCRFEndDate,
   dropdownIncludes,
+  grantMatches,
   isEqual,
   isAtLeast50K,
   isNotBlank,
@@ -84,6 +88,12 @@ const requiredFields = [
     { isDateValue: true }
   ],
   [
+    "period of performance start date",
+    dateIsInPeriodOfPerformance,
+    'Period of performance start date "{}" must be in the period of performance',
+    { isDateValue: true }
+  ],
+  [
     "period of performance end date",
     whenGreaterThanZero("total expenditure amount", isValidDate),
     'Period of performance end date "{}" is not a valid date',
@@ -93,9 +103,9 @@ const requiredFields = [
     "period of performance end date",
     whenGreaterThanZero(
       "total expenditure amount",
-      dateIsInPeriodOfPerformance
+      dateIsOnOrBeforeCRFEndDate,
     ),
-    'Period of performance end date "{}" is not in the period or performance',
+    'Period of performance end date "{}" must be on or before CRF end date',
     { isDateValue: true }
   ],
   [
@@ -112,6 +122,12 @@ const requiredFields = [
     "expenditure start date",
     whenGreaterThanZero("total expenditure amount", isValidDate),
     'Expenditure start date "{}" is not a valid date',
+    { isDateValue: true }
+  ],
+  [
+    "expenditure start date",
+    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'Expenditure state date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
   [
@@ -165,7 +181,7 @@ const requiredFields = [
 
   [
     "current quarter obligation",
-    isNumber,
+    isNumberOrBlank,
     "Current quarter obligation must be an amount"
   ],
   [
@@ -176,7 +192,14 @@ const requiredFields = [
   [
     "award amount",
     isEqual("current quarter obligation"),
-    "Award amount must equal obligation amount"
+    "Award amount must equal obligation amount",
+    { tags: ["v2"] }
+  ],
+  [
+    "award amount",
+    cumulativeAmountIsEqual("current quarter obligation" , grantMatches),
+    "Award amount must equal cumulative obligation amount",
+    { tags: ["cumulative"] }
   ],
 
   [
@@ -188,6 +211,12 @@ const requiredFields = [
     "total expenditure amount",
     isSum(expenditureCategories),
     "Total expenditure amount is not the sum of all expenditure amount columns"
+  ],
+  [
+    "award amount",
+    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , grantMatches),
+    "Cumulative expenditure amount must be less than or equal to award amount",
+    { tags: ["cumulative"] }
   ],
   [
     "other expenditure categories",

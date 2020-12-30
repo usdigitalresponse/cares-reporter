@@ -1,4 +1,6 @@
 const {
+  contractMatches,
+  cumulativeAmountIsEqual,
   dateIsInPeriodOfPerformance,
   dateIsInReportingPeriod,
   isAtLeast50K,
@@ -35,8 +37,33 @@ describe("validation helpers", () => {
     },
     reportingPeriod: {
       startDate: "2020-03-01",
-      endDate: "2020-12-30",
-      periodOfPerformanceEndDate: "2020-12-30"
+      endDate: "2020-09-30",
+      periodOfPerformanceEndDate: "2020-12-30",
+      crfEndDate: "2020-12-30"
+    },
+    firstReportingPeriodStartDate: "2020-03-01",
+    periodSummaries: {
+      periodSummaries: [
+        {
+          project_code: "1",
+          award_number: "1001",
+          award_type: "contracts",
+          current_obligation: 100.0,
+          current_expenditure: 10.00
+        },
+        { project_code: "1",
+          award_number: "1001",
+          award_type: "contracts",
+          current_obligation: 200.0,
+          current_expenditure: 20.00
+        },
+        { project_code: "2",
+          award_number: "2002",
+          award_type: "contracts",
+          current_obligation: 200.0,
+          current_expenditure: 20.00
+        }
+      ]
     }
   };
   const testCases = [
@@ -194,24 +221,6 @@ describe("validation helpers", () => {
       true
     ],
     [
-      "isValidState passes",
-      isValidState(
-        "WA",
-        {},
-        validateContext
-      ),
-      true
-    ],
-    [
-      "isValidState fails",
-      isValidState(
-        "ZZ",
-        {},
-        validateContext
-      ),
-      false
-    ],
-    [
       "valid US zip passes",
       isValidZip(
         98101,
@@ -277,22 +286,59 @@ describe("validation helpers", () => {
     [
       "whenUS conditional validation skipped",
       whenUS("country", isValidZip)(
-        '',
+        "",
         { "country": "hk" },
         validateContext
       ),
       true
     ],
     ["isAtLeast50K fails", isAtLeast50K(undefined), false],
-    ["isAtLeast50K fails", isAtLeast50K(''), false],
+    ["isAtLeast50K fails", isAtLeast50K(""), false],
     ["isAtLeast50K fails", isAtLeast50K(5000.00), false],
     ["isAtLeast50K passes", isAtLeast50K(50000.00), true],
     ["isAtLeast50K passes", isAtLeast50K(150000.00), true],
+
+    [
+      "cumulativeAmountIsEqual passes for obligation",
+      cumulativeAmountIsEqual("current quarter obligation", contractMatches)(
+        600.0,
+        { "project id": "1", "contract number": "1001", "current quarter obligation": 300.0 },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "cumulativeAmountIsEqual passes for expenditure",
+      cumulativeAmountIsEqual("total expenditure amount", contractMatches)(
+        60.0,
+        { "project id": "1", "contract number": "1001", "total expenditure amount": 30.0 },
+        validateContext
+      ),
+      true
+    ],
+    [
+      "cumulativeAmountIsEqual fails",
+      cumulativeAmountIsEqual("current quarter obligation", contractMatches)(
+        200.0,
+        { "current quarter obligation": 300.0 },
+        validateContext
+      ),
+      false
+    ],
   ];
   testCases.forEach(([name, b, expectedResult]) => {
     it(`${name} should return ${expectedResult}`, () => {
       expect(b).to.equal(expectedResult);
     });
+  });
+  // isValidState() doesn't work in the testCases array,
+  // because it has to run after beforeEach() has initialized
+  // the dropdowns, so it has to be invoked inside an it() function.
+  it(`isValidState("WA") should return true`, () => {
+    expect(isValidState("WA", {}, validateContext)).to.equal(true);
+  });
+  it(`isValidState("ZZ") should return false`, () => {
+    expect(isValidState("ZZ", {}, validateContext)).to.equal(false);
   });
 });
 
@@ -330,11 +376,23 @@ describe("can exclude filters based on tags", () => {
   ];
   const content = { name: "" };
   it("includes filter with matching tag", () => {
-    const r = validateFields(requiredFields, content, "Test Tab", 1, { tags: ["v2"] });
+    const r = validateFields(
+      requiredFields,
+      content,
+      "Test Tab",
+      1,
+      { tags: ["v2"] }
+    );
     expect(r).to.have.length(1);
   });
   it("ignores filter with non matching tag", () => {
-    const r = validateFields(requiredFields, content, "Test Tab", 1, { tags: ["v3"] });
+    const r = validateFields(
+      requiredFields,
+      content,
+      "Test Tab",
+      1,
+      { tags: ["v3"] }
+    );
     expect(r).to.have.length(0);
   });
   it("ignores filter when context has no tags", () => {
@@ -383,3 +441,5 @@ describe("date conversion for messages", () => {
     expect(messageValue(44195)).to.equal(44195);
   });
 });
+
+/*                                 *  *  *                                    */

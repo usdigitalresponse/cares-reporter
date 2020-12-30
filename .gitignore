@@ -34,7 +34,10 @@ pnpm-debug.log*
 snapshots/
 examples/
 uploads/
+treasury-reports/
 mocha_uploads/
-
 notes.txt
 ~$*
+
+# there is a zip file of this in tests/server/fixtures/period-summaries
+rptest.sql
