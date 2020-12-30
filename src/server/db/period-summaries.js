@@ -11,6 +11,20 @@
     award_number        | text          |
     current_obligation  | numeric(19,2) |
     current_expenditure | numeric(19,2) |
+
+  There is one summary for each line of each input spreadsheet (i.e. each
+  record in the documents db table), and all it does is to pull some
+  information out of the content column and make it more easily searchable
+  by SQL.
+
+  The project_code and reporting_period_id fields identify the source
+  upload spreadsheet.
+
+  The award_type field identifies the tab in the source spreadsheet.
+
+  The award_number field aggregates multiple (if any) rows in the source
+  spreadsheet for that award.
+
 */
 const knex = require("./connection");
 const { documentsWithProjectCode } = require("./documents");
