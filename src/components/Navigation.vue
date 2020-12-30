@@ -9,6 +9,40 @@
         {{ email }}
         <a href="#" @click="logout">Logout</a>
       </span>
+
+      <div class="row">
+        <div class="col-12 viewperiod">
+          <div>
+            Reporting Period Ending:
+          </div>
+          <div class="dropdown">
+            <div
+              :class="dropdownClass('/documents/')"
+              data-toggle="dropdown"
+              href="#"
+              role="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              {{ viewPeriod.name }}
+            </div>
+            <div class="dropdown-menu">
+              <div
+                class="dropdown-item"
+                :key="name"
+                v-for="(name, key) in periodNames"
+                >
+                <div @click="setViewPeriodID" :period-id=(key+1)>
+                  {{ name }}
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
     </div>
     <div class="navigation">
       <ul class="nav nav-tabs mb-4" v-if="loggedIn">
@@ -63,6 +97,7 @@
 <script>
 import Messages from "./Messages";
 import { titleize } from "../helpers/form-helpers";
+import moment from "moment";
 
 export default {
   name: "Logout",
@@ -88,10 +123,19 @@ export default {
     tableNames: function() {
       return this.$store.getters.tableNames;
     },
+    periodNames: function() {
+      return this.$store.getters.periodNames;
+    },
+    viewPeriod: function(){
+      return this.$store.getters.viewPeriod;
+    },
     applicationTitle: function() {
       return this.$store.getters.applicationTitle;
     }
   },
+  watch: {
+  },
+
   methods: {
     titleize,
     logout(e) {
@@ -111,6 +155,16 @@ export default {
         return "nav-link dropdown-toggle active";
       }
       return "nav-link dropdown-toggle";
+    },
+    dateFormat: function(d) {
+      return moment(d)
+        .utc()
+        .format("MM-DD-YYYY");
+    },
+    setViewPeriodID: function(e){
+      return this.$store
+      .dispatch("viewPeriodID", e.target.attributes["period-id"].value || 0)
+      .catch(e => (this.errorMessage = e.message));
     }
   }
 };
@@ -132,5 +186,12 @@ export default {
 nav {
   margin: 10px auto;
   width: 90%;
+}
+.viewperiod {
+  display:flex;
+}
+.viewperiod>div:first-child {
+  flex:0 0 auto;
+  padding:.5rem 0;
 }
 </style>

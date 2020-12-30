@@ -4,16 +4,21 @@ const knex = requireSrc(`${__dirname}/../db/connection`);
 const expect = require("chai").expect;
 const util = require("util");
 const setTimeoutPromise = util.promisify(setTimeout);
+
+const {
+  setCurrentReportingPeriod
+} = requireSrc(`${__dirname}/../db/settings`);
+
 const { makeUploadArgs, resetUploadsAndDb } = require("./helpers");
 
 const dirRoot = `${__dirname}/../fixtures/`;
 
 describe("services/process_upload", () => {
-  describe("baseline success", () => {
+  describe("process-upload.spec.js - baseline success", () => {
     const dir = `${dirRoot}file-success/`;
     it("processes without error", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
+        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       expect(
@@ -23,33 +28,32 @@ describe("services/process_upload", () => {
       return result;
     });
   });
-
   describe("filename failures", () => {
     const dir = `${dirRoot}file-name/`;
     const filenameTests = [
       {
         label: "bad extension",
-        file: "GOV-1020-06302020-badExtension-v1.csv",
+        file: "GOV-1020-09302020-badExtension-v1.csv",
         expects: /must have ".xlsx" extension/
       },
       {
         label: "version number",
-        file: "GOV-1020-06302020-missingVersion.xlsx",
+        file: "GOV-1020-09302020-missingVersion.xlsx",
         expects: /Filename is missing the version number/
       },
       {
         label: "report date",
         file: "GOV-1020-07302020-incorrectReportDate-v1.xlsx",
-        expects: /The reporting period end date in the filename is "07302020" but should be "06302020" or "063020"/
+        expects: /The reporting period end date in the filename is "07302020" but should be "09302020" or "093020"/
       },
       {
         label: "project id",
-        file: "GOV-InvalidProjectID-06302020-v1.xlsx",
+        file: "GOV-InvalidProjectID-09302020-v1.xlsx",
         expects: /The project id ".*" in the filename is not valid/
       },
       {
         label: "agency code",
-        file: "InvalidAgencyCode-013-06302020-v1.xlsx",
+        file: "InvalidAgencyCode-013-09302020-v1.xlsx",
         expects: /The agency code ".*" in the filename is not valid/
       },
       {
@@ -58,8 +62,10 @@ describe("services/process_upload", () => {
         expects: /Uploaded file name must match pattern.*/
       }
     ];
+
     filenameTests.forEach(ftest => {
       it(ftest.label, async () => {
+        await setCurrentReportingPeriod(1);
         const uploadArgs = makeUploadArgs(dir + ftest.file);
         const result = await processUpload(uploadArgs);
         expect(result.valog.getLog()[0].message).to.match(ftest.expects);
@@ -69,7 +75,7 @@ describe("services/process_upload", () => {
     it("fails when a duplicate file is uploaded", async () => {
       await resetUploadsAndDb();
       const uploadArgs = makeUploadArgs(
-        `${dirRoot}file-success/EOHHS-075-06302020-simple-v1.xlsx`
+        `${dirRoot}file-success/EOHHS-075-09302020-simple-v1.xlsx`
       );
       const successResult = await processUpload(uploadArgs);
       expect(
@@ -87,7 +93,7 @@ describe("services/process_upload", () => {
     const dir = `${dirRoot}file-structure/`;
     it("fails missing tab", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}EOHHS-075-06302020-missingContractsTab-v1.xlsx`
+        `${dir}EOHHS-075-09302020-missingContractsTab-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       expect(result.valog.getLog()[0].message).to.match(/Missing tab/);
@@ -95,7 +101,7 @@ describe("services/process_upload", () => {
 
     it("fails missing column", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}EOHHS-075-06302020-missingColumn-v1.xlsx`
+        `${dir}EOHHS-075-09302020-missingColumn-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       expect(result.valog.getLog()[0].message).to.match(/Missing column/);
@@ -106,7 +112,7 @@ describe("services/process_upload", () => {
     beforeEach(resetUploadsAndDb);
     it("replaces upload record on re-upload when the file is lost", async () => {
       const dir = `${dirRoot}file-success/`;
-      const testFile = "EOHHS-075-06302020-simple-v1.xlsx";
+      const testFile = "EOHHS-075-09302020-simple-v1.xlsx";
       const uploadArgs = makeUploadArgs(`${dir}${testFile}`);
 
       // first upload
@@ -126,7 +132,7 @@ describe("services/process_upload", () => {
       // Do two uploads
       const dir = `${dirRoot}file-success/`;
       const uploadArgs1 = makeUploadArgs(
-        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
+        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
       );
       const result1 = await processUpload(uploadArgs1);
 
@@ -145,7 +151,7 @@ describe("services/process_upload", () => {
       // but a different cover page, rather than
       // a new version of the first report.
       const uploadArgs2 = makeUploadArgs(
-        `${dir}GOV-075-06302020-simple-v1.xlsx`
+        `${dir}GOV-075-09302020-simple-v1.xlsx`
       );
       const result2 = await processUpload(uploadArgs2);
 
@@ -162,7 +168,7 @@ describe("services/process_upload", () => {
       // Do the replacement of upload of v1 by uploading a new version of that file
       // simulated here by changing the filename.
       const uploadArgs3 = makeUploadArgs(
-        `${dir}EOHHS-075-06302020-simple-v1.xlsx`
+        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
       );
       uploadArgs3.filename = uploadArgs3.filename.replace(/-v1/, "-v2");
       const result3 = await processUpload(uploadArgs3);
@@ -176,3 +182,5 @@ describe("services/process_upload", () => {
     });
   });
 });
+
+/*                                 *  *  *                                    */

@@ -4,14 +4,24 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "serve:oh": "POSTGRES_URL=postgres://localhost/ohio AUDIT=true UPLOAD_DIRECTORY=\"./uploads/oh\" TREASURY_DIRECTORY=\"./treasury-reports/oh\" yarn serve",
+    "serve:ri": "POSTGRES_URL=postgres://localhost/ri AUDIT=true UPLOAD_DIRECTORY=\"./uploads/ri\" TREASURY_DIRECTORY=\"./treasury-reports/ri\" yarn serve",
+
+    "serve:rp1": "POSTGRES_URL=postgres://localhost/rptest AUDIT=true UPLOAD_DIRECTORY=\"./uploads/rp\" TREASURY_DIRECTORY=\"./treasury-reports/rp\" yarn serve",
+    "serve:rp2": "POSTGRES_URL=postgres://localhost/rp2 AUDIT=true UPLOAD_DIRECTORY=\"./uploads/rp\" TREASURY_DIRECTORY=\"./treasury-reports/rp\" yarn serve",
+    "reset:rptest": "dropdb rptest && createdb --owner=postgres rptest && psql rptest postgres < tests/server-periods/fixtures/rptest.sql",
+    "reset:rp1": "dropdb rptest && createdb --owner=postgres rp1 && psql rptest postgres < tests/server-periods/fixtures/rptest.sql",
+
+    "reset:rp2": "dropdb rp2 && createdb --owner=postgres rp2 && psql rp2 postgres < tests/server-periods/fixtures/rp2.sql",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:server": "./tests/server/mocha_wrapper.sh",
+    "test:server-periods": "./tests/server-periods/mocha_wrapper.sh",
     "lint": "vue-cli-service lint",
     "prod": "NODE_ENV=production node src/server"
   },
   "dependencies": {
-    "@vue/cli": "^4.5.4",
+    "@vue/cli": "^4.5.9",
     "aws-sdk": "^2.798.0",
     "body-parser": "^1.19.0",
     "connect-history-api-fallback": "^1.6.0",
@@ -27,7 +37,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "numeral": "^2.0.6",
-    "pg": "^8.3.2",
+    "pg": "^8.5.1",
     "uuid": "^8.3.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",

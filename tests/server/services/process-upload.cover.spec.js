@@ -9,17 +9,25 @@ describe("process-upload", () => {
     const dir = `${dirRoot}data-cover/`;
     it("fails when agency code and project id are missing", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}/EOHHS-075-06302020-missing-data-v1.xlsx`
+        `${dir}/EOHHS-075-09302020-missing-data-v1.xlsx`
       );
-      const result = await processUpload(uploadArgs);
-      const err = result.valog.getLog()[0] || {};
+      let result;
+      try{
+        result = await processUpload(uploadArgs);
+
+      } catch(err) {
+        console.dir(err);
+      }
+      let valog = result.valog.getLog();
+      // console.dir(valog);
+      const err = valog[0] || {};
       expect(err.message).to.equal(
         'cover requires a row with "agency code" and "project id"'
       );
     });
     it("fails when agency code does not match filename", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}/EOHHS-075-06302020-bad-agency_code-v1.xlsx`
+        `${dir}/EOHHS-075-09302020-bad-agency_code-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};
@@ -30,7 +38,7 @@ describe("process-upload", () => {
     });
     it("fails when project id does not match filename", async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}/EOHHS-075-06302020-bad-proj_id-v1.xlsx`
+        `${dir}/EOHHS-075-09302020-bad-proj_id-v1.xlsx`
       );
       const result = await processUpload(uploadArgs);
       const err = result.valog.getLog()[0] || {};

@@ -30,7 +30,8 @@ describe("FormGroups.vue", () => {
         return { value: index, name };
       });
     };
-    //const lookup = _.chain(this.$store, `state.documents.${column.foreignKey.table}`, [])
+    //const lookup =
+    // _.chain(this.$store, `state.documents.${column.foreignKey.table}`, [])
     //return _.map(lookup, (e) => {
     //    return { value: e.id, name: e[column.foreignKey.show] }
     //})

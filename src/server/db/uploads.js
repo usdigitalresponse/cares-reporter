@@ -1,16 +1,30 @@
 const knex = require("./connection");
 const _ = require("lodash");
+const {
+  getCurrentReportingPeriodID
+} = require("./settings");
 
-function uploads() {
+async function uploads(period_id) {
+  if ( !period_id ) {
+    console.log(`uploads()`);
+    period_id = await getCurrentReportingPeriodID();
+  }
   return knex("uploads")
     .select("*")
+    .where({ "reporting_period_id": period_id })
     .orderBy("uploads.created_at", "desc");
 }
 
-function uploadsForAgency(agency_id) {
+async function uploadsForAgency(agency_id, period_id) {
+  if ( !period_id ) {
+    console.log(`uploadsForAgency()`);
+    period_id = await getCurrentReportingPeriodID();
+  }
+
   return knex("uploads")
     .select("*")
-    .where("agency_id", agency_id)
+    .where({ "reporting_period_id": period_id })
+    .andWhere("agency_id", agency_id)
     .orderBy("created_at", "desc");
 }
 
@@ -71,7 +85,26 @@ async function createUpload(upload, queryBuilder = knex) {
   return upload;
 }
 
+
+async function getPeriodUploadIDs( period_id ) {
+  if ( !period_id ) {
+    period_id = await getCurrentReportingPeriodID();
+  }
+  let rv;
+  try {
+    rv = await knex("uploads")
+      .select("id")
+      .where({ "reporting_period_id": period_id })
+      .then( recs => recs.map( rec => rec.id));
+  } catch (err) {
+    console.log(`knex threw in getPeriodUploadIDs()!`);
+    console.dir(err);
+  }
+  return rv;
+}
+
 module.exports = {
+  getPeriodUploadIDs,
   getUploadSummaries,
   createUpload,
   upload,
