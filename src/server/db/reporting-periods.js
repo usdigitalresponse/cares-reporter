@@ -30,10 +30,11 @@ const {
   setCurrentReportingPeriod
 } = require("./settings");
 
-const { writeSummaries } = require("./period-summaries");
+const { writeSummaries, updateSummaries: update } = require("./period-summaries");
 
 module.exports = {
   close: closeReportingPeriod,
+  update: updateSummaries,
 
   get: getReportingPeriod,
   getFirstStartDate: getFirstReportingPeriodStartDate,
@@ -145,6 +146,22 @@ async function closeReportingPeriod(user, period) {
 
   await setCurrentReportingPeriod(reporting_period_id+1);
 
+
+  return null;
+}
+
+
+/* updateSummaries() was added because we added a field (subrecipient id)
+  to the summary table after closing OH and RI 20 12 30.
+  This should never be used again!
+  */
+async function updateSummaries(user, period) {
+  console.log(`updateSummaries`);
+  let errLog = await update(period);
+
+  if ( errLog && errLog.length > 0 ) {
+    throw new Error(errLog[0]);
+  }
 
   return null;
 }
