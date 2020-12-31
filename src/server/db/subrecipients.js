@@ -51,7 +51,6 @@ function despace(obj) {
   return _obj;
 }
 
-
 /* respace() replaces underscores with spaces in an object's keys
   */
 function respace(_obj) {
