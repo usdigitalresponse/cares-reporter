@@ -1,19 +1,25 @@
 const knex = require("./connection");
+let currentReportingPeriodID = null;
 
 // setCurrentReportingPeriod()
 function setCurrentReportingPeriod(id) {
+  currentReportingPeriodID = id;
   return knex("application_settings")
     .update("current_reporting_period_id", id);
 }
 
 // update application_settings set current_reporting_period_id=1;
 async function getCurrentReportingPeriodID() {
+  if (currentReportingPeriodID !==  null ){
+    return currentReportingPeriodID;
+  }
   let crpID;
   try {
     crpID = await knex("application_settings")
     .select("*")
     .then(r=>{
-      return r[0].current_reporting_period_id;
+      currentReportingPeriodID = r[0].current_reporting_period_id;
+      return currentReportingPeriodID;
     });
 
   } catch (err) {
