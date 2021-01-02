@@ -9,7 +9,6 @@ const {
   isNotBlank,
   isNumber,
   isNumberOrBlank,
-  isPositiveNumber,
   isSum,
   isValidDate,
   isValidSubrecipient,
@@ -19,9 +18,9 @@ const {
   validateDocuments,
   whenNotBlank,
   whenGreaterThanZero
-} = require("./validate");
+} = require('./validate')
 
-const expenditureCategories = require("./expenditure-categories");
+const expenditureCategories = require('./expenditure-categories')
 
 // type pattern for this elements of the fields array is
 // [
@@ -31,122 +30,122 @@ const expenditureCategories = require("./expenditure-categories");
 // ]
 const requiredFields = [
   [
-    "project id",
-    matchesFilePart("projectId"),
+    'project id',
+    matchesFilePart('projectId'),
     'The transfer project id "{}" does not match the project id in the filename'
   ],
   [
-    "subrecipient id",
+    'subrecipient id',
     isValidSubrecipient,
     'Each transfer row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ],
-  ["transfer number", isNotBlank, "Transfer number cannot be blank"],
+  ['transfer number', isNotBlank, 'Transfer number cannot be blank'],
   [
-    "award amount",
+    'award amount',
     isAtLeast50K,
-    "Award amount must be at least $50,000",
-    { tags: ["v2"] }
+    'Award amount must be at least $50,000',
+    { tags: ['v2'] }
   ],
   [
-    "transfer type",
-    dropdownIncludes("award payment method"),
+    'transfer type',
+    dropdownIncludes('award payment method'),
     'Transfer type "{}" is not valid'
   ],
 
-  ["transfer date", isValidDate, "Transfer date is not a valid date"],
+  ['transfer date', isValidDate, 'Transfer date is not a valid date'],
   [
-    "transfer date",
+    'transfer date',
     dateIsInReportingPeriod,
     'Transfer date "{}" is not in reporting period',
     { isDateValue: true }
   ],
 
   [
-    "current quarter obligation",
+    'current quarter obligation',
     isNumberOrBlank,
-    "Current quarter obligation must be an amount"
+    'Current quarter obligation must be an amount'
   ],
   [
-    "current quarter obligation",
-    numberIsLessThanOrEqual("award amount"),
-    "Current quarter obligation must be less than or equal to award amount"
+    'current quarter obligation',
+    numberIsLessThanOrEqual('award amount'),
+    'Current quarter obligation must be less than or equal to award amount'
   ],
   [
-    "award amount",
-    isEqual("current quarter obligation"),
-    "Award amount must equal obligation amount",
-    { tags: ["v2"] }
+    'award amount',
+    isEqual('current quarter obligation'),
+    'Award amount must equal obligation amount',
+    { tags: ['v2'] }
   ],
   [
-    "award amount",
-    cumulativeAmountIsEqual("current quarter obligation" , transferMatches),
-    "Award amount must equal cumulative obligation amount",
-    { tags: ["cumulative"] }
+    'award amount',
+    cumulativeAmountIsEqual('current quarter obligation', transferMatches),
+    'Award amount must equal cumulative obligation amount',
+    { tags: ['cumulative'] }
   ],
   [
-    "award amount",
-    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , transferMatches),
-    "Cumulative expenditure amount must be less than or equal to award amount",
-    { tags: ["cumulative"] }
+    'award amount',
+    cumulativeAmountIsLessThanOrEqual('total expenditure amount', transferMatches),
+    'Cumulative expenditure amount must be less than or equal to award amount',
+    { tags: ['cumulative'] }
   ],
 
   [
-    "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", isValidDate),
+    'expenditure start date',
+    whenGreaterThanZero('total expenditure amount', isValidDate),
     'Expenditure start date "{}" is not a valid date',
     { isDateValue: true }
   ],
   [
-    "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", isValidDate),
+    'expenditure start date',
+    whenGreaterThanZero('total expenditure amount', isValidDate),
     'Expenditure end date "{}" is not a valid date',
     { isDateValue: true }
   ],
   [
-    "expenditure start date",
+    'expenditure start date',
     whenGreaterThanZero(
-      "total expenditure amount",
-      dateIsOnOrBefore("transfer date")
+      'total expenditure amount',
+      dateIsOnOrBefore('transfer date')
     ),
     'Expenditure start date "{}" must be on or before transfer date',
     { isDateValue: true }
   ],
   [
-    "expenditure start date",
+    'expenditure start date',
     whenGreaterThanZero(
-      "total expenditure amount",
-      dateIsOnOrBefore("expenditure end date")
+      'total expenditure amount',
+      dateIsOnOrBefore('expenditure end date')
     ),
     'Expenditure start date "{}" must be on or before expenditure end date',
     { isDateValue: true }
   ],
   [
-    "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'expenditure start date',
+    whenGreaterThanZero('total expenditure amount', dateIsInReportingPeriod),
     'Expenditure start date "{}" must be in reporting period',
     { isDateValue: true }
   ],
 
   [
-    "total expenditure amount",
+    'total expenditure amount',
     isNumberOrBlank,
-    "Total expenditure amount must an amount"
+    'Total expenditure amount must an amount'
   ],
   [
-    "total expenditure amount",
+    'total expenditure amount',
     isSum(expenditureCategories),
-    "Total expenditure amount is not the sum of all expenditure amount columns"
+    'Total expenditure amount is not the sum of all expenditure amount columns'
   ],
   [
-    "other expenditure categories",
-    whenNotBlank("other expenditure amount", isNotBlank),
-    "Other Expenditure Categories cannot be blank if Other Expenditure Amount has an amount"
+    'other expenditure categories',
+    whenNotBlank('other expenditure amount', isNotBlank),
+    'Other Expenditure Categories cannot be blank if Other Expenditure Amount has an amount'
   ],
   [
-    "other expenditure amount",
-    whenNotBlank("other expenditure categories", isNumber),
-    "Other Expenditure Amount must be a number"
+    'other expenditure amount',
+    whenNotBlank('other expenditure categories', isNumber),
+    'Other Expenditure Amount must be a number'
   ]
-];
+]
 
-module.exports = validateDocuments("transfers", requiredFields);
+module.exports = validateDocuments('transfers', requiredFields)

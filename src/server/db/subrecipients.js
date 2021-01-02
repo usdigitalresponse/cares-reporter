@@ -17,53 +17,51 @@
       table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
     });
   */
-const knex = require("./connection");
+const knex = require('./connection')
 
-async function getSubRecipients() {
-  let records = await knex("subrecipients")
-    .select("*");
+async function getSubRecipients () {
+  let records = await knex('subrecipients')
+    .select('*')
 
-  return records.map(record => respace(record));
+  return records.map(record => respace(record))
 }
 
-async function setSubRecipient( record ) {
-  record = despace(record);
-  console.log(`Writing subrecipient record ID "${record.identification_number}"`);
+async function setSubRecipient (record) {
+  record = despace(record)
+  console.log(`Writing subrecipient record ID "${record.identification_number}"`)
 
-  try{
-    await knex("subrecipients").insert(record);
+  try {
+    await knex('subrecipients').insert(record)
     // let result = await knex("subrecipients").insert(record);
     // console.dir(result);
-
   } catch (err) {
-    console.dir(err);
+    console.dir(err)
   }
-  return ;
 }
 
 /* despace() replaces spaces with underscores in an object's keys
   */
-function despace(obj) {
-  let keys = Object.keys(obj);
-  let _keys = keys.map( key => key.trim().replace(/ /g,"_"));
-  let _obj = {};
-  keys.forEach((k,i) => _obj[_keys[i]] = obj[keys[i]]);
-  return _obj;
+function despace (obj) {
+  let keys = Object.keys(obj)
+  let _keys = keys.map(key => key.trim().replace(/ /g, '_'))
+  let _obj = {}
+  keys.forEach((k, i) => { _obj[_keys[i]] = obj[keys[i]] })
+  return _obj
 }
 
 /* respace() replaces underscores with spaces in an object's keys
   */
-function respace(_obj) {
-  let _keys = Object.keys(_obj);
-  let keys = _keys.map( _key => _key.replace(/_/g," "));
-  let obj = {};
-  _keys.forEach((k,i) => obj[keys[i]] = _obj[_keys[i]]);
-  return obj;
+function respace (_obj) {
+  let _keys = Object.keys(_obj)
+  let keys = _keys.map(_key => _key.replace(/_/g, ' '))
+  let obj = {}
+  _keys.forEach((k, i) => { obj[keys[i]] = _obj[_keys[i]] })
+  return obj
 }
 
 module.exports = {
   getSubRecipients,
   setSubRecipient
-};
+}
 
 /*                                 *  *  *                                    */

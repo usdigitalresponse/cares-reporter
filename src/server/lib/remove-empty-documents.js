@@ -1,14 +1,14 @@
-const _ = require("lodash");
+const _ = require('lodash')
 
-function removeEmptyDocuments(documents) {
-  let rowsOut =[];
-  documents.forEach (d => {
-    let empty = _.every(d.content, v => _.isUndefined(v) || v == "" || v == 0);
+function removeEmptyDocuments (documents) {
+  let rowsOut = []
+  documents.forEach(d => {
+    let empty = _.every(d.content, v => _.isUndefined(v) || v === '' || v === 0)
     if (!empty) {
-      rowsOut.push(d);
+      rowsOut.push(d)
     }
-  });
-  return rowsOut;
+  })
+  return rowsOut
   // return _.reject(documents, d =>
   //   _.every(d.content, v => _.isUndefined(v) || v == "" || v == 0)
   // );
@@ -16,4 +16,4 @@ function removeEmptyDocuments(documents) {
 
 module.exports = {
   removeEmptyDocuments
-};
+}

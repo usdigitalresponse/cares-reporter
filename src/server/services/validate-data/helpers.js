@@ -1,11 +1,11 @@
-const _ = require("lodash");
+const _ = require('lodash')
 
 const subrecipientKey = subrecipient => {
   // keep duns number first or tests fail
   // console.log(`subrecipientKey()`);
   // console.dir(subrecipient);
-  return subrecipient["duns number"] || subrecipient["identification number"];
-};
+  return subrecipient['duns number'] || subrecipient['identification number']
+}
 
 /* getSubrecipientsHash() returns a KV table where k is the subrecipient id
   and v is the subrecipient record:
@@ -32,11 +32,11 @@ const subrecipientKey = subrecipient => {
   */
 const getSubrecipientsHash = subrecipientDocuments => {
   return _.keyBy(subrecipientDocuments, ({ content }) => {
-    return subrecipientKey(content);
-  });
-};
+    return subrecipientKey(content)
+  })
+}
 
 module.exports = {
   subrecipientKey,
   getSubrecipientsHash
-};
+}
