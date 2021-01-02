@@ -13,58 +13,58 @@
 </template>
 
 <script>
-import DataTable from "../components/DataTable";
-import ProjectLink from "../components/ProjectLink";
-import ProjectUploadsLink from "../components/ProjectUploadsLink";
-import _ from "lodash";
+import DataTable from '../components/DataTable'
+import ProjectLink from '../components/ProjectLink'
+import ProjectUploadsLink from '../components/ProjectUploadsLink'
+import _ from 'lodash'
 export default {
-  name: "Projects",
+  name: 'Projects',
   components: {
     DataTable
   },
-  data: function() {
-    const user = this.$store.state.user;
+  data: function () {
+    const user = this.$store.state.user
     return {
       user,
       table: {
         views: [
           {
-            name: "Group by Agency",
-            groupBy: "agency_code"
+            name: 'Group by Agency',
+            groupBy: 'agency_code'
           }
         ],
         columns: [
-          { label: "Project Code", component: ProjectUploadsLink },
-          { name: "name" },
-          { name: "status" },
-          { name: "agency_code", label: "Agency Code" },
-          { name: "number_of_uploads", label: "Number of Uploads" },
+          { label: 'Project Code', component: ProjectUploadsLink },
+          { name: 'name' },
+          { name: 'status' },
+          { name: 'agency_code', label: 'Agency Code' },
+          { name: 'number_of_uploads', label: 'Number of Uploads' },
           { component: ProjectLink }
         ]
       }
-    };
+    }
   },
   watch: {
-    "$store.state.projects": function(projects) {
-      this.projects = projects;
+    '$store.state.projects': function (projects) {
+      this.projects = projects
     }
   },
   computed: {
-    projects: function() {
-      const byId = _.keyBy(this.$store.state.projects, "id");
+    projects: function () {
+      const byId = _.keyBy(this.$store.state.projects, 'id')
       const uploads = _.groupBy(this.$store.state.uploads, u => {
-        const project = byId[u.project_id];
-        return _.get(project, "code", "");
-      });
+        const project = byId[u.project_id]
+        return _.get(project, 'code', '')
+      })
       return _.map(this.$store.state.projects, p => {
         return {
           ...p,
           number_of_uploads: _.get(uploads, p.code, []).length
-        };
-      });
+        }
+      })
     }
   }
-};
+}
 </script>
 <style scoped>
 .data {

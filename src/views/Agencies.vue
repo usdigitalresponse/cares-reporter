@@ -13,38 +13,38 @@
 </template>
 
 <script>
-import DataTable from "../components/DataTable";
-import AgencyLink from "../components/AgencyLink";
+import DataTable from '../components/DataTable'
+import AgencyLink from '../components/AgencyLink'
 export default {
-  name: "Agencies",
+  name: 'Agencies',
   components: {
     DataTable
   },
-  data: function() {
-    const user = this.$store.state.user;
+  data: function () {
+    const user = this.$store.state.user
     return {
       user,
       table: {
         views: [],
         columns: [
-          { name: "code", label: "Agency Code" },
-          { name: "name" },
+          { name: 'code', label: 'Agency Code' },
+          { name: 'name' },
           { component: AgencyLink }
         ]
       }
-    };
+    }
   },
   watch: {
-    "$store.state.agencies": function(agencies) {
-      this.agencies = agencies;
+    '$store.state.agencies': function (agencies) {
+      this.agencies = agencies
     }
   },
   computed: {
-    agencies: function() {
-      return this.$store.state.agencies;
+    agencies: function () {
+      return this.$store.state.agencies
     }
   }
-};
+}
 </script>
 <style scoped>
 .data {

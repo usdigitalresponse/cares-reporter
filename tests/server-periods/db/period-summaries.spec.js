@@ -101,6 +101,7 @@ describe('baseline success', () => {
       await reportingPeriods.close('walter@dahlberg.com', period)
     } catch (_err) {
       err = _err
+      console.dir(err)
     }
 
     expect(err).to.equal(null)
