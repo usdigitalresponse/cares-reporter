@@ -43,12 +43,12 @@
 </template>
 
 <script>
-import BasicTable from "./BasicTable.vue";
-import GroupedTable from "./GroupedTable.vue";
-import { titleize, singular } from "../helpers/form-helpers";
-import _ from "lodash";
+import BasicTable from './BasicTable.vue'
+import GroupedTable from './GroupedTable.vue'
+import { titleize, singular } from '../helpers/form-helpers'
+import _ from 'lodash'
 const component = {
-  name: "Table",
+  name: 'Table',
   components: {
     BasicTable,
     GroupedTable
@@ -58,100 +58,100 @@ const component = {
     rows: Array,
     user: Object
   },
-  data: function() {
-    const name = this.table ? this.table.name : "";
-    const viewName = "Standard View";
-    const groupBy = null;
-    const createNewLabel = `Create New ${titleize(singular(name))}`;
+  data: function () {
+    const name = this.table ? this.table.name : ''
+    const viewName = 'Standard View'
+    const groupBy = null
+    const createNewLabel = `Create New ${titleize(singular(name))}`
     return {
       name,
       createUrl: `/create/${name}`,
-      search: "",
+      search: '',
       createNewLabel,
       viewName,
       groupBy
-    };
+    }
   },
   computed: {
-    columns: function() {
+    columns: function () {
       if (!this.table) {
-        return [];
+        return []
       }
-      const view = _.find(this.table.views, v => v.name == this.viewName);
+      const view = _.find(this.table.views, v => v.name === this.viewName)
       if (!view || !view.columns) {
-        return this.table.columns;
+        return this.table.columns
       }
       return view.columns.map(n => {
-        return _.find(this.table.columns, c => c.name == n);
-      });
+        return _.find(this.table.columns, c => c.name === n)
+      })
     },
-    views: function() {
-      return _.get(this.table, "views", []);
+    views: function () {
+      return _.get(this.table, 'views', [])
     },
-    hasViews: function() {
-      return this.views && this.views.length > 0;
+    hasViews: function () {
+      return this.views && this.views.length > 0
     }
   },
   watch: {
-    table: function(table) {
-      this.createUrl = `/create/${table.name}`;
-      this.createNewLabel = `Create New ${titleize(singular(table.name))}`;
-      this.viewName = "Standard View";
-      this.groupBy = null;
+    table: function (table) {
+      this.createUrl = `/create/${table.name}`
+      this.createNewLabel = `Create New ${titleize(singular(table.name))}`
+      this.viewName = 'Standard View'
+      this.groupBy = null
     }
   },
   methods: {
-    columnTitle(column) {
-      return column.label ? column.label : titleize(column.name);
+    columnTitle (column) {
+      return column.label ? column.label : titleize(column.name)
     },
     titleize,
-    getGroupBy(viewName) {
-      const view = _.find(this.table.views, v => v.name == viewName);
-      return view ? view.groupBy : null;
+    getGroupBy (viewName) {
+      const view = _.find(this.table.views, v => v.name === viewName)
+      return view ? view.groupBy : null
     },
-    onSearchChange(e) {
-      e.preventDefault();
-      this.search = e.target.value;
+    onSearchChange (e) {
+      e.preventDefault()
+      this.search = e.target.value
     },
-    filteredRows() {
+    filteredRows () {
       if (!this.search) {
-        return this.rows;
+        return this.rows
       }
-      const search = this.search.toLowerCase();
+      const search = this.search.toLowerCase()
       const result = this.rows.filter(row => {
         const match = _.some(this.columns, column => {
-          const value = `${row[column.name]}`;
-          return value.toLowerCase().indexOf(search) >= 0;
-        });
-        return match;
-      });
-      return result;
+          const value = `${row[column.name]}`
+          return value.toLowerCase().indexOf(search) >= 0
+        })
+        return match
+      })
+      return result
     },
-    documentUrl(row) {
-      return `/documents/${this.table.name}/${row.id}`;
+    documentUrl (row) {
+      return `/documents/${this.table.name}/${row.id}`
     },
-    lookup(column, row) {
-      const id = parseInt(row[column.name]);
+    lookup (column, row) {
+      const id = parseInt(row[column.name])
       const related = this.$store.getters.documentByTypeAndId(
         column.foreignKey.table,
         id
-      );
+      )
       if (related) {
-        return `${related.content[column.foreignKey.show]}`;
+        return `${related.content[column.foreignKey.show]}`
       }
-      return row[column.name];
+      return row[column.name]
     },
-    lookupLink(column, row) {
-      return `/documents/${column.foreignKey.table}/${row[column.name]}`;
+    lookupLink (column, row) {
+      return `/documents/${column.foreignKey.table}/${row[column.name]}`
     },
-    changeView(e) {
-      e.preventDefault();
-      const viewName = e.target.value;
-      this.viewName = viewName;
-      this.groupBy = this.getGroupBy(viewName);
+    changeView (e) {
+      e.preventDefault()
+      const viewName = e.target.value
+      this.viewName = viewName
+      this.groupBy = this.getGroupBy(viewName)
     }
   }
-};
+}
 
-export default component;
+export default component
 </script>

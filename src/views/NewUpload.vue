@@ -56,68 +56,68 @@
 </template>
 
 <script>
-import { titleize } from "../helpers/form-helpers";
-import _ from "lodash";
+import { titleize } from '../helpers/form-helpers'
+import _ from 'lodash'
 export default {
-  name: "NewUpload",
-  data: function() {
+  name: 'NewUpload',
+  data: function () {
     return {
       message: null,
       errors: [],
       files: null,
       uploading: false,
       uploadedFilename: null
-    };
+    }
   },
   computed: {
-    uploadConfiguration: function() {
-      return this.$store.getters.template;
+    uploadConfiguration: function () {
+      return this.$store.getters.template
     },
-    uploadButtonLabel: function() {
-      return this.uploading ? "Uploading..." : "Upload";
+    uploadButtonLabel: function () {
+      return this.uploading ? 'Uploading...' : 'Upload'
     },
-    uploadDisabled: function() {
-      return this.files === null || this.uploading;
+    uploadDisabled: function () {
+      return this.files === null || this.uploading
     }
   },
   methods: {
     titleize,
-    changeFiles() {
-      this.files = this.$refs.files.files;
+    changeFiles () {
+      this.files = this.$refs.files.files
     },
-    uploadFile: async function() {
-      const file = _.get(this.$refs, "files.files[0]");
-      const form = _.get(this.$refs, "form");
+    uploadFile: async function () {
+      const file = _.get(this.$refs, 'files.files[0]')
+      const form = _.get(this.$refs, 'form')
       if (file) {
-        this.uploadedFilename = file.name;
-        this.uploading = true;
-        this.message = null;
-        this.errors = [];
-        let formData = new FormData();
-        formData.append("spreadsheet", file);
+        this.uploadedFilename = file.name
+        this.uploading = true
+        this.message = null
+        this.errors = []
+        let formData = new FormData()
+        formData.append('spreadsheet', file)
         try {
-          const r = await this.$store.dispatch("createUpload", formData);
-          this.uploading = false;
-          form.reset();
+          const r = await this.$store.dispatch('createUpload', formData)
+          this.uploading = false
+          form.reset()
           if ((r.errors || []).length > 0) {
-            this.errors = r.errors;
+            this.errors = r.errors
           } else {
             this.$store
-              .dispatch("refreshDocuments")
-              .then(() => this.$router.push({ path: `/` }));
+              .dispatch('refreshDocuments')
+              .then(() => this.$router.push({ path: `/` }))
           }
         } catch (e) {
-          this.message = e.message;
-          this.uploading = false;
+          this.message = e.message
+          this.uploading = false
         }
       }
     },
-    cancelUpload(e) {
-      e.preventDefault();
-      this.$router.push({ path: "/" });
+    cancelUpload (e) {
+      e.preventDefault()
+      this.$router.push({ path: '/' })
     }
   }
-};
+}
 </script>
 
 <style scoped>

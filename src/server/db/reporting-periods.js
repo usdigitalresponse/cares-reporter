@@ -134,6 +134,7 @@ async function closeReportingPeriod (user, period) {
   let errLog = await writeSummaries(reporting_period_id)
 
   if (errLog && errLog.length > 0) {
+    console.dir(errLog, {depth: 4})
     throw new Error(errLog[0])
   }
 

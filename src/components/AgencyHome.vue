@@ -22,55 +22,55 @@
 </template>
 
 <script>
-import UploadHistory from "../components/UploadHistory";
-import moment from "moment";
-import _ from "lodash";
+import UploadHistory from '../components/UploadHistory'
+import moment from 'moment'
+import _ from 'lodash'
 export default {
-  name: "Home",
+  name: 'Home',
   components: {
     UploadHistory
   },
-  data() {
+  data () {
     return {
       uploadHistoryViews: [
         {
-          name: "Group by Agency",
-          groupBy: "agency"
+          name: 'Group by Agency',
+          groupBy: 'agency'
         }
       ]
-    };
+    }
   },
   computed: {
-    currentReportingPeriod: function() {
-      return this.$store.getters.currentReportingPeriod;
+    currentReportingPeriod: function () {
+      return this.$store.getters.currentReportingPeriod
     },
-    template: function() {
+    template: function () {
       return _.find(this.$store.state.configuration.templates, t =>
         t.name.match(/agency/i)
-      );
+      )
     },
-    uploads: function() {
-      return this.$store.state.uploads;
+    uploads: function () {
+      return this.$store.state.uploads
     },
-    downloadTemplateUrl() {
-      const template = this.$store.getters.reportingTemplate;
-      return `/templates/${encodeURIComponent(template)}`;
+    downloadTemplateUrl () {
+      const template = this.$store.getters.reportingTemplate
+      return `/templates/${encodeURIComponent(template)}`
     }
   },
   methods: {
-    startUpload(e) {
-      e.preventDefault();
-      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
-        this.$router.push({ path: "/new_upload" });
+    startUpload (e) {
+      e.preventDefault()
+      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID) {
+        this.$router.push({ path: '/new_upload' })
       }
     },
-    dateFormat: function(d) {
+    dateFormat: function (d) {
       return moment(d)
         .utc()
-        .format("MM-DD-YYYY");
+        .format('MM-DD-YYYY')
     }
   }
-};
+}
 </script>
 
 <style scoped>

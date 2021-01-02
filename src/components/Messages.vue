@@ -20,11 +20,11 @@
 
 <script>
 export default {
-  name: "Messages",
+  name: 'Messages',
   computed: {
-    messages() {
-      return this.$store.state.messages;
+    messages () {
+      return this.$store.state.messages
     }
   }
-};
+}
 </script>
