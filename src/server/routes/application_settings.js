@@ -1,12 +1,14 @@
-const express = require("express");
+/* eslint camelcase: 0 */
 
-const router = express.Router();
-const { applicationSettings } = require("../db");
+const express = require('express')
 
-router.get("/", function(req, res) {
+const router = express.Router()
+const { applicationSettings } = require('../db')
+
+router.get('/', function (req, res) {
   applicationSettings().then(application_settings =>
     res.json({ application_settings })
-  );
-});
+  )
+})
 
-module.exports = router;
+module.exports = router

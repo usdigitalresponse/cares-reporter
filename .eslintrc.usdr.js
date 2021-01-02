@@ -1,13 +1,12 @@
-// This configuration attempts to duplicate the USDR rules for Prettier for
+// This configuration attempts to duplicate the USDR rules for prettier for
 // people who prefer not to install the SulimeText Prettier plugin.
-
 // http://eslint.org/docs/rules/
 module.exports = {
 
   env: {
     node: true,
-    browser: true,
-    es6: true,
+    browser : true,
+    es6     : true,
     mocha: true,
   },
   extends: ["plugin:vue/essential", "eslint:recommended"],
