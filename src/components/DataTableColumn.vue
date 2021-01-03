@@ -21,10 +21,10 @@
 </template>
 
 <script>
-import numeral from "numeral";
-import _ from "lodash";
+import numeral from 'numeral'
+import _ from 'lodash'
 export default {
-  name: "DataTableColumn",
+  name: 'DataTableColumn',
   props: {
     name: String,
     column: Object,
@@ -32,27 +32,27 @@ export default {
     lookup: Function
   },
   methods: {
-    lookupValue(column, row) {
+    lookupValue (column, row) {
       if (_.isFunction(this.lookup)) {
-        return this.lookup(column, row);
+        return this.lookup(column, row)
       }
-      return row[column.name];
+      return row[column.name]
     },
-    lookupLink(column, row) {
-      return `/#/documents/${column.foreignKey.table}/${row[column.name]}`;
+    lookupLink (column, row) {
+      return `/#/documents/${column.foreignKey.table}/${row[column.name]}`
     },
-    format(value, fmt) {
-      return numeral(value).format(fmt);
+    format (value, fmt) {
+      return numeral(value).format(fmt)
     },
-    documentUrl(row) {
-      return `/documents/${this.name}/${row.id}`;
+    documentUrl (row) {
+      return `/documents/${this.name}/${row.id}`
     },
-    style(column) {
+    style (column) {
       if (column && column.format) {
-        return "text-align: right";
+        return 'text-align: right'
       }
-      return "";
+      return ''
     }
   }
-};
+}
 </script>

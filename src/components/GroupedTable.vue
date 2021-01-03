@@ -33,11 +33,11 @@
 </template>
 
 <script>
-import DataTableColumn from "./DataTableColumn";
-import { titleize } from "../helpers/form-helpers";
-import _ from "lodash";
+import DataTableColumn from './DataTableColumn'
+import { titleize } from '../helpers/form-helpers'
+import _ from 'lodash'
 export default {
-  name: "GroupedTable",
+  name: 'GroupedTable',
   props: {
     name: String,
     columns: Array,
@@ -49,29 +49,29 @@ export default {
   components: {
     DataTableColumn
   },
-  data: function() {
-    const groups = _.groupBy(this.rows, this.groupBy);
-    const keyPrefix = `${this.groupBy}-${this.search}`;
+  data: function () {
+    const groups = _.groupBy(this.rows, this.groupBy)
+    const keyPrefix = `${this.groupBy}-${this.search}`
     return {
       groups,
       keyPrefix
-    };
+    }
   },
   watch: {
-    rows: function(newRows) {
-      this.groups = _.groupBy(newRows, this.groupBy);
+    rows: function (newRows) {
+      this.groups = _.groupBy(newRows, this.groupBy)
     },
-    groupBy: function(newGroupBy) {
-      this.groups = _.groupBy(this.rows, newGroupBy);
+    groupBy: function (newGroupBy) {
+      this.groups = _.groupBy(this.rows, newGroupBy)
     }
   },
   methods: {
-    columnTitle(column) {
-      return column.label ? column.label : titleize(column.name);
+    columnTitle (column) {
+      return column.label ? column.label : titleize(column.name)
     },
     titleize
   }
-};
+}
 </script>
 
 <style scoped>

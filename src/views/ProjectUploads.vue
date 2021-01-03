@@ -14,27 +14,27 @@
 </template>
 
 <script>
-import UploadHistory from "../components/UploadHistory";
-import _ from "lodash";
+import UploadHistory from '../components/UploadHistory'
+import _ from 'lodash'
 export default {
   components: {
     UploadHistory
   },
-  data() {
-    const id = parseInt(this.$route.params.id);
+  data () {
+    const id = parseInt(this.$route.params.id)
     return {
       id
-    };
+    }
   },
   computed: {
-    project() {
-      return _.find(this.$store.state.projects, { id: this.id }) || {};
+    project () {
+      return _.find(this.$store.state.projects, { id: this.id }) || {}
     },
-    uploads() {
-      return _.filter(this.$store.state.uploads, u => u.project_id == this.id);
+    uploads () {
+      return _.filter(this.$store.state.uploads, u => u.project_id === this.id)
     }
   }
-};
+}
 </script>
 
 <style scoped>

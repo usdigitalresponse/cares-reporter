@@ -68,70 +68,70 @@
 </template>
 
 <script>
-import DownloadIcon from "../components/DownloadIcon";
-import _ from "lodash";
-import { titleize } from "../helpers/form-helpers";
+import DownloadIcon from '../components/DownloadIcon'
+import _ from 'lodash'
+import { titleize } from '../helpers/form-helpers'
 export default {
-  name: "UploadValidations",
+  name: 'UploadValidations',
   components: {
     DownloadIcon
   },
-  data: function() {
-    const uploadId = parseInt(this.$route.params.id) || 0;
+  data: function () {
+    const uploadId = parseInt(this.$route.params.id) || 0
     return {
       uploadId,
       validating: false,
       success: true,
       errors: []
-    };
+    }
   },
   watch: {
-    "$route.params.id": function(id) {
-      this.uploadId = parseInt(id) || 0;
-      this.revalidate();
+    '$route.params.id': function (id) {
+      this.uploadId = parseInt(id) || 0
+      this.revalidate()
     }
   },
   computed: {
-    upload() {
+    upload () {
       if (this.uploadId) {
-        return _.find(this.$store.state.uploads, { id: this.uploadId });
+        return _.find(this.$store.state.uploads, { id: this.uploadId })
       }
-      return null;
+      return null
     },
-    uploads() {
+    uploads () {
       return _.chain(this.$store.state.uploads)
-        .groupBy(u => u.filename.replace(/-v.*xlsx$$/,""))
-        .map(v => _.last(_.sortBy(v, "created_at")))
-        .sortBy("created_at")
+        .groupBy(u => u.filename.replace(/-v.*xlsx$$/, ''))
+        .map(v => _.last(_.sortBy(v, 'created_at')))
+        .sortBy('created_at')
         .reverse()
-        .value();
+        .value()
     }
   },
-  mounted() {
+  mounted () {
     if (this.uploadId) {
-      this.revalidate();
+      this.revalidate()
     }
   },
   methods: {
-    revalidate: function() {
-      this.validating = true;
-      this.success = false;
-      this.errors = [];
-      return fetch(`/api/validations/${this.uploadId}`, 
-        { method: "POST", credentials: "include" })
+    revalidate: function () {
+      this.validating = true
+      this.success = false
+      this.errors = []
+      return fetch(`/api/validations/${this.uploadId}`,
+        { method: 'POST', credentials: 'include' })
         .then(r => r.json())
         .then(m => {
-          this.success = m.success;
-          this.errors = m.errors || [];
-          this.validating = false;
-        });
+          this.success = m.success
+          this.errors = m.errors || []
+          this.validating = false
+        })
     },
-    uploadUrl: function(upload) {
-      return `/upload-validations/${upload.id}`;
+    uploadUrl: function (upload) {
+      return `/upload-validations/${upload.id}`
     },
     titleize
   }
-};
+}
 </script>
 
 <style scoped>

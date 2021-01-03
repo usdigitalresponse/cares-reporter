@@ -1,34 +1,32 @@
-const knex = require("./connection");
-let currentReportingPeriodID = null;
+const knex = require('./connection')
+let currentReportingPeriodID = null
 
 // setCurrentReportingPeriod()
-function setCurrentReportingPeriod(id) {
-  currentReportingPeriodID = id;
-  return knex("application_settings")
-    .update("current_reporting_period_id", id);
+function setCurrentReportingPeriod (id) {
+  currentReportingPeriodID = id
+  return knex('application_settings')
+    .update('current_reporting_period_id', id)
 }
 
 // update application_settings set current_reporting_period_id=1;
-async function getCurrentReportingPeriodID() {
-  if (currentReportingPeriodID !==  null ){
-    return currentReportingPeriodID;
+async function getCurrentReportingPeriodID () {
+  if (currentReportingPeriodID !== null) {
+    return currentReportingPeriodID
   }
-  let crpID;
+  let crpID
   try {
-    crpID = await knex("application_settings")
-    .select("*")
-    .then(r=>{
-      currentReportingPeriodID = r[0].current_reporting_period_id;
-      return currentReportingPeriodID;
-    });
-
+    crpID = await knex('application_settings')
+      .select('*')
+      .then(r => {
+        currentReportingPeriodID = r[0].current_reporting_period_id
+        return currentReportingPeriodID
+      })
   } catch (err) {
-    console.dir(err);
-    return err;
+    console.dir(err)
+    return err
   }
-  return crpID;
+  return crpID
 }
-
 
 /*  applicationSettings() returns
   {
@@ -38,8 +36,8 @@ async function getCurrentReportingPeriodID() {
     duns_number: '809031776'
   }
   */
-function applicationSettings() {
-  return currentReportingPeriodSettings();
+function applicationSettings () {
+  return currentReportingPeriodSettings()
 }
 
 /* currentReportingPeriodSettings() returns:
@@ -66,21 +64,21 @@ function applicationSettings() {
     reporting_template
     validation_rule_tags
  */
-async function currentReportingPeriodSettings() {
-  let rv;
+async function currentReportingPeriodSettings () {
+  let rv
   try {
-    rv = await knex("application_settings")
+    rv = await knex('application_settings')
       .join(
-        "reporting_periods",
-        "application_settings.current_reporting_period_id",
-        "reporting_periods.id"
+        'reporting_periods',
+        'application_settings.current_reporting_period_id',
+        'reporting_periods.id'
       )
-      .select("*")
-      .then(rv=> rv[0]);
+      .select('*')
+      .then(rv => rv[0])
   } catch (err) {
-    console.dir(err);
+    console.dir(err)
   }
-  return rv;
+  return rv
 }
 
 module.exports = {
@@ -88,6 +86,6 @@ module.exports = {
   currentReportingPeriodSettings,
   getCurrentReportingPeriodID,
   setCurrentReportingPeriod
-};
+}
 
 /*                                 *  *  *                                    */
