@@ -1,44 +1,44 @@
-import { expect } from "chai";
-import { shallowMount, createLocalVue } from "@vue/test-utils";
-import UploadData from "@/components/UploadData.vue";
-import Vuex from "vuex";
+import { expect } from 'chai'
+import { shallowMount, createLocalVue } from '@vue/test-utils'
+import UploadData from '@/components/UploadData.vue'
+import Vuex from 'vuex'
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
+const localVue = createLocalVue()
+localVue.use(Vuex)
 
-describe("UploadData.vue", () => {
-  let store;
+describe('UploadData.vue', () => {
+  let store
   beforeEach(() => {
     store = new Vuex.Store({
       state: {
         configuration: { tables: [], templates: [] }
       },
       getters: {
-        tableNames: () => ["Products", "Product Type"],
-        periodNames: () => ["September, 2020", "December, 2020"],
-        template: () => () => ({ id: 1, name: "Template 1" })
+        tableNames: () => ['Products', 'Product Type'],
+        periodNames: () => ['September, 2020', 'December, 2020'],
+        template: () => () => ({ id: 1, name: 'Template 1' })
       }
-    });
-  });
-  it("renders form", () => {
+    })
+  })
+  it('renders form', () => {
     const wrapper = shallowMount(UploadData, {
       store,
       localVue,
       propsData: {
-        id: "1",
+        id: '1',
         data: [
           {
-            name: "Sheet 1",
+            name: 'Sheet 1',
             data: [
-              ["id", "name"],
-              ["1", "Widget"]
+              ['id', 'name'],
+              ['1', 'Widget']
             ]
           }
         ],
-        upload: { name: "Agency Template" }
+        upload: { name: 'Agency Template' }
       }
-    });
-    const f = wrapper.findAll("form");
-    expect(f.length).to.equal(1); // has one form
-  });
-});
+    })
+    const f = wrapper.findAll('form')
+    expect(f.length).to.equal(1) // has one form
+  })
+})

@@ -12,9 +12,9 @@
 
 <script>
 export default {
-  name: "DownloadIcon",
+  name: 'DownloadIcon',
   props: {
     row: Object
   }
-};
+}
 </script>

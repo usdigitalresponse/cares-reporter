@@ -32,16 +32,16 @@
 </template>
 
 <script>
-import FormGroups from "./FormGroups.vue";
+import FormGroups from './FormGroups.vue'
 import {
   titleize,
   singular,
   validate,
   columnTitle
-} from "../helpers/form-helpers";
-import _ from "lodash";
+} from '../helpers/form-helpers'
+import _ from 'lodash'
 export default {
-  name: "DocumentForm",
+  name: 'DocumentForm',
   props: {
     type: String,
     columns: Array,
@@ -57,66 +57,66 @@ export default {
   components: {
     FormGroups
   },
-  data: function() {
-    const buttonLabel = `${this.isNew ? "Create" : "Update"} ${titleize(
+  data: function () {
+    const buttonLabel = `${this.isNew ? 'Create' : 'Update'} ${titleize(
       singular(this.type)
-    )}`;
+    )}`
     const editorRecord = {
       ...this.record,
-      settings: JSON.stringify(this.record.settings, null, "  ")
-    };
+      settings: JSON.stringify(this.record.settings, null, '  ')
+    }
     return {
       buttonLabel,
       validationMessages: [],
       saving: false,
       editorRecord
-    };
+    }
   },
   watch: {
-    record: function(r) {
-      this.editorRecord = r;
+    record: function (r) {
+      this.editorRecord = r
     }
   },
   methods: {
     columnTitle,
     titleize,
     validate,
-    doSubmit: async function(e) {
-      e.preventDefault();
-      this.saving = true;
-      this.buttonLabel = `${this.isNew ? "Creating" : "Updating"} ${titleize(
+    doSubmit: async function (e) {
+      e.preventDefault()
+      this.saving = true
+      this.buttonLabel = `${this.isNew ? 'Creating' : 'Updating'} ${titleize(
         singular(this.type)
-      )}...`;
+      )}...`
       return Promise.resolve(this.validate(this.columns, this.editorRecord))
         .then(({ validatedRecord, messages }) => {
-          this.validationMessages = messages;
+          this.validationMessages = messages
           if (_.isEmpty(messages)) {
-            return this.saveRecord(validatedRecord);
+            return this.saveRecord(validatedRecord)
           } else {
-            return false;
+            return false
           }
         })
         .finally(() => {
-          this.buttonLabel = `${this.isNew ? "Create" : "Update"} ${titleize(
+          this.buttonLabel = `${this.isNew ? 'Create' : 'Update'} ${titleize(
             singular(this.type)
-          )}`;
-          this.saving = false;
-        });
+          )}`
+          this.saving = false
+        })
     },
-    saveRecord(record) {
+    saveRecord (record) {
       if (_.isFunction(this.onSave)) {
         return Promise.resolve(this.onSave(record)).finally(
           () => (this.saving = false)
-        );
+        )
       }
-      return Promise.resolve(null);
+      return Promise.resolve(null)
     },
-    cancelEditDocument(e) {
-      e.preventDefault();
+    cancelEditDocument (e) {
+      e.preventDefault()
       if (_.isFunction(this.onCancel)) {
-        this.onCancel();
+        this.onCancel()
       }
     }
   }
-};
+}
 </script>
