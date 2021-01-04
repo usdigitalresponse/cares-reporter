@@ -11,6 +11,20 @@
     award_number        | text          |
     current_obligation  | numeric(19,2) |
     current_expenditure | numeric(19,2) |
+
+  There is one summary for each line of each input spreadsheet (i.e. each
+  record in the documents db table), and all it does is to pull some
+  information out of the content column and make it more easily searchable
+  by SQL.
+
+  The project_code and reporting_period_id fields identify the source
+  upload spreadsheet.
+
+  The award_type field identifies the tab in the source spreadsheet.
+
+  The award_number field aggregates multiple (if any) rows in the source
+  spreadsheet for that award.
+
 */
 const knex = require("./connection");
 const { documentsWithProjectCode } = require("./documents");
@@ -23,6 +37,7 @@ module.exports = {
   getPeriodSummaries:  getSummaries,
   getPriorPeriodSummaries,
   readSummaries,    // used by tests
+  updateSummaries,  // use once to fix dabase on period 1
   writeSummaries
 };
 
@@ -101,9 +116,9 @@ async function generateSummaries(reporting_period_id) {
 
   documents.forEach(document => {
     let awardNumber;
-    let obligation = document.content["current quarter obligation"];
-    let amount = document.content["total expenditure amount"] || 0;
     let jsonRow = document.content;
+    let obligation = jsonRow["current quarter obligation"];
+    let amount = jsonRow["total expenditure amount"] || 0;
 
     switch ( document.type ) {
       case "contracts":
@@ -146,6 +161,7 @@ async function generateSummaries(reporting_period_id) {
             reporting_period_id : reporting_period_id,
             project_code : document.project_code,
             award_type: document.type,
+            subrecipient_identification_number: jsonRow["subrecipient id"],
             award_number: awardNumber,
             current_obligation: obligation,
             current_expenditure: amount
@@ -214,4 +230,62 @@ async function closeReportingPeriod(reporting_period_id) {
 
   return null;
 }
+
+async function updateSummaries(reporting_period_id) {
+
+  let documents = await documentsWithProjectCode(reporting_period_id);
+  if (_.isError(documents)){
+    return {
+      errors: [documents.message]
+    };
+  }
+  for (let i=0; i<documents.length; i++ ) {
+    let document = documents[i];
+    let jsonRow = document.content;
+
+    let awardNumber;
+
+    switch ( document.type ) {
+      case "contracts":
+        awardNumber = jsonRow["contract number"];
+        break;
+      case "grants":
+        awardNumber = jsonRow["award number"];
+        break;
+      case "loans":
+        awardNumber = jsonRow["loan number"];
+        break;
+      case "transfers":
+        awardNumber = jsonRow["transfer number"];
+        break;
+      case "direct":
+        // date needed in key for Airtable issue #92
+        awardNumber = `${jsonRow["subrecipient id"]}:${jsonRow["obligation date"]}`;
+        break;
+    }
+    switch ( document.type ) {
+      case "contracts":
+      case "grants":
+      case "loans":
+      case "transfers":
+      case "direct":{
+        await knex("period_summaries")
+          .where({
+            reporting_period_id : reporting_period_id,
+            project_code : document.project_code,
+            award_type: document.type,
+            award_number: awardNumber
+          })
+          .update({
+            subrecipient_identification_number: jsonRow["subrecipient id"]
+          });
+        break;
+      }
+      default:
+        // ignore the other sheets
+        break;
+    }
+  }
+}
+
 /*                                 *  *  *                                    */

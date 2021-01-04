@@ -3,6 +3,7 @@ const _ = require("lodash");
 
 const {
   applicationSettings,
+  getCurrentReportingPeriodID,
   currentReportingPeriodSettings
 } = require("../db/settings");
 const { documentsWithProjectCode } = require("../db/documents");
@@ -583,14 +584,14 @@ async function latestReport(period_id) {
     period_id = await applicationSettings().current_reporting_period_id;
   }
 
-  let fileNames = allFiles.sort();
-  fileNames.unshift("sentry");
+  let fileNames = allFiles.sort(); // ascending
+  fileNames.push("sentry");
 
   let fileName;
   let filePeriod;
 
   do {
-    fileName = fileNames.pop();
+    fileName = fileNames.shift();
     filePeriod = (fileName.match(/-Period-(\d+)-/) || [])[1];
 
   } while ( fileNames.length && Number(filePeriod) !== Number(period_id) );
@@ -600,7 +601,7 @@ async function latestReport(period_id) {
       `No Treasury report has been generated for period ${period_id}`
     );
   }
-
+  console.log(`filename is ${fileName}`);
   return fileName;
 }
 
@@ -648,6 +649,7 @@ async function getPriorReport(period_id) {
   } catch (err) {
     return err;
   }
+
 }
 
 async function getGroups() {
@@ -793,6 +795,7 @@ async function pass1(documents, mapSubrecipients, mapProjects){
         // (decided 20 12 07  States Call)
         if ( !mapSubrecipients.has(subrecipientID) ) {
           let recSubRecipient = clean(record.content);
+          record.content["created in period"] = await getCurrentReportingPeriodID();
           mapSubrecipients.set(subrecipientID, recSubRecipient);
           setSubRecipient(recSubRecipient); // no need to wait
         }

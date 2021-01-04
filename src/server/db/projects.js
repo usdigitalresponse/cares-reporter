@@ -12,8 +12,10 @@
 */
 
 const knex = require("./connection");
+const { getCurrentReportingPeriodID } = require("./settings");
 
-function createProject(project) {
+async function createProject(project) {
+  project.created_in_period = await getCurrentReportingPeriodID();
   return knex
     .insert(project)
     .into("projects")
