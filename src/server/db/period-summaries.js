@@ -38,6 +38,7 @@ module.exports = {
   closeReportingPeriod,
   getPeriodSummaries: getSummaries,
   getPriorPeriodSummaries,
+  getReportedSubrecipientIds,
   readSummaries, // used by tests
   updateSummaries, // use once to fix dabase on period 1
   writeSummaries
@@ -48,6 +49,14 @@ async function readSummaries (reporting_period_id = 1) {
     .select('*')
     .where('reporting_period_id', reporting_period_id)
   return periodSummaries
+}
+
+async function getReportedSubrecipientIds () {
+  let subrecipientIDs = await knex('period_summaries')
+    .select('subrecipient_identification_number')
+    .distinct()
+
+  return subrecipientIDs
 }
 
 async function writeSummaries (reporting_period_id) {

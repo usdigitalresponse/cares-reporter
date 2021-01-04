@@ -17,11 +17,30 @@
       table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
     });
   */
+/* eslint camelcase: 0 */
+
 const knex = require('./connection')
 
 async function getSubRecipients () {
   let records = await knex('subrecipients')
     .select('*')
+    .map(record => respace(record))
+
+  let mapSubrecipients = new Map() // subrecipient id : <subrecipient record>
+  records.forEach(subrecipientRecord => {
+    mapSubrecipients.set(
+      subrecipientRecord['identification number'],
+      subrecipientRecord
+    )
+  })
+
+  return mapSubrecipients
+}
+
+async function getSubRecipientsByPeriod (period_id) {
+  let records = await knex('subrecipients')
+    .select('*')
+    .where('created_in_period', period_id)
 
   return records.map(record => respace(record))
 }
@@ -61,6 +80,7 @@ function respace (_obj) {
 
 module.exports = {
   getSubRecipients,
+  getSubRecipientsByPeriod,
   setSubRecipient
 }
 

@@ -112,9 +112,24 @@ async function updateProjectStatus (projectCode, documents) {
   return null
 }
 
+/* getProjects () returns a map:
+  { project id : <project record>
+    ...
+  }
+  */
 async function getProjects () {
-  return knex('projects')
+  let arrProjects = await knex('projects')
     .select('*')
+
+  let mapProjects = new Map() // project id : <project record>
+
+  arrProjects.forEach(projectRecord => {
+    mapProjects.set(
+      projectRecord.code,
+      projectRecord
+    )
+  })
+  return mapProjects
 }
 
 function fixProjectCode (code) {
