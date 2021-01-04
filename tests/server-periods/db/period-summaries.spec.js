@@ -95,6 +95,12 @@ describe('baseline success', () => {
   it('Closes period 1', async function () {
     this.timeout(5000)
 
+    summaries = await readSummaries(period)
+    if (summaries.length !== 0) {
+      // console.dir(summaries);
+      throw new Error(`There should be no summaries for unclosed periods`)
+    }
+
     const period = 1
     let err = null
     try {

@@ -50,9 +50,10 @@ function upload (id) {
       project_id: 48
     }
     */
-function getUploadSummaries () {
+function getUploadSummaries (period_id) {
   return knex('uploads')
     .select('*')
+    .where('reporting_period_id', period_id)
 }
 
 async function createUpload (upload, queryBuilder = knex) {
