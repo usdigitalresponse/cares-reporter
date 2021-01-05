@@ -36,4 +36,4 @@ psql -h localhost -U postgres -w postgres -c "CREATE DATABASE $dbname"
 # cp ${FIXTURES_DIRECTORY}/treasury-reports/* $TREASURY_DIRECTORY
 
 echo priming database
-psql $dbname postgres < ${FIXTURES_DIRECTORY}/rptest.sql >/dev/null
+psql $dbname postgres < ${FIXTURES_DIRECTORY}/${dbname}.sql >/dev/null

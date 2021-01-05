@@ -6,7 +6,10 @@
   IMPORTANT!!
   for this to work you need to have unzipped the
     tests/server-periods/fixtures/rptest.sql.zip
-  file.
+  file. Do this:
+
+    $ createdb --owner=postgres rptest
+    $ psql rptest postgres < tests/server/fixtures/period-summaries/rptest.sql
 
   Invoke this test with:
     $ yarn test:server-periods
@@ -19,10 +22,6 @@
     type                | text          |
     current_obligation  | numeric(19,2) |
     current_expenditure | numeric(19,2) |
-
-  If the rptest database is not yet populated, do this:
-    $ createdb --owner=postgres rptest
-    $ psql rptest postgres < tests/server/fixtures/period-summaries/rptest.sql
 */
 const fs = require('fs')
 const path = require('path')

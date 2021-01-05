@@ -13,7 +13,8 @@ global.requireSrc = f =>
 module.exports.mochaHooks = {
 
   beforeAll: async function () {
-    this.timeout(5000)
+    // doesn't do anything!
+    // this.timeout(5000)
   },
   afterAll: done => {
     knex.destroy(done)
