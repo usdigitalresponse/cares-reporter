@@ -9,83 +9,67 @@ const fs = require('fs')
 const xlsx = require('xlsx')
 const _ = require('lodash')
 const { sheetToJson } = require('../lib/spreadsheet')
-const { currentReportingPeriodSettings } = require('../db/settings')
-let template = null
-let templateSheets = null
-let dropdownValues = null
-// Uninitialized templates cause the Record Summary section of the home page
-// to be blank
-initializeTemplates()
 
-const {
-  template: treasuryTemplate,
-  templateSheets: treasuryTemplateSheets
-} = loadTreasuryTemplate(process.env.TREASURY_TEMPLATE)
+const treasury = {
+  template: null,
+  sheets: null
+}
+
+const validation = {
+  template: null,
+  sheets: null,
+  dropdownValues: null
+}
 
 module.exports = {
-  initializeTemplates,
-  getTemplateSheets,
   getDropdownValues,
-  treasuryTemplate
+  getTreasuryTemplateSheets,
+  getValidationTemplateSheets
 }
 
 function getDropdownValues () {
-  return dropdownValues
-}
-
-function getTemplateSheets (t = 'agency') {
-  switch (t) {
-    case 'agency':
-      // agency data input template
-      return templateSheets
-
-    case 'treasury':
-      // treasury data output template
-      return treasuryTemplateSheets
-
-    default:
-      return templateSheets
+  if (!validation.dropdownValues) {
+    loadValidationTemplate()
   }
+  return validation.dropdownValues
 }
 
-function loadTreasuryTemplate (filename) {
-  let xlsxTemplate = { Sheets: {} }
+function getTreasuryTemplateSheets () {
+  if (!treasury.sheets) {
+    loadTreasuryTemplate()
+  }
+  return treasury.sheets
+}
 
-  let filePath = path.resolve(__dirname, `../data/${filename}`)
-  // console.log(`loadTreasuryTemplate: filePath is |${filePath}|`);
-
-  // Just let it throw on launch - we can't run without it
-  xlsxTemplate = xlsx.read(fs.readFileSync(filePath), { type: 'buffer' })
-
+function loadTreasuryTemplate () {
+  let xlsxTemplate = loadXlsxFile(process.env.TREASURY_TEMPLATE)
   const objAoaSheets = {}
+
   _.keys(xlsxTemplate.Sheets).forEach(sheetName => {
     const rawSheet = xlsxTemplate['Sheets'][sheetName]
     objAoaSheets[sheetName] = sheetToJson(rawSheet, false)
   })
-  return { template: xlsxTemplate, templateSheets: objAoaSheets }
+
+  treasury.template = xlsxTemplate
+  treasury.sheets = objAoaSheets
 }
 
-function loadTemplate (filename) {
-  let xlsxTemplate = { Sheets: {} }
-  console.log(filename)
-  console.log(`Database is ${process.env.POSTGRES_URL}`)
-  let filePath = path.resolve(__dirname, `../data/${filename}`)
-
-  // Just let it throw on launch - we can't run without it
-  xlsxTemplate = xlsx.read(fs.readFileSync(filePath), { type: 'buffer' })
-
-  const objAoaSheets = {}
-
-  _.keys(xlsxTemplate.Sheets).forEach(tabName => {
-    if (tabName === 'Dropdowns') return
-    const sheetName = tabName.toLowerCase().trim()
-    const templateSheet = _.get(xlsxTemplate, ['Sheets', tabName])
-    objAoaSheets[sheetName] = sheetToJson(templateSheet)
-  })
-  return { template: xlsxTemplate, templateSheets: objAoaSheets }
+function getValidationTemplateSheets () {
+  if (!validation.sheets) {
+    loadValidationTemplate()
+  }
+  return validation.sheets
 }
 
-function loadDropdownValues (dropdownTab) {
+function loadXlsxFile (fileName) {
+  let filePath = path.resolve(__dirname, `../data/${fileName}`)
+  // console.log(`loadTreasuryTemplate: filePath is |${filePath}|`);
+
+  return xlsx.read(fs.readFileSync(filePath), { type: 'buffer' })
+}
+
+function loadDropdownValues () {
+  let dropdownTab = validation.template.Sheets.Dropdowns
   const dropdownSheet = xlsx.utils.sheet_to_json(dropdownTab, {
     header: 1,
     blankrows: false
@@ -107,28 +91,24 @@ function loadDropdownValues (dropdownTab) {
   return dropdownValues
 }
 
-async function loadAgencyTemplate () {
-  let crp = await currentReportingPeriodSettings()
-  // console.dir(crp);
-  const templateFileName = crp.reporting_template
-  if (templateFileName === null) {
-    throw new Error(`Current reporting period has no reporting_template`)
-  }
-  let objTemplate = loadTemplate(templateFileName)
-  return objTemplate
-}
+function loadValidationTemplate () {
+  let xlsxTemplate = loadXlsxFile(process.env.VALIDATION_TEMPLATE)
+  const objAoaSheets = {}
 
-async function initializeTemplates () {
-  log(`initializeTemplates...`)
-  if (template !== null) {
-    return `dropdowns already initialized`
-  }
-  let rv = await loadAgencyTemplate()
-  log(`Agency template loaded...`)
-  template = rv.template
-  templateSheets = rv.templateSheets
-  dropdownValues = loadDropdownValues(template.Sheets.Dropdowns)
+  _.keys(xlsxTemplate.Sheets).forEach(tabName => {
+    if (tabName === 'Dropdowns') return
+    const sheetName = tabName.toLowerCase().trim()
+    const templateSheet = _.get(xlsxTemplate, ['Sheets', tabName])
+    objAoaSheets[sheetName] = sheetToJson(templateSheet)
+  })
+
+  validation.template = xlsxTemplate
+  validation.sheets = objAoaSheets
+  log(`Validation template loaded...`)
+
+  validation.dropdownValues = loadDropdownValues()
   log(`Dropdown values loaded...`)
+  delete validation.sheets.Dropdowns
   return 'OK'
 }
 

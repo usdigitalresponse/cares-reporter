@@ -8,7 +8,7 @@ const { ValidationItem } = require('../../lib/validation-log')
 const { subrecipientKey } = require('./helpers')
 const ssf = require('ssf')
 const _ = require('lodash')
-const { getDropdownValues, initializeTemplates } = require('../get-template')
+const { getDropdownValues } = require('../get-template')
 
 function dateIsInPeriodOfPerformance (val, content, { reportingPeriod }) {
   const dt = ssf.format('yyyy-MM-dd', val)
@@ -360,7 +360,6 @@ module.exports = {
   grantMatches,
   dropdownIncludes,
   hasSubrecipientKey,
-  initializeTemplates,
   isEqual,
   isAtLeast50K,
   isNotBlank,

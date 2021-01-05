@@ -24,13 +24,19 @@
     $ createdb --owner=postgres rptest
     $ psql rptest postgres < tests/server/fixtures/period-summaries/rptest.sql
 */
-
+const fs = require('fs')
+const path = require('path')
 const { getPeriodSummaries, readSummaries } =
   requireSrc(`${__dirname}/../../server/db`)
+const { getCurrentReport } =
+  requireSrc(`${__dirname}/../../server/lib/treasury`)
+
 const reportingPeriods =
   requireSrc(`${__dirname}/../../server/db/reporting-periods`)
 
 const expect = require('chai').expect
+const knex = requireSrc(`${__dirname}/../../server/db/connection`)
+let treasuryReportFilename = null
 
 describe('baseline success', () => {
   it('Returns a list of reporting period summaries', async () => {
@@ -92,16 +98,32 @@ describe('baseline success', () => {
     )
   })
 
+  it('Generates a Treasury Report for period 1', async () => {
+    const { filename } = await getCurrentReport()
+    treasuryReportFilename = filename
+    // console.log(`filename is ${filename}`);
+  })
   it('Closes period 1', async function () {
     this.timeout(5000)
+    const period = 1
 
-    summaries = await readSummaries(period)
+    let summaries = await readSummaries(period)
     if (summaries.length !== 0) {
       // console.dir(summaries);
-      throw new Error(`There should be no summaries for unclosed periods`)
+      throw new Error(`Summaries should be stored for closed periods`)
     }
 
-    const period = 1
+    summaries = await knex('period_summaries')
+      .select('*')
+    // console.dir(summaries);
+    if (summaries.length !== 0) {
+      // console.log(summaries.periodSummaries.length);
+      console.dir(summaries, { depth: 1 })
+      throw new Error(
+        `Expected 0 period summaries, got ${summaries.periodSummaries.length}`
+      )
+    }
+
     let err = null
     try {
       await reportingPeriods.close('walter@dahlberg.com', period)
@@ -112,7 +134,7 @@ describe('baseline success', () => {
 
     expect(err).to.equal(null)
 
-    let summaries = await getPeriodSummaries(period)
+    summaries = await getPeriodSummaries(period)
 
     // console.dir(summaries);
     if (summaries.periodSummaries.length !== 3161) {
@@ -132,7 +154,23 @@ describe('baseline success', () => {
       // console.dir(summaries);
       throw new Error(`Summaries should be stored for closed periods`)
     }
+
+    // console.log(`dirname is ${__dirname}`);
+    const treasuryReportName =
+      path.resolve(
+        __dirname,
+        '../mocha_uploads/treasury/',
+        treasuryReportFilename
+      )
+    // console.log(`latestReport path is ${treasuryReportName}`);
+    const stats = fs.statSync(treasuryReportName)
+    if (stats.size < 100000) {
+      throw new Error(
+        `Treasury output spreadsheet file size is only ${stats.size} bytes!`
+      )
+    }
   })
+
   it('Fails to close period 2 (because there is no Treasury file)', async () => {
     const period = 2
     let err = null
