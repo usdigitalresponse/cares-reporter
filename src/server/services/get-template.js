@@ -10,12 +10,12 @@ const xlsx = require('xlsx')
 const _ = require('lodash')
 const { sheetToJson } = require('../lib/spreadsheet')
 
-const treasury = {
+let treasury = {
   template: null,
   sheets: null
 }
 
-const validation = {
+let validation = {
   template: null,
   sheets: null,
   dropdownValues: null
