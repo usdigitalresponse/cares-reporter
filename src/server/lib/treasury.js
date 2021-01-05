@@ -13,7 +13,7 @@ const { getProjects } = require('../db/projects')
 const { getSubRecipients, setSubRecipient } = require('../db/subrecipients')
 const { getUploadSummaries } = require('../db/uploads')
 
-const { getTemplateSheets } = require('../services/get-template')
+const { getTreasuryTemplateSheets } = require('../services/get-template')
 
 const { makeConfig } = require('../lib/config')
 const { clean } = require('../lib/spreadsheet')
@@ -607,7 +607,7 @@ async function latestReport (period_id) {
     and writes it out if successful.
     */
 async function getCurrentReport (period_id) {
-  const treasuryTemplateSheets = getTemplateSheets('treasury')
+  const treasuryTemplateSheets = getTreasuryTemplateSheets('treasury')
   const config = makeConfig(treasuryTemplateSheets, 'Treasury Template', [])
 
   const groups = await getGroups(period_id)
