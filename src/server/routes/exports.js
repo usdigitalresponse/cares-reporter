@@ -14,7 +14,7 @@ router.get('/', requireUser, async function (req, res) {
   let report
   if (await reportingPeriods.isCurrent(period_id)) {
     console.log(`period_id ${period_id} is current`)
-    report = await treasury.getCurrentReport(period_id)
+    report = await treasury.generateReport(period_id)
   } else {
     console.log(`period_id ${period_id} is not current - sending old report`)
     report = await treasury.getPriorReport(period_id)

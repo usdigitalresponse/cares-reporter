@@ -20,14 +20,20 @@ echo Using database $dbname
 echo Upload directory is $UPLOAD_DIRECTORY
 echo Treasury directory is $TREASURY_DIRECTORY
 
+pwd
+
 mkdir -p $UPLOAD_DIRECTORY
 rm -rf $UPLOAD_DIRECTORY/*
 mkdir -p $TREASURY_DIRECTORY
+
 
 FIXTURES_DIRECTORY="./tests/server-periods/fixtures"
 
 psql -h localhost -U postgres -w postgres -c "DROP DATABASE IF EXISTS $dbname"
 psql -h localhost -U postgres -w postgres -c "CREATE DATABASE $dbname"
 
-cp ${FIXTURES_DIRECTORY}/treasury-reports/* $TREASURY_DIRECTORY
+# echo copying files
+# cp ${FIXTURES_DIRECTORY}/treasury-reports/* $TREASURY_DIRECTORY
+
+echo priming database
 psql $dbname postgres < ${FIXTURES_DIRECTORY}/rptest.sql >/dev/null

@@ -51,6 +51,7 @@ function upload (id) {
     }
     */
 function getUploadSummaries (period_id) {
+  // console.log(`period_id is ${period_id}`)
   return knex('uploads')
     .select('*')
     .where('reporting_period_id', period_id)

@@ -599,20 +599,21 @@ async function latestReport (period_id) {
       `No Treasury report has been generated for period ${period_id}`
     )
   }
-  console.log(`filename is ${filename}`)
+  // console.log(`filename is ${filename}`)
   return filename
 }
 
-/*  getCurrentReport generates a fresh Treasury Report spreadsheet
+/*  generateReport generates a fresh Treasury Report spreadsheet
     and writes it out if successful.
     */
-async function getCurrentReport (period_id) {
-  const treasuryTemplateSheets = getTreasuryTemplateSheets('treasury')
+async function generateReport (period_id) {
+  const treasuryTemplateSheets = getTreasuryTemplateSheets()
   const config = makeConfig(treasuryTemplateSheets, 'Treasury Template', [])
 
   const groups = await getGroups(period_id)
 
   if (_.isError(groups)) {
+    console.dir(groups)
     return groups
   }
 
@@ -655,6 +656,7 @@ async function getGroups (period_id) {
     let arrUploadMetaData = await getUploadSummaries(period_id)
     arrUploadMetaData.forEach(rec => mapUploadMetadata.set(rec.id, rec))
   } catch (_err) {
+    console.dir(_err)
     return new Error('Failed to load upload summaries')
   }
 
@@ -665,7 +667,7 @@ async function getGroups (period_id) {
     return new Error('Failed to load document records')
   }
 
-  console.log(`Found ${documents.length} documents`)
+  // console.log(`Found ${documents.length} documents`)
 
   // we need the subrecipients db table to be current before we get the
   // award records. Should really be done on file upload, not here.
@@ -680,20 +682,22 @@ async function getGroups (period_id) {
     mapSubrecipientReferences,
     errorLog
   } = getAwardRecords(documents, mapUploadMetadata)
-  console.dir(errorLog)
+
+  if (errorLog.length > 0) {
+    console.dir(errorLog)
+    return new Error(`Errors in document award records`)
+  }
 
   let rv = []
 
   Object.keys(awardRecords).forEach(key => rv.push(awardRecords[key]))
 
-  const {
-    subrecipientRecords
-  } = await getSubrecipientRecords(mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences)
-
+  const subrecipientRecords =
+    await getSubrecipientRecords(mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences)
   rv.splice(rv.length, 0, ...subrecipientRecords)
 
   groups = _.groupBy(rv, 'type')
-  console.log(`Found ${_.keys(groups).length} groups:`)
+  // console.log(`Found ${_.keys(groups).length} groups:`)
 
   return groups
 }
@@ -848,7 +852,7 @@ function getAwardRecords (documents, mapUploadMetadata) {
 }
 
 module.exports = {
-  getCurrentReport,
+  generateReport,
   getPriorReport,
   latestReport,
   writeOutputWorkbook

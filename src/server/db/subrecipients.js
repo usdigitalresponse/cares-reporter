@@ -24,7 +24,8 @@ const knex = require('./connection')
 async function getSubRecipients () {
   let records = await knex('subrecipients')
     .select('*')
-    .map(record => respace(record))
+
+  records = records.map(record => respace(record))
 
   let mapSubrecipients = new Map() // subrecipient id : <subrecipient record>
   records.forEach(subrecipientRecord => {
