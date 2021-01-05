@@ -1,18 +1,18 @@
 <template>
   <div class="home">
     <div class="row buttons mt-5">
-      <div class="col-6" v-show="this.$store.getters.viewPeriodIsCurrent">
-        <button class="btn btn-primary" @click="startUpload">
+      <div class="col-6" v-show="viewingCurrentPeriod">
+        <button class="btn btn-primary" @click.prevent="startUpload">
           Upload Spreadsheet
         </button>
       </div>
-      <div class="col-6" v-show="this.$store.getters.viewPeriodIsCurrent">
+      <div class="col-6" v-show="viewingCurrentPeriod">
         <a :href="downloadTemplateUrl" class="btn btn-secondary" download
           >Download Empty Template</a
         >
       </div>
 
-      <div class="closed" v-show="!(this.$store.getters.viewPeriodIsCurrent)">
+      <div class="closed" v-show="!viewingCurrentPeriod">
         This reporting period is closed.
       </div>
     </div>
@@ -41,6 +41,9 @@ export default {
     };
   },
   computed: {
+    viewingCurrentPeriod() {
+      return this.$store.getters.viewPeriodIsCurrent;
+    },
     currentReportingPeriod: function() {
       return this.$store.getters.currentReportingPeriod;
     },
@@ -58,9 +61,8 @@ export default {
     }
   },
   methods: {
-    startUpload(e) {
-      e.preventDefault();
-      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID){
+    startUpload() {
+      if (this.viewingCurrentPeriod) {
         this.$router.push({ path: "/new_upload" });
       }
     },
