@@ -7,6 +7,7 @@ if ( process.env.VERBOSE ){
 const { ValidationItem } = require("../../lib/validation-log");
 const { subrecipientKey } = require("./helpers");
 const ssf = require("ssf");
+const mustache = require("mustache");
 const _ = require("lodash");
 const { getDropdownValues } = require("../get-template");
 
@@ -266,8 +267,9 @@ function whenGreaterThanZero(key, validator) {
   };
 }
 
-function addValueToMessage(message, value) {
-  return message.replace("{}", `${value || ""}`);
+function addValueToMessage(message, value, content) {
+  const s = message.replace("{}", `${value || ""}`);
+  return mustache.render(s, content);
 }
 
 function messageValue(val, options) {
@@ -308,7 +310,8 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
           new ValidationItem({
             message: addValueToMessage(
               message || `Empty or invalid entry for ${key}: "{}"`,
-              messageValue(val, options)
+              messageValue(val, options),
+              content
             ),
             tab,
             row
