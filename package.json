@@ -17,6 +17,7 @@
     "test:unit": "vue-cli-service test:unit",
     "test:server": "./tests/server/mocha_wrapper.sh",
     "test:server-periods": "./tests/server-periods/mocha_wrapper.sh",
+    "test:sp": "yarn mocha 'tests/server-periods/db/initialize-db.spec.js'",
     "lint": "vue-cli-service lint",
     "prod": "NODE_ENV=production node src/server"
   },

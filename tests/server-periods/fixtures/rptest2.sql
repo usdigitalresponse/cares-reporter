@@ -1,8 +1,10 @@
 --
 -- PostgreSQL database dump
 --
+
 -- Dumped from database version 11.8 (Debian 11.8-1.pgdg90+1)
 -- Dumped by pg_dump version 11.8 (Debian 11.8-1.pgdg90+1)
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -15,270 +17,437 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
 -- Name: bloom; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS bloom WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION bloom; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION bloom IS 'bloom access method - signature file based index';
+
 
 --
 -- Name: btree_gin; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS btree_gin WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION btree_gin; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION btree_gin IS 'support for indexing common datatypes in GIN';
+
 
 --
 -- Name: btree_gist; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION btree_gist; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION btree_gist IS 'support for indexing common datatypes in GiST';
+
 
 --
 -- Name: citext; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION citext; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings';
+
 
 --
 -- Name: cube; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS cube WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION cube; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION cube IS 'data type for multidimensional cubes';
+
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION dblink; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from within a database';
+
 
 --
 -- Name: dict_int; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS dict_int WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION dict_int; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION dict_int IS 'text search dictionary template for integers';
+
 
 --
 -- Name: dict_xsyn; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS dict_xsyn WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION dict_xsyn; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION dict_xsyn IS 'text search dictionary template for extended synonym processing';
+
 
 --
 -- Name: earthdistance; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS earthdistance WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION earthdistance; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION earthdistance IS 'calculate great-circle distances on the surface of the Earth';
+
 
 --
 -- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION fuzzystrmatch; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance between strings';
+
 
 --
 -- Name: hstore; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION hstore; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION hstore IS 'data type for storing sets of (key, value) pairs';
+
 
 --
 -- Name: intagg; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS intagg WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION intagg; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION intagg IS 'integer aggregator and enumerator (obsolete)';
+
 
 --
 -- Name: intarray; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS intarray WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION intarray; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION intarray IS 'functions, operators, and index support for 1-D arrays of integers';
+
 
 --
 -- Name: isn; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS isn WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION isn; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION isn IS 'data types for international product numbering standards';
+
 
 --
 -- Name: lo; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS lo WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION lo; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION lo IS 'Large Object maintenance';
+
 
 --
 -- Name: ltree; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS ltree WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION ltree; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION ltree IS 'data type for hierarchical tree-like structures';
+
 
 --
 -- Name: pg_buffercache; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS pg_buffercache WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION pg_buffercache; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION pg_buffercache IS 'examine the shared buffer cache';
+
 
 --
 -- Name: pg_prewarm; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS pg_prewarm WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION pg_prewarm; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION pg_prewarm IS 'prewarm relation data';
+
+
+--
+--
+
+
+
+--
+--
+
+
 
 --
 -- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
+
 
 --
 -- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
 
 --
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
 
 --
 -- Name: pgrowlocks; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS pgrowlocks WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION pgrowlocks; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION pgrowlocks IS 'show row-level locking information';
+
 
 --
 -- Name: pgstattuple; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS pgstattuple WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION pgstattuple; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION pgstattuple IS 'show tuple-level statistics';
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
 
 --
 -- Name: tablefunc; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS tablefunc WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION tablefunc; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION tablefunc IS 'functions that manipulate whole tables, including crosstab';
+
 
 --
 -- Name: unaccent; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION unaccent; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
+
 
 --
 -- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
 --
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
 
 --
 -- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
 --
+
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
+
 SET default_tablespace = '';
+
 SET default_with_oids = false;
+
 --
 -- Name: access_tokens; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.access_tokens (
     id integer NOT NULL,
     user_id integer NOT NULL,
@@ -288,9 +457,11 @@ CREATE TABLE public.access_tokens (
     used boolean NOT NULL
 );
 
+
 --
 -- Name: access_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.access_tokens_id_seq
     AS integer
     START WITH 1
@@ -299,14 +470,18 @@ CREATE SEQUENCE public.access_tokens_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: access_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.access_tokens_id_seq OWNED BY public.access_tokens.id;
+
 
 --
 -- Name: agencies; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.agencies (
     id integer NOT NULL,
     name text NOT NULL,
@@ -317,9 +492,11 @@ CREATE TABLE public.agencies (
     updated_by text
 );
 
+
 --
 -- Name: agencies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.agencies_id_seq
     AS integer
     START WITH 1
@@ -328,14 +505,18 @@ CREATE SEQUENCE public.agencies_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: agencies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.agencies_id_seq OWNED BY public.agencies.id;
+
 
 --
 -- Name: application_settings; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.application_settings (
     title text,
     current_reporting_period_id integer,
@@ -344,9 +525,11 @@ CREATE TABLE public.application_settings (
     validation_rule_tags text[]
 );
 
+
 --
 -- Name: documents; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.documents (
     id integer NOT NULL,
     type text NOT NULL,
@@ -358,9 +541,11 @@ CREATE TABLE public.documents (
     user_id integer
 );
 
+
 --
 -- Name: documents_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.documents_id_seq
     AS integer
     START WITH 1
@@ -369,14 +554,18 @@ CREATE SEQUENCE public.documents_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: documents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
+
 
 --
 -- Name: knex_migrations; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.knex_migrations (
     id integer NOT NULL,
     name character varying(255),
@@ -384,9 +573,11 @@ CREATE TABLE public.knex_migrations (
     migration_time timestamp with time zone
 );
 
+
 --
 -- Name: knex_migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.knex_migrations_id_seq
     AS integer
     START WITH 1
@@ -395,22 +586,28 @@ CREATE SEQUENCE public.knex_migrations_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: knex_migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.knex_migrations_id_seq OWNED BY public.knex_migrations.id;
+
 
 --
 -- Name: knex_migrations_lock; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.knex_migrations_lock (
     index integer NOT NULL,
     is_locked integer
 );
 
+
 --
 -- Name: knex_migrations_lock_index_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.knex_migrations_lock_index_seq
     AS integer
     START WITH 1
@@ -419,14 +616,18 @@ CREATE SEQUENCE public.knex_migrations_lock_index_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: knex_migrations_lock_index_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.knex_migrations_lock_index_seq OWNED BY public.knex_migrations_lock.index;
+
 
 --
 -- Name: period_summaries; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.period_summaries (
     id integer NOT NULL,
     reporting_period_id integer NOT NULL,
@@ -438,9 +639,11 @@ CREATE TABLE public.period_summaries (
     subrecipient_identification_number text
 );
 
+
 --
 -- Name: period_summaries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.period_summaries_id_seq
     AS integer
     START WITH 1
@@ -449,14 +652,18 @@ CREATE SEQUENCE public.period_summaries_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: period_summaries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.period_summaries_id_seq OWNED BY public.period_summaries.id;
+
 
 --
 -- Name: projects; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.projects (
     id integer NOT NULL,
     code text NOT NULL,
@@ -471,9 +678,11 @@ CREATE TABLE public.projects (
     created_in_period integer
 );
 
+
 --
 -- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.projects_id_seq
     AS integer
     START WITH 1
@@ -482,14 +691,18 @@ CREATE SEQUENCE public.projects_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
+
 
 --
 -- Name: reporting_periods; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.reporting_periods (
     id integer NOT NULL,
     name text NOT NULL,
@@ -508,9 +721,11 @@ CREATE TABLE public.reporting_periods (
     crf_end_date date
 );
 
+
 --
 -- Name: reporting_periods_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.reporting_periods_id_seq
     AS integer
     START WITH 1
@@ -519,14 +734,18 @@ CREATE SEQUENCE public.reporting_periods_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: reporting_periods_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.reporting_periods_id_seq OWNED BY public.reporting_periods.id;
+
 
 --
 -- Name: roles; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.roles (
     id integer NOT NULL,
     name text NOT NULL,
@@ -534,9 +753,11 @@ CREATE TABLE public.roles (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+
 --
 -- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.roles_id_seq
     AS integer
     START WITH 1
@@ -545,14 +766,18 @@ CREATE SEQUENCE public.roles_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
+
 
 --
 -- Name: subrecipients; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.subrecipients (
     id integer NOT NULL,
     identification_number text NOT NULL,
@@ -573,9 +798,11 @@ CREATE TABLE public.subrecipients (
     created_in_period integer
 );
 
+
 --
 -- Name: subrecipients_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.subrecipients_id_seq
     AS integer
     START WITH 1
@@ -584,14 +811,18 @@ CREATE SEQUENCE public.subrecipients_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: subrecipients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.subrecipients_id_seq OWNED BY public.subrecipients.id;
+
 
 --
 -- Name: uploads; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.uploads (
     id integer NOT NULL,
     filename text NOT NULL,
@@ -603,9 +834,11 @@ CREATE TABLE public.uploads (
     project_id integer
 );
 
+
 --
 -- Name: uploads_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.uploads_id_seq
     AS integer
     START WITH 1
@@ -614,14 +847,18 @@ CREATE SEQUENCE public.uploads_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: uploads_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.uploads_id_seq OWNED BY public.uploads.id;
+
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.users (
     id integer NOT NULL,
     email text NOT NULL,
@@ -632,9 +869,11 @@ CREATE TABLE public.users (
     agency_id integer
 );
 
+
 --
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.users_id_seq
     AS integer
     START WITH 1
@@ -643,14 +882,18 @@ CREATE SEQUENCE public.users_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
 
 --
 -- Name: validation_messages; Type: TABLE; Schema: public; Owner: -
 --
+
 CREATE TABLE public.validation_messages (
     id integer NOT NULL,
     upload_id integer,
@@ -660,9 +903,11 @@ CREATE TABLE public.validation_messages (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+
 --
 -- Name: validation_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
+
 CREATE SEQUENCE public.validation_messages_id_seq
     AS integer
     START WITH 1
@@ -671,79 +916,109 @@ CREATE SEQUENCE public.validation_messages_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
 --
 -- Name: validation_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
+
 ALTER SEQUENCE public.validation_messages_id_seq OWNED BY public.validation_messages.id;
+
 
 --
 -- Name: access_tokens id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.access_tokens ALTER COLUMN id SET DEFAULT nextval('public.access_tokens_id_seq'::regclass);
+
 
 --
 -- Name: agencies id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.agencies ALTER COLUMN id SET DEFAULT nextval('public.agencies_id_seq'::regclass);
+
 
 --
 -- Name: documents id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.documents_id_seq'::regclass);
+
 
 --
 -- Name: knex_migrations id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.knex_migrations ALTER COLUMN id SET DEFAULT nextval('public.knex_migrations_id_seq'::regclass);
+
 
 --
 -- Name: knex_migrations_lock index; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.knex_migrations_lock ALTER COLUMN index SET DEFAULT nextval('public.knex_migrations_lock_index_seq'::regclass);
+
 
 --
 -- Name: period_summaries id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.period_summaries ALTER COLUMN id SET DEFAULT nextval('public.period_summaries_id_seq'::regclass);
+
 
 --
 -- Name: projects id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.projects ALTER COLUMN id SET DEFAULT nextval('public.projects_id_seq'::regclass);
+
 
 --
 -- Name: reporting_periods id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.reporting_periods ALTER COLUMN id SET DEFAULT nextval('public.reporting_periods_id_seq'::regclass);
+
 
 --
 -- Name: roles id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
+
 
 --
 -- Name: subrecipients id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.subrecipients ALTER COLUMN id SET DEFAULT nextval('public.subrecipients_id_seq'::regclass);
+
 
 --
 -- Name: uploads id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.uploads ALTER COLUMN id SET DEFAULT nextval('public.uploads_id_seq'::regclass);
+
 
 --
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
 
 --
 -- Name: validation_messages id; Type: DEFAULT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.validation_messages ALTER COLUMN id SET DEFAULT nextval('public.validation_messages_id_seq'::regclass);
+
 
 --
 -- Data for Name: access_tokens; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.access_tokens (id, user_id, passcode, created_at, expires, used) FROM stdin;
 1	1	2f40c1b9-6fa2-4333-a2c7-136b8b6328c9	2020-09-23 22:01:55.687921+00	2020-09-23 22:31:55.686+00	t
 2	2	8318758d-65d1-4ae9-a995-13229f084c2d	2020-10-17 03:36:20.1716+00	2020-10-17 04:06:20.169+00	f
@@ -903,6 +1178,7 @@ COPY public.access_tokens (id, user_id, passcode, created_at, expires, used) FRO
 156	3	ed60a7c2-1af8-428d-b968-226e2a6209db	2020-12-09 15:49:09.140404+00	2020-12-09 16:19:09.139+00	t
 175	3	d2218cec-7de1-4a53-9ce9-e05ff1ac63f6	2020-12-23 14:20:07.401157+00	2020-12-23 14:50:07.4+00	t
 157	48	57346d8a-d797-47a8-9808-22b5bb6b8c49	2020-12-09 18:40:01.455014+00	2020-12-09 19:10:01.453+00	t
+199	63	9915278c-5cde-42bd-a971-a721a7bebab6	2021-01-05 14:33:50.622721+00	2021-01-05 15:03:50.62+00	t
 158	32	512480a4-47b6-4ecf-891c-8b01bc12e684	2020-12-09 19:45:27.906831+00	2020-12-09 20:15:27.905+00	t
 176	63	3e6fe32a-3445-4e09-bf93-6a766da3255f	2020-12-29 00:27:15.395401+00	2020-12-29 00:57:15.397+00	t
 159	3	794c50a4-3242-482b-b898-50082d16deaf	2020-12-09 20:03:22.855665+00	2020-12-09 20:33:22.854+00	t
@@ -916,6 +1192,7 @@ COPY public.access_tokens (id, user_id, passcode, created_at, expires, used) FRO
 192	40	0d522645-ca66-4fee-8075-4397425cba32	2021-01-04 19:11:36.673978+00	2021-01-04 19:41:36.673+00	f
 179	13	6eaca54b-e5d5-4979-9af2-44a7cc359b04	2020-12-30 18:03:42.194903+00	2020-12-30 18:33:42.194+00	t
 164	63	26c19900-5bf8-449e-834d-a8ab63aee55a	2020-12-10 22:42:10.795648+00	2020-12-10 23:12:10.794+00	t
+200	48	84e5c225-75bc-47c6-b512-6bfe5f07a0cd	2021-01-05 14:37:06.696035+00	2021-01-05 15:07:06.647+00	t
 165	63	6e24b2a4-7918-4628-8674-5470bbc07318	2020-12-11 00:01:15.409253+00	2020-12-11 00:31:15.408+00	t
 182	63	3231fca6-b297-4d7f-8a32-12706b2e7252	2021-01-03 04:09:40.947797+00	2021-01-03 04:39:40.946+00	t
 166	13	513d439f-e0c2-406e-b72c-ef9ec199897b	2020-12-11 16:26:42.85459+00	2020-12-11 16:56:42.853+00	t
@@ -925,25 +1202,41 @@ COPY public.access_tokens (id, user_id, passcode, created_at, expires, used) FRO
 168	3	46d6d5f9-bc0a-474b-bf83-7e4c404077e7	2020-12-14 13:50:44.744199+00	2020-12-14 14:20:44.742+00	t
 183	63	69263850-887d-49b2-b536-d7949c7b7fac	2021-01-03 04:18:28.469903+00	2021-01-03 04:48:28.468+00	t
 169	63	fbcc8030-2c77-4b90-8df7-cd3663fc3a4f	2020-12-17 21:37:43.679732+00	2020-12-17 22:07:43.677+00	t
+209	63	dcb3147a-2316-4b08-9e2a-3103f8ea22ca	2021-01-05 20:25:02.917442+00	2021-01-05 20:55:02.915+00	t
+201	63	55720a93-8a9a-4705-ba50-e8e824df9c13	2021-01-05 16:01:05.394354+00	2021-01-05 16:31:05.392+00	t
 170	15	b37e79f7-2da8-4f48-81b0-88733e79f951	2020-12-18 23:52:01.104911+00	2020-12-19 00:22:01.103+00	t
 184	63	b4c0b166-cc0e-4d49-8b49-0835bf64abf2	2021-01-03 22:27:53.48973+00	2021-01-03 22:57:53.488+00	t
 171	63	cf7d6df4-577e-40a8-bc04-7bf2a1321d31	2020-12-21 18:17:23.625868+00	2020-12-21 18:47:23.624+00	t
+195	32	cd62109b-7772-4e3e-8857-f4b266b280df	2021-01-04 23:40:23.91668+00	2021-01-05 00:10:23.915+00	t
 172	3	58e2488f-2637-4488-8faa-1aa94234ec82	2020-12-21 18:41:50.617448+00	2020-12-21 19:11:50.616+00	t
 185	63	e1d76fdc-ef4e-4ea3-840e-337907285fc1	2021-01-04 01:13:10.045525+00	2021-01-04 01:43:10.044+00	t
 173	2	25f5b233-b590-43b8-a20b-6a6771c7c577	2020-12-21 20:51:02.470017+00	2020-12-21 21:21:02.468+00	t
 174	2	213e7f28-a742-4af8-bb63-52b27bcbf9e4	2020-12-22 15:31:40.060361+00	2020-12-22 16:01:40.059+00	t
 180	63	d433c557-da0d-46a8-b088-928837c0af59	2021-01-03 01:20:38.163541+00	2021-01-03 01:50:38.161+00	t
+196	28	bfca075b-ac0a-43ec-81ee-d3bd7bacc8c2	2021-01-05 12:29:04.769764+00	2021-01-05 12:59:04.767+00	t
 186	48	506b20cf-4bed-48a0-a5ab-4119406dd2d1	2021-01-04 16:41:42.93974+00	2021-01-04 17:11:42.937+00	t
+202	26	1be2f937-d934-4a01-a291-17cf95ef3bc6	2021-01-05 16:06:24.069049+00	2021-01-05 16:36:24.067+00	t
 187	2	bb9492bb-5212-4480-945c-4ca5562ad88d	2021-01-04 17:01:49.320064+00	2021-01-04 17:31:49.318+00	t
 188	48	abac1123-23c7-477c-9976-399abdae774c	2021-01-04 18:05:22.149766+00	2021-01-04 18:35:22.148+00	t
 181	63	2210d05b-96ea-4939-8f95-520b35550076	2021-01-03 02:02:04.896141+00	2021-01-03 02:32:04.894+00	t
 189	4	65b49ddb-66e1-4c12-ab51-03b3674e90e8	2021-01-04 18:14:16.598952+00	2021-01-04 18:44:16.598+00	t
+203	48	38ba6901-3905-4cda-a5dc-8065faa49b9e	2021-01-05 16:12:38.295981+00	2021-01-05 16:42:38.242+00	t
 190	2	b3867e05-f2a3-4199-9bc2-0e063e1f194e	2021-01-04 18:43:22.527783+00	2021-01-04 19:13:22.527+00	t
+210	2	2e8f43c0-f468-46ba-8cdc-6a3ddd3be27c	2021-01-05 20:41:00.231508+00	2021-01-05 21:11:00.229+00	t
+197	48	5237806e-be58-48da-9ea3-e9149c968d0d	2021-01-05 13:05:41.683246+00	2021-01-05 13:35:41.681+00	t
+204	2	9aa98c5d-67ac-438c-93c9-066883f4efce	2021-01-05 17:18:52.32227+00	2021-01-05 17:48:52.321+00	t
+198	63	3b67752d-672e-40a4-821b-a15af7fdcdcf	2021-01-05 14:18:40.196671+00	2021-01-05 14:48:40.195+00	t
+206	48	325ee2b4-584d-4bf8-8738-59b8f1604fe5	2021-01-05 17:23:38.29995+00	2021-01-05 17:53:38.294+00	t
+205	68	af9d0865-c3b7-4f94-8154-4e676823c853	2021-01-05 17:22:45.300083+00	2021-01-05 17:52:45.298+00	t
+207	50	e3fbdeb9-ddc0-4fb2-9ea4-cb28975b0a5a	2021-01-05 17:37:00.12112+00	2021-01-05 18:07:00.119+00	t
+208	1	6242430d-dbf5-43a6-8c6a-b53c36b3d2da	2021-01-05 19:45:34.25765+00	2021-01-05 20:15:34.255+00	t
 \.
+
 
 --
 -- Data for Name: agencies; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.agencies (id, name, code, created_at, created_by, updated_at, updated_by) FROM stdin;
 1	Adjutant General	ADJ01	2020-12-18 14:51:03.552621+00	\N	\N	\N
 2	Administrative Services	DAS01	2020-12-18 14:51:03.552621+00	\N	\N	\N
@@ -1021,16 +1314,20 @@ COPY public.agencies (id, name, code, created_at, created_by, updated_at, update
 74	Youth Services	DYS01	2020-12-18 14:51:03.552621+00	\N	\N	\N
 \.
 
+
 --
 -- Data for Name: application_settings; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.application_settings (title, current_reporting_period_id, reporting_template, duns_number, validation_rule_tags) FROM stdin;
 Ohio	2	OBM Reporting Template.xlsx	809031776	{v2}
 \.
 
+
 --
 -- Data for Name: documents; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.documents (id, type, content, created_at, upload_id, last_updated_at, last_updated_by, user_id) FROM stdin;
 1647	certification	{"certification":"By signing this report, I certify to the best of my knowledge and belief that the report is true, complete, and accurate, and the expenditures, disbursements and cash receipts are for the purposes and objectives set forth in the terms and conditions of the Federal award. I am aware that any false, fictitious, or fraudulent information, or the omission of any material fact, may subject me to criminal, civil or administrative penalties for fraud, false statements, false claims or otherwise. (U.S. Code Title 18, Section 1001 and Title 31, Sections 3729-3730 and 3801-3812). (2 CFR 200.415)","agency financial reviewer name":"Austin Criss","date":44155}	2020-11-20 13:39:51.833776+00	8	\N	\N	60
 1648	cover	{"agency code":"JFS01","project id":"600556","status":"Not started","reporting period end date":44104,"reporting period start date":43891,"crf end date":44195}	2020-11-20 13:39:51.833776+00	8	\N	\N	60
@@ -13985,11 +14282,175 @@ COPY public.documents (id, type, content, created_at, upload_id, last_updated_at
 43707	aggregate awards < 50000	{"funding type":"Aggregate of Loans Awarded for <$50,000"}	2021-01-03 04:19:05.47709+00	99	\N	\N	63
 43708	aggregate awards < 50000	{"funding type":"Aggregate of Transfers Awarded for <$50,000"}	2021-01-03 04:19:05.47709+00	99	\N	\N	63
 43709	aggregate awards < 50000	{"funding type":"Aggregate of Direct Payments Awarded for <$50,000"}	2021-01-03 04:19:05.47709+00	99	\N	\N	63
+43710	certification	{"certification":"By signing this report, I certify to the best of my knowledge and belief that the report is true, complete, and accurate, and the expenditures, disbursements and cash receipts are for the purposes and objectives set forth in the terms and conditions of the Federal award. I am aware that any false, fictitious, or fraudulent information, or the omission of any material fact, may subject me to criminal, civil or administrative penalties for fraud, false statements, false claims or otherwise. (U.S. Code Title 18, Section 1001 and Title 31, Sections 3729-3730 and 3801-3812). (2 CFR 200.415)","agency financial reviewer name":"Rosaland Gatewood-Tye","date":44200}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43711	cover	{"agency code":"DVS01","project id":"900607","status":"Completed 50% or more","reporting period end date":44196,"reporting period start date":44105,"crf end date":44195}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43712	projects	{"agency code":"ADJ01","project name":"Coronavirus Relief - Adjutant General","project identification number":"745632","description":"Acquisition, renovation, and supply costs to establish multiple temporary medical facilities across the state to supplement existing hospital capacity, pay allowance cost for Ohio National Guard and State Defense Force members on state active duty as well as personal protective equipment and other resources to support personnel.","naming convention":"ADJ01-745632-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43713	projects	{"agency code":"AGO01","project name":"COVID Safety- Crisis Centers","project identification number":"055507","description":"Provide grants to Ohio Child Advocacy Centers, Ohio Rape Crisis Centers and Domestic Violence Shelters in Ohio. The funding will be used to assist in operating safely during the COVID-19 public health emergency, including supporting increased sanitation costs, maintaining social distancing, purchasing personal protective equipment (PPE) and other necessary costs to comply with public health orders, local health department recommendations, and best practices.","naming convention":"AGO01-055507-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43714	projects	{"agency code":"AGO01","project name":"COVID Consumer Protection","project identification number":"055662","description":"Used by the Ohio Attorney General to provide public outreach to Ohio consumers, including older Ohioans, to prevent COVID pandemic-related scams and fraudulent schemes, and to investigate coronavirusrelated consumer complaints. Fear and uncertainty surrounding the coronavirus pandemic could give rise to an outbreak of scams and the Ohio Attorney General's Office of Consumer Protection Division is warning Ohioans about scams including phony work-from-home schemes, phishing attempts seeking personal medical information, scams impersonating government officials such as the CDC, and pandemic-related price gouging. ","naming convention":"AGO01-055662-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43715	projects	{"agency code":"AGR01","project name":"Coronavirus Relief - Local Fairs","project identification number":"700672","description":"Grants to allow fairs to be conducted in a safe manner in accordance with health guidance, consistent with good health practices necessitated by COVID-19 and provide economic relief for business interruption impacts","naming convention":"AGR01-700672-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43716	projects	{"agency code":"BOR01","project name":"Coronavirus Relief - Resident, Public Higher Education, Independent Higher Education","project identification number":"235677","description":"Funding to the Ohio's public universities and colleges with relatively large shares of students living on campus to prepare for future instructional activities in the upcoming academic year and to support the ability of each campus to comply with various COVID-19-related public health measures to include additional costs due to measures that need to be taken to mitigate COVID-19 in residences and dining halls, comprehensive COVID-19 testing programs, and mental health service on campuses.\\r\\n\\r\\nFunding to the Independent Institutions of Higher Education to support the private nonprofit and proprietary institutions to prepare for future instructional activities in the upcoming academic year and to support the ability of each campus to comply with various COVID-19-related public health measures.\\r\\n\\r\\nFunding to the Ohio's public universities and colleges with higher commuter populations along with the state's Community Colleges and Career Technical Centers to prepare for future instructional activities in the upcoming academic year and to support the ability of each campus to comply with various COVID-19-related public health measures to include comprehensive COVID-19 testing programs and mental health service on campuses.","naming convention":"BOR01-235677-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43717	projects	{"agency code":"BOR01","project name":"Coronavirus Response - Higher Education Mental Health","project identification number":"235557","description":"Funding to be utilized by the Ohio Department of Higher Education to support the immediate behavioral health response and recovery needs related to the COVID-19 pandemic on Ohio college and university campuses. ","naming convention":"BOR01-235557-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43718	projects	{"agency code":"DAS01","project name":"Coronavirus Relief - DAS (State Agency PPE, IT Security)","project identification number":"100671","description":"Statewide procurement of medical equipment and PPE; Costs associated with PPE tracking, logistical support, data and communications related to the pandemic","naming convention":"DAS01-100671-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43719	projects	{"agency code":"DEV01","project name":"Coronavirus Relief Minority/Women-Owned Grant Program","project identification number":"195608","description":"COVID-19 Relief program to provide assistance up to $10,000 for up to 500 minority- and women-owned companies impacted by the COVID-19 pandemic. ","naming convention":"DEV01-195608-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43720	projects	{"agency code":"DEV01","project name":"Coronavirus Relief PPE Manufacturing Grant Program","project identification number":"195625","description":"Provides grants to Ohio companies to acquire machinery and equipment to manufacture critically needed Personal Protective Equipment (PPE), establish new facilities to begin manufacture PPE, or retool, reconfigure, or expand existing manufacturing facilities to begin manufacturing or increase current manufacturing of PPE.","naming convention":"DEV01-195625-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43721	projects	{"agency code":"DEV01","project name":"Economic Relief - Rent, Mortgage, and Utility Assistance to Individuals","project identification number":"195693","description":"Provide funding to local Community Action Agencies to provide mortgage, rental, water and/or sewer utility payment relief and assistance to individuals facing foreclosure and eviction and economic hardship as a result of the pandemic. ","naming convention":"DEV01-195693-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43722	projects	{"agency code":"DEV01","project name":"Small Business Economic Relief Grant","project identification number":"195631","description":"Establishes the Ohio Small Business Relief Grant program to reimburse small businesses, bars, and restaurants for economic losses to support business interruption costs.","naming convention":"DEV01-195631-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43723	projects	{"agency code":"DNR01","project name":"Coronavirus Relief DNR COVID Safety","project identification number":"725697","description":"Fund seasonal positions through December 30 in order to meet COVID-19 sanitary and social distancing requirements in ODNR public spaces. To open and maintain sanitary and social distancing standards for ODNR restrooms, camp stores, and trails in accordance with new guidelines due to the COVID-19 pandemic, these additional seasonal staff are needed.","naming convention":"DNR01-725697-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43724	projects	{"agency code":"DOH01","project name":"Coronavirus Relief Local Health Department Assistance","project identification number":"440534","description":"Funding to state and local health departments for epidemiological support to prevent the spread of COVID-19 as the state reopens ","naming convention":"DOH01-440534-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43725	projects	{"agency code":"DOH01","project name":"Coronavirus Relief - Ohio Department of Health","project identification number":"440674","description":"Funding to support the Ohio Department of Health in testing expenses including the procurement of reagents and specimen collection kits, contracts with private testing companies to provide testing at nursing homes, other congregant care facilities, and pop-up testing sites across the state, and the reimbursement of testing costs at state-associated, non-ODH labs. Wrap-around services for vulnerable populations will help ensure that those that test positive for COVID-19 will have access to additional services to improve outcomes and help limit further spread of the virus. Epidemiology staff, IT, and other contracts testing to support DOH, public awareness and media campaigns, reimbursement to non-DOH labs for testing, warehousing and acquisition costs for personal protective equipment and testing materials, zone management and coordination activities, and other response costs paid by the department.","naming convention":"DOH01-440674-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43726	projects	{"agency code":"DOH01","project name":"COVID Safety - Growers Workforce Safety","project identification number":"440675","description":"Provides funding to growers to limit farmworkers' exposure to COVID-19.","naming convention":"DOH01-440675-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43727	projects	{"agency code":"DOH01","project name":"COVID Relief - Testing Contracts","project identification number":"440676","description":" Funding for the Department of Health to conduct statewide COVID-19 testing by contracting with private companies to conduct testing at nursing homes, other\\r\\ncongregant facilities, and pop-up testing sites  ","naming convention":"DOH01-440676-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43728	projects	{"agency code":"DOH01","project name":"COVID Relief - Testing Supplies and Equipment","project identification number":"440677","description":"Funding for the Department of Health to purchase supplies (e.g., specimen collection kits and point-of-care testing kits), testing equipment to maintain and expand testing statewide","naming convention":"DOH01-440677-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43729	projects	{"agency code":"DOH01","project name":"COVID Relief - Statewide Testing Lab Services","project identification number":"440678","description":"Funding for the Department of Health to support testing costs at state associated labs","naming convention":"DOH01-440678-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43730	projects	{"agency code":"DPS01","project name":"COVID Safety - Deputy Registrars and Driver Test Centers","project identification number":"762610","description":"To provide grants to Ohio Deputy Registrar locations and Driver Exam Station locations to assist with operating safely during the COVID-19 public health emergency, including supporting increased sanitation costs, maintaing social distancing, purchasing personal protective equipment (PPE) and other necessary costs to comply with public health orders, local health department recommendations, and best practices.","naming convention":"DPS01-762610-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43731	projects	{"agency code":"DPS01","project name":"Coronavirus Relief - Department of Public Safety, Emergency Management Agency","project identification number":"763691","description":"To provide funds to purchase personal protective equipment such as masks, gloves, gowns, show covers, and face shields for distribution to County EMAs, hospitals, and other medicial facilities; provide funds to support costs associated with the state Emergency Operations Center activation; provide funds to support the 25% FEMA match for resources and National Guard personnel provided as part of FEMA's Direct Federal Assistance program and Title 32 for COVID-19 response operations; support the 25% local share match for FEMA Public Assistance grants to local governments, hospitals and non-profit organizations for the first quarter of fiscal year 2021","naming convention":"DPS01-763691-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43732	projects	{"agency code":"DRC01","project name":"Coronavirus Relief - Department of Rehabilitation and Corrections","project identification number":"501627","description":"Provide funding to the Department of Rehabilitation and Corrections to prevent and respond to the spread of COVID-19 within Ohio's prisons. ","naming convention":"DRC01-501627-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43733	projects	{"agency code":"DVS01","project name":"COVID Safety - Veterans Homes","project identification number":"900607","description":"Funding for Department of Veterans Services to safely operate the veterans homes in Sandusky and Georgetown, Ohio during the COVID-19 public health emergency, including supporting increased sanitation costs, maintaining social distancing, purchasing personal protective equipment (PPE), and other necessary costs to comply with public health orders, local health department","naming convention":"DVS01-900607-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43734	projects	{"agency code":"EDU01","project name":"Coronavirus Relief - Rural and small Town School Districts","project identification number":"200632","description":"Funding provided to rural and small town school districts for necessary expenditures incurred due to the public health emergency.","naming convention":"EDU01-200632-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43735	projects	{"agency code":"EDU01","project name":"Coronavirus Relief - Suburban School Districts","project identification number":"200642","description":"Funding provided to suburban school districts for necessary expenditures incurred due to the public health emergency","naming convention":"EDU01-200642-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43736	projects	{"agency code":"EDU01","project name":"Coronavirus Relief - Urban School Districts","project identification number":"200643","description":"Funding provided to urban school districts for necessary expenditures incurred due to the public health emergency","naming convention":"EDU01-200643-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
 20998	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
+43737	projects	{"agency code":"EDU01","project name":"Coronavirus Relief - School Connectivity Program","project identification number":"200647","description":"Funding for a grant program for school districts, joint vocational school districts, educational service centers, community schools, STEM schools, and non-public schools to support connectivity for in-need students. ","naming convention":"EDU01-200647-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43738	projects	{"agency code":"EDU01","project name":"Coronavirus Relief - Other Education Entities","project identification number":"200650","description":"Funding to other education entities to include Community Schools, County Boards of Developmental Disabilities, Joint Vocational School Districts, Independent STEM Schools, and Non-Public Schools for necessary expenditures incurred due to the public health emergency","naming convention":"EDU01-200650-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43739	projects	{"agency code":"EPA01","project name":"Coronavirus Relief - Wastewater Testing","project identification number":"715600","description":"Fund the initial phase of a wastewater-based epidemiology project to cover sample collection, laboratory testing costs, and training.","naming convention":"EPA01-715600-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43740	projects	{"agency code":"JFS01","project name":"Coronavirus Relief - Childcare","project identification number":"600664","description":"Funding to support Child Care providers electing to maintain reduced classes due to public health precautions and to create a new Trauma Informed Certificate to provide professional development and training to state staff, children service residential staff and child care providers to best assist children and families during times of stress and change caused by the pandemic.","naming convention":"JFS01-600664-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43741	projects	{"agency code":"JFS01","project name":"Coronavirus Relief - Non-profit Economic Relief","project identification number":"600556","description":"Provide grants to non-profit agencies providing high priority social services support to individuals, families and at-risk communities and that have been interrupted or impacted due to the COVID-19 pandemic. ","naming convention":"JFS01-600556-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43742	projects	{"agency code":"OBM01","project name":"Coronavirus Relief - Local Government Distribution","project identification number":"042501","description":"Distribution of funds to local governments for their use for necessary costs due to the public health emergency.","naming convention":"OBM01-042501-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43743	projects	{"agency code":"OBM01","project name":"Provider Relief - Skilled Nursing Facility","project identification number":"042502","description":"Provider relief to skilled nursing facilities to support necessary expenditures to compensate for business interruption and to comply with health orders and related response activities necessary due to the public health emergency.","naming convention":"OBM01-042502-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43744	projects	{"agency code":"OBM01","project name":"Provider Relief - Infection Control","project identification number":"042503","description":"Provider relief to skilled nursing facilities who have demonstrated infection control measures to support necessary expenditures to compensate for business interruption and to comply with health orders and related response activities necessary due to the public health emergency.","naming convention":"OBM01-042503-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43745	projects	{"agency code":"OBM01","project name":"Provider Relief - Long-Term Care","project identification number":"042504","description":"Provider relief to long-term care facilities and individual providers to support necessary expenditures to compensate for business interruption and to comply with health orders and related response activities necessary due to the public health emergency. ","naming convention":"OBM01-042504-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43746	projects	{"agency code":"OBM01","project name":"Proviers Relief - Rural & Critical Access Hospitals","project identification number":"042505","description":"Provide critically needed provider relief payments for business interuption costs to a targeted segment of the hospital industry that provide critical access to hospital services to Medicaid recipients and the public in rural and underserved areas.","naming convention":"OBM01-042505-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43747	projects	{"agency code":"OBM01","project name":"Provider Relief - Behavorial Health","project identification number":"042506","description":"Provide critically needed provider relief payments to behavioral health providers for business interuption costs and to comply with health orders and related response activities necessary due to the public health emergency. ","naming convention":"OBM01-042506-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43748	projects	{"agency code":"OBM01","project name":"COVID Safety - Public Libraries","project identification number":"042507","description":"Grants to Ohio public libraries to assist libraries in operating safely during the COVID-19 public health emergency, including supporting increased sanitation costs, maintaining social distancing, purchasing personal protective equipment (PPE) and other necessary costs to comply with public health orders, local health department recommendations, and best practices.","naming convention":"OBM01-042507-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43749	projects	{"agency code":"OBM01","project name":"COVID Safety - Veterans Posts","project identification number":"042508","description":"Grants to Congressionally chartered veterans service organizations in Ohio with an active post location. The funding will be used to assist Ohio veterans posts in operating safely during the COVID-19 public health emergency, including supporting increased sanitation costs, maintaining social distancing, purchasing personal\\r\\nprotective equipment (PPE) and other necessary costs to comply with public health orders, local health department\\r\\nrecommendations, and best practices.","naming convention":"OBM01-042508-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43750	projects	{"agency code":"OBM01","project name":"Coronavirus Relief - State Agency Reimbursement ","project identification number":"042621","description":"Reimburse eligible COVID-19 expenses incurred by state agencies not receiving stand-alone appropriations and cover other state-wide pandemic recovery costs","naming convention":"OBM01-042621-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
 20999	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
 21000	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
+43751	projects	{"agency code":"OBM01","project name":"Provider Relief - Adult Day Service and Senior Center","project identification number":"042515","description":"Provides economic relief and grants to Adult Day Service Facilities and Senior Centers that were required to discontinue in-person service delivery in March 2020 pursuant to a Health Director's Order. On August 31, 2020, the Director of the Department of Health issued a revised order permitting facility-based services to begin on September 21, 2020 if they meet certain safety standards, including reduced capacity and spacing, sanitation, signage and communication, facility standards, activity requirements and staffing protocols. Both types of facilities were impacted during the pandemic due to the high degree of susceptibility to COVID-19 and the congregate nature of the services provided to the public. Providers in this sector have incurred significant losses, continue to incur losses, and are experiencing additional costs due to the pandemic.","naming convention":"OBM01-042515-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43752	projects	{"agency code":"DMH01","project name":"COVID Response - Mental Health","project identification number":"336513","description":"Funding to support response efforts in three primary areas: visibility and access for services, psychiatric inpatient and crisis care, and supports and capacity building for child welfare, first responders, suicide prevention and support for students and staff in primary, secondary and higher education. Funding will support access to in-person services including inpatient psychiatric care for indigent adults; increased knowledge of how to connect with care, including promoting the 24/7 Ohio CareLine, and expanding outreach and facilitating opportunities for community screening, brief interventions, and referral to treatment an at targeted locations where people experiencing emotional distress are already going; and expanded mental health and suicide prevention education and connections to care for the general population, first responders, students and educators, minority Ohioans, families in contact with child welfare, and other high-risk populations.","naming convention":"DMH01-336513-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43753	projects	{"agency code":"ART01","project name":"Coronavirus Relief - Art/Cultural Organizations","project identification number":"370503","description":"Economic relief to non-profit organizations whose primary mission is cultural, artistic, or performing arts to assist with business interruption costs","naming convention":"ART01-370503-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43754	projects	{"agency code":"AGE01","project name":"COVID Response - Aging Air Quality","project identification number":490629,"description":"Funding to area agencies on aging to assist vulnerable population with indoor air quality.","naming convention":"AGE01-490629-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43755	projects	{"agency code":"BWC01","project name":"COVID Response - BWC Air Quality","project identification number":855620,"description":"Funding will be used to provide assistance to eligible non-profit non-governmental nursing homes, assisted living centers, and adult day service facilities.","naming convention":"BWC01-855620-123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43756	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43757	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43758	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43759	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43760	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43761	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43762	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43763	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43764	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43765	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43766	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43767	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43768	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43769	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43770	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43771	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43772	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43773	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43774	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43775	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
 21001	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
 21002	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
+43776	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43777	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43778	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43779	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43780	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43781	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43782	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43783	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43784	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43785	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43786	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43787	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43788	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43789	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43790	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43791	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43792	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43793	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43794	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43795	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43796	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43797	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43798	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43799	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43800	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43801	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43802	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43803	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43804	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43805	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43806	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43807	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43808	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43809	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43810	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43811	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43812	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43813	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43814	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43815	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43816	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43817	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43818	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43819	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43820	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43821	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43822	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43823	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43824	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43825	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43826	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43827	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43828	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43829	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43830	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43831	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43832	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43833	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43834	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43835	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43836	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43837	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43838	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43839	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43840	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43841	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43842	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43843	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43844	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43845	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43846	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43847	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43848	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43849	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43850	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43851	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43852	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43853	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43854	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43855	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43856	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43857	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43858	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43859	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43860	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43861	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43862	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43863	projects	{"naming convention":"--123120-v1.xlsx"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43864	subrecipient	{"identification number":"DUNS229814","duns number":"229814","legal name":"Ingenesis Inc.","address line 1":"10231 KOTZEBUE ST","city name":"SAN ANTONIO","state code":"TX","zip":"78217","country name":"United States","organization type":"For-Profit Organization (Other than Small Business)"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43865	subrecipient	{"identification number":"DUNS99556","duns number":"99556","legal name":"McKesson Medical-Surgical","address line 1":"3750 BROOKHAM DR STE F","city name":"GROVE CITY","state code":"OH","zip":"43123","country name":"United States","organization type":"For-Profit Organization (Other than Small Business)"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43866	direct	{"project id":"900607","subrecipient id":"229814","subrecipient legal name":"Ingenesis Inc.","obligation amount":43514.85,"obligation date":44195,"current quarter obligation":43514.85,"expenditure start date":44105,"expenditure end date":44195,"total expenditure amount":43514.85,"nursing home assistance":43514.85,"sum of expenses":43514.85}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43867	direct	{"project id":"900607","subrecipient id":"99556","subrecipient legal name":"McKesson Medical-Surgical","obligation amount":23010,"obligation date":44195,"current quarter obligation":23010,"expenditure start date":44105,"expenditure end date":44195,"total expenditure amount":23010,"covid-19 testing and contact tracing":23010,"sum of expenses":23010}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43868	aggregate awards < 50000	{"funding type":"Aggregate of Contracts Awarded for <$50,000"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43869	aggregate awards < 50000	{"funding type":"Aggregate of Grants Awarded for <$50,000"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43870	aggregate awards < 50000	{"funding type":"Aggregate of Loans Awarded for <$50,000"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43871	aggregate awards < 50000	{"funding type":"Aggregate of Transfers Awarded for <$50,000"}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43872	aggregate awards < 50000	{"funding type":"Aggregate of Direct Payments Awarded for <$50,000","updates this quarter?":"Yes","current quarter obligation":14145.94,"current quarter expenditure/payments":14145.94}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
+43873	aggregate payments individual	{"updates this quarter?":"Yes","current quarter obligation":582896.13,"current quarter expenditure":582896.13}	2021-01-04 21:57:58.507638+00	100	\N	\N	22
 21003	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
 21004	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
 21005	projects	{"naming convention":"--093020-v1.xlsx"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
@@ -16413,9 +16874,11 @@ COPY public.documents (id, type, content, created_at, upload_id, last_updated_at
 21162	aggregate awards < 50000	{"funding type":"Aggregate of Direct Payments Awarded for <$50,000","updates this quarter?":"Yes"}	2020-12-02 13:01:18.706881+00	56	\N	\N	42
 \.
 
+
 --
 -- Data for Name: knex_migrations; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
 1	20200822130655_initial.js	1	2020-09-23 21:59:21.339+00
 2	20200823071001_add_template_id_to_uploads.js	1	2020-09-23 21:59:21.39+00
@@ -16449,16 +16912,20 @@ COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
 32	20201230152027_add_subrecipient_to_summaries.js	13	2020-12-31 17:22:48.334+00
 \.
 
+
 --
 -- Data for Name: knex_migrations_lock; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.knex_migrations_lock (index, is_locked) FROM stdin;
 1	0
 \.
 
+
 --
 -- Data for Name: period_summaries; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.period_summaries (id, reporting_period_id, project_code, award_type, award_number, current_obligation, current_expenditure, subrecipient_identification_number) FROM stdin;
 3	1	042505	direct	8-21591:44089	55159.63	55159.63	8-21591
 4	1	042505	direct	8-21600:44057	63904.56	63904.56	8-21600
@@ -19623,9 +20090,11 @@ COPY public.period_summaries (id, reporting_period_id, project_code, award_type,
 3157	1	440534	grants	0841	260093.00	6754.62	791688716
 \.
 
+
 --
 -- Data for Name: projects; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.projects (id, code, name, agency_id, status, description, created_at, created_by, updated_at, updated_by, created_in_period) FROM stdin;
 50	195693	Economic Relief - Rent, Mortgage, and Utility Assistance to Individuals	23	Completed 50% or more	Provide funding to local Community Action Agencies to provide mortgage, rental, water and/or sewer utility payment relief and assistance to individuals facing foreclosure and eviction and economic hardship as a result of the pandemic.	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
 51	195631	Small Business Economic Relief Grant	23	Completed 50% or more	Establishes the Ohio Small Business Relief Grant program to reimburse small businesses, bars, and restaurants for economic losses to support business interruption costs.	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
@@ -19638,7 +20107,7 @@ COPY public.projects (id, code, name, agency_id, status, description, created_at
 44	700672	Coronavirus Relief - Local Fairs	4	Completed 50% or more	Grants to allow fairs to be conducted in a safe manner in accordance with health guidance, consistent with good health practices necessitated by COVID-19 and provide economic relief for business interruption impacts	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
 55	440675	COVID Safety - Growers Workforce Safety	32	Less than 50% completed	Provides funding to growers to limit farmworkers' exposure to COVID-19.	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
 48	195608	Coronavirus Relief Minority/Women-Owned Grant Program	23	Completed 50% or more	COVID-19 Relief program to provide assistance up to $10,000 for up to 500 minority- and women-owned companies impacted by the COVID-19 pandemic.	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
-62	900607	COVID Safety - Veterans Homes	71	Less than 50% completed	Funding for Department of Veterans Services to safely operate the veterans homes in Sandusky and Georgetown, Ohio during the COVID-19 public health emergency, including supporting increased sanitation costs, maintaining social distancing, purchasing personal protective equipment (PPE), and other necessary costs to comply with public health orders, local health department	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
+62	900607	COVID Safety - Veterans Homes	71	Completed 50% or more	Funding for Department of Veterans Services to safely operate the veterans homes in Sandusky and Georgetown, Ohio during the COVID-19 public health emergency, including supporting increased sanitation costs, maintaining social distancing, purchasing personal protective equipment (PPE), and other necessary costs to comply with public health orders, local health department	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
 79	042621	Coronavirus Relief - State Agency Reimbursement 	12	Completed 50% or more	Reimburse eligible COVID-19 expenses incurred by state agencies not receiving stand-alone appropriations and cover other state-wide pandemic recovery costs	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
 41	745632	Coronavirus Relief - Adjutant General	1	Completed 50% or more	Acquisition, renovation, and supply costs to establish multiple temporary medical facilities across the state to supplement existing hospital capacity, pay allowance cost for Ohio National Guard and State Defense Force members on state active duty as well as personal protective equipment and other resources to support personnel.	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
 65	200643	Coronavirus Relief - Urban School Districts	25	Completed 50% or more	Funding provided to urban school districts for necessary expenditures incurred due to the public health emergency	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
@@ -19671,9 +20140,11 @@ COPY public.projects (id, code, name, agency_id, status, description, created_at
 52	725697	Coronavirus Relief DNR COVID Safety	47	Less than 50% completed	Fund seasonal positions through December 30 in order to meet COVID-19 sanitary and social distancing requirements in ODNR public spaces. To open and maintain sanitary and social distancing standards for ODNR restrooms, camp stores, and trails in accordance with new guidelines due to the COVID-19 pandemic, these additional seasonal staff are needed.	2020-12-18 14:51:03.552621+00	\N	\N	\N	1
 \.
 
+
 --
 -- Data for Name: reporting_periods; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.reporting_periods (id, name, start_date, end_date, period_of_performance_end_date, certified_at, certified_by, reporting_template, validation_rule_tags, open_date, close_date, review_period_start_date, review_period_end_date, final_report_file, crf_end_date) FROM stdin;
 3	March, 2021	2021-01-01	2021-03-31	2020-12-30	\N	\N	OBM Reporting Template.xlsx	\N	2021-01-22	2021-04-12	2021-04-13	2021-04-20	\N	2020-12-30
 4	June, 2021	2021-04-01	2021-06-30	2020-12-30	\N	\N	OBM Reporting Template.xlsx	\N	2021-04-22	2021-07-12	2021-07-13	2021-07-20	\N	2020-12-30
@@ -19682,21 +20153,208 @@ COPY public.reporting_periods (id, name, start_date, end_date, period_of_perform
 1	September 2020	2020-03-01	2020-09-30	2020-12-30	2020-12-30 17:33:32.921+00	{"id":44,"email":"michael@stanford.cc","name":null,"role":"admin","created_at":"2020-11-18T17:33:26.049Z","tags":null,"agency_id":null}	OBM Reporting Template.xlsx	\N	\N	\N	\N	\N	Ohio-Period-1-CRF-Report-to-OIG-V.2020-12-30T172720.xlsx	2020-12-30
 \.
 
+
 --
 -- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.roles (id, name, rules, created_at) FROM stdin;
 2	admin	{}	2020-09-23 22:00:45.409795+00
 3	reporter	{}	2020-09-23 22:00:49.833741+00
 \.
 
+
 --
+
 
 --
 -- Data for Name: subrecipients; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.subrecipients (id, identification_number, duns_number, legal_name, address_line_1, address_line_2, address_line_3, city_name, state_code, zip, country_name, organization_type, created_at, created_by, updated_at, updated_by, created_in_period) FROM stdin;
+3341	42199	\N	ADAMS BROWN COUNTIES ECONOMIC	406 W PLUM ST	\N	\N	GEORGETOWN	OH	45121	United States	Other	2021-01-05 15:00:27.015049+00	\N	\N	\N	\N
+3348	42359	\N	CLINTON CO COMM ACTION PROG	PO BOX 32	\N	\N	WILMINGTON	OH	45177-0032	United States	Other	2021-01-05 15:00:27.399949+00	\N	\N	\N	\N
+3353	42291	\N	COMMUNITY ACTION COMMITTEE OF	941 MARKET ST	\N	\N	PIKETON	OH	45661	United States	Other	2021-01-05 15:00:27.600692+00	\N	\N	\N	\N
+3367	78792	\N	JEFFERSON COUNTY COMMUNITY	PO BOX 130	\N	\N	STEUBENVILLE	OH	43952-5130	United States	Other	2021-01-05 15:00:27.799975+00	\N	\N	\N	\N
+3386	403871	\N	AVI FOOD SYSTEMS, INC.	2590 Elm Road NE	\N	\N	Warren	OH	44483	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:27.996578+00	\N	\N	\N	\N
+3393	427873	\N	RISER FOODS CO	P.O. Box 951676	\N	\N	Cleveland	OH	44193	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.095263+00	\N	\N	\N	\N
+3398	57848	\N	COLUMBUS SYMPHONY ORCHESTRA INC	55 E STATE ST	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.109947+00	\N	\N	\N	\N
+3408	76417	\N	COLUMBUS MUSEUM OF ART	480 E BROAD ST	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.299955+00	\N	\N	\N	\N
+3411	41618	\N	CINCINNATI MUSICAL FESTIVAL	1241 ELM ST	-	\N	CINCINNATI	OH	45210	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.302456+00	\N	\N	\N	\N
+3441	52313	\N	CINCINNATI SHAKESPEARE COMPANY	217 W 12TH ST	-	\N	CINCINNATI	OH	45202	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.799511+00	\N	\N	\N	\N
+3449	51228	\N	HUMAN RACE INC	126 N MAIN ST STE 300	-	\N	DAYTON	OH	45402-1710	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.899498+00	\N	\N	\N	\N
+3460	10607	\N	COMMUNITY ARTS PROJECT INC	867 MT VERNON AVE	-	\N	COLUMBUS	OH	43203	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.995496+00	\N	\N	\N	\N
+3487	78766	\N	TOLEDO OPERA ASSOCIATION	425 JEFFERSON AVE STE 601	-	\N	TOLEDO	OH	43604	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.295874+00	\N	\N	\N	\N
+3497	142600	\N	LOGAN COUNTY LANDMARK PRESERVATION INC	127 E COLUMBUS AVE	-	\N	BELLEFONTAINE	OH	43311	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.299354+00	\N	\N	\N	\N
+3509	7108	\N	CLEVELAND FESTIVAL OF ART & TECHNOLOGY	5401 HAMILTON AVE	-	\N	CLEVELAND	OH	44114	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.497653+00	\N	\N	\N	\N
+3512	142635	\N	KNOW THEATRE TRIBE	1120 JACKSON ST	-	\N	CINCINNATI	OH	45202	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.50477+00	\N	\N	\N	\N
+3514	72916	\N	OXFORD COMMUNITY ARTS CENTER	10 S COLLEGE AVE	-	\N	OXFORD	OH	45056	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.507018+00	\N	\N	\N	\N
+3515	10713	\N	FAIRMOUNT CENTER FOR CREATIVE	8400 FAIRMOUNT RD	-	\N	NOVELTY	OH	44072	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.509065+00	\N	\N	\N	\N
+3342	68328	\N	AKRON SUMMIT COMMUNITY ACTION	PO BOX 2000	\N	\N	AKRON	OH	44309	United States	Other	2021-01-05 15:00:27.015299+00	\N	\N	\N	\N
+3357	42551	\N	COMMUNITY ACTION PROGRAM CORPORATION OF	PO BOX 144	\N	\N	MARIETTA	OH	45750-0144	United States	Other	2021-01-05 15:00:27.696637+00	\N	\N	\N	\N
+3361	68381	\N	HARCATUS TRI COUNTY CAO	225 FAIR AVE NE	\N	\N	NEW PHILADELPHIA	OH	44663	United States	Other	2021-01-05 15:00:27.700484+00	\N	\N	\N	\N
+3372	68356	\N	LORAIN COUNTY COMMUNITY	936 BROADWAY AVE	\N	\N	LORAIN	OH	44052	United States	Other	2021-01-05 15:00:27.901516+00	\N	\N	\N	\N
+3375	68397	\N	NORTHWESTERN OHIO COMMUNITY ACTION	1933 E 2ND STREET	\N	\N	DEFIANCE	OH	43512	United States	Other	2021-01-05 15:00:27.903742+00	\N	\N	\N	\N
+3381	42348	\N	PICKAWAY COUNTY COMMUNITY	469 E OHIO ST	\N	\N	CIRCLEVILLE	OH	43113	United States	Other	2021-01-05 15:00:27.9062+00	\N	\N	\N	\N
+3392	427893	\N	TAMARKIN COMPANY	P.O. Box 951676	\N	\N	Cleveland	OH	44193	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.094987+00	\N	\N	\N	\N
+3402	46779	\N	BALLET METROPOLITAN INC	322 MT VERNON AVE	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.196301+00	\N	\N	\N	\N
+3414	10726	\N	DAYTON CONTEMPORARY DANCE COMP	840 GERMANTOWN ST	-	\N	DAYTON	OH	45402	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.396063+00	\N	\N	\N	\N
+3427	42906	\N	SCIOTO SOCIETY INC	PO BOX 73	-	\N	CHILLICOTHE	OH	45601-0073	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.694966+00	\N	\N	\N	\N
+3437	102339	\N	BECK CENTER FOR THE ARTS	17801 DETROIT AVE	-	\N	LAKEWOOD	OH	44107	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.79663+00	\N	\N	\N	\N
+3450	64087	\N	NEAR WEST THEATRE INC	6702 DETROIT AVE	-	\N	CLEVELAND	OH	44102	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.89977+00	\N	\N	\N	\N
+3461	76954	\N	MAGICAL THEATRE COMPANY	PO BOX  386	-	\N	BARBERTON	OH	44203-0386	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.995892+00	\N	\N	\N	\N
+3471	64666	\N	INTERMUSEUM CONSERVATION ASSOCIATION	2915 DETROIT AVE	-	\N	CLEVELAND	OH	44113-2709	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.19498+00	\N	\N	\N	\N
+3486	178403	\N	MELODIC CONNECTIONS INC	6940 PLAINFIELD RD	-	\N	CINCINNATI	OH	45236	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.29571+00	\N	\N	\N	\N
+3496	58452	\N	ARTS COMM OF GREATER TOLEDO	1838 PARKWOOD AVE STE 120	-	\N	TOLEDO	OH	43624-2525	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.299034+00	\N	\N	\N	\N
+3510	14825	\N	INLET DANCE THEATRE	11125 MAGNOLIA DR	-	\N	CLEVELAND	OH	44106	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.499985+00	\N	\N	\N	\N
+3513	142614	\N	COMMUNITY PARTNERSHIP FOR ARTS & CULTURE	1900 SUPERIOR AVE STE 130	-	\N	CLEVELAND	OH	44114	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.505958+00	\N	\N	\N	\N
+3343	42297	\N	BRIDGES COMMUNITY ACTION PARTNERSHIP	232 N MAIN ST STE G	\N	\N	MARYSVILLE	OH	43040	United States	Other	2021-01-05 15:00:27.015868+00	\N	\N	\N	\N
+3352	54771	\N	COMMUNITY ACTION PROGRAM COMM	PO BOX 272	\N	\N	CHESHIRE	OH	45620-0727	United States	Other	2021-01-05 15:00:27.600216+00	\N	\N	\N	\N
+3366	42276	\N	JACKSON VINTON COMM ACTION INC	118 S NEW YORK AVE	\N	\N	WELLSTON	OH	45692	United States	Other	2021-01-05 15:00:27.704969+00	\N	\N	\N	\N
+3389	51896	\N	WEST OHIO COMMUNITY ACTION PARTNERSHIP	540 S CENTRAL AVE	\N	\N	LIMA	OH	45804	United States	Other	2021-01-05 15:00:28.000378+00	\N	\N	\N	\N
+3395	47215	\N	VICTORIA THEATRE ASSOCIATION	138 N MAIN ST	-	\N	DAYTON	OH	45402	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.099955+00	\N	\N	\N	\N
+3404	44924	\N	CINCINNATI OPERA ASSOCIATION	1243 ELM ST	-	\N	CINCINNATI	OH	45202-7531	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.294985+00	\N	\N	\N	\N
+3416	48425	\N	ENSEMBLE THEATRE OF CINCINNATI	1127 VINE ST	-	\N	CINCINNATI	OH	45202	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.397516+00	\N	\N	\N	\N
+3424	76088	\N	FRANKLIN PARK CONSERVATORY	1777 E BROAD ST	-	\N	COLUMBUS	OH	43203-2040	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.59999+00	\N	\N	\N	\N
+3435	167789	\N	MALTZ MUSEUM OF JEWISH HERITAGE	2929 RICHMOND RD	-	\N	BEACHWOOD	OH	44122	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.796143+00	\N	\N	\N	\N
+3440	58459	\N	CLEVELAND PUBLIC THEATRE	6415 DETROIT AVE	-	\N	CLEVELAND	OH	44102	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.798558+00	\N	\N	\N	\N
+3444	51133	\N	CATCO-PHOENIX INC	55 E STATE ST	-	\N	COLUMBUS	OH	43215-4264	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.896875+00	\N	\N	\N	\N
+3456	58271	\N	TIFFIN THEATRE INC	30 S WASHINGTON ST	-	\N	TIFFIN	OH	44883-2346	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.901536+00	\N	\N	\N	\N
+3467	62247	\N	GROUNDWORKS DANCETHEATER	13125 SHAKER SQ STE 102	-	\N	CLEVELAND	OH	44120	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.096476+00	\N	\N	\N	\N
+3475	43437	\N	ZANESVILLE ART CENTER	620 MILITARY RD	-	\N	ZANESVILLE	OH	43701	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.197641+00	\N	\N	\N	\N
+3489	72130	\N	PROFESSIONAL FLAIR INC	3030 EUCLID AVE STE100	-	\N	CLEVELAND	OH	44115	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.296492+00	\N	\N	\N	\N
+3498	54546	\N	SPRINGFIELD MUSEUM OF ART	107 CLIFF PARK RD	-	\N	SPRINGFIELD	OH	45504	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.300088+00	\N	\N	\N	\N
+3504	212890	\N	GLASS AXIS	610 W TOWN STREET	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.495522+00	\N	\N	\N	\N
+3521	229814	229814	Ingenesis Inc.	10231 KOTZEBUE ST	\N	\N	SAN ANTONIO	TX	78217	United States	For-Profit Organization (Other than Small Business)	2021-01-05 15:00:29.597977+00	\N	\N	\N	\N
+3344	50452	\N	CLERMONT CO COMM SVCS INC	3003 HOSPITAL DR	\N	\N	BATAVIA	OH	45103	United States	Other	2021-01-05 15:00:27.100273+00	\N	\N	\N	\N
+3351	42368	\N	COMMUNITY ACTION COMMISSION OF FAYETTE	1400 US ROUTE 22NW	\N	\N	WASHINGTON COURT HOUSE	OH	43160	United States	Other	2021-01-05 15:00:27.595089+00	\N	\N	\N	\N
+3358	68444	\N	GREAT LAKES COMMUNITY ACTION PARTNERSHIP	127 S FRONT ST	\N	\N	FREMONT	OH	43420	United States	Other	2021-01-05 15:00:27.697565+00	\N	\N	\N	\N
+3365	42242	\N	IRONTON-LAWRENCE COUNTY	305 N FIFTH ST	\N	\N	IRONTON	OH	45638	United States	Other	2021-01-05 15:00:27.704546+00	\N	\N	\N	\N
+3385	68351	\N	TRUMBULL COMMUNITY ACTION	1230 PALMYRA RD SW	\N	\N	WARREN	OH	44485	United States	Other	2021-01-05 15:00:27.995854+00	\N	\N	\N	\N
+3400	63144	\N	MUSICAL ARTS ASSOCIATION	11001 EUCLID AVE	-	\N	CLEVELAND	OH	44106	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.195044+00	\N	\N	\N	\N
+3409	66620	\N	GREAT LAKES THEATER FESTIVAL	1501 EUCLID AVE STE 300	-	\N	CLEVELAND	OH	44115	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.300015+00	\N	\N	\N	\N
+3419	44804	\N	CINCINNATI MUSEUM ASSOCIATION	953 EDEN PARK DR	-	\N	CINCINNATI	OH	45202-1557	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.499447+00	\N	\N	\N	\N
+3429	71341	\N	NEWARK MIDLAND	PO BOX 550	-	\N	NEWARK	OH	43058-0550	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.695279+00	\N	\N	\N	\N
+3438	46702	\N	JAZZ ARTS GROUP OF COLUMBUS	769 EAST LONG STREET	-	\N	COLUMBUS	OH	43203	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.795971+00	\N	\N	\N	\N
+3452	78781	\N	WEATHERVANE COMM PLAYHOUSE	1301 WEATHERVANE LANE	-	\N	AKRON	OH	44313	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.900192+00	\N	\N	\N	\N
+3462	55422	\N	CLEVELAND POPS ORCHESTRA	24000 MERCANTILE RD STE 8	-	\N	BEACHWOOD	OH	44122	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.094992+00	\N	\N	\N	\N
+3472	78782	\N	CLEVELAND MODERN DANCE ASSN	13110 SHAKER ST STE 106	-	\N	CLEVELAND	OH	44120	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.194981+00	\N	\N	\N	\N
+3491	70788	\N	HEIGHTS ARTS COLLABORATIVE INC	2175 LEE RD	-	\N	CLEVELAND HEIGHTS	OH	44118	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.297237+00	\N	\N	\N	\N
+3501	2646	\N	PROGRESSIVE ARTS ALLIANCE INC	3311 PERKINS AVE STE 300	-	\N	CLEVELAND	OH	44114	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.396587+00	\N	\N	\N	\N
+3516	7593	\N	BALLET THEATRE OF TOLEDO INC	1124 CORPORATE DR	-	\N	HOLLAND	OH	43528	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.596034+00	\N	\N	\N	\N
+3345	54726	\N	CINCINNATI HAMILTON COUNTY	1740 LANGDON FARM RD	\N	\N	CINCINNATI	OH	45237	United States	Other	2021-01-05 15:00:27.099961+00	\N	\N	\N	\N
+3356	69763	\N	COMMUNITY ACTION WAYNE MEDINA	820B W LAFAYETTE RD	\N	\N	MEDINA	OH	44256	United States	Other	2021-01-05 15:00:27.695975+00	\N	\N	\N	\N
+3364	42301	\N	HAP COMMUNITY ACTION	PO BOX 220	\N	\N	GLOUSTER	OH	45732	United States	Other	2021-01-05 15:00:27.703953+00	\N	\N	\N	\N
+3377	10787	\N	LIFELINE FOR THE EMPOWERMENT &	8 N STATE ST STE 435	\N	\N	PAINESVILLE	OH	44077	United States	Other	2021-01-05 15:00:27.903971+00	\N	\N	\N	\N
+3388	56007	\N	SUPPORTS TO ENCOURAGE LOW	PO BOX 1322	\N	\N	HAMILTON	OH	45012-1322	United States	Other	2021-01-05 15:00:28.000107+00	\N	\N	\N	\N
+3394	42705	\N	COLUMBUS ASSOCIATION FOR THE	55 E STATE ST	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.096401+00	\N	\N	\N	\N
+3406	44879	\N	DAYTON ART INSTITUTE	456 BELMONTE PARK N	-	\N	DAYTON	OH	45405-4700	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.295508+00	\N	\N	\N	\N
+3422	69943	\N	COMMUNITY HALL FOUNDATION INC	182 S MAIN ST	-	\N	AKRON	OH	44308	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.595172+00	\N	\N	\N	\N
+3430	53363	\N	CLEVELAND INTERNATIONAL FILM	2510 MARKET AVE	-	\N	CLEVELAND	OH	44113-3434	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.695684+00	\N	\N	\N	\N
+3436	69351	\N	ART OPPORTUNITIES INC	20 E CENTRAL PKWY	-	\N	CINCINNATI	OH	45202-7239	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.796367+00	\N	\N	\N	\N
+3447	45805	\N	LANCASTER FESTIVAL INC	PO BOX 1452	-	\N	LANCASTER	OH	43130-6452	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.898001+00	\N	\N	\N	\N
+3453	10902	\N	PALACE CULTURAL ARTS ASSOC	276 W CENTER ST	-	\N	MARION	OH	43302	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.900849+00	\N	\N	\N	\N
+3466	59242	\N	COLUMBUS & CENTRAL OHIO CHILDRENS	760 E BROAD ST	-	\N	COLUMBUS	OH	43205	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.096271+00	\N	\N	\N	\N
+3473	248542	\N	FRONT Exhibition Company	1460 W 29th St	-	\N	Cleveland	OH	44113	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.195438+00	\N	\N	\N	\N
+3494	49869	\N	CINCINNATI ARTS ASSOCIATION	650 WALNUT ST	-	\N	CINCINNATI	OH	45202	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.29844+00	\N	\N	\N	\N
+3502	55182	\N	RABBIT RUN COMMUNITY ARTS ASSN	PO BOX 235	-	\N	MADISON	OH	44057-0235	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.397521+00	\N	\N	\N	\N
+3511	251180	\N	Harmony Project Productions Inc	779 E Long St	-	\N	Columbus	OH	43203	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.504015+00	\N	\N	\N	\N
+3520	104031	\N	ASHTABULA ARTS CENTER	2928 W 13TH STREET	-	\N	ASHTABULA	OH	44004	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.597601+00	\N	\N	\N	\N
+3346	71822	\N	ASHTABULA COUNTY COMMUNITY ACTION AGENCY	6920 AUSTINBURG RD	\N	\N	ASHTABULA	OH	44004	United States	Other	2021-01-05 15:00:27.015525+00	\N	\N	\N	\N
+3347	78790	\N	COMMUNITY ACTION AGENCY OF COLUMBIANA	7880 LINCOLE PL	\N	\N	LISBON	OH	44432	United States	Other	2021-01-05 15:00:27.397334+00	\N	\N	\N	\N
+3349	69792	\N	COMMUNITY ACTION COMMISSION OF ERIE	908 SEAVERS WAY	\N	\N	SANDUSKY	OH	44870	United States	Other	2021-01-05 15:00:27.494985+00	\N	\N	\N	\N
+3355	54770	\N	COMMUNITY ACTION PROGRAM COMMISION OF	PO BOX 768	\N	\N	LANCASTER	OH	43130-0768	United States	Other	2021-01-05 15:00:27.695137+00	\N	\N	\N	\N
+3360	69769	\N	HANCOCK-HARDIN WYANDOT &	1637 TIFFIN AVE	\N	\N	FINDLAY	OH	45840	United States	Other	2021-01-05 15:00:27.699952+00	\N	\N	\N	\N
+3368	42327	\N	KNO-HO-CO-ASHLAND CAC	120 N 4TH ST	\N	\N	COSHOCTON	OH	43812	United States	Other	2021-01-05 15:00:27.799984+00	\N	\N	\N	\N
+3373	47449	\N	MIAMI COUNTY COMMUNITY ACTION	1695 TROY-SIDNEY RD	\N	\N	TROY	OH	45373	United States	Other	2021-01-05 15:00:27.902604+00	\N	\N	\N	\N
+3379	43245	\N	OIC OF CLARK COUNTY	10 S YELLOW SPRINGS ST	\N	\N	SPRINGFIELD	OH	45506	United States	Other	2021-01-05 15:00:27.904844+00	\N	\N	\N	\N
+3382	56669	\N	STARK COUNTY COMMUNITY ACTION AGENCY	1366 MARKET AVE N	\N	\N	CANTON	OH	44714-2606	United States	Other	2021-01-05 15:00:27.994954+00	\N	\N	\N	\N
+3391	425215	\N	The Kroger Co.	4111 Executive Parkway	\N	\N	Westerville	OH	43081	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.094989+00	\N	\N	\N	\N
+3397	80797	\N	CLEVELAND PLAY HOUSE	1901 E 13TH ST STE 200	-	\N	CLEVELAND	OH	44114-3507	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.107994+00	\N	\N	\N	\N
+3399	65452	\N	ROCK & ROLL HALL OF FAME &	1100 ROCK & ROLL BLVD	-	\N	CLEVELAND	OH	44114	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.112435+00	\N	\N	\N	\N
+3412	72394	\N	TOLEDO ORCHESTRA ASSN	PO BOX 407	-	\N	TOLEDO	OH	43697-0407	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.395019+00	\N	\N	\N	\N
+3425	63134	\N	KARAMU HOUSE INC	2355 E 89TH ST	-	\N	CLEVELAND	OH	44106	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.603461+00	\N	\N	\N	\N
+3433	47384	\N	STUARTS OPERA HOUSE	PO BOX 217	-	\N	NELSONVILLE	OH	45764-1133	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.701324+00	\N	\N	\N	\N
+3451	248262	\N	Gateway Film Foundation	1550 N High Street	-	\N	Columbus	OH	43201	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.899977+00	\N	\N	\N	\N
+3463	45823	\N	OPERA ASSOCIATION OF CENTRAL	55 E STATE ST	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.095511+00	\N	\N	\N	\N
+3474	78760	\N	ELEANOR B RAINEY MEMORIAL	1705 E 55TH ST	-	\N	CLEVELAND	OH	44103	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.195453+00	\N	\N	\N	\N
+3492	73754	\N	VERB BALLETS INC	3445 WARRENSVILLE CENTER RD	-	\N	SHAKER HEIGHTS	OH	44122	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.297499+00	\N	\N	\N	\N
+3500	223347	\N	OPERA PROJECT COLUMBUS INC	4364 N HIGH ST UNIT 14185N	-	\N	COLUMBUS	OH	43214-7007	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.396236+00	\N	\N	\N	\N
+3503	215953	\N	PENINSULA FOUNDATION INC	6138 RIVERVIEW RD STE F	-	\N	PENINSULA	OH	44264	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.494976+00	\N	\N	\N	\N
+3518	47406	\N	SOUTHERN OHIO MUSEUM CORP	825 GALLIA ST	-	\N	PORTSMOUTH	OH	45662	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.59688+00	\N	\N	\N	\N
+3350	68353	\N	COMMUNITY ACTION COUNCIL OF	PO BOX 917	\N	\N	RAVENNA	OH	44266-0917	United States	Other	2021-01-05 15:00:27.503951+00	\N	\N	\N	\N
+3359	42320	\N	GUERNSEY MONROE NOBLE TRI CTY	615 NORTH ST	\N	\N	CALDWELL	OH	43724	United States	Other	2021-01-05 15:00:27.697696+00	\N	\N	\N	\N
+3362	42328	\N	HIGHLAND COUNTY COMMUNITY	1487 N HIGH ST STE 500	\N	\N	HILLSBORO	OH	45133	United States	Other	2021-01-05 15:00:27.70088+00	\N	\N	\N	\N
+3376	68371	\N	MAHONING YOUNGSTOWN COMMUNITY	1325 FIFTH AVE	\N	\N	YOUNGSTOWN	OH	44504-1702	United States	Other	2021-01-05 15:00:27.904016+00	\N	\N	\N	\N
+3380	78784	\N	PATHWAY INC	505 HAMILTON ST	\N	\N	TOLEDO	OH	43604	United States	Other	2021-01-05 15:00:27.905708+00	\N	\N	\N	\N
+3390	427038	\N	LEVY PREMIUM FOODSERVICE LP	5460 Courseview Drive	\N	\N	Mason	OH	45040	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.003974+00	\N	\N	\N	\N
+3401	10778	\N	PLAYHOUSE SQUARE FOUNDATION	1501 EUCLID AVE STE  200	-	\N	CLEVELAND	OH	44115	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.195147+00	\N	\N	\N	\N
+3415	54639	\N	CHILDRENS THEATRE OF CINCINNATI	4015 RED BANK RD	-	\N	CINCINNATI	OH	45227	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.396512+00	\N	\N	\N	\N
+3418	55984	\N	KENYON REVIEW	FINN HOUSE	102 W WIGGIN ST	\N	GAMBIER	OH	43022	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.496347+00	\N	\N	\N	\N
+3428	77168	\N	APOLLOS FIRE THE CLEVELAND	3091 MAYFIELD RD STE 217	-	\N	CLEVELAND HEIGHTS	OH	44118-1777	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.695016+00	\N	\N	\N	\N
+3434	230408	\N	HANCOCK COUNTY PERFORMING ARTS CENTER	200 W MAIN CROSS ST	-	\N	FINDLAY	OH	45840	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.795997+00	\N	\N	\N	\N
+3446	47901	\N	PRO MUSICA CHAMBER ORCHESTRA	620 E BROAD ST STE 300	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.897699+00	\N	\N	\N	\N
+3455	72764	\N	WESTCOTT HOUSE FOUNDATION	1340 E HIGH ST	-	\N	SPRINGFIELD	OH	45505	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.901302+00	\N	\N	\N	\N
+3465	68788	\N	FIRELANDS SYMPHONY ORCHESTRA	ONE UNIVERSITY DR	-	\N	HURON	OH	44839	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.096028+00	\N	\N	\N	\N
+3485	53037	\N	SPRINGFIELD SYMPHONY ORCHESTRA	PO BOX 1374	-	\N	SPRINGFIELD	OH	45501-1374	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.295103+00	\N	\N	\N	\N
+3493	53161	\N	SPACES	2900 DETROIT AVE	-	\N	CLEVELAND	OH	44113	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.298099+00	\N	\N	\N	\N
+3506	77758	\N	CINCINNATI BOYCHOIR INC	650 WALNUT ST	-	\N	CINCINNATI	OH	45202	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.496583+00	\N	\N	\N	\N
+3519	74077	\N	COLUMBUS DANCE THEATRE	592 E MAIN ST	-	\N	COLUMBUS	OH	43215-5355	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.597246+00	\N	\N	\N	\N
+3354	42310	\N	COMMUNITY ACTION ORGANIZATION	PO BOX 1525	\N	\N	PORTSMOUTH	OH	45662-1525	United States	Other	2021-01-05 15:00:27.60213+00	\N	\N	\N	\N
+3363	8259	\N	IMPACT COMMUNITY ACTION	711 SOUTHWOOD AVE	\N	\N	COLUMBUS	OH	43207	United States	Other	2021-01-05 15:00:27.703976+00	\N	\N	\N	\N
+3371	42290	\N	LEADS COMMUNITY ACTION AGENCY	159 WILSON STREET	\N	\N	NEWARK	OH	43055	United States	Other	2021-01-05 15:00:27.900659+00	\N	\N	\N	\N
+3378	69761	\N	OHIO HEARTLAND COMMUNITY	PO BOX 779	\N	\N	MARION	OH	43301-0779	United States	Other	2021-01-05 15:00:27.904182+00	\N	\N	\N	\N
+3387	428941	\N	Cameron Mitchell Restaurants, LLC	390 W. Nationwide Blvd.	\N	\N	Columbus	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.000093+00	\N	\N	\N	\N
+3396	41748	\N	CINCINNATI PLAYHOUSE IN THE PARK	962 MT ADAMS CIRCLE	-	\N	CINCINNATI	OH	45202	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.100041+00	\N	\N	\N	\N
+3403	53003	\N	DAYTON PERFORMING ARTS ALLIANCE	126 N MAIN STREET SUITE 210	-	\N	DAYTON	OH	45402	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.197069+00	\N	\N	\N	\N
+3410	240400	\N	SHADOART PRODUCTIONS INC	503 S FRONT ST STE 260	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.300932+00	\N	\N	\N	\N
+3417	8178	\N	TAFT MUSEUM OF ART	316 PIKE ST	-	\N	CINCINNATI	OH	45202-4293	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.397953+00	\N	\N	\N	\N
+3423	75157	\N	MUSEUM OF CONTEMPORARY ART CLEVELAND	11400 EUCLID AVE	-	\N	CLEVELAND	OH	44106	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.596108+00	\N	\N	\N	\N
+3432	60063	\N	TOLEDO CULTURAL ARTS CENTER	410 ADAMS ST	-	\N	TOLEDO	OH	43604-1402	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.696422+00	\N	\N	\N	\N
+3439	41637	\N	CONTEMPORARY ARTS CENTER	44 E 6TH ST	-	\N	CINCINNATI	OH	45202-2518	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.797005+00	\N	\N	\N	\N
+3445	72722	\N	TOLEDO MUSEUM OF ART	PO BOX 1013	-	\N	TOLEDO	OH	43697-1013	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.89737+00	\N	\N	\N	\N
+3454	216565	\N	SHORT NORTH STAGE INC	PO BOX 10689	-	\N	COLUMBUS	OH	43201	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.901005+00	\N	\N	\N	\N
+3464	64777	\N	TUESDAY MUSICAL ASSOCIATION	1041 W MARKET ST STE 200	-	\N	AKRON	OH	44313	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.095836+00	\N	\N	\N	\N
+3470	42538	\N	FITTON CENTER FOR CREATIVE	101 S MONUMENT AVE	-	\N	HAMILTON	OH	45011	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.1+00	\N	\N	\N	\N
+3476	259034	\N	NORTHEAST OHIO CENTER FOR CHOREOGRAPHY	Guzzetta Hall 394	-	\N	Akron	OH	44325	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.198201+00	\N	\N	\N	\N
+3490	241998	\N	WORDPLAY CINCY	4041 HAMILTON AVE	-	\N	HAMILTON	OH	45223	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.296867+00	\N	\N	\N	\N
+3505	82195	\N	ARTS PLACE INC	142 E SPRING ST	-	\N	SAINT MARYS	OH	45885	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.496162+00	\N	\N	\N	\N
+3517	54224	\N	LINTON INCORPORATED	1241 ELM ST	-	\N	CINCINNATI	OH	45202-7531	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.59643+00	\N	\N	\N	\N
+3369	68352	\N	COMMUNITY ACTION COMMISSION OF BELMONT	153 1/2 W MAIN ST	\N	\N	ST CLAIRSVILLE	OH	43950	United States	Other	2021-01-05 15:00:27.59641+00	\N	\N	\N	\N
+3383	42190	\N	MIAMI VALLEY COMMUNITY ACTION	719 S MAIN ST	\N	\N	DAYTON	OH	45402-2709	United States	Other	2021-01-05 15:00:27.995169+00	\N	\N	\N	\N
+3405	63101	\N	CLEVELAND MUSEUM OF ART	11150 EAST BLVD	-	\N	CLEVELAND	OH	44106	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.295387+00	\N	\N	\N	\N
+3413	63104	\N	CLEVELAND MUSIC SCHOOL SETTLEMENT	11125 MAGNOLIA DR	-	\N	CLEVELAND	OH	44106	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.395006+00	\N	\N	\N	\N
+3420	64869	\N	AKRON ART MUSEUM	1 SOUTH HIGH	-	\N	AKRON	OH	44308-1801	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.50006+00	\N	\N	\N	\N
+3431	54711	\N	CINCINNATI BALLET	1555 CENTRAL PKWY	-	\N	CINCINNATI	OH	45214	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.696059+00	\N	\N	\N	\N
+3442	54789	\N	SPRINGFIELD ARTS COUNCIL INC	PO BOX 745	-	\N	SPRINGFIELD	OH	45501-0745	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.808603+00	\N	\N	\N	\N
+3457	184123	\N	PEGGY R MCCONNELL WORTHINGTON	777 EVENING ST	-	\N	WORTHINGTON	OH	43085	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.901804+00	\N	\N	\N	\N
+3459	100609	\N	LIMA SYMPHONY ORCHESTRA	PO BOX 1651	-	\N	LIMA	OH	45802-1651	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.906168+00	\N	\N	\N	\N
+3469	59303	\N	K12 GALLERY FOR YOUNG PEOPLE	341 S JEFFERSON ST	-	\N	DAYTON	OH	45402-2701	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.098271+00	\N	\N	\N	\N
+3477	193120	\N	LINCOLN THEATRE ASSOCIATION	771 E LONG ST	-	\N	COLUMBUS	OH	43203	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.199516+00	\N	\N	\N	\N
+3478	50775	\N	THURBER HOUSE INC	77 JEFFERSON AVE	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.201622+00	\N	\N	\N	\N
+3479	42004	\N	COLUMBUS CHILDRENS THEATRE	177 E NAGHTEN ST	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.203342+00	\N	\N	\N	\N
+3480	66132	\N	CINCINNATI CHILDRENS CHOIR	5743 LYNX CT	-	\N	MASON	OH	45040-8002	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.204938+00	\N	\N	\N	\N
+3481	68209	\N	DOBAMA THEATRE	2340 LEE RD	-	\N	CLEVELAND HEIGHTS	OH	44118	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.206729+00	\N	\N	\N	\N
+3482	142638	\N	VAN WERT AREA PERFORMING ARTS FOUNDATION	138 E MAIN ST	-	\N	VAN WERT	OH	45891	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.208351+00	\N	\N	\N	\N
+3483	45786	\N	OHIO ALLIANCE FOR ARTS	77 S HIGH ST 2ND FLR	-	\N	COLUMBUS	OH	43215	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.210262+00	\N	\N	\N	\N
+3484	45931	\N	MUSE MACHINE INC	126 N MAIN ST STE 310	-	\N	DAYTON	OH	45402	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.212006+00	\N	\N	\N	\N
+3488	220295	\N	CLEVELAND CLASSICAL GUITAR SOCIETY INC	PO BOX 19162	-	\N	CLEVELAND	OH	44119	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.296296+00	\N	\N	\N	\N
+3499	49602	\N	WE CARE ARTS INC	3035 WILMINGTON PK	-	\N	DAYTON	OH	45429-4001	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.299786+00	\N	\N	\N	\N
+3508	173000	\N	CLIFTON CULTURAL ARTS CENTER	PO BOX 20041	-	\N	CINCINNATI	OH	45220	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.497308+00	\N	\N	\N	\N
 140	3-19208	\N	Med1Care	116 S Main St	\N	\N	Findlay	OH	45840	United States	Other	2020-12-08 02:34:41.454232+00	\N	\N	\N	1
+3370	68329	\N	COUNCIL FOR ECONOMIC OPPORTUNITIES	1801 SUPERIOR AVE STE 400	\N	\N	CLEVELAND	OH	44114	United States	Other	2021-01-05 15:00:27.698254+00	\N	\N	\N	\N
+3374	42319	\N	MUSKINGUM ECONOMIC OPPORUNITY	828 LEE ST	\N	\N	ZANESVILLE	OH	43701	United States	Other	2021-01-05 15:00:27.903376+00	\N	\N	\N	\N
+3384	54757	\N	ROSS COUNTY COMMUNITY ACTION	250 N WOODBRIDGE AVE	\N	\N	CHILLICOTHE	OH	45601	United States	Other	2021-01-05 15:00:27.995582+00	\N	\N	\N	\N
+3407	44850	\N	CINCINNATI SYMPHONY ORCHESTRA	1241 ELM ST	-	\N	CINCINNATI	OH	45202	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.295954+00	\N	\N	\N	\N
+3421	64640	\N	BUTLER INSTITUTE OF AMERICAN	524 WICK AVE	-	\N	YOUNGSTOWN	OH	44502	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.508128+00	\N	\N	\N	\N
+3426	173676	\N	LAND STUDIO INC	1939 W 25TH ST STE 200	-	\N	CLEVELAND	OH	44113	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.603976+00	\N	\N	\N	\N
+3443	64968	\N	FINE ARTS ASSOCIATION	38660 MENTOR AVE	-	\N	WILLOUGHBY	OH	44094	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.808883+00	\N	\N	\N	\N
+3448	173674	\N	GREATHER AKRON MUSICAL ASSOCIATION INC	17 S BROADWAY ST	-	\N	AKRON	OH	44308	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.899071+00	\N	\N	\N	\N
+3458	64787	\N	PLAYERS GUILD OF CANTON INC	1001 N MARKET AVE	-	\N	CANTON	OH	44702	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:28.904741+00	\N	\N	\N	\N
+3468	80843	\N	CANTON SYMPHONY ORCHESTRA ASSN	2331 17TH ST NW	ZIMMERMAN SYMPHONY CENTER	\N	CANTON	OH	44708	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.097877+00	\N	\N	\N	\N
+3495	75613	\N	RICHLAND ACADEMY OF THE ARTS	75 N WALNUT ST	-	\N	MANSFIELD	OH	44902	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.298709+00	\N	\N	\N	\N
+3507	60730	\N	HERITAGE OHIO	846 1/2 E MAIN ST	-	\N	COLUMBUS	OH	43205	United States	Nonprofit with 501C3 IRS Status (Other than IHE)	2021-01-05 15:00:29.497247+00	\N	\N	\N	\N
+3522	99556	99556	McKesson Medical-Surgical	3750 BROOKHAM DR STE F	\N	\N	GROVE CITY	OH	43123	United States	For-Profit Organization (Other than Small Business)	2021-01-05 15:00:29.598376+00	\N	\N	\N	\N
 1093	11-21770	\N	Harmar Place	401 HARMAR ST	\N	\N	MARIETTA	OH	45750	United States	Other	2020-12-08 02:34:49.551885+00	\N	\N	\N	1
 3175	52995	\N	Preble County	101 EAST MAIN STREET	\N	\N	EATON	OH	45320	United States	County Government	2020-12-08 02:35:07.458457+00	\N	\N	\N	1
 3185	102618	\N	Trumbull County	160 High Street	\N	\N	Warren	OH	44481	United States	County Government	2020-12-08 02:35:07.556405+00	\N	\N	\N	1
@@ -23038,9 +23696,11 @@ COPY public.subrecipients (id, identification_number, duns_number, legal_name, a
 3340	272976	\N	Setco Tool LLC	901 Springfield St	\N	\N	Dayton	OH	45403	United States	Small Business	2020-12-11 00:04:23.851917+00	\N	\N	\N	1
 \.
 
+
 --
 -- Data for Name: uploads; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.uploads (id, filename, created_at, created_by, reporting_period_id, user_id, agency_id, project_id) FROM stdin;
 56	DOH01-440534-093020-v2.xlsx	2020-12-02 13:01:18.71+00	jennifer.mccauley@odh.ohio.gov	1	42	32	53
 57	DOH01-440674-093020-v4.xlsx	2020-12-02 13:01:57.812+00	jennifer.mccauley@odh.ohio.gov	1	42	32	54
@@ -23138,11 +23798,14 @@ COPY public.uploads (id, filename, created_at, created_by, reporting_period_id, 
 97	DEV01-195608-123120-v1.xlsx	2021-01-03 01:21:26.896+00	glendara.clayton@development.ohio.gov	2	63	23	48
 98	DEV01-195693-123120-v1.xlsx	2021-01-03 02:26:57.899+00	glendara.clayton@development.ohio.gov	2	63	23	50
 99	DEV01-195631-123120-v1.xlsx	2021-01-03 04:19:05.477+00	glendara.clayton@development.ohio.gov	2	63	23	51
+100	DVS01-900607-123120-v1.xlsx	2021-01-04 21:57:58.509+00	beth.deck@dvs.ohio.gov	2	22	71	62
 \.
+
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.users (id, email, name, role, created_at, tags, agency_id) FROM stdin;
 1	hitch@yondercloud.com	\N	admin	2020-09-23 22:01:23.713367+00	\N	\N
 2	stacie.massey@obm.ohio.gov	Stacie Massey	admin	2020-09-29 16:15:04.54718+00	\N	\N
@@ -23209,349 +23872,538 @@ COPY public.users (id, email, name, role, created_at, tags, agency_id) FROM stdi
 65	kenneth.s.1@bwc.state.oh.us	\N	reporter	2020-12-22 15:37:55.774132+00	\N	13
 66	mlay@age.ohio.gov	Martin Lay	reporter	2021-01-04 18:15:50.66686+00	\N	3
 67	ldaugherty@age.ohio.gov	Laurie Daugherty	reporter	2021-01-04 18:16:29.321465+00	\N	3
+68	denlove@yahoo.com	\N	reporter	2021-01-05 17:21:02.307872+00	\N	25
 \.
+
 
 --
 -- Data for Name: validation_messages; Type: TABLE DATA; Schema: public; Owner: -
 --
+
 COPY public.validation_messages (id, upload_id, message, tab, "row", created_at) FROM stdin;
 \.
 
---
 
 --
 
---
 
 --
 
---
 
 --
+
+
+--
+
+
+--
+
+
+--
+
 
 --
 -- Name: access_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
-SELECT pg_catalog.setval('public.access_tokens_id_seq', 194, true);
+
+SELECT pg_catalog.setval('public.access_tokens_id_seq', 210, true);
+
 
 --
 -- Name: agencies_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.agencies_id_seq', 74, true);
+
 
 --
 -- Name: documents_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
-SELECT pg_catalog.setval('public.documents_id_seq', 43709, true);
+
+SELECT pg_catalog.setval('public.documents_id_seq', 43873, true);
+
 
 --
 -- Name: knex_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.knex_migrations_id_seq', 32, true);
+
 
 --
 -- Name: knex_migrations_lock_index_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.knex_migrations_lock_index_seq', 1, true);
+
 
 --
 -- Name: period_summaries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.period_summaries_id_seq', 3161, true);
+
 
 --
 -- Name: projects_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.projects_id_seq', 82, true);
+
 
 --
 -- Name: reporting_periods_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.reporting_periods_id_seq', 1, true);
+
 
 --
 -- Name: roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.roles_id_seq', 3, true);
+
 
 --
 -- Name: subrecipients_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
-SELECT pg_catalog.setval('public.subrecipients_id_seq', 3340, true);
+
+SELECT pg_catalog.setval('public.subrecipients_id_seq', 3522, true);
+
 
 --
 -- Name: uploads_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
-SELECT pg_catalog.setval('public.uploads_id_seq', 99, true);
+
+SELECT pg_catalog.setval('public.uploads_id_seq', 100, true);
+
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
-SELECT pg_catalog.setval('public.users_id_seq', 67, true);
+
+SELECT pg_catalog.setval('public.users_id_seq', 68, true);
+
 
 --
 -- Name: validation_messages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
+
 SELECT pg_catalog.setval('public.validation_messages_id_seq', 1, false);
+
 
 --
 -- Name: access_tokens access_tokens_passcode_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.access_tokens
     ADD CONSTRAINT access_tokens_passcode_unique UNIQUE (passcode);
+
 
 --
 -- Name: access_tokens access_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.access_tokens
     ADD CONSTRAINT access_tokens_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: agencies agencies_code_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.agencies
     ADD CONSTRAINT agencies_code_unique UNIQUE (code);
+
 
 --
 -- Name: agencies agencies_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.agencies
     ADD CONSTRAINT agencies_name_unique UNIQUE (name);
+
 
 --
 -- Name: agencies agencies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.agencies
     ADD CONSTRAINT agencies_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: documents documents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT documents_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: knex_migrations_lock knex_migrations_lock_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.knex_migrations_lock
     ADD CONSTRAINT knex_migrations_lock_pkey PRIMARY KEY (index);
+
 
 --
 -- Name: knex_migrations knex_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.knex_migrations
     ADD CONSTRAINT knex_migrations_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: period_summaries period_summaries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.period_summaries
     ADD CONSTRAINT period_summaries_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: projects projects_code_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_code_unique UNIQUE (code);
+
 
 --
 -- Name: projects projects_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_name_unique UNIQUE (name);
+
 
 --
 -- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: reporting_periods reporting_periods_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.reporting_periods
     ADD CONSTRAINT reporting_periods_name_unique UNIQUE (name);
+
 
 --
 -- Name: reporting_periods reporting_periods_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.reporting_periods
     ADD CONSTRAINT reporting_periods_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: roles roles_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.roles
     ADD CONSTRAINT roles_name_unique UNIQUE (name);
+
 
 --
 -- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.roles
     ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: subrecipients subrecipients_duns_number_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.subrecipients
     ADD CONSTRAINT subrecipients_duns_number_unique UNIQUE (duns_number);
+
 
 --
 -- Name: subrecipients subrecipients_identification_number_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.subrecipients
     ADD CONSTRAINT subrecipients_identification_number_unique UNIQUE (identification_number);
+
 
 --
 -- Name: subrecipients subrecipients_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.subrecipients
     ADD CONSTRAINT subrecipients_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: uploads uploads_filename_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.uploads
     ADD CONSTRAINT uploads_filename_unique UNIQUE (filename);
+
 
 --
 -- Name: uploads uploads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.uploads
     ADD CONSTRAINT uploads_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: users users_email_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_email_unique UNIQUE (email);
+
 
 --
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: validation_messages validation_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.validation_messages
     ADD CONSTRAINT validation_messages_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: access_tokens access_tokens_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.access_tokens
     ADD CONSTRAINT access_tokens_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
 
 --
 -- Name: application_settings application_settings_current_reporting_period_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.application_settings
     ADD CONSTRAINT application_settings_current_reporting_period_id_foreign FOREIGN KEY (current_reporting_period_id) REFERENCES public.reporting_periods(id);
+
 
 --
 -- Name: documents documents_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT documents_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id);
+
 
 --
 -- Name: period_summaries period_summaries_project_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.period_summaries
     ADD CONSTRAINT period_summaries_project_code_foreign FOREIGN KEY (project_code) REFERENCES public.projects(code);
+
 
 --
 -- Name: period_summaries period_summaries_reporting_period_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.period_summaries
     ADD CONSTRAINT period_summaries_reporting_period_id_foreign FOREIGN KEY (reporting_period_id) REFERENCES public.reporting_periods(id);
+
 
 --
 -- Name: period_summaries period_summaries_subrecipient_identification_number_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.period_summaries
     ADD CONSTRAINT period_summaries_subrecipient_identification_number_foreign FOREIGN KEY (subrecipient_identification_number) REFERENCES public.subrecipients(identification_number);
+
 
 --
 -- Name: projects projects_agency_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_agency_id_foreign FOREIGN KEY (agency_id) REFERENCES public.agencies(id);
+
 
 --
 -- Name: projects projects_created_in_period_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_created_in_period_foreign FOREIGN KEY (created_in_period) REFERENCES public.reporting_periods(id);
+
 
 --
 -- Name: subrecipients subrecipients_created_in_period_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.subrecipients
     ADD CONSTRAINT subrecipients_created_in_period_foreign FOREIGN KEY (created_in_period) REFERENCES public.reporting_periods(id);
+
 
 --
 -- Name: uploads uploads_agency_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.uploads
     ADD CONSTRAINT uploads_agency_id_foreign FOREIGN KEY (agency_id) REFERENCES public.agencies(id);
+
 
 --
 -- Name: uploads uploads_project_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.uploads
     ADD CONSTRAINT uploads_project_id_foreign FOREIGN KEY (project_id) REFERENCES public.projects(id);
+
 
 --
 -- Name: uploads uploads_reporting_period_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.uploads
     ADD CONSTRAINT uploads_reporting_period_id_foreign FOREIGN KEY (reporting_period_id) REFERENCES public.reporting_periods(id);
+
 
 --
 -- Name: uploads uploads_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.uploads
     ADD CONSTRAINT uploads_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id);
+
 
 --
 -- Name: users users_agency_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_agency_id_foreign FOREIGN KEY (agency_id) REFERENCES public.agencies(id);
+
 
 --
 -- Name: validation_messages validation_messages_upload_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
+
 ALTER TABLE ONLY public.validation_messages
     ADD CONSTRAINT validation_messages_upload_id_foreign FOREIGN KEY (upload_id) REFERENCES public.uploads(id);
+
 
 --
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
 --
+
 REVOKE ALL ON SCHEMA public FROM postgres;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO PUBLIC;
+
 
 --
 -- Name: FUNCTION pg_stat_statements_reset(); Type: ACL; Schema: public; Owner: -
 --
 
+
+
+--
+--
+
+
+
+--
+--
+
+
+
 --
 -- Name: TABLE pg_buffercache; Type: ACL; Schema: public; Owner: -
 --
+
 REVOKE ALL ON TABLE public.pg_buffercache FROM postgres;
 REVOKE SELECT ON TABLE public.pg_buffercache FROM pg_monitor;
 GRANT SELECT ON TABLE public.pg_buffercache TO pg_monitor;
 
+
 --
 -- Name: TABLE pg_stat_statements; Type: ACL; Schema: public; Owner: -
 --
+
 REVOKE ALL ON TABLE public.pg_stat_statements FROM postgres;
 REVOKE SELECT ON TABLE public.pg_stat_statements FROM PUBLIC;
 GRANT SELECT ON TABLE public.pg_stat_statements TO PUBLIC;
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
+--
+--
+
+
+
 --
 -- PostgreSQL database dump complete
 --
+
