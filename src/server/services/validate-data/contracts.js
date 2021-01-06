@@ -12,7 +12,7 @@ const {
   isNotBlank,
   isNumber,
   isNumberOrBlank,
-  isPositiveNumber,
+  isPositiveNumberOrZero,
   isSum,
   isValidDate,
   isValidState,
@@ -71,8 +71,8 @@ const requiredFields = [
   ],
   [
     "contract amount",
-    isPositiveNumber,
-    "Contract amount must be an amount greater than zero"
+    isPositiveNumberOrZero,
+    "Contract amount must be an amount greater than or equal to zero"
   ],
   [
     "contract amount",

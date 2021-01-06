@@ -12,7 +12,6 @@ const {
   isNotBlank,
   isNumber,
   isNumberOrBlank,
-  isPositiveNumber,
   isSum,
   isValidDate,
   isValidState,

@@ -57,6 +57,10 @@ function isPositiveNumber(val) {
   return _.isNumber(val) && val > 0;
 }
 
+function isPositiveNumberOrZero(val) {
+  return _.isNumber(val) && val >= 0;
+}
+
 function isAtLeast50K(val) {
   return _.isNumber(val) && val >= 50000;
 }
@@ -368,6 +372,7 @@ module.exports = {
   isNumber,
   isNumberOrBlank,
   isPositiveNumber,
+  isPositiveNumberOrZero,
   isSum,
   isValidDate,
   isValidState,
