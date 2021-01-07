@@ -14,7 +14,7 @@ exports.seed = async function(knex) {
     {
       project_code: "075",
       award_type: "direct",
-      award_number: "1551",
+      award_number: "1551:44008",
       reporting_period_id: 1,
       current_obligation: 100000000.00,
       current_expenditure: 0.00
