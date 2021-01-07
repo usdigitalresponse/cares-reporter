@@ -11,7 +11,7 @@ const { getProjects, fixProjectCode, projects } = require("../db/projects");
 const { getSubRecipients, setSubRecipient } = require("../db/subrecipients");
 const { getUploadSummaries } = require("../db/uploads");
 
-const { getTemplateSheets } = require("../services/get-template");
+const { getTreasuryTemplateSheets } = require("../services/get-template");
 
 const { makeConfig } = require("../lib/config");
 const { clean } = require("../lib/spreadsheet");
@@ -609,7 +609,8 @@ async function latestReport(period_id) {
     and writes it out if successful.
     */
 async function getCurrentReport(){
-  const treasuryTemplateSheets = getTemplateSheets("treasury");
+
+  const treasuryTemplateSheets = getTreasuryTemplateSheets();
   const config = makeConfig(treasuryTemplateSheets, "Treasury Template", []);
 
   const groups = await getGroups();
@@ -667,7 +668,6 @@ async function getGroups() {
   let documents;
   try {
     documents = await documentsWithProjectCode();
-
   } catch ( _err ) {
     return new Error("Failed to load document records");
   }

@@ -105,7 +105,7 @@ async function isCurrent(periodID) {
   */
 async function closeReportingPeriod(user, period) {
   let reporting_period_id = await getCurrentReportingPeriodID();
-
+  console.log(`Closing reporting period ${reporting_period_id}`);
   period = period || reporting_period_id;
 
   if (period !== reporting_period_id) {

@@ -7,8 +7,9 @@ if ( process.env.VERBOSE ){
 const { ValidationItem } = require("../../lib/validation-log");
 const { subrecipientKey } = require("./helpers");
 const ssf = require("ssf");
+const mustache = require("mustache");
 const _ = require("lodash");
-const { getDropdownValues, initializeTemplates } = require("../get-template");
+const { getDropdownValues } = require("../get-template");
 
 function dateIsInPeriodOfPerformance(val, content, { reportingPeriod }) {
   const dt = ssf.format("yyyy-MM-dd", val);
@@ -55,6 +56,10 @@ function isNumberOrBlank(val) {
 
 function isPositiveNumber(val) {
   return _.isNumber(val) && val > 0;
+}
+
+function isPositiveNumberOrZero(val) {
+  return _.isNumber(val) && val >= 0;
 }
 
 function isAtLeast50K(val) {
@@ -104,13 +109,13 @@ function periodSummaryKey(key) {
 }
 
 function withoutLeadingZeroes(v) {
-  return `${v}`.replace(/^0+/,'');
+  return `${v}`.replace(/^0+/,"");
 }
 
 function summaryMatches(type, id, content) {
-  return (s) => {
+  return s => {
     const isMatch = s.award_type === type &&
-      withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
+      withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content["project id"]) &&
       `${content[id]}` === s.award_number;
     // console.log('summary:', s);
     // console.log('content:', content);
@@ -142,7 +147,7 @@ function transferMatches(content) {
 }
 
 function cumulativeAmount(key,  content, periodSummaries, filterPredicate) {
-    const summaries = _.get(periodSummaries, 'periodSummaries');
+    const summaries = _.get(periodSummaries, "periodSummaries");
     return _.chain(summaries)
         .filter(filterPredicate(content))
         .map(periodSummaryKey(key))
@@ -156,12 +161,12 @@ function cumulativeAmountIsEqual(key, filterPredicate) {
     const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate);
     const b = _.round(val, 2) == _.round(currentPeriodAmount + previousPeriodsAmount, 2);
     if (!b) {
-        console.log('cumulativeAmountIsEqual:',
+        console.log("cumulativeAmountIsEqual:",
           key,
           val,
-          'current:', currentPeriodAmount,
-          'previous:', previousPeriodsAmount,
-          'total:', currentPeriodAmount + previousPeriodsAmount);
+          "current:", currentPeriodAmount,
+          "previous:", previousPeriodsAmount,
+          "total:", currentPeriodAmount + previousPeriodsAmount);
     }
     return b;
   };
@@ -262,8 +267,9 @@ function whenGreaterThanZero(key, validator) {
   };
 }
 
-function addValueToMessage(message, value) {
-  return message.replace("{}", `${value || ""}`);
+function addValueToMessage(message, value, content) {
+  const s = message.replace("{}", `${value || ""}`);
+  return mustache.render(s, content);
 }
 
 function messageValue(val, options) {
@@ -304,7 +310,8 @@ function validateFields(requiredFields, content, tab, row, context = {}) {
           new ValidationItem({
             message: addValueToMessage(
               message || `Empty or invalid entry for ${key}: "{}"`,
-              messageValue(val, options)
+              messageValue(val, options),
+              content
             ),
             tab,
             row
@@ -362,13 +369,13 @@ module.exports = {
   grantMatches,
   dropdownIncludes,
   hasSubrecipientKey,
-  initializeTemplates,
   isEqual,
   isAtLeast50K,
   isNotBlank,
   isNumber,
   isNumberOrBlank,
   isPositiveNumber,
+  isPositiveNumberOrZero,
   isSum,
   isValidDate,
   isValidState,
