@@ -36,7 +36,7 @@ const reportingPeriods =
 const expect = require('chai').expect
 const knex = requireSrc(`${__dirname}/../../server/db/connection`)
 
-describe('baseline success', () => {
+describe.skip('baseline success', () => {
   it('Returns a list of reporting period summaries', async () => {
     let summaries
     const period = 1
