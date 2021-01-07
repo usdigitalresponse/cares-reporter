@@ -41,8 +41,9 @@ const requiredFields = [
   ],
   ['transfer number', isNotBlank, 'Transfer number cannot be blank'],
   [
+
     'award amount',
-    isAtLeast50K,
+    whenNotBlank('total expenditure amount', isAtLeast50K),
     'Award amount must be at least $50,000',
     { tags: ['v2'] }
   ],
