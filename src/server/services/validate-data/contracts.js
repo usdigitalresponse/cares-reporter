@@ -72,7 +72,7 @@ const requiredFields = [
   [
     "contract amount",
     isPositiveNumberOrZero,
-    "Contract amount must be an amount greater than or equal to zero"
+    "Contract {{contract number}} contract amount must be an amount greater than or equal to zero"
   ],
   [
     "contract amount",
@@ -83,7 +83,7 @@ const requiredFields = [
   [
     "contract amount",
     cumulativeAmountIsEqual("current quarter obligation" , contractMatches),
-    "Contract amount must equal cumulative obligation amount",
+    "Contract {{contract number}} contract amount must equal cumulative obligation amount",
     { tags: ["cumulative"] }
   ],
   [
@@ -197,12 +197,12 @@ const requiredFields = [
   [
     "current quarter obligation",
     isNumberOrBlank,
-    "Current quarter obligation must be an amount greater than zero"
+    "Contract {{contract number}} current quarter obligation must be an amount greater than zero"
   ],
   [
     "current quarter obligation",
-    numberIsLessThanOrEqual("contract amount"),
-    "Current quarter obligation must be less than or equal to the contract amount"
+    whenNotBlank("current quanter obligation", numberIsLessThanOrEqual("contract amount")),
+    "Contract {{contract number}} current quarter obligation {{current quarter obligation}} must be less than or equal to the contract amount"
   ],
   [
     "total expenditure amount",
