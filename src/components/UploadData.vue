@@ -83,152 +83,152 @@
 </template>
 
 <script>
-import { post } from "../store";
-const _ = require("lodash");
+import { post } from '../store'
+const _ = require('lodash')
 export default {
-  name: "UploadData",
+  name: 'UploadData',
   props: {
     id: String,
     data: Array,
     upload: Object
   },
   components: {},
-  data: function() {
-    const settings = this.buildSettings();
-    const rowsToShow = this.initializeRowsToShow();
-    const view = this.data ? this.data[0].name : "All Tabs";
+  data: function () {
+    const settings = this.buildSettings()
+    const rowsToShow = this.initializeRowsToShow()
+    const view = this.data ? this.data[0].name : 'All Tabs'
     return {
       settings,
-      buttonLabel: "Import",
+      buttonLabel: 'Import',
       uploading: false,
       validationMessages: [],
       rowsToShow,
       view
-    };
+    }
   },
   computed: {
-    tables: function() {
-      return this.$store.state.configuration.tables;
+    tables: function () {
+      return this.$store.state.configuration.tables
     },
-    uploadConfigurations: function() {
-      return this.$store.state.configuration.templates;
+    uploadConfigurations: function () {
+      return this.$store.state.configuration.templates
     }
   },
   methods: {
-    firstRows: function(sheet) {
-      return sheet.data.slice(0, this.rowsToShow[sheet.name]);
+    firstRows: function (sheet) {
+      return sheet.data.slice(0, this.rowsToShow[sheet.name])
     },
-    startImport(e) {
-      e.preventDefault();
-      this.validationMessages = this.validate();
+    startImport (e) {
+      e.preventDefault()
+      this.validationMessages = this.validate()
       if (this.validationMessages.length === 0) {
-        this.uploading = true;
-        this.buttonLabel = "Importing...";
+        this.uploading = true
+        this.buttonLabel = 'Importing...'
         const sheets = _.chain(this.data)
-          .reject(sheet => this.settings.names[sheet.name] == "ignore")
+          .reject(sheet => this.settings.names[sheet.name] === 'ignore')
           .map(sheet => {
             return {
               tabName: sheet.name,
               type: this.settings.names[sheet.name],
               columns: this.settings.columns[sheet.name]
-            };
+            }
           })
-          .value();
+          .value()
 
         post(`/api/imports/${this.id}`, { sheets })
           .then(({ documents }) => {
-            this.$store.dispatch("importDocuments", { documents });
+            this.$store.dispatch('importDocuments', { documents })
           })
           .then(() => {
-            this.uploading = false;
-            this.buttonLabel = "Import";
-            this.$router.push({ path: "/" });
-          });
+            this.uploading = false
+            this.buttonLabel = 'Import'
+            this.$router.push({ path: '/' })
+          })
       }
     },
-    validate() {
-      const messages = [];
-      let selected = 0;
+    validate () {
+      const messages = []
+      let selected = 0
       this.data.forEach(sheet => {
-        if (this.settings.names[sheet.name] != "ignore") {
-          selected++;
+        if (this.settings.names[sheet.name] !== 'ignore') {
+          selected++
           const columns = this.settings.columns[sheet.name].filter(
-            c => c != "ignore"
-          );
-          if (columns.length == 0) {
+            c => c !== 'ignore'
+          )
+          if (columns.length === 0) {
             messages.push(
               `Select at least one column to import on tab ${sheet.name}`
-            );
+            )
           }
-          const uniqueColumns = _.uniq(columns);
-          if (uniqueColumns.length != columns.length) {
-            messages.push(`Each column must be unique on tab ${sheet.name}`);
+          const uniqueColumns = _.uniq(columns)
+          if (uniqueColumns.length !== columns.length) {
+            messages.push(`Each column must be unique on tab ${sheet.name}`)
           }
         }
-      });
+      })
       if (selected === 0) {
-        messages.push("Nothing selected to import");
+        messages.push('Nothing selected to import')
       }
-      return messages;
+      return messages
     },
-    columnsForTable(tableName) {
-      const table = this.$store.getters.table(tableName);
+    columnsForTable (tableName) {
+      const table = this.$store.getters.table(tableName)
       if (!table) {
-        return [];
+        return []
       }
       return _.chain(table)
-        .get("content.columns", [])
+        .get('content.columns', [])
         .reject(c => c.primaryKey)
-        .map("name")
-        .value();
+        .map('name')
+        .value()
     },
-    selectTable(sheetName, tableName) {
-      this.settings.names[sheetName] = tableName;
-      this.settings.tableColumns[sheetName] = this.columnsForTable(tableName);
+    selectTable (sheetName, tableName) {
+      this.settings.names[sheetName] = tableName
+      this.settings.tableColumns[sheetName] = this.columnsForTable(tableName)
     },
-    sheetNames() {
-      return this.data.map(s => s.name);
+    sheetNames () {
+      return this.data.map(s => s.name)
     },
-    initializeNames() {
+    initializeNames () {
       return this.sheetNames().reduce((acc, n) => {
-        acc[n] = "ignore";
-        return acc;
-      }, {});
+        acc[n] = 'ignore'
+        return acc
+      }, {})
     },
-    initializeRowsToShow() {
+    initializeRowsToShow () {
       return this.sheetNames().reduce((acc, n) => {
-        acc[n] = 10;
-        return acc;
-      }, {});
+        acc[n] = 10
+        return acc
+      }, {})
     },
-    initializeColumns() {
+    initializeColumns () {
       return this.data.reduce((acc, sheet) => {
-        const n = sheet.data.length > 0 ? sheet.data[0].length : 0;
-        acc[sheet.name] = Array(n).fill("ignore");
-        return acc;
-      }, {});
+        const n = sheet.data.length > 0 ? sheet.data[0].length : 0
+        acc[sheet.name] = Array(n).fill('ignore')
+        return acc
+      }, {})
     },
-    changeView(e) {
-      e.preventDefault();
-      this.view = e.target.value;
+    changeView (e) {
+      e.preventDefault()
+      this.view = e.target.value
     },
-    buildSettings() {
+    buildSettings () {
       const result = {
         names: this.initializeNames(),
         columns: this.initializeColumns(),
         tableColumns: {}
-      };
-      const configuration = this.$store.getters.template();
-      const settings = _.get(configuration, "content.settings");
+      }
+      const configuration = this.$store.getters.template()
+      const settings = _.get(configuration, 'content.settings')
       if (settings) {
         settings.forEach(s => {
-          result.names[s.sheetName] = s.tableName;
-          result.columns[s.sheetName] = s.columns;
-          result.tableColumns[s.sheetName] = this.columnsForTable(s.tableName);
-        });
+          result.names[s.sheetName] = s.tableName
+          result.columns[s.sheetName] = s.columns
+          result.tableColumns[s.sheetName] = this.columnsForTable(s.tableName)
+        })
       }
-      return result;
+      return result
     }
   }
-};
+}
 </script>

@@ -4,9 +4,9 @@
 
 <script>
 export default {
-  name: "ProjectLink",
+  name: 'ProjectLink',
   props: {
     row: Object
   }
-};
+}
 </script>

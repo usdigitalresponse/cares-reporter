@@ -21,87 +21,87 @@
 </template>
 
 <script>
-import DocumentForm from "../components/DocumentForm";
-import _ from "lodash";
+import DocumentForm from '../components/DocumentForm'
+import _ from 'lodash'
 export default {
-  name: "User",
+  name: 'User',
   components: {
     DocumentForm
   },
-  data() {
-    let id = 0;
+  data () {
+    let id = 0
     if (this.$route && this.$route.params && this.$route.params.id) {
-      id = parseInt(this.$route.params.id);
+      id = parseInt(this.$route.params.id)
     }
     return {
       id,
       isNew: !id,
       editUser: this.findUser(id),
       errorMessage: null
-    };
+    }
   },
   computed: {
-    loading: function() {
-      return this.id != 0 && !this.editUser;
+    loading: function () {
+      return this.id !== 0 && !this.editUser
     },
-    fields: function() {
+    fields: function () {
       return [
-        { name: "email", required: true },
-        { name: "name" },
-        { name: "role", required: true, allowedValues: this.roles },
-        { name: "agency_id", allowedValues: this.agencies }
-      ];
+        { name: 'email', required: true },
+        { name: 'name' },
+        { name: 'role', required: true, allowedValues: this.roles },
+        { name: 'agency_id', allowedValues: this.agencies }
+      ]
     },
-    agencies: function() {
-      return [{ value: 0, name: "None" }].concat(
+    agencies: function () {
+      return [{ value: 0, name: 'None' }].concat(
         _.map(this.$store.state.agencies, a => {
-          return { value: a.id, name: a.name };
+          return { value: a.id, name: a.name }
         })
-      );
+      )
     },
-    roles: function() {
+    roles: function () {
       return _.map(this.$store.state.configuration.roles, r => {
-        return { value: r.name, name: r.name };
-      });
+        return { value: r.name, name: r.name }
+      })
     }
   },
   watch: {
-    "$store.state.configuration.users": function() {
-      this.editUser = this.findUser(this.id);
+    '$store.state.configuration.users': function () {
+      this.editUser = this.findUser(this.id)
     }
   },
   methods: {
-    findUser(id) {
-      const user = _.find(this.$store.state.configuration.users, { id }) || {};
-      return { ...user };
+    findUser (id) {
+      const user = _.find(this.$store.state.configuration.users, { id }) || {}
+      return { ...user }
     },
-    getAgencies() {
+    getAgencies () {
       this.agencyIds = [
-        { value: "None", name: "None" },
-        ..._.map(this.$store.state.agencies, "id")
-      ];
+        { value: 'None', name: 'None' },
+        ..._.map(this.$store.state.agencies, 'id')
+      ]
     },
-    onSave(user) {
+    onSave (user) {
       let updatedUser = {
         ...this.editUser,
         ...user
-      };
+      }
       if (!updatedUser.agency_id) {
-        delete updatedUser.agency_id;
+        delete updatedUser.agency_id
       }
       return this.$store
-        .dispatch(this.isNew ? "createUser" : "updateUser", updatedUser)
+        .dispatch(this.isNew ? 'createUser' : 'updateUser', updatedUser)
         .then(() => this.onDone())
-        .catch(e => (this.errorMessage = e.message));
+        .catch(e => (this.errorMessage = e.message))
     },
-    onCancel() {
-      return this.onDone();
+    onCancel () {
+      return this.onDone()
     },
-    onDone() {
-      return this.$router.push("/users");
+    onDone () {
+      return this.$router.push('/users')
     }
   }
-};
+}
 </script>
 
 <style scoped>
