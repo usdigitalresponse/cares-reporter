@@ -30,7 +30,6 @@ const {
 
 const {
   createProject,
-  fixProjectCode,
   getProject,
   projectByCode,
   projectById,
@@ -204,7 +203,6 @@ module.exports = {
   documents,
   documentsForAgency,
   documentsWithProjectCode,
-  fixProjectCode,
   getPeriodSummaries,
   getPriorPeriodSummaries,
   getProject,

@@ -41,7 +41,7 @@ describe('Generate a Treasury Report for Period 2', () => {
         '../mocha_uploads/treasury/',
         treasuryReport.filename
       )
-    console.log(`latestReport path is ${treasuryReportName}`)
+    // console.log(`latestReport path is ${treasuryReportName}`)
 
     // throws if file missing
     fs.accessSync(treasuryReportName, fs.constants.R_OK)

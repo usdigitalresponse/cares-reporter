@@ -1,3 +1,9 @@
+/*
+--------------------------------------------------------------------------------
+-                                 lib/spreadsheet.js
+--------------------------------------------------------------------------------
+
+*/
 /* eslint camelcase: 0 */
 
 const XLSX = require('xlsx')
@@ -9,7 +15,6 @@ const {
   columnTypeMap,
   sheetNameAliases
 } = require('./field-name-mapping')
-const { fixProjectCode } = require('../db/projects')
 
 /* loadSpreadsheet() returns an array containing:
   [
@@ -154,28 +159,34 @@ async function spreadsheetToDocuments (
       case 'direct':
       case 'aggregate awards < 50000':
       case 'aggregate payments individual': {
-      // Mark any columns not in the template to be ignored
+        // Process header row
+        // Mark any columns not in the template to be ignored
         const cols = sheet[0].map(col => {
           return templateSheet[0].includes(col) ? col : 'ignore'
         })
-
+        // Process data rows
         sheet.slice(1).forEach((row, i) => {
           if (row.length === 0) return
           let jsonRow = _.omit(_.zipObject(cols, row), ['ignore'])
+
           if (sheetName === 'subrecipient' && jsonRow['duns number']) {
-          // populate the identification number field for easier deduplication
+            // populate the identification number field for easier deduplication
             jsonRow['identification number'] = `DUNS${jsonRow['duns number']}`
           }
+
           if (sheetName === 'cover') {
-          // note in the database this field is called "code", and "id" is
-          // not this, but the numeric record id.
-            jsonRow['project id'] = fixProjectCode(jsonRow['project id'])
+            // note in the database this field is called "code", and "id" is
+            // not this, but the numeric record id.
+            jsonRow['project id'] = zeroPad(jsonRow['project id'])
           }
+
           documents.push({
             type,
             user_id,
-            content: jsonRow,
-            // content: clean(jsonRow),
+
+            // changed 21 01 07
+            content: clean(jsonRow),
+
             sourceRow: i + 2 // one-based, not zero-based, and title row was omitted
           })
         })
@@ -209,15 +220,18 @@ function clean (objRecord) {
   let objCleaned = {}
   Object.keys(objRecord).forEach(key => {
     let val = objRecord[key]
+    if (val === 'undefined') {
+      val = null
+    }
     switch (columnTypeMap[key]) {
       case 'amount':
         objCleaned[key] = _.round((Number(val) || 0), 2) || null
         break
 
-      case 'string':
-        objCleaned[key] = String(val).trim() || null
+      case 'string': {
+        objCleaned[key] = cleanString(val)
         break
-
+      }
       case 'date':
         objCleaned[key] = Number(val) || null
         break
@@ -234,14 +248,34 @@ function clean (objRecord) {
   return objCleaned
 }
 
+function cleanString (val) {
+  val = String(val).trim() || null
+  if (val) {
+    val = val.replace(/^"(.+)"$/, '$1')
+      .replace(/ {2}/g, ' ')
+      .trim()
+  }
+  return val
+}
+
+function zeroPad (code) {
+  code = String(code)
+  if (code.length < 3) {
+    code = (`000${code}`).substr(-3)
+  }
+  return code
+}
+
 module.exports = {
   clean,
+  cleanString,
   loadSpreadsheet,
   parseSpreadsheet,
   spreadsheetToDocuments,
   uploadFilename,
   sheetToJson,
-  removeSourceRowField
+  removeSourceRowField,
+  zeroPad
 }
 
 /*                                  *  *  *                                   */

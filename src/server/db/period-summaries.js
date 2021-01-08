@@ -56,7 +56,7 @@ async function getReportedSubrecipientIds () {
     .select('subrecipient_identification_number')
     .distinct()
 
-  return subrecipientIDs
+  return subrecipientIDs.map(r => r.subrecipient_identification_number)
 }
 
 async function writeSummaries (reporting_period_id) {
@@ -191,7 +191,7 @@ async function generateSummaries (reporting_period_id) {
   return { periodSummaries, errors: errLog }
 }
 
-/* getPriorPeriodSummares() finds all the summaries for periods before
+/* getPriorPeriodSummaries() finds all the summaries for periods before
   the report_period_id argument.
   */
 async function getPriorPeriodSummaries (reporting_period_id) {
