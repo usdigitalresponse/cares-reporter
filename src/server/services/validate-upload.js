@@ -1,28 +1,29 @@
+/* eslint camelcase: 0 */
 
-let log = ()=>{};
-if ( process.env.VERBOSE ){
-  log = console.dir;
+let log = () => {}
+if (process.env.VERBOSE) {
+  log = console.dir
 }
 
-const xlsx = require("xlsx");
+const xlsx = require('xlsx')
 const {
   currentReportingPeriodSettings,
   getPriorPeriodSummaries
-} = require("../db");
+} = require('../db')
 
-const reportingPeriods = require("../db/reporting-periods");
+const reportingPeriods = require('../db/reporting-periods')
 
-const { getValidationTemplateSheets } = require("./get-template");
-const { parseFilename } = require("./parse-filename");
-const { ValidationLog } = require("../lib/validation-log");
-const { validateData } = require("./validate-data");
+const { getValidationTemplateSheets } = require('./get-template')
+const { parseFilename } = require('./parse-filename')
+const { ValidationLog } = require('../lib/validation-log')
+const { validateData } = require('./validate-data')
 const {
   parseSpreadsheet,
   removeSourceRowField,
   spreadsheetToDocuments
-} = require("../lib/spreadsheet");
+} = require('../lib/spreadsheet')
 
-const { removeEmptyDocuments } = require("../lib/remove-empty-documents");
+const { removeEmptyDocuments } = require('../lib/remove-empty-documents')
 
 const validateUpload = async ({
   filename,
@@ -31,76 +32,74 @@ const validateUpload = async ({
   data,
   reporting_period_id
 }) => {
-
   if (!reporting_period_id) {
-    const period = await currentReportingPeriodSettings();
-    reporting_period_id = period.id;
+    const period = await currentReportingPeriodSettings()
+    reporting_period_id = period.id
   }
-  const reportingPeriod = await reportingPeriods.get(reporting_period_id);
+  const reportingPeriod = await reportingPeriods.get(reporting_period_id)
 
-  let valog = new ValidationLog();
+  let valog = new ValidationLog()
   const { valog: filenameValog, ...fileParts } =
-    await parseFilename(filename, reportingPeriod);
+    await parseFilename(filename, reportingPeriod)
 
-  valog.append(filenameValog);
+  valog.append(filenameValog)
   if (!valog.success()) {
-    log(`failed to validate file name`);
-    return { valog, documents: {} };
+    log(`failed to validate file name`)
+    return { valog, documents: {} }
   }
 
-  let workbookXlsx;
+  let workbookXlsx
   try {
-    workbookXlsx = xlsx.read(data, { type: "buffer" });
+    workbookXlsx = xlsx.read(data, { type: 'buffer' })
   } catch (e) {
-    console.log("error", e);
-    valog.append(`Can't parse xlsx file ${filename}`);
-    return { valog, documents: {} };
+    console.log('error', e)
+    valog.append(`Can't parse xlsx file ${filename}`)
+    return { valog, documents: {} }
   }
 
-  const templateSheets = await getValidationTemplateSheets();
+  const templateSheets = await getValidationTemplateSheets()
   const { spreadsheet, valog: parseValog } = parseSpreadsheet(
     workbookXlsx,
     templateSheets
-  );
-  if (parseValog.length){
-    log(`parseValog failed`);
+  )
+  if (parseValog.length) {
+    log(`parseValog failed`)
   }
-  valog.append(parseValog);
+  valog.append(parseValog)
 
   const {
     documents: spreadsheetDocuments,
     valog: docValog
-  } = await spreadsheetToDocuments(spreadsheet, user_id, templateSheets);
-  if (docValog.length){
-    log(`docValog failed`);
+  } = await spreadsheetToDocuments(spreadsheet, user_id, templateSheets)
+  if (docValog.length) {
+    log(`docValog failed`)
   }
-  valog.append(docValog);
+  valog.append(docValog)
 
-  let documents = removeEmptyDocuments(spreadsheetDocuments);
+  let documents = removeEmptyDocuments(spreadsheetDocuments)
 
-  const priorPeriodSummaries = await getPriorPeriodSummaries(reportingPeriod.id);
-  const firstReportingPeriodStartDate = await reportingPeriods.getFirstStartDate();
+  const priorPeriodSummaries = await getPriorPeriodSummaries(reportingPeriod.id)
+  const firstReportingPeriodStartDate = await reportingPeriods.getFirstStartDate()
   const dataValog = await validateData(
     documents,
     fileParts,
     reportingPeriod,
     priorPeriodSummaries,
     firstReportingPeriodStartDate
-  );
-  if (dataValog.length){
-    log(`dataValog failed`);
+  )
+  if (dataValog.length) {
+    log(`dataValog failed`)
     // console.dir(dataValog);
   }
-  valog.append(dataValog);
+  valog.append(dataValog)
 
   if (!valog.success()) {
-    return { valog, documents: {} };
+    return { valog, documents: {} }
   }
 
-  documents = removeSourceRowField(documents);
+  documents = removeSourceRowField(documents)
 
-  return { valog, documents, spreadsheet, fileParts, reportingPeriod };
+  return { valog, documents, spreadsheet, fileParts, reportingPeriod }
+}
 
-};
-
-module.exports = { validateUpload };
+module.exports = { validateUpload }

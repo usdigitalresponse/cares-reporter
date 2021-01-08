@@ -22,10 +22,10 @@
 </template>
 
 <script>
-import DataTableColumn from "./DataTableColumn";
-import { titleize } from "../helpers/form-helpers";
+import DataTableColumn from './DataTableColumn'
+import { titleize } from '../helpers/form-helpers'
 export default {
-  name: "BasicTable",
+  name: 'BasicTable',
   props: {
     name: String,
     columns: Array,
@@ -36,12 +36,12 @@ export default {
     DataTableColumn
   },
   methods: {
-    columnTitle(column) {
-      return column.label ? column.label : titleize(column.name);
+    columnTitle (column) {
+      return column.label ? column.label : titleize(column.name)
     },
     titleize
   }
-};
+}
 </script>
 
 <style scoped>

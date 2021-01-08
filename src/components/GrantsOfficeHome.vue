@@ -61,85 +61,87 @@
 </template>
 
 <script>
-import UploadHistory from "../components/UploadHistory";
-import { titleize } from "../helpers/form-helpers";
-import moment from "moment";
-import _ from "lodash";
+import UploadHistory from '../components/UploadHistory'
+import { titleize } from '../helpers/form-helpers'
+import moment from 'moment'
+import _ from 'lodash'
 export default {
-  name: "GrantsOfficeHome",
+  name: 'GrantsOfficeHome',
   components: {
     UploadHistory
   },
-  data() {
+  data () {
     return {
-      uploadHistoryViews:  [
+      uploadHistoryViews: [
         {
-          name: "Group by Agency",
-          groupBy: "agency"
+          name: 'Group by Agency',
+          groupBy: 'agency'
         }
       ]
-    };
+    }
   },
   computed: {
-    viewingCurrentPeriod() {
-      return this.$store.getters.viewPeriodIsCurrent;
+
+    viewingCurrentPeriod () {
+      return this.$store.getters.viewPeriodIsCurrent
     },
-    isClosed: function() {
-      return !(this.$store.getters.viewPeriodIsCurrent);
+    isClosed: function () {
+      return !(this.$store.getters.viewPeriodIsCurrent)
     },
-    template: function() {
+    template: function () {
       return _.find(this.$store.state.configuration.templates, t =>
         t.name.match(/agency/i)
-      );
+      )
     },
-    tables: function() {
-      return this.$store.state.configuration.tables;
+    tables: function () {
+      return this.$store.state.configuration.tables
     },
-    uploads: function() {
-      return this.$store.state.uploads;
+    uploads: function () {
+      return this.$store.state.uploads
     },
-    groups: function() {
-      return this.$store.getters.documentGroups;
+    groups: function () {
+      return this.$store.getters.documentGroups
     },
-    downloadTemplateUrl() {
-      const template = this.$store.getters.reportingTemplate;
-      return `/templates/${encodeURIComponent(template)}`;
+    downloadTemplateUrl () {
+      const template = this.$store.getters.reportingTemplate
+      return `/templates/${encodeURIComponent(template)}`
     }
   },
   watch: {
   },
   methods: {
     titleize,
-    downloadUrl() {
-      let period_id = this.$store.getters.viewPeriod.id ||  0;
+    /* eslint camelcase: 0 */
+    downloadUrl () {
+      let period_id = this.$store.getters.viewPeriod.id || 0
       // console.dir(this.$store.getters.viewPeriod);
-      return `/api/exports?period_id=${period_id}`;
+      return `/api/exports?period_id=${period_id}`
     },
-    documentCount(tableName) {
-      const records = this.groups[tableName];
-      return _.filter(records, r => r.type === tableName).length;
+    documentCount (tableName) {
+      const records = this.groups[tableName]
+      return _.filter(records, r => r.type === tableName).length
     },
-    dataUrl(table) {
-      return `/documents/${table.name}`;
+    dataUrl (table) {
+      return `/documents/${table.name}`
     },
-    uploadUrl(upload) {
-      return `/uploads/${upload.id || 0}`;
+    uploadUrl (upload) {
+      return `/uploads/${upload.id || 0}`
     },
-    fromNow: function(t) {
-      return moment(t).fromNow();
+    fromNow: function (t) {
+      return moment(t).fromNow()
     },
-    dateFormat: function(d) {
+    dateFormat: function (d) {
       return moment(d)
         .utc()
-        .format("MM-DD-YYYY");
+        .format('MM-DD-YYYY')
     },
-    startUpload: function(){
+    startUpload: function () {
       if (this.viewingCurrentPeriod) {
-        this.$router.push({ path: "/new_upload" });
+        this.$router.push({ path: '/new_upload' })
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

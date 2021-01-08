@@ -1,61 +1,63 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import _ from "lodash";
+/* eslint camelcase: 0 */
 
-Vue.use(Vuex);
+import Vue from 'vue'
+import Vuex from 'vuex'
+import _ from 'lodash'
 
-export function get(url) {
+Vue.use(Vuex)
+
+export function get (url) {
   const options = {
-    credentials: "include"
-  };
-  return fetch(url, options);
+    credentials: 'include'
+  }
+  return fetch(url, options)
 }
 
-export function post(url, body) {
+export function post (url, body) {
   const options = {
-    method: "POST",
-    credentials: "include",
+    method: 'POST',
+    credentials: 'include',
     headers: {
-      "Content-Type": "application/json"
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(body)
-  };
+  }
   return fetch(url, options).then(r => {
     if (r.ok) {
-      return r.json();
+      return r.json()
     }
     return r
       .text()
-      .then(text => Promise.reject(new Error(text ? text : r.statusText)));
-  });
+      .then(text => Promise.reject(new Error(text || r.statusText)))
+  })
 }
 
-export function postForm(url, formData) {
+export function postForm (url, formData) {
   const options = {
-    method: "POST",
-    credentials: "include",
+    method: 'POST',
+    credentials: 'include',
     body: formData
-  };
-  return fetch(url, options);
+  }
+  return fetch(url, options)
 }
 
-export function put(url, body) {
+export function put (url, body) {
   const options = {
-    method: "PUT",
-    credentials: "include",
+    method: 'PUT',
+    credentials: 'include',
     headers: {
-      "Content-Type": "application/json"
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(body)
-  };
+  }
   return fetch(url, options).then(r => {
     if (r.ok) {
-      return r.json();
+      return r.json()
     }
     return r
       .text()
-      .then(text => Promise.reject(new Error(text ? text : r.statusText)));
-  });
+      .then(text => Promise.reject(new Error(text || r.statusText)))
+  })
 }
 
 export default new Vuex.Store({
@@ -69,279 +71,278 @@ export default new Vuex.Store({
     projects: [],
     reportingPeriods: [],
     messages: [],
-    viewPeriodID:null
+    viewPeriodID: null
   },
   mutations: {
-    setUser(state, user) {
-      state.user = user;
+    setUser (state, user) {
+      state.user = user
     },
-    setDocuments(state, documents) {
-      state.documents = documents;
+    setDocuments (state, documents) {
+      state.documents = documents
     },
-    setConfiguration(state, configuration) {
-      state.configuration = configuration;
+    setConfiguration (state, configuration) {
+      state.configuration = configuration
     },
-    setAgencies(state, agencies) {
-      state.agencies = agencies;
+    setAgencies (state, agencies) {
+      state.agencies = agencies
     },
-    setProjects(state, projects) {
-      state.projects = projects;
+    setProjects (state, projects) {
+      state.projects = projects
     },
-    setReportingPeriods(state, reportingPeriods) {
-      state.reportingPeriods = reportingPeriods;
+    setReportingPeriods (state, reportingPeriods) {
+      state.reportingPeriods = reportingPeriods
     },
-    setApplicationSettings(state, applicationSettings) {
-      state.applicationSettings = applicationSettings;
+    setApplicationSettings (state, applicationSettings) {
+      state.applicationSettings = applicationSettings
       if (!state.viewPeriodID) {
-        state.viewPeiodID = applicationSettings.current_reporting_period_id;
+        state.viewPeiodID = applicationSettings.current_reporting_period_id
       }
     },
-    setUploads(state, uploads) {
-      state.uploads = uploads;
+    setUploads (state, uploads) {
+      state.uploads = uploads
     },
-    addDocument(state, document) {
-      state.documents = [...state.documents, document];
+    addDocument (state, document) {
+      state.documents = [...state.documents, document]
     },
-    addDocuments(state, documents) {
-      state.documents = [...state.documents, ...documents];
+    addDocuments (state, documents) {
+      state.documents = [...state.documents, ...documents]
     },
-    addUpload(state, upload) {
-      state.uploads = [upload, ...state.uploads];
+    addUpload (state, upload) {
+      state.uploads = [upload, ...state.uploads]
     },
-    addUser(state, user) {
+    addUser (state, user) {
       state.configuration.users = _.sortBy(
         [...state.configuration.users, user],
-        "email"
-      );
+        'email'
+      )
     },
-    updateUser(state, user) {
+    updateUser (state, user) {
       state.configuration.users = _.chain(state.configuration.users)
-        .map(u => (user.id == u.id ? user : u))
-        .sortBy("email")
-        .value();
+        .map(u => (user.id === u.id ? user : u))
+        .sortBy('email')
+        .value()
     },
-    addProject(state, project) {
-      state.projects = _.sortBy([...state.projects, project], "name");
+    addProject (state, project) {
+      state.projects = _.sortBy([...state.projects, project], 'name')
     },
-    updateProject(state, project) {
+    updateProject (state, project) {
       state.projects = _.chain(state.projects)
-        .map(p => (project.id == p.id ? project : p))
-        .sortBy("name")
-        .value();
+        .map(p => (project.id === p.id ? project : p))
+        .sortBy('name')
+        .value()
     },
-    addAgency(state, agency) {
-      state.agencies = _.sortBy([...state.agencies, agency], "name");
+    addAgency (state, agency) {
+      state.agencies = _.sortBy([...state.agencies, agency], 'name')
     },
-    updateAgency(state, agency) {
+    updateAgency (state, agency) {
       state.agencies = _.chain(state.agencies)
-        .map(a => (agency.id == a.id ? agency : a))
-        .sortBy("name")
-        .value();
+        .map(a => (agency.id === a.id ? agency : a))
+        .sortBy('name')
+        .value()
     },
-    addMessage(state, message) {
-      state.messages = [...state.messages, message];
+    addMessage (state, message) {
+      state.messages = [...state.messages, message]
     },
-    setViewPeriodID(state, period_id) {
-      state.viewPeriodID = period_id;
+    setViewPeriodID (state, period_id) {
+      state.viewPeriodID = period_id
     }
   },
   actions: {
-    login({ commit }, user) {
-      commit("setUser", user);
+    login ({ commit }, user) {
+      commit('setUser', user)
       const doFetch = attr => {
-        fetch(`/api/${attr}`, { credentials: "include" })
+        fetch(`/api/${attr}`, { credentials: 'include' })
           .then(r => r.json())
           .then(data => {
-            const mutation = _.camelCase(`set_${attr}`);
-            commit(mutation, data[attr]);
-          });
-      };
-      doFetch("application_settings");
-      doFetch("documents");
-      doFetch("configuration");
-      doFetch("uploads");
-      doFetch("agencies");
-      doFetch("projects");
-      doFetch("reporting_periods");
+            const mutation = _.camelCase(`set_${attr}`)
+            commit(mutation, data[attr])
+          })
+      }
+      doFetch('application_settings')
+      doFetch('documents')
+      doFetch('configuration')
+      doFetch('uploads')
+      doFetch('agencies')
+      doFetch('projects')
+      doFetch('reporting_periods')
     },
-    logout({ commit }) {
-      fetch("/api/sessions/logout").then(() => commit("setUser", null));
+    logout ({ commit }) {
+      fetch('/api/sessions/logout').then(() => commit('setUser', null))
     },
-    refreshDocuments({ commit }) {
-      return fetch("/api/documents", { credentials: "include" })
+    refreshDocuments ({ commit }) {
+      return fetch('/api/documents', { credentials: 'include' })
         .then(r => r.json())
-        .then(data => commit("setDocuments", data.documents));
+        .then(data => commit('setDocuments', data.documents))
     },
-    loadApplicationSettings({ commit }) {
-      fetch("/api/application_settings")
+    loadApplicationSettings ({ commit }) {
+      fetch('/api/application_settings')
         .then(r => r.json())
         .then(data =>
-          commit("setApplicationSettings", data.application_settings)
-        );
+          commit('setApplicationSettings', data.application_settings)
+        )
     },
-    createDocument({ commit }, { type, content }) {
+    createDocument ({ commit }, { type, content }) {
       return post(`/api/documents/${type}`, content).then(({ document }) => {
         if (document) {
-          commit("addDocument", document);
+          commit('addDocument', document)
         }
-      });
+      })
     },
-    importDocuments({ commit }, { documents }) {
-      commit("addDocuments", documents);
+    importDocuments ({ commit }, { documents }) {
+      commit('addDocuments', documents)
     },
-    createUser({ commit }, user) {
-      return post("/api/users", user).then(response => {
-        commit("addUser", response.user);
-      });
+    createUser ({ commit }, user) {
+      return post('/api/users', user).then(response => {
+        commit('addUser', response.user)
+      })
     },
-    updateUser({ commit }, user) {
+    updateUser ({ commit }, user) {
       return put(`/api/users/${user.id}`, user).then(() => {
-        commit("updateUser", user);
-      });
+        commit('updateUser', user)
+      })
     },
-    createUpload({ commit }, formData) {
-      return postForm("/api/uploads", formData)
+    createUpload ({ commit }, formData) {
+      return postForm('/api/uploads', formData)
         .then(r => {
-          if (!r.ok)
-            throw new Error(`createUpload: ${r.statusText} (${r.status})`);
-          return r.json();
+          if (!r.ok) { throw new Error(`createUpload: ${r.statusText} (${r.status})`) }
+          return r.json()
         })
         .then(response => {
           if (response.success && response.upload) {
-            commit("addUpload", response.upload);
+            commit('addUpload', response.upload)
             commit(
-              "addMessage",
+              'addMessage',
               `File "${response.upload.filename}" uploaded successfully`
-            );
+            )
           }
-          return response;
-        });
+          return response
+        })
     },
-    createProject({ commit }, project) {
-      return post("/api/projects", project).then(response => {
+    createProject ({ commit }, project) {
+      return post('/api/projects', project).then(response => {
         const p = {
           ...project,
           ...response.project
-        };
-        commit("addProject", p);
-      });
+        }
+        commit('addProject', p)
+      })
     },
-    updateProject({ commit }, project) {
+    updateProject ({ commit }, project) {
       return put(`/api/projects/${project.id}`, project).then(() => {
-        commit("updateProject", project);
-      });
+        commit('updateProject', project)
+      })
     },
-    createAgency({ commit }, agency) {
-      return post("/api/agencies", agency).then(response => {
-        commit("addAgency", response.agency);
-      });
+    createAgency ({ commit }, agency) {
+      return post('/api/agencies', agency).then(response => {
+        commit('addAgency', response.agency)
+      })
     },
-    updateAgency({ commit }, agency) {
+    updateAgency ({ commit }, agency) {
       return put(`/api/agencies/${agency.id}`, agency).then(() => {
-        commit("updateAgency", agency);
-      });
+        commit('updateAgency', agency)
+      })
     },
-    viewPeriodID({ commit }, period_id) {
-      commit("setViewPeriodID", period_id);
+    viewPeriodID ({ commit }, period_id) {
+      commit('setViewPeriodID', period_id)
       const doFetch = (attr, query) => {
-        let url = `/api/${attr}${query}`;
-        fetch(url, { credentials: "include" })
+        let url = `/api/${attr}${query}`
+        fetch(url, { credentials: 'include' })
           .then(r => r.json())
           .then(data => {
-            const mutation = _.camelCase(`set_${attr}`);
-            commit(mutation, data[attr]);
-          });
-      };
-      doFetch("documents",`?period_id=${period_id}`);
-      doFetch("uploads",`?period_id=${period_id}`);
+            const mutation = _.camelCase(`set_${attr}`)
+            commit(mutation, data[attr])
+          })
+      }
+      doFetch('documents', `?period_id=${period_id}`)
+      doFetch('uploads', `?period_id=${period_id}`)
     }
   },
   modules: {},
   getters: {
     tableNames: state => {
-      return _.map(state.configuration.tables, "name");
+      return _.map(state.configuration.tables, 'name')
     },
     periodNames: state => {
-      return _.map(state.reportingPeriods, "name");
+      return _.map(state.reportingPeriods, 'name')
     },
     tables: state => {
       return _.map(state.configuration.tables, t => {
-        const { content, ...rest } = t;
+        const { content, ...rest } = t
         return {
           ...rest,
           ...content
-        };
-      });
+        }
+      })
     },
     table: state => name => {
-      return _.find(state.configuration.tables, t => t.name == name);
+      return _.find(state.configuration.tables, t => t.name === name)
     },
     templates: state => {
-      return state.configuration.templates;
+      return state.configuration.templates
     },
     template: state => {
       return state.configuration.templates
         ? state.configuration.templates[0]
-        : {};
+        : {}
     },
     documentGroups: state => {
-      return _.groupBy(state.documents, "type");
+      return _.groupBy(state.documents, 'type')
     },
     foreignKeyValues: state => column => {
       const ds = _.filter(
         state.documents,
         d => d.type === column.foreignKey.table
-      );
+      )
       return _.map(ds, e => {
-        return { value: e.id, name: e.content[column.foreignKey.show] };
-      });
+        return { value: e.id, name: e.content[column.foreignKey.show] }
+      })
     },
     documentByTypeAndId: state => (type, id) => {
-      return _.find(state.documents, { type, id });
+      return _.find(state.documents, { type, id })
     },
     user: state => {
-      return state.user || {};
+      return state.user || {}
     },
     agencyName: state => id => {
-      const agency = _.find(state.agencies, { id });
-      return agency ? agency.name : "";
+      const agency = _.find(state.agencies, { id })
+      return agency ? agency.name : ''
     },
     applicationTitle: state => {
-      const title = _.get(state, "applicationSettings.title", "");
-      return title || "CARES Reporter";
+      const title = _.get(state, 'applicationSettings.title', '')
+      return title || 'CARES Reporter'
     },
     currentReportingPeriod: state => {
-      const id = state.applicationSettings.current_reporting_period_id;
+      const id = state.applicationSettings.current_reporting_period_id
       if (!id) {
-        return null;
+        return null
       }
-      return _.find(state.reportingPeriods, { id });
+      return _.find(state.reportingPeriods, { id })
     },
     viewPeriod: state => {
-      const id = Number(state.viewPeriodID
-      || state.applicationSettings.current_reporting_period_id
-      );
+      const id = Number(state.viewPeriodID ||
+      state.applicationSettings.current_reporting_period_id
+      )
 
-      return _.find(state.reportingPeriods, { id }) || { id:0,name:"" };
+      return _.find(state.reportingPeriods, { id }) || { id: 0, name: '' }
     },
     currentPeriodID: state => {
-      return Number(state.applicationSettings.current_reporting_period_id);
+      return Number(state.applicationSettings.current_reporting_period_id)
     },
     viewPeriodID: state => {
-      return Number(state.viewPeriodID);
+      return Number(state.viewPeriodID)
     },
     reportingTemplate: state => {
       return (
-        state.applicationSettings.reporting_template || "empty-template.xlsx"
-      );
+        state.applicationSettings.reporting_template || 'empty-template.xlsx'
+      )
     },
     viewPeriodIsCurrent: state => {
       // period zero is an alias to the current reporting period.
-      if ( !state.viewPeriodID ){
-        return true;
+      if (!state.viewPeriodID) {
+        return true
       }
       return Number(state.viewPeriodID) ===
-        Number(state.applicationSettings.current_reporting_period_id);
+        Number(state.applicationSettings.current_reporting_period_id)
     }
   }
-});
+})

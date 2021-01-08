@@ -4,11 +4,11 @@
 </template>
 
 <script>
-import DataTable from "../components/DataTable";
-import DownloadIcon from "./DownloadIcon";
-import moment from "moment";
+import DataTable from '../components/DataTable'
+import DownloadIcon from './DownloadIcon'
+import moment from 'moment'
 export default {
-  name: "UploadHistory",
+  name: 'UploadHistory',
   props: {
     uploads: Array,
     views: Array
@@ -16,46 +16,46 @@ export default {
   components: {
     DataTable
   },
-  data: function() {
-    const user = this.$store.state.user;
+  data: function () {
+    const user = this.$store.state.user
     return {
       user,
       table: {
         views: this.views,
         columns: [
-          { name: "filename" },
-          { name: "agency" },
-          { name: "created_by" },
-          { name: "uploaded" },
+          { name: 'filename' },
+          { name: 'agency' },
+          { name: 'created_by' },
+          { name: 'uploaded' },
           { component: DownloadIcon }
         ]
       }
-    };
+    }
   },
   computed: {
-    rows: function() {
+    rows: function () {
       return this.uploads.map(u => {
         return {
           ...u,
           agency: this.agencyName(u.agency_id),
           uploaded: this.fromNow(u.created_at)
-        };
-      });
+        }
+      })
     },
-    hasUploads() {
-      return this.uploads && this.uploads.length > 0;
+    hasUploads () {
+      return this.uploads && this.uploads.length > 0
     }
   },
   methods: {
-    uploadUrl(upload) {
-      return `/uploads/${upload.id}`;
+    uploadUrl (upload) {
+      return `/uploads/${upload.id}`
     },
-    fromNow: function(t) {
-      return moment(t).fromNow();
+    fromNow: function (t) {
+      return moment(t).fromNow()
     },
-    agencyName(id) {
-      return this.$store.getters.agencyName(id);
+    agencyName (id) {
+      return this.$store.getters.agencyName(id)
     }
   }
-};
+}
 </script>

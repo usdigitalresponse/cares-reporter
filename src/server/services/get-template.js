@@ -1,79 +1,79 @@
 
-let log = ()=>{};
-if ( process.env.VERBOSE ){
-  log = console.dir;
+let log = () => {}
+if (process.env.VERBOSE) {
+  log = console.dir
 }
-let path = require("path");
+let path = require('path')
 
-const fs = require("fs");
-const xlsx = require("xlsx");
-const _ = require("lodash");
-const { sheetToJson } = require("../lib/spreadsheet");
+const fs = require('fs')
+const xlsx = require('xlsx')
+const _ = require('lodash')
+const { sheetToJson } = require('../lib/spreadsheet')
 
-const treasury = {
-  template:null,
-  sheets:null
-};
+let treasury = {
+  template: null,
+  sheets: null
+}
 
-const validation = {
-  template:null,
-  sheets:null,
+let validation = {
+  template: null,
+  sheets: null,
   dropdownValues: null
-};
+}
 
 module.exports = {
   getDropdownValues,
   getTreasuryTemplateSheets,
   getValidationTemplateSheets
-};
-
-function getDropdownValues() {
-  if (!validation.dropdownValues){
-    loadValidationTemplate();
-  }
-  return validation.dropdownValues;
 }
 
-function getTreasuryTemplateSheets() {
+function getDropdownValues () {
+  if (!validation.dropdownValues) {
+    loadValidationTemplate()
+  }
+  return validation.dropdownValues
+}
+
+function getTreasuryTemplateSheets () {
   if (!treasury.sheets) {
-    loadTreasuryTemplate();
+    loadTreasuryTemplate()
   }
-  return treasury.sheets;
+  return treasury.sheets
 }
 
-function getValidationTemplateSheets() {
-  if (!validation.sheets){
-    loadValidationTemplate();
-  }
-  return validation.sheets;
-}
-
-function loadXlsxFile(fileName) {
-  let filePath = path.resolve(__dirname,`../data/${fileName}`);
-  // console.log(`loadTreasuryTemplate: filePath is |${filePath}|`);
-
-  return xlsx.read( fs.readFileSync(filePath), { type: "buffer" } );
-}
-
-function loadTreasuryTemplate() {
-  let xlsxTemplate = loadXlsxFile(process.env.TREASURY_TEMPLATE);
-  const objAoaSheets = {};
+function loadTreasuryTemplate () {
+  let xlsxTemplate = loadXlsxFile(process.env.TREASURY_TEMPLATE)
+  const objAoaSheets = {}
 
   _.keys(xlsxTemplate.Sheets).forEach(sheetName => {
-    const rawSheet = xlsxTemplate["Sheets"][sheetName];
-    objAoaSheets[sheetName] = sheetToJson(rawSheet, false);
-  });
+    const rawSheet = xlsxTemplate['Sheets'][sheetName]
+    objAoaSheets[sheetName] = sheetToJson(rawSheet, false)
+  })
 
-  treasury.template = xlsxTemplate;
-  treasury.sheets = objAoaSheets;
+  treasury.template = xlsxTemplate
+  treasury.sheets = objAoaSheets
 }
 
-function loadDropdownValues() {
-  let dropdownTab = validation.template.Sheets.Dropdowns;
+function getValidationTemplateSheets () {
+  if (!validation.sheets) {
+    loadValidationTemplate()
+  }
+  return validation.sheets
+}
+
+function loadXlsxFile (fileName) {
+  let filePath = path.resolve(__dirname, `../data/${fileName}`)
+  // console.log(`loadTreasuryTemplate: filePath is |${filePath}|`);
+
+  return xlsx.read(fs.readFileSync(filePath), { type: 'buffer' })
+}
+
+function loadDropdownValues () {
+  let dropdownTab = validation.template.Sheets.Dropdowns
   const dropdownSheet = xlsx.utils.sheet_to_json(dropdownTab, {
     header: 1,
     blankrows: false
-  });
+  })
   const dropdownValues = _.fromPairs(
     _.zip(
       // zip to pair each column name with array of values for each column
@@ -87,29 +87,29 @@ function loadDropdownValues() {
         colAr => _.map(_.compact(colAr), _.toLower)
       )
     ).slice(1)
-  );
-  return dropdownValues;
+  )
+  return dropdownValues
 }
 
-function loadValidationTemplate(){
-  let xlsxTemplate = loadXlsxFile(process.env.VALIDATION_TEMPLATE);
-  const objAoaSheets = {};
+function loadValidationTemplate () {
+  let xlsxTemplate = loadXlsxFile(process.env.VALIDATION_TEMPLATE)
+  const objAoaSheets = {}
 
   _.keys(xlsxTemplate.Sheets).forEach(tabName => {
-    if (tabName === "Dropdowns") return;
-    const sheetName = tabName.toLowerCase().trim();
-    const templateSheet = _.get(xlsxTemplate, ["Sheets", tabName]);
-    objAoaSheets[sheetName] = sheetToJson(templateSheet);
-  });
+    if (tabName === 'Dropdowns') return
+    const sheetName = tabName.toLowerCase().trim()
+    const templateSheet = _.get(xlsxTemplate, ['Sheets', tabName])
+    objAoaSheets[sheetName] = sheetToJson(templateSheet)
+  })
 
-  validation.template = xlsxTemplate;
-  validation.sheets = objAoaSheets;
-  log(`Validation template loaded...`);
+  validation.template = xlsxTemplate
+  validation.sheets = objAoaSheets
+  log(`Validation template loaded...`)
 
-  validation.dropdownValues = loadDropdownValues();
-  log(`Dropdown values loaded...`);
-  delete validation.sheets.Dropdowns;
-  return "OK";
+  validation.dropdownValues = loadDropdownValues()
+  log(`Dropdown values loaded...`)
+  delete validation.sheets.Dropdowns
+  return 'OK'
 }
 
 /*                                 *  *  *                                    */

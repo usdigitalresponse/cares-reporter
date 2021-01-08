@@ -13,42 +13,42 @@
 </template>
 
 <script>
-import _ from "lodash";
-import UploadData from "../components/UploadData.vue";
-import { get } from "../store";
+import _ from 'lodash'
+import UploadData from '../components/UploadData.vue'
+import { get } from '../store'
 export default {
-  name: "ImportManager",
+  name: 'ImportManager',
   props: {},
   components: {
     UploadData
   },
-  data: function() {
-    const id = this.$route.params.id;
-    const upload = _.find(this.$store.state.uploads, u => u.id == id);
+  data: function () {
+    const id = this.$route.params.id
+    const upload = _.find(this.$store.state.uploads, u => u.id === id)
     return {
       id,
       upload,
       data: {},
       loading: true
-    };
+    }
   },
-  mounted: function() {
-    this.loading = true;
+  mounted: function () {
+    this.loading = true
     get(`/api/uploads/${this.id}`)
       .then(r => r.json())
       .then(r => {
-        const data = r.data;
-        this.loading = false;
-        this.data = data;
-      });
+        const data = r.data
+        this.loading = false
+        this.data = data
+      })
   },
   watch: {
-    "$store.state.uploads": function(uploads) {
-      this.upload = _.find(uploads, u => u.id == this.id);
+    '$store.state.uploads': function (uploads) {
+      this.upload = _.find(uploads, u => u.id === this.id)
     }
   },
   methods: {}
-};
+}
 </script>
 
 <style scoped>

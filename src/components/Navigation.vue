@@ -42,7 +42,6 @@
         </div>
       </div>
 
-
     </div>
     <div class="navigation">
       <ul class="nav nav-tabs mb-4" v-if="loggedIn">
@@ -95,42 +94,42 @@
 </template>
 
 <script>
-import Messages from "./Messages";
-import { titleize } from "../helpers/form-helpers";
-import moment from "moment";
+import Messages from './Messages'
+import { titleize } from '../helpers/form-helpers'
+import moment from 'moment'
 
 export default {
-  name: "Logout",
+  name: 'Logout',
   components: {
     Messages
   },
   computed: {
-    user: function() {
-      return this.$store.getters.user;
+    user: function () {
+      return this.$store.getters.user
     },
-    email: function() {
-      return this.user.email;
+    email: function () {
+      return this.user.email
     },
-    agencyName: function() {
-      return this.$store.getters.agencyName(this.user.agency_id);
+    agencyName: function () {
+      return this.$store.getters.agencyName(this.user.agency_id)
     },
-    role: function() {
-      return this.$store.getters.user.role;
+    role: function () {
+      return this.$store.getters.user.role
     },
-    loggedIn: function() {
-      return this.$store.state.user !== null;
+    loggedIn: function () {
+      return this.$store.state.user !== null
     },
-    tableNames: function() {
-      return this.$store.getters.tableNames;
+    tableNames: function () {
+      return this.$store.getters.tableNames
     },
-    periodNames: function() {
-      return this.$store.getters.periodNames;
+    periodNames: function () {
+      return this.$store.getters.periodNames
     },
-    viewPeriod: function(){
-      return this.$store.getters.viewPeriod;
+    viewPeriod: function () {
+      return this.$store.getters.viewPeriod
     },
-    applicationTitle: function() {
-      return this.$store.getters.applicationTitle;
+    applicationTitle: function () {
+      return this.$store.getters.applicationTitle
     }
   },
   watch: {
@@ -138,36 +137,36 @@ export default {
 
   methods: {
     titleize,
-    logout(e) {
-      e.preventDefault();
+    logout (e) {
+      e.preventDefault()
       this.$store
-        .dispatch("logout")
-        .then(() => this.$router.push({ path: "/login" }));
+        .dispatch('logout')
+        .then(() => this.$router.push({ path: '/login' }))
     },
-    navLinkClass(to) {
+    navLinkClass (to) {
       if (document.location.pathname === to) {
-        return "nav-link active";
+        return 'nav-link active'
       }
-      return "nav-link";
+      return 'nav-link'
     },
-    dropdownClass(prefix) {
+    dropdownClass (prefix) {
       if (document.location.pathname.startsWith(prefix)) {
-        return "nav-link dropdown-toggle active";
+        return 'nav-link dropdown-toggle active'
       }
-      return "nav-link dropdown-toggle";
+      return 'nav-link dropdown-toggle'
     },
-    dateFormat: function(d) {
+    dateFormat: function (d) {
       return moment(d)
         .utc()
-        .format("MM-DD-YYYY");
+        .format('MM-DD-YYYY')
     },
-    setViewPeriodID: function(e){
+    setViewPeriodID: function (e) {
       return this.$store
-      .dispatch("viewPeriodID", e.target.attributes["period-id"].value || 0)
-      .catch(e => (this.errorMessage = e.message));
+        .dispatch('viewPeriodID', e.target.attributes['period-id'].value || 0)
+        .catch(e => (this.errorMessage = e.message))
     }
   }
-};
+}
 </script>
 
 <style scoped>

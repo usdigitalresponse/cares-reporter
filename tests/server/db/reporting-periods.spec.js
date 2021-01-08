@@ -21,37 +21,33 @@
    review_period_end_date         | date                     |
 
 */
-const reportingPeriods = requireSrc(__filename);
+const reportingPeriods = requireSrc(__filename)
 
-const expect = require("chai").expect;
-
-describe("reporting-periods.spec.js - baseline success", () => {
-  it("Returns a list of reporting periods", async () => {
-
-    const result = await reportingPeriods.get();
+describe('reporting-periods.spec.js - baseline success', () => {
+  it('Returns a list of reporting periods', async () => {
+    const result = await reportingPeriods.get()
     if (result.length !== 5) {
       // console.dir(result);
-      throw new Error(`Expected 5 periods, got ${result.length}`);
+      throw new Error(`Expected 5 periods, got ${result.length}`)
     }
-    return result;
-  });
-  it("Returns one reporting period", async () => {
-
-    const result = await reportingPeriods.get(2);
+    return result
+  })
+  it('Returns one reporting period', async () => {
+    const result = await reportingPeriods.get(2)
     if (Array.isArray(result)) {
       // console.dir(result);
-      throw new Error(`Expected 1 period, got ${result.length}`);
+      throw new Error(`Expected 1 period, got ${result.length}`)
     }
     if (result.id !== 2) {
       // console.dir(result);
-      throw new Error(`Expected period 2, got period ${result.id}`);
+      throw new Error(`Expected period 2, got period ${result.id}`)
     }
-    return result;
-  });
-  it.skip("Closes a reporting period", async () => {
+    return result
+  })
+  it.skip('Closes a reporting period', async () => {
     // skipped because the reporting period close test is in
     // period-summaries.spec.js
-  });
-});
+  })
+})
 
 /*                                 *  *  *                                    */
