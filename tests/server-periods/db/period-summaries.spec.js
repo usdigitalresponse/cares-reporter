@@ -37,6 +37,16 @@ const expect = require('chai').expect
 const knex = requireSrc(`${__dirname}/../../server/db/connection`)
 
 describe('baseline success', () => {
+  it(`Delete the treasury report file`, async () => {
+    const treasuryDir = path.resolve(
+      __dirname,
+      '../mocha_uploads/treasury/'
+    )
+    let treasuryFiles = fs.readdirSync(treasuryDir)
+    for (let i = 0; i < treasuryFiles.length; i++) {
+      fs.unlinkSync(path.resolve(treasuryDir, treasuryFiles[i]))
+    }
+  })
   it('Returns a list of reporting period summaries', async () => {
     let summaries
     const period = 1
@@ -115,6 +125,7 @@ describe('baseline success', () => {
       throw new Error(`There should be no stored summaries for open periods`)
     }
   })
+
   it('Generates a Treasury Report Workbook for period 1', async () => {
     const period = 1
     const treasuryReport = await treasury.generateReport(period)

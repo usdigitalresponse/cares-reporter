@@ -219,7 +219,7 @@ function uploadFilename (filename) {
 function clean (objRecord) {
   let objCleaned = {}
   Object.keys(objRecord).forEach(key => {
-    let val = objRecord[key]
+    let val = objRecord[key] || null
     if (val === 'undefined') {
       val = null
     }
@@ -249,7 +249,10 @@ function clean (objRecord) {
 }
 
 function cleanString (val) {
-  val = String(val).trim() || null
+  if (!val && val !== 0) {
+    return ''
+  }
+  val = String(val).trim()
   if (val) {
     val = val.replace(/^"(.+)"$/, '$1')
       .replace(/ {2}/g, ' ')
