@@ -12,7 +12,8 @@ const {
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
-  whenGreaterThanZero
+  whenGreaterThanZero,
+  whenNotBlank
 } = require('./validate')
 
 const expenditureCategories = require('./expenditure-categories')
@@ -58,7 +59,7 @@ const requiredFields = [
   ],
   [
     'current quarter obligation',
-    numberIsLessThanOrEqual('obligation amount'),
+    whenNotBlank('current quarter obligation', numberIsLessThanOrEqual('obligation amount')),
     'Current quarter obligation must be less than or equal to obligation amount'
   ],
   [
