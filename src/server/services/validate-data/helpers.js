@@ -2,8 +2,8 @@ const _ = require('lodash')
 
 const subrecipientKey = subrecipient => {
   // keep duns number first or tests fail
-  // console.log(`subrecipientKey()`);
-  // console.dir(subrecipient);
+  // console.log(`subrecipientKey()`)
+  // console.dir(subrecipient)
   return subrecipient['duns number'] || subrecipient['identification number']
 }
 

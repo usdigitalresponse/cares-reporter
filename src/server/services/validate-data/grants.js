@@ -184,9 +184,10 @@ const requiredFields = [
     'Current quarter obligation must be an amount'
   ],
   [
+
     'current quarter obligation',
-    numberIsLessThanOrEqual('award amount'),
-    'Current quarter obligation must be less than or equal to award amount'
+    whenNotBlank('current quarter obligation', numberIsLessThanOrEqual('award amount')),
+    'Award {{award number}}: current quarter obligation quarter obligation must be less than or equal to award amount'
   ],
   [
     'award amount',
@@ -197,7 +198,7 @@ const requiredFields = [
   [
     'award amount',
     cumulativeAmountIsEqual('current quarter obligation', grantMatches),
-    'Award amount must equal cumulative obligation amount',
+    'Award {{award number}}: award amount {{award amount}} must equal cumulative obligation amount {{cumulative obligation amount}} for award',
     { tags: ['cumulative'] }
   ],
 

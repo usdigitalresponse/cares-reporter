@@ -1,34 +1,59 @@
 /* migration file for subrecipients table:
     migrations/20201204142859_add_subrecipients_table.js
 
-    .createTable("subrecipients", function(table) {
-      table.increments("id").primary();
-      table.text("identification_number").notNullable().unique();
-      table.text("duns_number").unique();
-      table.text("legal_name").notNullable().unique();
-      table.text("address_line_1").notNullable();
-      table.text("address_line_2");
-      table.text("address_line_3");
-      table.text("city_name").notNullable();
-      table.text("state_code");
-      table.text("zip");
-      table.text("country_name").notNullable().defaultTo("United States");
-      table.text("organization_type").notNullable().defaultTo("Other");
-      table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
-    });
+                Table "public.subrecipients"
+            Column         |           Type           |
+    -----------------------+--------------------------+
+     id                    | integer                  |
+     identification_number | text                     |
+     duns_number           | text                     |
+     legal_name            | text                     |
+     address_line_1        | text                     |
+     address_line_2        | text                     |
+     address_line_3        | text                     |
+     city_name             | text                     |
+     state_code            | text                     |
+     zip                   | text                     |
+     country_name          | text                     |
+     organization_type     | text                     |
+     created_at            | timestamp with time zone |
+     created_by            | text                     |
+     updated_at            | timestamp with time zone |
+     updated_by            | text                     |
+     created_in_period     | integer                  |
   */
+/* eslint camelcase: 0 */
+
 const knex = require('./connection')
 
 async function getSubRecipients () {
   let records = await knex('subrecipients')
     .select('*')
 
+  records = records.map(record => respace(record))
+
+  let mapSubrecipients = new Map() // subrecipient id : <subrecipient record>
+  records.forEach(subrecipientRecord => {
+    mapSubrecipients.set(
+      subrecipientRecord['identification number'],
+      subrecipientRecord
+    )
+  })
+
+  return mapSubrecipients
+}
+
+async function getSubRecipientsByPeriod (period_id) {
+  console.log(`getting subrecipients from period ${period_id}`)
+  let records = await knex('subrecipients')
+    .select('*')
+    .where('created_in_period', period_id)
+  // console.dir(records)
   return records.map(record => respace(record))
 }
 
 async function setSubRecipient (record) {
   record = despace(record)
-  console.log(`Writing subrecipient record ID "${record.identification_number}"`)
 
   try {
     await knex('subrecipients').insert(record)
@@ -61,6 +86,7 @@ function respace (_obj) {
 
 module.exports = {
   getSubRecipients,
+  getSubRecipientsByPeriod,
   setSubRecipient
 }
 

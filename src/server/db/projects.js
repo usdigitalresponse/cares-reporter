@@ -1,6 +1,6 @@
 /*
 --------------------------------------------------------------------------------
--                                 projects.js
+-                                 db/projects.js
 --------------------------------------------------------------------------------
   A project record in postgres looks like this:
    id          | integer |
@@ -13,7 +13,7 @@
 
 const knex = require('./connection')
 const { getCurrentReportingPeriodID } = require('./settings')
-
+const {cleanString, zeroPad} = require('../lib/spreadsheet')
 async function createProject (project) {
   project.created_in_period = await getCurrentReportingPeriodID()
   return knex
@@ -33,7 +33,7 @@ function updateProject (project) {
     .where('id', project.id)
     .update({
       code: project.code,
-      name: project.name,
+      name: cleanString(project.name),
       agency_id: project.agency_id,
       status: project.status,
       description: project.description
@@ -76,7 +76,7 @@ async function updateProjectStatus (projectCode, documents) {
   // get the project id for this upload from the cover page
   // then find that row in the projects page and use it to update
   // the database for that project.
-  projectCode = fixProjectCode(projectCode)
+  projectCode = zeroPad(projectCode)
   let projectRecord = await getProject(projectCode)
 
   if (!projectRecord) {
@@ -112,22 +112,28 @@ async function updateProjectStatus (projectCode, documents) {
   return null
 }
 
-async function getProjects () {
-  return knex('projects')
-    .select('*')
-}
-
-function fixProjectCode (code) {
-  code = String(code)
-  if (code.length < 3) {
-    code = (`000${code}`).substr(-3)
+/* getProjects () returns a map:
+  { project id : <project record>
+    ...
   }
-  return code
+  */
+async function getProjects () {
+  let arrProjects = await knex('projects')
+    .select('*')
+
+  let mapProjects = new Map() // project id : <project record>
+
+  arrProjects.forEach(projectRecord => {
+    mapProjects.set(
+      projectRecord.code,
+      projectRecord
+    )
+  })
+  return mapProjects
 }
 
 module.exports = {
   createProject,
-  fixProjectCode,
   getProject,
   getProjects,
   projectByCode,

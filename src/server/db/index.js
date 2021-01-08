@@ -30,9 +30,7 @@ const {
 
 const {
   createProject,
-  fixProjectCode,
   getProject,
-  getProjects,
   projectByCode,
   projectById,
   projects,
@@ -205,11 +203,9 @@ module.exports = {
   documents,
   documentsForAgency,
   documentsWithProjectCode,
-  fixProjectCode,
   getPeriodSummaries,
   getPriorPeriodSummaries,
   getProject,
-  getProjects,
   knex,
   markAccessTokenUsed,
   projectByCode,

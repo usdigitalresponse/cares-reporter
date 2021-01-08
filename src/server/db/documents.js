@@ -25,19 +25,13 @@ const {
 
 async function documentsWithProjectCode (period_id) {
   let periodUploadIDs = await getPeriodUploadIDs(period_id)
-  let rv
 
-  try {
-    rv = await knex('documents')
-      .select('documents.*', 'projects.code as project_code')
-      .whereIn('upload_id', periodUploadIDs)
-      .join('uploads', { 'documents.upload_id': 'uploads.id' })
-      .join('projects', { 'uploads.project_id': 'projects.id' })
-      .then(purgeDuplicateSubrecipients)
-  } catch (err) {
-    return err
-  }
-  return rv
+  return knex('documents')
+    .select('documents.*', 'projects.code as project_code')
+    .whereIn('upload_id', periodUploadIDs)
+    .join('uploads', { 'documents.upload_id': 'uploads.id' })
+    .join('projects', { 'uploads.project_id': 'projects.id' })
+    .then(purgeDuplicateSubrecipients)
 }
 
 function purgeDuplicateSubrecipients (arrRecords) {

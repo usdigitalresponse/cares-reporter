@@ -13,7 +13,7 @@ const {
 
 const reportingPeriods = require('../db/reporting-periods')
 
-const { getTemplateSheets } = require('./get-template')
+const { getValidationTemplateSheets } = require('./get-template')
 const { parseFilename } = require('./parse-filename')
 const { ValidationLog } = require('../lib/validation-log')
 const { validateData } = require('./validate-data')
@@ -57,7 +57,7 @@ const validateUpload = async ({
     return { valog, documents: {} }
   }
 
-  const templateSheets = await getTemplateSheets()
+  const templateSheets = await getValidationTemplateSheets()
   const { spreadsheet, valog: parseValog } = parseSpreadsheet(
     workbookXlsx,
     templateSheets
