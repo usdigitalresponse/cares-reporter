@@ -5,7 +5,7 @@ const {
   dropdownIncludes,
   isNotBlank,
   isNumberOrBlank,
-  isPositiveNumber,
+  isPositiveNumberOrZero,
   isValidDate,
   isValidState,
   isValidSubrecipient,
@@ -38,9 +38,10 @@ const requiredFields = [
 
   ['loan number', isNotBlank, 'Load number must not be blank'],
   [
+
     'loan amount',
-    isPositiveNumber,
-    'Loan amount must be a number greater than zero'
+    isPositiveNumberOrZero,
+    'Loan amount must be a number greater than or equal to zero'
   ],
   ['loan date', isValidDate, 'Loan date must be a valid date'],
   [
