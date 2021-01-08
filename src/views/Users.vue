@@ -33,19 +33,19 @@
 
 <script>
 export default {
-  name: "Users",
+  name: 'Users',
   computed: {
-    users: function() {
-      const { users } = this.$store.state.configuration;
-      return users;
+    users: function () {
+      const { users } = this.$store.state.configuration
+      return users
     }
   },
   methods: {
-    agencyName(id) {
-      return this.$store.getters.agencyName(id);
+    agencyName (id) {
+      return this.$store.getters.agencyName(id)
     }
   }
-};
+}
 </script>
 
 <style scoped>

@@ -11,4 +11,3 @@ if [ $# -gt 0 ]; then
 else
   mocha --require=`dirname $0`/mocha_init.js 'tests/server-periods/**/*.spec.js'
 fi
-

@@ -1,26 +1,26 @@
-const { userAndRole } = require("./db");
+const { userAndRole } = require('./db')
 
-function requireUser(req, res, next) {
+function requireUser (req, res, next) {
   if (!req.signedCookies.userId) {
-    res.sendStatus(403);
+    res.sendStatus(403)
   } else {
-    next();
+    next()
   }
 }
 
-function requireAdminUser(req, res, next) {
+function requireAdminUser (req, res, next) {
   if (!req.signedCookies.userId) {
-    res.sendStatus(403);
+    res.sendStatus(403)
   } else {
     userAndRole(req.signedCookies.userId).then(user => {
-      console.log("user:", user);
-      if (user.role !== "admin") {
-        res.sendStatus(403);
+      console.log('user:', user)
+      if (user.role !== 'admin') {
+        res.sendStatus(403)
       } else {
-        next();
+        next()
       }
-    });
+    })
   }
 }
 
-module.exports = { requireAdminUser, requireUser };
+module.exports = { requireAdminUser, requireUser }

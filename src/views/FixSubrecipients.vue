@@ -26,34 +26,34 @@
 </template>
 
 <script>
-import _ from "lodash";
+import _ from 'lodash'
 export default {
-  name: "UploadFix",
-  data() {
-    return {};
+  name: 'UploadFix',
+  data () {
+    return {}
   },
   computed: {
-    uploads() {
+    uploads () {
       return _.chain(this.$store.state.uploads)
         .map(u => {
           return {
             ...u,
             subrecipients: _.filter(this.$store.state.documents, d => {
-              return d.upload_id == u.id && d.type == "subrecipient";
+              return d.upload_id === u.id && d.type === 'subrecipient'
             })
-          };
+          }
         })
-        .sortBy("filename")
-        .value();
+        .sortBy('filename')
+        .value()
     }
   },
   methods: {
-    fix(id) {
-      fetch(`/api/fix-subrecipients/${id}`, 
-        { method: "POST", credentials: "include" });
+    fix (id) {
+      fetch(`/api/fix-subrecipients/${id}`,
+        { method: 'POST', credentials: 'include' })
     }
   }
-};
+}
 </script>
 
 <style scoped>

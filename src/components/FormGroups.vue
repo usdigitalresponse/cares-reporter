@@ -51,10 +51,10 @@
 </template>
 
 <script>
-import { columnTitle } from "../helpers/form-helpers";
-import _ from "lodash";
+import { columnTitle } from '../helpers/form-helpers'
+import _ from 'lodash'
 export default {
-  name: "FormGroups",
+  name: 'FormGroups',
   props: {
     columns: Array,
     record: Object,
@@ -62,18 +62,18 @@ export default {
   },
   methods: {
     columnTitle,
-    getForeignKeyValues(column) {
+    getForeignKeyValues (column) {
       if (_.isFunction(this.foreignKeyValues)) {
-        return this.foreignKeyValues(column);
+        return this.foreignKeyValues(column)
       }
-      return [];
+      return []
     },
-    optionValue(option) {
-      return _.isObject(option) ? option.value : option;
+    optionValue (option) {
+      return _.isObject(option) ? option.value : option
     },
-    optionName(option) {
-      return _.isObject(option) ? option.name : option;
+    optionName (option) {
+      return _.isObject(option) ? option.name : option
     }
   }
-};
+}
 </script>

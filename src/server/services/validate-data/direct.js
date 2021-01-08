@@ -5,20 +5,17 @@ const {
   dateIsInReportingPeriod,
   dateIsOnOrBefore,
   isAtLeast50K,
-  isNumber,
   isNumberOrBlank,
-  isPositiveNumber,
   isSum,
   isValidDate,
   isValidSubrecipient,
   matchesFilePart,
   numberIsLessThanOrEqual,
   validateDocuments,
-  whenNotBlank,
   whenGreaterThanZero
-} = require("./validate");
+} = require('./validate')
 
-const expenditureCategories = require("./expenditure-categories");
+const expenditureCategories = require('./expenditure-categories')
 
 // type pattern for this elements of the fields array is
 // [
@@ -28,92 +25,92 @@ const expenditureCategories = require("./expenditure-categories");
 // ]
 const requiredFields = [
   [
-    "project id",
-    matchesFilePart("projectId"),
+    'project id',
+    matchesFilePart('projectId'),
     'The direct project id "{}" does not match the project id in the filename'
   ],
 
   [
-    "subrecipient id",
+    'subrecipient id',
     isValidSubrecipient,
     'Each direct row must have a "subrecipient id" which is included in the "subrecipient" tab'
   ],
 
   [
-    "obligation amount",
+    'obligation amount',
     isAtLeast50K,
-    "Obligation amount must be at least $50,000",
-    { tags: ["v2"] }
+    'Obligation amount must be at least $50,000',
+    { tags: ['v2'] }
   ],
 
-  ["obligation date", isValidDate, 'Obligation date "{}" is not valid'],
+  ['obligation date', isValidDate, 'Obligation date "{}" is not valid'],
   [
-    "obligation date",
+    'obligation date',
     dateIsInReportingPeriod,
     'Obligation date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
 
   [
-    "current quarter obligation",
+    'current quarter obligation',
     isNumberOrBlank,
-    "Current quarter obligation must be an amount"
+    'Current quarter obligation must be an amount'
   ],
   [
-    "current quarter obligation",
-    numberIsLessThanOrEqual("obligation amount"),
-    "Current quarter obligation must be less than or equal to obligation amount"
+    'current quarter obligation',
+    numberIsLessThanOrEqual('obligation amount'),
+    'Current quarter obligation must be less than or equal to obligation amount'
   ],
   [
-    "obligation amount",
-    cumulativeAmountIsEqual("current quarter obligation" , directMatches),
-    "Obligation amount must equal cumulative obligation amount",
-    { tags: ["cumulative"] }
+    'obligation amount',
+    cumulativeAmountIsEqual('current quarter obligation', directMatches),
+    'Obligation amount must equal cumulative obligation amount',
+    { tags: ['cumulative'] }
   ],
   [
-    "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", isValidDate),
+    'expenditure start date',
+    whenGreaterThanZero('total expenditure amount', isValidDate),
     'Expenditure start date "{}" is not valid',
     { isDateValue: true }
   ],
   [
-    "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'expenditure start date',
+    whenGreaterThanZero('total expenditure amount', dateIsInReportingPeriod),
     'Expenditure state date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
   [
-    "expenditure start date",
+    'expenditure start date',
     whenGreaterThanZero(
-      "total expenditure amount",
-      dateIsOnOrBefore("expenditure end date")
+      'total expenditure amount',
+      dateIsOnOrBefore('expenditure end date')
     ),
     'Expenditure start date "{}" is not on or before the expenditure end date',
     { isDateValue: true }
   ],
   [
-    "expenditure start date",
-    whenGreaterThanZero("total expenditure amount", dateIsInReportingPeriod),
+    'expenditure start date',
+    whenGreaterThanZero('total expenditure amount', dateIsInReportingPeriod),
     'Expenditure start date "{}" is not in the reporting period',
     { isDateValue: true }
   ],
 
   [
-    "total expenditure amount",
+    'total expenditure amount',
     isNumberOrBlank,
-    "Total expenditure amount must be a number"
+    'Total expenditure amount must be a number'
   ],
   [
-    "total expenditure amount",
+    'total expenditure amount',
     isSum(expenditureCategories),
-    "Total expenditure amount is not the sum of all expenditure amount columns"
+    'Total expenditure amount is not the sum of all expenditure amount columns'
   ],
   [
-    "obligation amount",
-    cumulativeAmountIsLessThanOrEqual("total expenditure amount" , directMatches),
-    "Cumulative expenditure amount must be less than or equal to obligation amount",
-    { tags: ["cumulative"] }
+    'obligation amount',
+    cumulativeAmountIsLessThanOrEqual('total expenditure amount', directMatches),
+    'Cumulative expenditure amount must be less than or equal to obligation amount',
+    { tags: ['cumulative'] }
   ]
-];
+]
 
-module.exports = validateDocuments("direct", requiredFields);
+module.exports = validateDocuments('direct', requiredFields)
