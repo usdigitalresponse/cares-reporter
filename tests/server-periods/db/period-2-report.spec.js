@@ -9,9 +9,9 @@ const path = require('path')
 const { execFileSync } = require('child_process')
 
 const _ = require('lodash')
-
 const dbname = 'rptest2'
 process.env.POSTGRES_URL = `postgres://localhost/${dbname}`
+
 process.env.UPLOAD_DIRECTORY = path.resolve(__dirname, `../mocha_uploads`)
 process.env.TREASURY_DIRECTORY = path.resolve(__dirname, `../mocha_uploads/treasury`)
 
