@@ -1,6 +1,6 @@
 /*
 --------------------------------------------------------------------------------
--                                 projects.js
+-                                 db/projects.js
 --------------------------------------------------------------------------------
   A project record in postgres looks like this:
    id          | integer |
@@ -13,7 +13,7 @@
 
 const knex = require('./connection')
 const { getCurrentReportingPeriodID } = require('./settings')
-
+const {cleanString, zeroPad} = require('../lib/spreadsheet')
 async function createProject (project) {
   project.created_in_period = await getCurrentReportingPeriodID()
   return knex
@@ -33,7 +33,7 @@ function updateProject (project) {
     .where('id', project.id)
     .update({
       code: project.code,
-      name: project.name,
+      name: cleanString(project.name),
       agency_id: project.agency_id,
       status: project.status,
       description: project.description
@@ -76,7 +76,7 @@ async function updateProjectStatus (projectCode, documents) {
   // get the project id for this upload from the cover page
   // then find that row in the projects page and use it to update
   // the database for that project.
-  projectCode = fixProjectCode(projectCode)
+  projectCode = zeroPad(projectCode)
   let projectRecord = await getProject(projectCode)
 
   if (!projectRecord) {
@@ -132,17 +132,8 @@ async function getProjects () {
   return mapProjects
 }
 
-function fixProjectCode (code) {
-  code = String(code)
-  if (code.length < 3) {
-    code = (`000${code}`).substr(-3)
-  }
-  return code
-}
-
 module.exports = {
   createProject,
-  fixProjectCode,
   getProject,
   getProjects,
   projectByCode,

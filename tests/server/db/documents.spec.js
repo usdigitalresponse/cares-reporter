@@ -16,7 +16,7 @@ const expect = require('chai').expect
 
 describe('documents.spec.js - baseline success', () => {
   const dir = `${dirRoot}file-success/`
-  it('Uploads a file in reporting period 1', async () => {
+  it.only('Uploads a file in reporting period 1', async () => {
     const uploadArgs = makeUploadArgs(
       `${dir}OMB-1020-09302020-simple-v1.xlsx`
     )
