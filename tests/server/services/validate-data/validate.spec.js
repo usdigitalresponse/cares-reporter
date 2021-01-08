@@ -8,6 +8,7 @@ const {
   isNumber,
   isNumberOrBlank,
   isPositiveNumber,
+  isPositiveNumberOrZero,
   isSum,
   isValidDate,
   isValidState,
@@ -67,6 +68,7 @@ describe('validation helpers', () => {
     }
   }
   const testCases = [
+
     ['blank string', isNotBlank(''), false],
     ['non blank string', isNotBlank('Test'), true],
     ['number', isNumber(1), true],
@@ -76,6 +78,9 @@ describe('validation helpers', () => {
     ['non number', isNumber('Test'), false],
     ['positive number', isPositiveNumber(100), true],
     ['non positive number', isPositiveNumber(-100), false],
+    ['positive number or zero', isPositiveNumberOrZero(0), true],
+    ['positive number or zero', isPositiveNumberOrZero(100), true],
+    ['not a positive number or zero', isPositiveNumberOrZero(-10), false],
     ['valid date', isValidDate('2020-10-03'), true],
     ['invalid date', isValidDate('2020-15-99'), false],
     [

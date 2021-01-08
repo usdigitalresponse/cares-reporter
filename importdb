@@ -1,16 +1,31 @@
 #!/bin/bash
-
+# $ ./importdb ri 2020-12-28T19_23Z.sql
+#  $ ./importdb ri
 if [ ! $2 ] ; then
-  echo Usage is \$
-  ./importdb ri 2020-12-28T19_23Z
+  echo
+  echo \* This updates the postgres database for the local copies of the state databases,
+  echo \* which are used by \$ yarn serve:ri and \$ yarn serve:oh.
+  echo \*
+  echo \* First, download the state database to examples/ri/sql and unzip it.
+  echo \* then run this:
+  echo \* \$ ./importdb ri 2020-12-28T19_23Z.sql \*use the sql file you just downloaded\*
+  echo
   exit 1
 fi
 
+dbname=${1}
+dbuser=postgres
 exampleDir=examples
 
-dropdb $1
-createdb --owner=postgres $1
-# psql $1 postgres < ./${exampleDir}/clear.sql
+infile=${2}
+inpath=./${exampleDir}/${1}/sql/${infile}
+
+outfile=${2//sql/clean.sql}
+outpath=./${exampleDir}/${1}/sql/${outfile}
+
+
+dropdb ${dbname}
+createdb --owner=${dbuser} ${dbname}
 
 # rm uploads/*
 
@@ -22,8 +37,8 @@ junk="cares_reporter_bi26_user|cares_reporter_a2n0_user|\
 tiger|topology|geometry|geography|spatial|raster|pg_similarity|postgis"
 # echo ${junk}
 
-egrep -v ${junk} ./${exampleDir}/${1}/sql/${2}.sql\
+egrep -v ${junk} ${inpath}\
  | pcre2grep -M -v '(\n\n\\\.)'\
- > ./${exampleDir}/${1}/sql/${2}.min.sql
+ > ${outpath}
 
-psql $1 postgres < ./${exampleDir}/${1}/sql/${2}.min.sql
+psql ${dbname} ${dbuser} < ${outpath}

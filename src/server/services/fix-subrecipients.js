@@ -4,7 +4,7 @@
 /* eslint camelcase: 0 */
 
 const xlsx = require('xlsx')
-const { getTemplateSheets } = require('./get-template')
+const { getValidationTemplateSheets } = require('./get-template')
 const { upload: getUpload } = require('../db')
 const {
   parseSpreadsheet,
@@ -22,7 +22,7 @@ async function fixSubrecipients (id) {
   const upload = await getUpload(id)
   console.log('upload:', upload)
   const user_id = upload.user_id
-  const templateSheets = await getTemplateSheets()
+  const templateSheets = await getValidationTemplateSheets()
 
   const workbookXlsx = xlsx.read(
     fs.readFileSync(`${process.env.UPLOAD_DIRECTORY}/${upload.filename}`),

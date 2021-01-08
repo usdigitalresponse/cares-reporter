@@ -1,7 +1,6 @@
 require('dotenv').config()
 const knex = require('../../src/server/db/connection')
 const { setupAgencies } = require('./fixtures/add-dummy-data')
-const { initializeTemplates } = require('../../src/server/services/get-template')
 
 // `requireSrc(__filename)` is a convenience that performs a
 // `require` of the corresponding source file to the current `spec` file.
@@ -13,7 +12,6 @@ global.requireSrc = f =>
 
 module.exports.mochaHooks = {
   beforeAll: async () => {
-    await initializeTemplates()
     return setupAgencies(knex)
   },
   afterAll: done => {

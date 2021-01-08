@@ -7,15 +7,15 @@
             >Download Treasury Report</a
           >
         </div>
-        <div class="closed" v-show="!(this.$store.getters.viewPeriodIsCurrent)">
+        <div class="closed" v-show="isClosed">
           This reporting period is closed.
         </div>
-        <div class="col-4" v-show="this.$store.getters.viewPeriodIsCurrent">
-          <div @click="startUpload" class="btn btn-secondary">
+        <div class="col-4" v-show="viewingCurrentPeriod">
+          <div @click.prevent="startUpload" class="btn btn-secondary">
             Upload Agency Spreadsheet
           </div>
         </div>
-        <div class="col-4" v-show="this.$store.getters.viewPeriodIsCurrent">
+        <div class="col-4" v-show="viewingCurrentPeriod">
           <a :href="downloadTemplateUrl" class="btn btn-secondary">
             Download Empty Template
           </a>
@@ -81,6 +81,10 @@ export default {
     }
   },
   computed: {
+
+    viewingCurrentPeriod () {
+      return this.$store.getters.viewPeriodIsCurrent
+    },
     isClosed: function () {
       return !(this.$store.getters.viewPeriodIsCurrent)
     },
@@ -131,9 +135,8 @@ export default {
         .utc()
         .format('MM-DD-YYYY')
     },
-    startUpload: function (e) {
-      e.preventDefault()
-      if (this.$store.getters.viewPeriodID === this.$store.getters.currentPeriodID) {
+    startUpload: function () {
+      if (this.viewingCurrentPeriod) {
         this.$router.push({ path: '/new_upload' })
       }
     }
