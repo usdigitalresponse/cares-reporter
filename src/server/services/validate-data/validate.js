@@ -131,7 +131,13 @@ function contractMatches (content) {
 }
 
 function directMatches (content) {
-  return summaryMatches('direct', 'subrecipient id', content)
+  return s => {
+    const award_number = `${content['subrecipient id']}:${content['obligation date']}`
+    const isMatch = s.award_type === 'direct' &&
+      withoutLeadingZeroes(s.project_code) === withoutLeadingZeroes(content['project id']) &&
+      award_number === s.award_number
+    return isMatch
+  }
 }
 
 function grantMatches (content) {
@@ -167,6 +173,7 @@ function cumulativeAmountIsEqual (key, filterPredicate) {
         'current:', currentPeriodAmount,
         'previous:', previousPeriodsAmount,
         'total:', currentPeriodAmount + previousPeriodsAmount)
+      console.log('content:', JSON.stringify(content))
     }
     return b
   }
