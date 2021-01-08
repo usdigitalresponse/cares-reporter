@@ -24,58 +24,58 @@
 </template>
 
 <script>
-import _ from "lodash-checkit";
+import _ from 'lodash-checkit'
 export default {
-  name: "Login",
-  data: function() {
-    const message = _.get(this, "$route.query.message", null);
-    let messageClass = message ? "alert alert-danger" : "";
+  name: 'Login',
+  data: function () {
+    const message = _.get(this, '$route.query.message', null)
+    let messageClass = message ? 'alert alert-danger' : ''
     return {
-      email: "",
+      email: '',
       message,
       messageClass
-    };
+    }
   },
   methods: {
-    login: function(e) {
-      e.preventDefault();
+    login: function (e) {
+      e.preventDefault()
       if (!this.email) {
-        this.message = "Email cannot be blank";
-        this.messageClass = "alert alert-danger";
-        return;
+        this.message = 'Email cannot be blank'
+        this.messageClass = 'alert alert-danger'
+        return
       }
       if (!_.isEmail(this.email)) {
-        this.message = `'${this.email}' is not a valid email address`;
-        this.messageClass = "alert alert-danger";
-        return;
+        this.message = `'${this.email}' is not a valid email address`
+        this.messageClass = 'alert alert-danger'
+        return
       }
       const body = JSON.stringify({
         email: this.email
-      });
+      })
       const headers = {
-        "Content-Type": "application/json"
-      };
-      fetch("/api/sessions", { method: "POST", headers, body })
+        'Content-Type': 'application/json'
+      }
+      fetch('/api/sessions', { method: 'POST', headers, body })
         .then(r => {
-          if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`);
-          return r;
+          if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`)
+          return r
         })
         .then(r => r.json())
         .then(r => {
-          this.email = "";
-          this.message = r.message;
+          this.email = ''
+          this.message = r.message
           this.messageClass = r.success
-            ? "alert alert-success"
-            : "alert alert-danger";
+            ? 'alert alert-success'
+            : 'alert alert-danger'
         })
         .catch(e => {
-          console.log("error:", e.message);
-          this.message = e.message;
-          this.messageClass = "alert alert-danger";
-        });
+          console.log('error:', e.message)
+          this.message = e.message
+          this.messageClass = 'alert alert-danger'
+        })
     }
   }
-};
+}
 </script>
 
 <style scoped>

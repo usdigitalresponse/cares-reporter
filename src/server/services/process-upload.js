@@ -1,7 +1,8 @@
+/* eslint camelcase: 0 */
 
-let log = ()=>{};
-if ( process.env.VERBOSE ){
-  log = console.dir;
+let log = () => {}
+if (process.env.VERBOSE) {
+  log = console.dir
 }
 
 const {
@@ -12,12 +13,12 @@ const {
   deleteDocuments,
   getProject,
   transact
-} = require("../db");
+} = require('../db')
 
-const FileInterface = require("../lib/server-disk-interface");
-const fileInterface = new FileInterface();
-const { validateUpload } = require("./validate-upload");
-const { updateProjectStatus } = require("../db");
+const FileInterface = require('../lib/server-disk-interface')
+const fileInterface = new FileInterface()
+const { validateUpload } = require('./validate-upload')
+const { updateProjectStatus } = require('../db')
 
 const processUpload = async ({
   filename,
@@ -26,7 +27,7 @@ const processUpload = async ({
   data,
   reporting_period_id = null
 }) => {
-  log(`processUpload(): filename is ${filename}`);
+  log(`processUpload(): filename is ${filename}`)
 
   const {
     valog,
@@ -40,45 +41,44 @@ const processUpload = async ({
     agency_id,
     data,
     reporting_period_id
-  });
+  })
 
   if (!valog.success()) {
-    log(`valog.success() is false`);
-    return { valog, upload: {} };
+    log(`valog.success() is false`)
+    return { valog, upload: {} }
   }
 
-  let err = await updateProjectStatus(fileParts.projectId, documents);
+  let err = await updateProjectStatus(fileParts.projectId, documents)
   if (err) {
-    valog.append(err.message);
-    return { valog, upload: {} };
-
+    valog.append(err.message)
+    return { valog, upload: {} }
   }
 
   try {
-    await fileInterface.writeFileCarefully(filename, data);
+    await fileInterface.writeFileCarefully(filename, data)
   } catch (e) {
     valog.append(
-      e.code === "EEXIST"
-        ? `The file ${filename} is already in the database. `+
+      e.code === 'EEXIST'
+        ? `The file ${filename} is already in the database. ` +
           `Change the version number to upload again.`
         : e.message
-    );
+    )
   }
 
   if (!valog.success()) {
-    return { valog, upload: {} };
+    return { valog, upload: {} }
   }
 
-  let upload;
+  let upload
   let result; // eslint-disable-line
   try {
-    const project = await getProject(fileParts.projectId);
-    const agency = await agencyByCode(fileParts.agencyCode);
+    const project = await getProject(fileParts.projectId)
+    const agency = await agencyByCode(fileParts.agencyCode)
     if (agency[0]) {
-      agency_id = agency[0].id;
+      agency_id = agency[0].id
     }
     result = await transact(async trx => {
-      const current_user = await user(user_id);
+      const current_user = await user(user_id)
       // write an upload record for saved file
       upload = await createUpload(
         {
@@ -90,31 +90,30 @@ const processUpload = async ({
           reporting_period_id: reportingPeriod.id
         },
         trx
-      );
+      )
       // delete existing records for this agencyCode-projectID-reportingDate
-      await deleteDocuments(fileParts);
+      await deleteDocuments(fileParts)
 
       // Enhance the documents with the resulting upload.id. Note this needs
       // to be done here to get the upload and document insert operations into
       // the same transaction.
-      documents.forEach(doc => (doc.upload_id = upload.id));
-      const createResult = createDocuments(documents, trx);
-      return createResult;
-    });
+      documents.forEach(doc => (doc.upload_id = upload.id))
+      const createResult = createDocuments(documents, trx)
+      return createResult
+    })
     // console.log(`Inserted ${(result || {}).rowCount} documents.`);
-
   } catch (e) {
-    console.log(e);
+    console.log(e)
     try {
-      await fileInterface.rmFile(filename);
+      await fileInterface.rmFile(filename)
     } catch (rmErr) {
       // This should never happen.
-      console.error("rmFile error:", rmErr.message);
+      console.error('rmFile error:', rmErr.message)
     }
-    valog.append("Upload and import failed. " + e.message);
+    valog.append('Upload and import failed. ' + e.message)
   }
 
-  return { valog, upload, spreadsheet };
-};
+  return { valog, upload, spreadsheet }
+}
 
-module.exports = { processUpload };
+module.exports = { processUpload }

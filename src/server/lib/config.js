@@ -1,4 +1,4 @@
-const _ = require("lodash");
+const _ = require('lodash')
 
 /*  makeConfig() returns a config object:
   {
@@ -13,25 +13,25 @@ const _ = require("lodash");
     ]
   }
   */
-function makeConfig(
+function makeConfig (
   allSheets,
-  templateName = "Agency Template",
+  templateName = 'Agency Template',
   ignoreSheets = [
-    "Cover",
-    "Cover Page",
-    "Dropdowns",
-    "Summary",
-    "Projects",
-    "Agency Use",
-    "cover",
-    "cover page",
-    "dropdowns",
-    "summary",
-    "projects",
-    "agency use"
+    'Cover',
+    'Cover Page',
+    'Dropdowns',
+    'Summary',
+    'Projects',
+    'Agency Use',
+    'cover',
+    'cover page',
+    'dropdowns',
+    'summary',
+    'projects',
+    'agency use'
   ]
 ) {
-  const sheets = _.omit(allSheets, ignoreSheets);
+  const sheets = _.omit(allSheets, ignoreSheets)
   return {
     name: templateName,
     settings: _.map(sheets, (value, key) => {
@@ -39,9 +39,9 @@ function makeConfig(
         sheetName: key,
         tableName: key,
         columns: value[0]
-      };
+      }
     })
-  };
+  }
 }
 
 /*  makeTemplate() returns a template object:
@@ -52,13 +52,13 @@ function makeConfig(
     content: <a config object, which also has the templateName>,
   }
   */
-function makeTemplate(config, templateName = "Agency Template") {
+function makeTemplate (config, templateName = 'Agency Template') {
   return {
     name: templateName,
-    type: "templates",
+    type: 'templates',
     sort_order: 0,
     content: config
-  };
+  }
 }
 
 /*  makeTables() returns an array:
@@ -78,28 +78,28 @@ function makeTemplate(config, templateName = "Agency Template") {
       ...,
     ]
   */
-function makeTables(config) {
+function makeTables (config) {
   return config.settings.map((sheet, n) => {
-    const name = sheet.sheetName;
+    const name = sheet.sheetName
     return {
       name,
-      type: "tables",
+      type: 'tables',
       sort_order: n,
       content: {
         name,
         columns: _.map(sheet.columns, name => {
           return {
             name: name
-          };
+          }
         }),
         relations: []
       }
-    };
-  });
+    }
+  })
 }
 
 module.exports = {
   makeConfig,
   makeTables,
   makeTemplate
-};
+}

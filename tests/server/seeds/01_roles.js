@@ -1,12 +1,12 @@
-exports.seed = function(knex) {
+exports.seed = function (knex) {
   // Deletes ALL existing entries
-  return knex("roles")
+  return knex('roles')
     .del()
-    .then(function() {
+    .then(function () {
       // Inserts seed entries
-      return knex("roles").insert([
-        { name: "admin", rules: {} },
-        { name: "reporter", rules: {} }
-      ]);
-    });
-};
+      return knex('roles').insert([
+        { name: 'admin', rules: {} },
+        { name: 'reporter', rules: {} }
+      ])
+    })
+}

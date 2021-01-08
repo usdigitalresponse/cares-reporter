@@ -6,18 +6,18 @@
 </template>
 
 <script>
-import AgencyHome from "../components/AgencyHome.vue";
-import GrantsOfficeHome from "../components/GrantsOfficeHome.vue";
+import AgencyHome from '../components/AgencyHome.vue'
+import GrantsOfficeHome from '../components/GrantsOfficeHome.vue'
 export default {
-  name: "Home",
+  name: 'Home',
   components: {
     AgencyHome,
     GrantsOfficeHome
   },
   computed: {
-    role: function() {
-      return this.$store.getters.user.role;
+    role: function () {
+      return this.$store.getters.user.role
     }
   }
-};
+}
 </script>
