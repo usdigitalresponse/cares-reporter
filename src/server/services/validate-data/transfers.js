@@ -69,7 +69,7 @@ const requiredFields = [
   [
 
     'current quarter obligation',
-    whenNotBlank('current quanter obligation', numberIsLessThanOrEqual('award amount')),
+    whenNotBlank('current quarter obligation', numberIsLessThanOrEqual('award amount')),
     'Transfer {{transfer number}} current quarter obligation {{current quarter obligation}} must be less than or equal to the award amount'
   ],
   [
