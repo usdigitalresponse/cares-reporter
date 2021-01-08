@@ -217,6 +217,10 @@ function uploadFilename (filename) {
 /* clean() trims strings and rounds amounts
   */
 function clean (objRecord) {
+  return objRecord
+}
+
+function clean_breaks (objRecord) {
   let objCleaned = {}
   Object.keys(objRecord).forEach(key => {
     let val = objRecord[key] || null
@@ -250,7 +254,7 @@ function clean (objRecord) {
 
 function cleanString (val) {
   if (!val && val !== 0) {
-    return ''
+    return null
   }
   val = String(val).trim()
   if (val) {
