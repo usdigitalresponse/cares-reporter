@@ -36,7 +36,8 @@ function fixCellFormats (sheet) {
     cellRefs.forEach(cellRef => {
       if (sheet[cellRef].t === 'n') {
         // see "Data Upload Service DataDictionary 09282020.xlsx"
-        sheet[cellRef].z = '#,##0.00;(#,##0.00)'
+        // sheet[cellRef].z = '#,##0.00;(#,##0.00)'
+        sheet[cellRef].z = '0.00'
       }
     })
   })
