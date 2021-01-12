@@ -98,6 +98,13 @@ async function createOutputWorkbook (
       case 'Sub Recipient': {
         subrecpientColumnNames = outputColumnNames
         rows = getSubRecipientSheet(sheetRecords, outputColumnNames)
+        if (recordGroups.prior_subrecipient) {
+          let rowsPrior = getSubRecipientSheet(
+            recordGroups.prior_subrecipient,
+            outputColumnNames
+          )
+          rows.splice(rows.length, 0, ...rowsPrior)
+        }
         break
       }
       case 'Contracts':
