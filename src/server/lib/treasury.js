@@ -733,42 +733,51 @@ async function getGroups (period_id) {
 async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences) {
   let subrecipientRecords = []
   let arrPriorPeriodSubrecipientIDs = await getReportedSubrecipientIds()
-  let reported = 0
-  let notreported = 0
-  mapSubrecipients.forEach((v, k) => {
+  let previouslyReported = 0
+  let newThisPeriod = 0
+  let orphanSubrecipients = 0
+
+  mapSubrecipientReferences.forEach((record, subrecipientID) => {
     let type
 
-    if (arrPriorPeriodSubrecipientIDs.indexOf(k) !== -1) {
-      type = 'prior_subrecipient'
-      reported += 1
-    } else if (mapSubrecipientReferences.has(k)) {
-      type = 'subrecipient'
-      notreported += 1
-    } else {
-      type = 'orphan_subrecipient'
-      notreported += 1
+    if (mapSubrecipients.has(subrecipientID)) {
+      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1) {
+        newThisPeriod += 1
+        type = 'subrecipient'
+      } else {
+        previouslyReported += 1
+        type = 'prior_subrecipient'
+      }
+      subrecipientRecords.push({
+        type: type,
+        content: record
+      })
+    } else if (process.env.AUDIT) {
+      subrecipientRecords.push({
+        type: 'missing_subrecipient',
+        subrecipient_id: record.content['subrecipient id'],
+        tab: record.type,
+        upload_file: mapUploadMetadata.get(record.upload_id).filename
+      })
     }
-
-    subrecipientRecords.push({
-      type: type,
-      content: v
-    })
   })
 
-  log(`Reported: ${reported}. Not reported: ${notreported}`)
-
   if (process.env.AUDIT) {
-    mapSubrecipientReferences.forEach((record, subrecipientID) => {
-      if (!mapSubrecipients.has(subrecipientID)) {
-        subrecipientRecords.push({
-          type: 'missing_subrecipient',
-          subrecipient_id: record.content['subrecipient id'],
-          tab: record.type,
-          upload_file: mapUploadMetadata.get(record.upload_id).filename
-        })
+    mapSubrecipients.forEach((record, subrecipientID) => {
+      let type
+
+      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1
+        && !mapSubrecipientReferences.has(subrecipientID)) {
+        orphanSubrecipients += 1
+        type = 'orphan_subrecipient'
       }
+      subrecipientRecords.push({
+        type: type,
+        content: record
+      })
     })
   }
+  log(`Previously reported: ${previouslyReported}. New this period: ${newThisPeriod}`)
 
   return subrecipientRecords
 }
@@ -788,7 +797,7 @@ async function updateSubrecipientTable (documents) {
   documents.forEach(async record => {
     switch (record.type) {
       case 'subrecipient': {
-        let subrecipientIN = String(record.content['identification number']).trim()
+        let subrecipientIN = cleanString(record.content['identification number'])
 
         // If an upload contains a new subrecipient, add it to the db table.
         // Changes to existing subrecipients must be done by email request.
@@ -801,8 +810,9 @@ async function updateSubrecipientTable (documents) {
 
         // Not needed any more! It doesn't matter what period the record
         // was created in. But we do need to know if this subrecipient has
-        // been reported in a previous reporting period.
-        recSubRecipient['created in period'] = crpID
+        // been reported in a previous reporting period
+        // - see period-summaries.js/getReportedSubrecipientIds()
+        // recSubRecipient['created in period'] = crpID
 
         mapSubrecipients.set(subrecipientIN, recSubRecipient)
         setSubRecipient(recSubRecipient) // no need to wait
