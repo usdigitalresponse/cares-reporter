@@ -59,7 +59,7 @@ function isPositiveNumber (val) {
 }
 
 function isPositiveNumberOrZero (val) {
-  return _.isNumber(val) && val >= 0
+  return _.isNumber(val) ? val >= 0 : _.isEmpty(val);
 }
 
 function isAtLeast50K (val) {
