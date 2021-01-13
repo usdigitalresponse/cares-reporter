@@ -716,16 +716,18 @@ async function getGroups (period_id) {
     return new Error(`Errors in document award records`)
   }
 
-  let rv = []
+  let records = []
 
-  Object.keys(awardRecords).forEach(key => rv.push(awardRecords[key]))
+  Object.keys(awardRecords).forEach(key => records.push(awardRecords[key]))
 
-  const subrecipientRecords =
-    await getSubrecipientRecords(mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences)
-  let l = rv.length
-  rv.splice(rv.length, 0, ...subrecipientRecords)
+  const subrecipientRecords = await getSubrecipientRecords(
+    mapUploadMetadata,
+    mapSubrecipients,
+    mapSubrecipientReferences
+  )
+  records.splice(records.length, 0, ...subrecipientRecords)
 
-  groups = _.groupBy(rv, 'type')
+  groups = _.groupBy(records, 'type')
   log(`Found ${_.keys(groups).length} groups:`)
 
   return groups
