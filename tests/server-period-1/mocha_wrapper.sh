@@ -9,5 +9,5 @@ $DIR/reset-db.sh rptest
 if [ $# -gt 0 ]; then
   mocha --require=`dirname $0`/mocha_init.js $*
 else
-  mocha --require=`dirname $0`/mocha_init.js 'tests/server-periods/**/*.spec.js'
+  mocha --require=`dirname $0`/mocha_init.js 'tests/server-period-1/**/*.spec.js'
 fi

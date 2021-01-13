@@ -167,13 +167,14 @@ function cumulativeAmountIsEqual (key, filterPredicate) {
     const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate)
     const b = _.round(val, 2) === _.round(currentPeriodAmount + previousPeriodsAmount, 2)
     if (!b) {
-      console.log('cumulativeAmountIsEqual:',
+      log('validate.js/cumulativeAmountIsEqual():',
         key,
         val,
         'current:', currentPeriodAmount,
         'previous:', previousPeriodsAmount,
         'total:', currentPeriodAmount + previousPeriodsAmount)
-      console.log('content:', JSON.stringify(content))
+      log('content:')
+      log(JSON.stringify(content))
     }
     return b
   }

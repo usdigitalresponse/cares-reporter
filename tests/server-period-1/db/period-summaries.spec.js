@@ -1,6 +1,6 @@
 /*
 --------------------------------------------------------------------------------
--                      tests/db/period-summaries.spec.js
+-                      tests/server-period-1/db/period-summaries.spec.js
 --------------------------------------------------------------------------------
 
   IMPORTANT!!
@@ -23,18 +23,21 @@
     current_obligation  | numeric(19,2) |
     current_expenditure | numeric(19,2) |
 */
+
 const fs = require('fs')
 const path = require('path')
-const { getPeriodSummaries, readSummaries } =
-  requireSrc(`${__dirname}/../../server/db`)
-const treasury = requireSrc(`${__dirname}/../../server/lib/treasury`)
 const _ = require('lodash')
+const expect = require('chai').expect
+
+const projectRoot = process.cwd()
+const knex = require(path.resolve(projectRoot, `src/server/db/connection`))
+const { getPeriodSummaries, readSummaries } =
+  require(path.resolve(projectRoot, `src/server/db`))
+const treasury =
+  require(path.resolve(projectRoot, `src/server/lib/treasury`))
 
 const reportingPeriods =
-  requireSrc(`${__dirname}/../../server/db/reporting-periods`)
-
-const expect = require('chai').expect
-const knex = requireSrc(`${__dirname}/../../server/db/connection`)
+  require(path.resolve(projectRoot, `src/server/db/reporting-periods`))
 
 describe('baseline success', () => {
   it(`Delete the treasury report file`, async () => {
