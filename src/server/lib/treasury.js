@@ -716,15 +716,18 @@ async function getGroups (period_id) {
     return new Error(`Errors in document award records`)
   }
 
-  let rv = []
+  let records = []
 
-  Object.keys(awardRecords).forEach(key => rv.push(awardRecords[key]))
+  Object.keys(awardRecords).forEach(key => records.push(awardRecords[key]))
 
-  const subrecipientRecords =
-    await getSubrecipientRecords(mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences)
-  rv.splice(rv.length, 0, ...subrecipientRecords)
+  const subrecipientRecords = await getSubrecipientRecords(
+    mapUploadMetadata,
+    mapSubrecipients,
+    mapSubrecipientReferences
+  )
+  records.splice(records.length, 0, ...subrecipientRecords)
 
-  groups = _.groupBy(rv, 'type')
+  groups = _.groupBy(records, 'type')
   log(`Found ${_.keys(groups).length} groups:`)
 
   return groups
@@ -733,42 +736,56 @@ async function getGroups (period_id) {
 async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences) {
   let subrecipientRecords = []
   let arrPriorPeriodSubrecipientIDs = await getReportedSubrecipientIds()
-  let reported = 0
-  let notreported = 0
-  mapSubrecipients.forEach((v, k) => {
+  let previouslyReported = 0
+  let newThisPeriod = 0
+  let orphanSubrecipients = 0
+  let missingSubrecipients = 0
+
+  mapSubrecipientReferences.forEach((record, subrecipientID) => {
     let type
 
-    if (arrPriorPeriodSubrecipientIDs.indexOf(k) !== -1) {
-      type = 'prior_subrecipient'
-      reported += 1
-    } else if (mapSubrecipientReferences.has(k)) {
-      type = 'subrecipient'
-      notreported += 1
-    } else {
-      type = 'orphan_subrecipient'
-      notreported += 1
+    if (mapSubrecipients.has(subrecipientID)) {
+      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1) {
+        newThisPeriod += 1
+        type = 'subrecipient'
+      } else {
+        previouslyReported += 1
+        type = 'prior_subrecipient'
+      }
+      subrecipientRecords.push({
+        type: type,
+        content: record
+      })
+    } else if (process.env.AUDIT) {
+      missingSubrecipients +=1
+      subrecipientRecords.push({
+        type: 'missing_subrecipient',
+        subrecipient_id: subrecipientID,
+        tab: record.type,
+        upload_file: mapUploadMetadata.get(record.upload_id).filename
+      })
     }
-
-    subrecipientRecords.push({
-      type: type,
-      content: v
-    })
   })
 
-  log(`Reported: ${reported}. Not reported: ${notreported}`)
-
   if (process.env.AUDIT) {
-    mapSubrecipientReferences.forEach((record, subrecipientID) => {
-      if (!mapSubrecipients.has(subrecipientID)) {
+    mapSubrecipients.forEach((record, subrecipientID) => {
+
+      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1
+        && !mapSubrecipientReferences.has(subrecipientID)) {
+        orphanSubrecipients += 1
+
         subrecipientRecords.push({
-          type: 'missing_subrecipient',
-          subrecipient_id: record.content['subrecipient id'],
-          tab: record.type,
-          upload_file: mapUploadMetadata.get(record.upload_id).filename
+          type: 'orphan_subrecipient',
+          content: record
         })
       }
     })
   }
+  log(`${subrecipientRecords.length} subrecipient records`)
+  log(`Previously reported: ${previouslyReported}`)
+  log(`New this period: ${newThisPeriod}`)
+  log(`Missing: ${missingSubrecipients}`)
+  log(`Orphan: ${orphanSubrecipients}`)
 
   return subrecipientRecords
 }
@@ -788,7 +805,7 @@ async function updateSubrecipientTable (documents) {
   documents.forEach(async record => {
     switch (record.type) {
       case 'subrecipient': {
-        let subrecipientIN = String(record.content['identification number']).trim()
+        let subrecipientIN = cleanString(record.content['identification number'])
 
         // If an upload contains a new subrecipient, add it to the db table.
         // Changes to existing subrecipients must be done by email request.
@@ -801,8 +818,9 @@ async function updateSubrecipientTable (documents) {
 
         // Not needed any more! It doesn't matter what period the record
         // was created in. But we do need to know if this subrecipient has
-        // been reported in a previous reporting period.
-        recSubRecipient['created in period'] = crpID
+        // been reported in a previous reporting period
+        // - see period-summaries.js/getReportedSubrecipientIds()
+        // recSubRecipient['created in period'] = crpID
 
         mapSubrecipients.set(subrecipientIN, recSubRecipient)
         setSubRecipient(recSubRecipient) // no need to wait
@@ -845,14 +863,14 @@ function getAwardRecords (documents, mapUploadMetadata) {
       case 'subrecipient': {
         // Ignore subrecipient records.
         // The Sub Recipient tab in the Treasury output spreadsheet is populated
-        // from the subrecipients db table by treasury.js/createOutputWorkbook
+        // from the subrecipients db table by createOutputWorkbook()
         break
       }
 
       case 'projects': {
         // Ignore projects records.
         // The Projects tab in the Treasury output spreadsheet is populated from
-        // the projects db table by treasury.js/createOutputWorkbook
+        // the projects db table by createOutputWorkbook()
         break
       }
 
@@ -864,7 +882,7 @@ function getAwardRecords (documents, mapUploadMetadata) {
       case 'loans':
       case 'transfers':
       case 'direct': {
-        let srID = record.content['subrecipient id']
+        let srID = cleanString(record.content['subrecipient id'])
         if (srID) {
           mapSubrecipientReferences.set(srID, record)
         } else {
