@@ -80,6 +80,7 @@ describe('validation helpers', () => {
     ['non positive number', isPositiveNumber(-100), false],
     ['positive number or zero', isPositiveNumberOrZero(0), true],
     ['positive number or zero', isPositiveNumberOrZero(100), true],
+    ['positive number or zero allows blanks', isPositiveNumberOrZero(''), true],
     ['not a positive number or zero', isPositiveNumberOrZero(-10), false],
     ['valid date', isValidDate('2020-10-03'), true],
     ['invalid date', isValidDate('2020-15-99'), false],
