@@ -5,7 +5,6 @@ const _ = require('lodash')
 
 const {
   applicationSettings,
-  getCurrentReportingPeriodID,
   currentReportingPeriodSettings
 } = require('../db/settings')
 const { documentsWithProjectCode } = require('../db/documents')
