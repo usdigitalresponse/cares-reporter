@@ -73,9 +73,8 @@ function projectById (id) {
   spreadsheet
   */
 async function updateProjectStatus (projectCode, documents) {
-  // get the project id for this upload from the cover page
-  // then find that row in the projects page and use it to update
-  // the database for that project.
+  // find the cover page record in the documents array, and read the project
+  // status from the status column
   projectCode = zeroPad(projectCode)
   let projectRecord = await getProject(projectCode)
 
