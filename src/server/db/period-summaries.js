@@ -51,6 +51,10 @@ async function readSummaries (reporting_period_id = 1) {
   return periodSummaries
 }
 
+/* getReportedSubrecipientIds() gets all the subrecipient IDs present in
+  prior period summary records.
+  The subrecipient ids have already been stripped of double quotes.
+  */
 async function getReportedSubrecipientIds () {
   let subrecipientIDs = await knex('period_summaries')
     .select('subrecipient_identification_number')

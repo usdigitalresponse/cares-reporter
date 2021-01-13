@@ -14,7 +14,8 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:server": "./tests/server/mocha_wrapper.sh",
-    "test:server-periods": "./tests/server-periods/mocha_wrapper.sh",
+    "test:server-period-1": "./tests/server-period-1/mocha_wrapper.sh",
+    "test:server-period-2": "./tests/server-period-2/mocha_wrapper.sh",
     "test:cp2": "yarn mocha 'tests/server-periods/db/period-2-report.spec.js'",
     "lint": "vue-cli-service lint",
     "prod": "NODE_ENV=production node src/server"
