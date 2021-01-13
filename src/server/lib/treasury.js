@@ -722,6 +722,7 @@ async function getGroups (period_id) {
 
   const subrecipientRecords =
     await getSubrecipientRecords(mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences)
+  let l = rv.length
   rv.splice(rv.length, 0, ...subrecipientRecords)
 
   groups = _.groupBy(rv, 'type')
@@ -736,6 +737,7 @@ async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapS
   let previouslyReported = 0
   let newThisPeriod = 0
   let orphanSubrecipients = 0
+  let missingSubrecipients = 0
 
   mapSubrecipientReferences.forEach((record, subrecipientID) => {
     let type
@@ -753,9 +755,10 @@ async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapS
         content: record
       })
     } else if (process.env.AUDIT) {
+      missingSubrecipients +=1
       subrecipientRecords.push({
         type: 'missing_subrecipient',
-        subrecipient_id: record.content['subrecipient id'],
+        subrecipient_id: subrecipientID,
         tab: record.type,
         upload_file: mapUploadMetadata.get(record.upload_id).filename
       })
@@ -764,20 +767,23 @@ async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapS
 
   if (process.env.AUDIT) {
     mapSubrecipients.forEach((record, subrecipientID) => {
-      let type
 
       if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1
         && !mapSubrecipientReferences.has(subrecipientID)) {
         orphanSubrecipients += 1
-        type = 'orphan_subrecipient'
+
+        subrecipientRecords.push({
+          type: 'orphan_subrecipient',
+          content: record
+        })
       }
-      subrecipientRecords.push({
-        type: type,
-        content: record
-      })
     })
   }
-  log(`Previously reported: ${previouslyReported}. New this period: ${newThisPeriod}`)
+  log(`${subrecipientRecords.length} subrecipient records`)
+  log(`Previously reported: ${previouslyReported}`)
+  log(`New this period: ${newThisPeriod}`)
+  log(`Missing: ${missingSubrecipients}`)
+  log(`Orphan: ${orphanSubrecipients}`)
 
   return subrecipientRecords
 }
@@ -855,14 +861,14 @@ function getAwardRecords (documents, mapUploadMetadata) {
       case 'subrecipient': {
         // Ignore subrecipient records.
         // The Sub Recipient tab in the Treasury output spreadsheet is populated
-        // from the subrecipients db table by treasury.js/createOutputWorkbook
+        // from the subrecipients db table by createOutputWorkbook()
         break
       }
 
       case 'projects': {
         // Ignore projects records.
         // The Projects tab in the Treasury output spreadsheet is populated from
-        // the projects db table by treasury.js/createOutputWorkbook
+        // the projects db table by createOutputWorkbook()
         break
       }
 
@@ -874,7 +880,7 @@ function getAwardRecords (documents, mapUploadMetadata) {
       case 'loans':
       case 'transfers':
       case 'direct': {
-        let srID = record.content['subrecipient id']
+        let srID = cleanString(record.content['subrecipient id'])
         if (srID) {
           mapSubrecipientReferences.set(srID, record)
         } else {
