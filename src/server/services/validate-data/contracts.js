@@ -70,7 +70,6 @@ const requiredFields = [
     'Contract type is not valid'
   ],
   [
-
     'contract amount',
     isPositiveNumberOrZero,
     'Contract {{contract number}} contract amount must be an amount greater than or equal to zero'

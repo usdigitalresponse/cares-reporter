@@ -28,6 +28,7 @@ module.exports = app => {
   app.use('/api/projects', require('./routes/projects'))
   app.use('/api/reporting_periods', require('./routes/reporting-periods'))
   app.use('/api/sessions', require('./routes/sessions'))
+  app.use('/api/summary_report', require('./routes/summary-report'))
   app.use('/api/uploads', require('./routes/uploads'))
   app.use('/api/users', require('./routes/users'))
   app.use('/api/validations', require('./routes/validations'))
