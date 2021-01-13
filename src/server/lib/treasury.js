@@ -788,7 +788,7 @@ async function updateSubrecipientTable (documents) {
   documents.forEach(async record => {
     switch (record.type) {
       case 'subrecipient': {
-        let subrecipientIN = String(record.content['identification number']).trim()
+        let subrecipientIN = cleanString(record.content['identification number'])
 
         // If an upload contains a new subrecipient, add it to the db table.
         // Changes to existing subrecipients must be done by email request.
@@ -802,7 +802,7 @@ async function updateSubrecipientTable (documents) {
         // Not needed any more! It doesn't matter what period the record
         // was created in. But we do need to know if this subrecipient has
         // been reported in a previous reporting period.
-        recSubRecipient['created in period'] = crpID
+        // recSubRecipient['created in period'] = crpID // created_in_period
 
         mapSubrecipients.set(subrecipientIN, recSubRecipient)
         setSubRecipient(recSubRecipient) // no need to wait
