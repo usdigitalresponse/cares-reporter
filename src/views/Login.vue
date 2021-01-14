@@ -29,7 +29,7 @@ export default {
   name: 'Login',
   data: function () {
     const message = _.get(this, '$route.query.message', null)
-    let messageClass = message ? 'alert alert-danger' : ''
+    const messageClass = message ? 'alert alert-danger' : ''
     return {
       email: '',
       message,

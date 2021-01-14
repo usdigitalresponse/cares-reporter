@@ -93,7 +93,7 @@ export default {
         this.uploading = true
         this.message = null
         this.errors = []
-        let formData = new FormData()
+        const formData = new FormData()
         formData.append('spreadsheet', file)
         try {
           const r = await this.$store.dispatch('createUpload', formData)
@@ -104,7 +104,7 @@ export default {
           } else {
             this.$store
               .dispatch('refreshDocuments')
-              .then(() => this.$router.push({ path: `/` }))
+              .then(() => this.$router.push({ path: '/' }))
           }
         } catch (e) {
           this.message = e.message

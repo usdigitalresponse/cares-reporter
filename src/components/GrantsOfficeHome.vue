@@ -113,7 +113,7 @@ export default {
     titleize,
     /* eslint camelcase: 0 */
     downloadUrl () {
-      let period_id = this.$store.getters.viewPeriod.id || 0
+      const period_id = this.$store.getters.viewPeriod.id || 0
       // console.dir(this.$store.getters.viewPeriod);
       return `/api/exports?period_id=${period_id}`
     },
