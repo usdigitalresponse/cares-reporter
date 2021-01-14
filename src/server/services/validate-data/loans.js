@@ -84,19 +84,13 @@ const requiredFields = [
   ],
   [
     'current quarter obligation',
-    numberIsLessThanOrEqual('loan amount'),
+    whenNotBlank('current quarter obligation', numberIsLessThanOrEqual('loan amount')),
     'Current quarter obligation must be less than or equal to loan amount'
   ],
   [
     'loan amount',
     cumulativeAmountIsEqual('current quarter obligation', loanMatches),
     'Loan amount must equal cumulative obligation amount',
-    { tags: ['cumulative'] }
-  ],
-  [
-    'loan amount',
-    cumulativeAmountIsLessThanOrEqual('total expenditure amount', loanMatches),
-    'Cumulative expenditure amount must be less than or equal to loan amount',
     { tags: ['cumulative'] }
   ],
   [
