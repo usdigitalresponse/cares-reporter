@@ -217,13 +217,10 @@ function uploadFilename (filename) {
 /* clean() trims strings and rounds amounts
   */
 function clean (objRecord) {
-  return objRecord
-}
-
-function clean_breaks (objRecord) {
   let objCleaned = {}
   Object.keys(objRecord).forEach(key => {
     let val = objRecord[key] || null
+
     if (val === 'undefined') {
       val = null
     }
@@ -237,7 +234,7 @@ function clean_breaks (objRecord) {
         break
       }
       case 'date':
-        objCleaned[key] = Number(val) || null
+        objCleaned[key] = val
         break
 
       default:
@@ -252,6 +249,11 @@ function clean_breaks (objRecord) {
   return objCleaned
 }
 
+// cleanString() trims leading and trailing spaces.
+// - If the entire string is enclosed in double quotes, removes them (does
+// not remove a trailing or leading double quote without a corresponding
+// one at the other end).
+// - Converts double spaces to single spaces.
 function cleanString (val) {
   if (!val && val !== 0) {
     return null

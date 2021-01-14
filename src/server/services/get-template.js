@@ -3,6 +3,7 @@ let log = () => {}
 if (process.env.VERBOSE) {
   log = console.dir
 }
+
 let path = require('path')
 
 const fs = require('fs')
