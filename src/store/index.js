@@ -245,7 +245,7 @@ export default new Vuex.Store({
     viewPeriodID ({ commit }, period_id) {
       commit('setViewPeriodID', period_id)
       const doFetch = (attr, query) => {
-        let url = `/api/${attr}${query}`
+        const url = `/api/${attr}${query}`
         fetch(url, { credentials: 'include' })
           .then(r => r.json())
           .then(data => {
