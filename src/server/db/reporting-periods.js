@@ -32,12 +32,16 @@ const {
   setCurrentReportingPeriod
 } = require('./settings')
 
-const { writeSummaries, updateSummaries: update } = require('./period-summaries')
+const {
+  writeSummaries,
+  regenerateSummaries: regenerate,
+  updateSummaries: update
+} = require('./period-summaries')
 
 module.exports = {
   close: closeReportingPeriod,
   update: updateSummaries,
-
+  regenerate: regenerateSummaries,
   get: getReportingPeriod,
   getFirstStartDate: getFirstReportingPeriodStartDate,
 
@@ -163,6 +167,20 @@ async function updateSummaries (user, period) {
     throw new Error(errLog[0])
   }
 
+  return null
+}
+
+/* regenerateSummaries() was added because there were some bogus records
+  in the summary table after closing OH and RI 20 12 30.
+  This should never be used again!
+  */
+async function regenerateSummaries (user, period) {
+  console.log(`regenerateSummaries`)
+  let errLog = await regenerate(period)
+
+  if (errLog && errLog.length > 0) {
+    throw new Error(errLog[0])
+  }
   return null
 }
 
