@@ -167,6 +167,21 @@ async function generateReport () {
 
         Should put agency code and amount in summary records.
 
+        select
+          a.code,
+          s.project_code,
+          r.legal_name,
+          s.award_number,
+          s.subrecipient_identification_number,
+          s.id,
+          s.current_obligation
+        from period_summaries as s
+        left join projects as p on p.code = s.project_code
+        left join agencies as a on a.id = p.agency_id
+        left join subrecipients as r on
+          r.identification_number = s.subrecipient_identification_number
+        ;
+
       */
   }
   sheetsOut['Contracts'] = getContractsSheet(periodSummaries)

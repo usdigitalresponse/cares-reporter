@@ -1,0 +1,33 @@
+#!/bin/bash
+# $ ./importdb ri 2020-12-28T19_23Z.sql
+#  $ ./importdb ri
+if [ ! $2 ] ; then
+  echo
+  echo \* This refreshes the postgres database for the local copies of the state databases,
+  echo \* which are used by \$ yarn serve:ri and \$ yarn serve:oh.
+  echo \*
+  echo \* Run importdb to get a .clean.sql file
+  echo \*
+  echo \* then get the filename with:
+  echo \* \$ ls -t  examples/ri/sql
+  echo \*
+  echo \* then run this:
+  echo \* \$ ./refreshdb ri 2020-12-28T19_23Z.clean.sql
+  echo
+  exit 1
+fi
+
+dbname=${1}
+dbuser=postgres
+exampleDir=examples
+
+outpath=./${exampleDir}/${1}/sql/${2}
+
+dropdb ${dbname}
+createdb --owner=${dbuser} ${dbname}
+
+# rm uploads/*
+
+echo Working...
+
+psql ${dbname} ${dbuser} < ${outpath}
