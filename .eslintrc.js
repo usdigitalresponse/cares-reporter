@@ -7,13 +7,11 @@ module.exports = {
     es6: true,
     mocha: true
   },
-  extends: ['plugin:vue/essential', 'standard'],
+
+  extends: ['plugin:vue/essential'],
 
   globals: {
     requireSrc: 'writable'
-  },
-  parserOptions: {
-    parser: 'babel-eslint'
   },
 
   overrides: [
@@ -26,5 +24,10 @@ module.exports = {
         mocha: true
       }
     }
-  ]
+  ],
+
+  parserOptions: {
+    parser: 'babel-eslint'
+  }
+
 }
