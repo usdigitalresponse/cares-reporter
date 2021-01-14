@@ -2,29 +2,23 @@
 --------------------------------------------------------------------------------
 -                      tests/db/period-2-report.spec.js
 --------------------------------------------------------------------------------
+  rptest2 database is from Rhode Island
   In the rptest2 database, period 1 has already been closed.
 */
 const fs = require('fs')
 const path = require('path')
-const { execFileSync } = require('child_process')
-
 const _ = require('lodash')
-const dbname = 'rptest2'
-process.env.POSTGRES_URL = `postgres://localhost/${dbname}`
-
-process.env.UPLOAD_DIRECTORY = path.resolve(__dirname, `../mocha_uploads`)
-process.env.TREASURY_DIRECTORY = path.resolve(__dirname, `../mocha_uploads/treasury`)
 
 require('dotenv').config()
 
-const treasury = require(path.resolve(process.cwd(), `src/server/lib/treasury`))
+const dbname = 'rptest2'
+process.env.POSTGRES_URL = `postgres://localhost/${dbname}`
+// __dirname is the directory this file is in
+process.env.UPLOAD_DIRECTORY = path.resolve(__dirname, `../mocha_uploads`)
+process.env.TREASURY_DIRECTORY = path.resolve(__dirname, `../mocha_uploads/treasury`)
 
-describe('Initialize the period 2 database', () => {
-  it(`Copy ${dbname}.sql into postgres database ${dbname}`, async function () {
-    this.timeout(6000)
-    execFileSync('./tests/server-periods/reset-db.sh', null, {stdio: 'inherit'})
-  })
-})
+// process.cwd() is the directory that yarn is invoked in - the project root
+const treasury = require(path.resolve(process.cwd(), `src/server/lib/treasury`))
 
 describe('Generate a Treasury Report for Period 2', () => {
   it('Generates a Treasury Report Workbook for period 2', async () => {

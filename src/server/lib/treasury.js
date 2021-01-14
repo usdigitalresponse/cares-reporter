@@ -5,7 +5,6 @@ const _ = require('lodash')
 
 const {
   applicationSettings,
-  getCurrentReportingPeriodID,
   currentReportingPeriodSettings
 } = require('../db/settings')
 const { documentsWithProjectCode } = require('../db/documents')
@@ -380,8 +379,7 @@ function getAggregatePaymentsIndividualSheet (sheetRecords, outputColumnNames) {
   */
 function getSubRecipientSheet (ddRecords, outputColumnNames) {
   // translate the subrecipient table records into AOA rows
-  let arrRows = []
-  ddRecords.forEach(ddRecord => {
+  let arrRows = ddRecords.map(ddRecord => {
     let jsonRow = ddRecord.content
 
     // fix issue #81
@@ -389,14 +387,14 @@ function getSubRecipientSheet (ddRecords, outputColumnNames) {
     jsonRow['organization type'] = organizationTypeMap[organizationType]
 
     jsonRow = fixDuns(jsonRow)
-
     // return an AOA row
     let aoaRow = outputColumnNames.map(columnName => {
       return jsonRow[columnNameMap[columnName]] || null
     })
 
-    arrRows.push(aoaRow)
+    return aoaRow
   })
+  log(`there are ${arrRows.length} subrecipients`)
   return arrRows
 }
 
@@ -405,12 +403,18 @@ function getSubRecipientSheet (ddRecords, outputColumnNames) {
 function getSubRecipientAuditSheets (recordGroups, outputColumnNames) {
   // translate the subrecipient table records into AOA rows
   let arrMissing = recordGroups.missing_subrecipient || []
+  log(`\nComposing output sheet Missing Sub Recipients`)
+  log(`with ${arrMissing.length} rows`)
 
   let arrOrphans = (recordGroups.orphan_subrecipient || [])
     .map(mapToAoa)
+  log(`\nComposing output sheet Unreferenced Sub Recipients`)
+  log(`with ${arrOrphans.length} rows`)
 
   let arrPrior = (recordGroups.prior_subrecipient || [])
     .map(mapToAoa)
+  log(`\nComposing output sheet Prior Sub Recipients`)
+  log(`with ${arrPrior.length} rows`)
 
   return {
     arrMissing,
@@ -701,7 +705,6 @@ async function getGroups (period_id) {
     mapSubrecipientReferences,
     errorLog
   } = getAwardRecords(documents, mapUploadMetadata)
-
   if (errorLog.length > 0) {
     console.dir(errorLog)
     return new Error(`Errors in document award records`)
@@ -748,7 +751,7 @@ async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapS
         content: mapSubrecipients.get(subrecipientID)
       })
     } else if (process.env.AUDIT) {
-      missingSubrecipients +=1
+      missingSubrecipients += 1
       subrecipientRecords.push({
         type: 'missing_subrecipient',
         subrecipient_id: subrecipientID,
@@ -760,9 +763,8 @@ async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapS
 
   if (process.env.AUDIT) {
     mapSubrecipients.forEach((record, subrecipientID) => {
-
-      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1
-        && !mapSubrecipientReferences.has(subrecipientID)) {
+      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1 &&
+        !mapSubrecipientReferences.has(subrecipientID)) {
         orphanSubrecipients += 1
 
         subrecipientRecords.push({
@@ -785,7 +787,6 @@ async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapS
   */
 async function updateSubrecipientTable (documents) {
   // get all the subrecipients currently in the subrecipients table
-  let crpID = await getCurrentReportingPeriodID()
   let mapSubrecipients
   try {
     mapSubrecipients = await getSubRecipients()
