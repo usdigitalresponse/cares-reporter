@@ -439,6 +439,23 @@ const organizationTypeMap =
   'Other': 'Other'
 }
 
+/* added 21 01 13 in response to ohio request:
+
+  "When an adjustment is made to reduce a previous payment to remove
+  it/completely reduce it, the output should be $0 (not blank)
+  "See examples on Direct tab, Obligation Amount
+  "Excel lines: 8, 107, 123, 274, 283, 333, 394
+  "I think this methodology would carry through for Contract Amount, Award
+  Amount, and Transfer Amount."
+  */
+const zeroWhenEmpty = {
+  'Obligation Amount': true,
+  'Contract Amount': true,
+  'Award Amount': true,
+  'Transfer Amount': true,
+  'Loan Amount': true
+}
+
 module.exports = {
   categoryDescriptionSourceColumn,
   categoryMap,
@@ -448,5 +465,6 @@ module.exports = {
   columnTypeMap,
   organizationTypeMap,
   sheetNameAliases,
-  sheetNameMap
+  sheetNameMap,
+  zeroWhenEmpty
 }

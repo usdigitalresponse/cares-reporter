@@ -29,7 +29,8 @@ const {
   columnNameMap,
   columnTypeMap,
   organizationTypeMap,
-  sheetNameMap
+  sheetNameMap,
+  zeroWhenEmpty
 } = require('./field-name-mapping')
 
 let log = () => {}
@@ -507,6 +508,8 @@ function populateCommonFields (outputColumnNames, kvNameCol, jsonRow) {
           aoaRow[kvNameCol[columnName]] = cellValue
           break
       }
+    } else if (zeroWhenEmpty[columnName]) {
+      aoaRow[kvNameCol[columnName]] = 0
     }
   })
   return aoaRow

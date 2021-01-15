@@ -40,6 +40,7 @@ module.exports = {
   getPriorPeriodSummaries,
   getReportedSubrecipientIds,
   readSummaries, // used by tests
+  regenerateSummaries, // use once to fix dabase on period 1
   updateSummaries, // use once to fix dabase on period 1
   writeSummaries
 }
@@ -63,13 +64,22 @@ async function getReportedSubrecipientIds () {
   return subrecipientIDs.map(r => r.subrecipient_identification_number)
 }
 
+async function regenerateSummaries (reporting_period_id) {
+  console.dir(await knex('period_summaries').count('*'))
+  console.log('deleting.....')
+  await knex('period_summaries').del()
+  console.dir(await knex('period_summaries').count('*'))
+  await writeSummaries(reporting_period_id)
+  console.dir(await knex('period_summaries').count('*'))
+  return null
+}
+
 async function writeSummaries (reporting_period_id) {
   let summaryData = await generateSummaries(reporting_period_id)
 
   if (summaryData.errors.length) {
     return summaryData.errors
   }
-
   return saveSummaries(summaryData.periodSummaries)
 }
 
