@@ -231,14 +231,18 @@ function matchesFilePart (key) {
 
 function numberIsLessThanOrEqual (key) {
   return (val, content) => {
-    const other = content[key]
-    return _.isNumber(val) && _.isNumber(other) && val <= other
+    const other = _.isNumber(content[key]) ? content[key] : 0.00;
+    const b = _.isNumber(val) && _.isNumber(other) && val <= other
+    if (!b) {
+      console.log('numberIsLessThanOrEqual fails:', key, val, _.isNumber(val), other, _.isNumber(other), val <= other);
+    }
+    return b;
   }
 }
 
 function numberIsGreaterThanOrEqual (key) {
   return (val, content) => {
-    const other = content[key]
+    const other = _.isNumber(content[key]) ? content[key] : 0.00;
     return _.isNumber(val) && _.isNumber(other) && val >= other
   }
 }
@@ -323,13 +327,15 @@ function validateFields (requiredFields, content, tab, row, context = {}) {
         // console.dir(content);
         // console.log(`val ${val}, context:`);
         // console.dir(context);
+        const finalMessage = addValueToMessage(
+          message || `Empty or invalid entry for ${key}: "{}"`,
+          messageValue(val, options),
+          content
+        );
+        console.log(finalMessage);
         valog.push(
           new ValidationItem({
-            message: addValueToMessage(
-              message || `Empty or invalid entry for ${key}: "{}"`,
-              messageValue(val, options),
-              content
-            ),
+            message: finalMessage,
             tab,
             row
           })
