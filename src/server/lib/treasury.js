@@ -60,35 +60,35 @@ async function createOutputWorkbook (
 ) {
   const workbook = XLSX.utils.book_new()
 
-  log(`Sheets are:`)
+  log('Sheets are:')
   Object.keys(recordGroups).forEach(rg => {
     log(`\t${rg}: ${recordGroups[rg].length} records`)
   })
 
-  let sheetsOut = {}
+  const sheetsOut = {}
   let subrecpientColumnNames
 
   for (let i = 0; i < wbSpec.settings.length; i++) {
-    let outputSheetSpec = wbSpec.settings[i]
-    let outputSheetName = outputSheetSpec.sheetName
-    let outputColumnNames = outputSheetSpec.columns
+    const outputSheetSpec = wbSpec.settings[i]
+    const outputSheetName = outputSheetSpec.sheetName
+    const outputColumnNames = outputSheetSpec.columns
 
     log(`\nComposing output Sheet ${outputSheetName}`)
 
     // sometimes tabs are empty!
-    let sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || []
+    const sheetRecords = recordGroups[sheetNameMap[outputSheetName]] || []
 
     log(`${outputSheetName} has ${sheetRecords.length} records`)
 
     let rows = []
 
     switch (outputSheetName) {
-      case 'Cover Page':
-        let appSettings = await applicationSettings()
-        let reportingPeriod = await currentReportingPeriodSettings()
+      case 'Cover Page': {
+        const appSettings = await applicationSettings()
+        const reportingPeriod = await currentReportingPeriodSettings()
         rows = getCoverPage(appSettings, reportingPeriod)
         break
-
+      }
       case 'Projects': {
         rows = await getProjectsSheet()
         // console.dir(rows);
@@ -135,7 +135,7 @@ async function createOutputWorkbook (
     addAuditSheets(workbook, recordGroups, subrecpientColumnNames)
   }
 
-  let treasuryOutputWorkbook =
+  const treasuryOutputWorkbook =
     XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
 
   return treasuryOutputWorkbook
@@ -149,7 +149,7 @@ function convertSheet (rows, outputColumnNames) {
 }
 
 function getCoverPage (appSettings = {}, reportingPeriod = {}) {
-  let rows = [
+  const rows = [
     [
       'Financial Progress Reporting',
       'Coronavirus Relief Fund',
@@ -164,9 +164,9 @@ function getCoverPage (appSettings = {}, reportingPeriod = {}) {
 }
 
 function addAuditSheets (workbook, recordGroups, outputColumnNames) {
-  let objSR = getSubRecipientAuditSheets(recordGroups, outputColumnNames)
+  const objSR = getSubRecipientAuditSheets(recordGroups, outputColumnNames)
 
-  let sheetsOut = {
+  const sheetsOut = {
     'Unreferenced Sub Recipients': convertSheet(objSR.arrOrphans, outputColumnNames),
     'Prior Sub Recipients': convertSheet(objSR.arrPrior, outputColumnNames),
     'Missing Sub Recipients': getMissingSubrecipientsSheet(objSR.arrMissing)
@@ -175,7 +175,7 @@ function addAuditSheets (workbook, recordGroups, outputColumnNames) {
   return addOutputSheets(
     workbook,
     sheetsOut,
-    [ 'Unreferenced Sub Recipients',
+    ['Unreferenced Sub Recipients',
       'Prior Sub Recipients',
       'Missing Sub Recipients'
     ]
@@ -196,12 +196,12 @@ function addOutputSheets (workbook, sheetsOut, sheetNames) {
 }
 
 function getMissingSubrecipientsSheet (arrMissing) {
-  let outputColumnNames = [
+  const outputColumnNames = [
     'Sub-Recipient',
     'Upload Tab',
     'Upload File'
   ]
-  let rows = []
+  const rows = []
   rows.push(outputColumnNames)
 
   arrMissing.forEach(record => {
@@ -217,9 +217,9 @@ function getMissingSubrecipientsSheet (arrMissing) {
 /*  getProjectsSheet () - all Projects must be listed each reporting period.
   */
 async function getProjectsSheet () {
-  let mapProjects = await getProjects()
+  const mapProjects = await getProjects()
 
-  let rows = []
+  const rows = []
   mapProjects.forEach(project => {
     rows.push([
       cleanString(project.name),
@@ -240,13 +240,13 @@ function getCategorySheet (
   sheetRecords, // an array of document records
   outputColumnNames // an array of output column names
 ) {
-  let kvNameCol = getColumnOrds(outputColumnNames)
-  let kvExpenseNameCol = getExpenditureColumnOrds(sheetName, kvNameCol)
-  let rowsOut = []
+  const kvNameCol = getColumnOrds(outputColumnNames)
+  const kvExpenseNameCol = getExpenditureColumnOrds(sheetName, kvNameCol)
+  const rowsOut = []
 
   sheetRecords.forEach(jsonRecord => {
-    let jsonRow = jsonRecord.content // see getGroups()
-    let aoaRow = populateCommonFields(outputColumnNames, kvNameCol, jsonRow)
+    const jsonRow = jsonRecord.content // see getGroups()
+    const aoaRow = populateCommonFields(outputColumnNames, kvNameCol, jsonRow)
 
     let written = false
 
@@ -284,7 +284,7 @@ function getCategorySheet (
 }
 
 function getAggregateAwardsSheet (sheetRecords) {
-  let aggregate = {
+  const aggregate = {
     contracts: { updates: null, obligation: 0, expenditure: 0 },
     grants: { updates: null, obligation: 0, expenditure: 0 },
     loans: { updates: null, obligation: 0, expenditure: 0 },
@@ -293,7 +293,7 @@ function getAggregateAwardsSheet (sheetRecords) {
   }
 
   sheetRecords.forEach(sourceRec => {
-    let sourceRow = sourceRec.content
+    const sourceRow = sourceRec.content
     let category = /Aggregate of (\w+)/.exec(sourceRow['funding type'])
     if (category) {
       category = category[1].toLowerCase()
@@ -307,15 +307,15 @@ function getAggregateAwardsSheet (sheetRecords) {
           break
 
         case Boolean(columnName.match('updates')):
-          aggregate[category]['updates'] = sourceRow[columnName]
+          aggregate[category].updates = sourceRow[columnName]
           break
 
         case Boolean(columnName.match('obligation')):
-          aggregate[category]['obligation'] += (Number(sourceRow[columnName]) || 0)
+          aggregate[category].obligation += (Number(sourceRow[columnName]) || 0)
           break
 
         case Boolean(columnName.match('expenditure')):
-          aggregate[category]['expenditure'] += (Number(sourceRow[columnName]) || 0)
+          aggregate[category].expenditure += (Number(sourceRow[columnName]) || 0)
           break
 
         default:
@@ -350,8 +350,8 @@ function getAggregateAwardsSheet (sheetRecords) {
 }
 
 function getAggregatePaymentsIndividualSheet (sheetRecords, outputColumnNames) {
-  let cqoSourceName = columnNameMap['Current Quarter Obligation']
-  let cqeSourceName = columnNameMap['Current Quarter Expenditure']
+  const cqoSourceName = columnNameMap['Current Quarter Obligation']
+  const cqeSourceName = columnNameMap['Current Quarter Expenditure']
 
   let cqoTotal = 0
   let cqeTotal = 0
@@ -361,7 +361,7 @@ function getAggregatePaymentsIndividualSheet (sheetRecords, outputColumnNames) {
     cqeTotal += Number(sourceRec.content[cqeSourceName]) || 0
   })
 
-  let arrDestRow = []
+  const arrDestRow = []
   arrDestRow[outputColumnNames.indexOf('Current Quarter Obligation')] = cqoTotal
   arrDestRow[outputColumnNames.indexOf('Current Quarter Expenditure')] = cqeTotal
 
@@ -380,16 +380,16 @@ function getAggregatePaymentsIndividualSheet (sheetRecords, outputColumnNames) {
   */
 function getSubRecipientSheet (ddRecords, outputColumnNames) {
   // translate the subrecipient table records into AOA rows
-  let arrRows = ddRecords.map(ddRecord => {
+  const arrRows = ddRecords.map(ddRecord => {
     let jsonRow = ddRecord.content
 
     // fix issue #81
-    let organizationType = jsonRow['organization type']
+    const organizationType = jsonRow['organization type']
     jsonRow['organization type'] = organizationTypeMap[organizationType]
 
     jsonRow = fixDuns(jsonRow)
     // return an AOA row
-    let aoaRow = outputColumnNames.map(columnName => {
+    const aoaRow = outputColumnNames.map(columnName => {
       return jsonRow[columnNameMap[columnName]] || null
     })
 
@@ -403,18 +403,18 @@ function getSubRecipientSheet (ddRecords, outputColumnNames) {
   */
 function getSubRecipientAuditSheets (recordGroups, outputColumnNames) {
   // translate the subrecipient table records into AOA rows
-  let arrMissing = recordGroups.missing_subrecipient || []
-  log(`\nComposing output sheet Missing Sub Recipients`)
+  const arrMissing = recordGroups.missing_subrecipient || []
+  log('\nComposing output sheet Missing Sub Recipients')
   log(`with ${arrMissing.length} rows`)
 
-  let arrOrphans = (recordGroups.orphan_subrecipient || [])
+  const arrOrphans = (recordGroups.orphan_subrecipient || [])
     .map(mapToAoa)
-  log(`\nComposing output sheet Unreferenced Sub Recipients`)
+  log('\nComposing output sheet Unreferenced Sub Recipients')
   log(`with ${arrOrphans.length} rows`)
 
-  let arrPrior = (recordGroups.prior_subrecipient || [])
+  const arrPrior = (recordGroups.prior_subrecipient || [])
     .map(mapToAoa)
-  log(`\nComposing output sheet Prior Sub Recipients`)
+  log('\nComposing output sheet Prior Sub Recipients')
   log(`with ${arrPrior.length} rows`)
 
   return {
@@ -424,7 +424,7 @@ function getSubRecipientAuditSheets (recordGroups, outputColumnNames) {
   }
 
   function mapToAoa (jsonRow) {
-    let aoaRow = outputColumnNames.map(columnName => {
+    const aoaRow = outputColumnNames.map(columnName => {
       return jsonRow.content[columnNameMap[columnName]] || null
     })
     return aoaRow
@@ -437,8 +437,8 @@ function getSubRecipientAuditSheets (recordGroups, outputColumnNames) {
   on SAM.gov."
   */
 function fixDuns (jsonRow) {
-  let dunsSourceName = columnNameMap['DUNS Number']
-  let idSourceName = columnNameMap['Identification Number']
+  const dunsSourceName = columnNameMap['DUNS Number']
+  const idSourceName = columnNameMap['Identification Number']
   if (jsonRow[dunsSourceName]) {
     // But we have some records where the DUNS number field is occupied
     // by junk, so we should ignore that.
@@ -465,7 +465,7 @@ function fixDuns (jsonRow) {
   V = the ord of the column in the output sheet
   */
 function getColumnOrds (arrColumnNames) {
-  let columnOrds = {}
+  const columnOrds = {}
   for (let i = 0; i < arrColumnNames.length; i++) {
     columnOrds[arrColumnNames[i]] = i
   }
@@ -478,9 +478,9 @@ function getColumnOrds (arrColumnNames) {
   see field-name-mappings.js
   */
 function getExpenditureColumnOrds (sheetName, columnOrds) {
-  let kvExpenseNameCol = {}
+  const kvExpenseNameCol = {}
   Object.keys(expenditureColumnNames[sheetName]).forEach(key => {
-    let columnName = expenditureColumnNames[sheetName][key]
+    const columnName = expenditureColumnNames[sheetName][key]
     kvExpenseNameCol[key] = columnOrds[columnName]
   })
   return kvExpenseNameCol
@@ -490,7 +490,7 @@ function getExpenditureColumnOrds (sheetName, columnOrds) {
   common to all the detail rows.
   */
 function populateCommonFields (outputColumnNames, kvNameCol, jsonRow) {
-  let aoaRow = []
+  const aoaRow = []
   outputColumnNames.forEach(columnName => {
     let cellValue = jsonRow[columnNameMap[columnName]]
     if (cellValue) {
@@ -522,15 +522,15 @@ function addDetailRows (jsonRow, aoaRow, kvExpenseNameCol, rowsOut) {
   let written = false
   Object.keys(jsonRow).forEach(key => {
     // keys are the detail category field names in the source jsonRow
-    let amount = Number(jsonRow[key])
+    const amount = Number(jsonRow[key])
 
     // ignore categories with zero expenditures
     if (!amount) {
       return
     }
 
-    let category = categoryMap[key] || null
-    let destRow = aoaRow.slice() // make a new copy
+    const category = categoryMap[key] || null
+    const destRow = aoaRow.slice() // make a new copy
 
     switch (category) {
       case null:
@@ -583,7 +583,7 @@ async function getNewFilename () {
     current_reporting_period_id: period
   } = await applicationSettings()
   state = state.replace(/ /g, '-')
-  let filename = `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}`
+  const filename = `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}`
   log(`Filename is ${filename}`)
 
   if (process.env.AUDIT) {
@@ -599,7 +599,7 @@ async function getNewFilename () {
   period.
   */
 async function latestReport (period_id) {
-  let allFiles = await fileInterface.listFiles()
+  const allFiles = await fileInterface.listFiles()
   /* [
       "Rhode-Island-Period-1-CRF-Report-to-OIG-V.2020-12-10T052459.xlsx",
       "Rhode-Island-Period-1-CRF-Report-to-OIG-V.2020-12-14T161922.xlsx",
@@ -611,7 +611,7 @@ async function latestReport (period_id) {
     period_id = await applicationSettings().current_reporting_period_id
   }
 
-  let fileNames = allFiles.sort() // ascending
+  const fileNames = allFiles.sort() // ascending
   fileNames.push('sentry')
 
   let filename
@@ -661,13 +661,13 @@ async function generateReport (period_id) {
 }
 
 async function getPriorReport (period_id) {
-  let filename = await latestReport(period_id)
+  const filename = await latestReport(period_id)
   if (_.isError(filename)) {
     return filename
   }
 
   try {
-    let outputWorkBook = await fileInterface.readFile(filename)
+    const outputWorkBook = await fileInterface.readFile(filename)
     return ({ filename, outputWorkBook })
   } catch (err) {
     return err
@@ -679,7 +679,7 @@ async function getGroups (period_id) {
 
   const mapUploadMetadata = new Map()
   try {
-    let arrUploadMetaData = await getUploadSummaries(period_id)
+    const arrUploadMetaData = await getUploadSummaries(period_id)
     arrUploadMetaData.forEach(rec => mapUploadMetadata.set(rec.id, rec))
   } catch (_err) {
     console.dir(_err)
@@ -697,7 +697,7 @@ async function getGroups (period_id) {
 
   // we need the subrecipients db table to be current before we get the
   // award records. Should really be done on file upload, not here.
-  let mapSubrecipients = await updateSubrecipientTable(documents)
+  const mapSubrecipients = await updateSubrecipientTable(documents)
 
   if (_.isError(mapSubrecipients)) {
     return mapSubrecipients
@@ -710,10 +710,10 @@ async function getGroups (period_id) {
   } = getAwardRecords(documents, mapUploadMetadata)
   if (errorLog.length > 0) {
     console.dir(errorLog)
-    return new Error(`Errors in document award records`)
+    return new Error('Errors in document award records')
   }
 
-  let records = []
+  const records = []
 
   Object.keys(awardRecords).forEach(key => records.push(awardRecords[key]))
 
@@ -731,8 +731,8 @@ async function getGroups (period_id) {
 }
 
 async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences) {
-  let subrecipientRecords = []
-  let arrPriorPeriodSubrecipientIDs = await getReportedSubrecipientIds()
+  const subrecipientRecords = []
+  const arrPriorPeriodSubrecipientIDs = await getReportedSubrecipientIds()
   let previouslyReported = 0
   let newThisPeriod = 0
   let orphanSubrecipients = 0
@@ -800,7 +800,7 @@ async function updateSubrecipientTable (documents) {
   documents.forEach(async record => {
     switch (record.type) {
       case 'subrecipient': {
-        let subrecipientIN = cleanString(record.content['identification number'])
+        const subrecipientIN = cleanString(record.content['identification number'])
 
         // If an upload contains a new subrecipient, add it to the db table.
         // Changes to existing subrecipients must be done by email request.
@@ -809,7 +809,7 @@ async function updateSubrecipientTable (documents) {
           break
         }
 
-        let recSubRecipient = clean(record.content)
+        const recSubRecipient = clean(record.content)
 
         // Not needed any more! It doesn't matter what period the record
         // was created in. But we do need to know if this subrecipient has
@@ -833,15 +833,15 @@ async function updateSubrecipientTable (documents) {
   needed for the output tabs
   */
 function getAwardRecords (documents, mapUploadMetadata) {
-  let awardRecords = {} // keyed by concatenated id
+  const awardRecords = {} // keyed by concatenated id
   let uniqueID = 0 // this is for records we don't deduplicate
-  let mapSubrecipientReferences = new Map()
-  let errorLog = []
+  const mapSubrecipientReferences = new Map()
+  const errorLog = []
 
   documents.forEach(record => {
     uniqueID += 1
     record.content = clean(record.content) // not needed after database is cleaned
-    let filename = mapUploadMetadata.get(record.upload_id).filename
+    const filename = mapUploadMetadata.get(record.upload_id).filename
 
     switch (record.type) {
       case 'cover':
@@ -877,7 +877,7 @@ function getAwardRecords (documents, mapUploadMetadata) {
       case 'loans':
       case 'transfers':
       case 'direct': {
-        let srID = cleanString(record.content['subrecipient id'])
+        const srID = cleanString(record.content['subrecipient id'])
         if (srID) {
           mapSubrecipientReferences.set(srID, record)
         } else {
