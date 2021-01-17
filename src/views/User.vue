@@ -82,7 +82,7 @@ export default {
       ]
     },
     onSave (user) {
-      let updatedUser = {
+      const updatedUser = {
         ...this.editUser,
         ...user
       }
