@@ -35,9 +35,11 @@ export default {
     }
   },
   watch: {
-    '$store.state.agencies': function (agencies) {
-      this.agencies = agencies
-    }
+    // Not needed. Provokes an error on reload:
+    // [Vue warn]: Computed property "agencies" was assigned to but it has no setter
+    // '$store.state.agencies': function (agencies) {
+    //   this.agencies = agencies
+    // }
   },
   computed: {
     agencies: function () {

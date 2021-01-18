@@ -13,6 +13,7 @@ import Projects from '../views/Projects.vue'
 import ProjectUploads from '../views/ProjectUploads.vue'
 import Upload from '../views/Upload.vue'
 import FixSubrecipients from '../views/FixSubrecipients.vue'
+import Subrecipients from '../views/Subrecipients.vue'
 import User from '../views/User.vue'
 import Users from '../views/Users.vue'
 import UploadValidations from '../views/UploadValidations.vue'
@@ -95,6 +96,13 @@ const routes = [
     component: ProjectUploads,
     meta: { requiresLogin: true }
   },
+  {
+    path: '/subrecipients',
+    name: 'Subrecipients',
+    component: Subrecipients,
+    meta: { requiresLogin: true }
+  },
+
   {
     path: '/users',
     name: 'Users',
