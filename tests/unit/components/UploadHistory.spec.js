@@ -8,7 +8,7 @@ localVue.use(Vuex)
 
 describe('UploadHistory.vue', () => {
   it('renders', () => {
-    let store = new Vuex.Store({
+    const store = new Vuex.Store({
       getters: {
         periodNames: () => ['September, 2020', 'December, 2020'],
         agencyName: () => () => 'Test Agency'

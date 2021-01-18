@@ -91,7 +91,7 @@ export default new Vuex.Store({
       state.projects = projects
     },
     setSubrecipients (state, subrecipients) {
-      state.subrecipients = subrecipients
+      state.subrecipients = Object.freeze(subrecipients)
     },
     setReportingPeriods (state, reportingPeriods) {
       state.reportingPeriods = reportingPeriods
