@@ -45,9 +45,11 @@ export default {
     }
   },
   watch: {
-    '$store.state.projects': function (projects) {
-      this.projects = projects
-    }
+    // Not needed. Provokes an error on reload:
+    // [Vue warn]: Computed property "projects" was assigned to but it has no setter
+    // '$store.state.projects': function (projects) {
+    //   this.projects = projects
+    // }
   },
   computed: {
     projects: function () {
