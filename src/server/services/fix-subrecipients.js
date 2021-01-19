@@ -18,7 +18,7 @@ const knex = require('../db/connection')
 const _ = require('lodash')
 
 async function fixSubrecipients (id) {
-  let valog = new ValidationLog()
+  const valog = new ValidationLog()
   const upload = await getUpload(id)
   console.log('upload:', upload)
   const user_id = upload.user_id

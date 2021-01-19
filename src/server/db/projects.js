@@ -13,7 +13,7 @@
 
 const knex = require('./connection')
 const { getCurrentReportingPeriodID } = require('./settings')
-const {cleanString, zeroPad} = require('../lib/spreadsheet')
+const { cleanString, zeroPad } = require('../lib/spreadsheet')
 async function createProject (project) {
   project.created_in_period = await getCurrentReportingPeriodID()
   return knex
@@ -76,7 +76,7 @@ async function updateProjectStatus (projectCode, documents) {
   // find the cover page record in the documents array, and read the project
   // status from the status column
   projectCode = zeroPad(projectCode)
-  let projectRecord = await getProject(projectCode)
+  const projectRecord = await getProject(projectCode)
 
   if (!projectRecord) {
     return new Error(`Project record ${projectCode} not found.`)
@@ -84,7 +84,7 @@ async function updateProjectStatus (projectCode, documents) {
 
   let status = null
   for (let i = 0; i < documents.length; i++) {
-    let row = documents[i]
+    const row = documents[i]
     if (row.type === 'cover') {
       status = row.content.status
       break
@@ -92,11 +92,11 @@ async function updateProjectStatus (projectCode, documents) {
   }
 
   if (!status) {
-    return new Error(`Status is missing from Cover sheet.`)
+    return new Error('Status is missing from Cover sheet.')
   }
 
   // console.log(`Project "${projectCode}" status is "${status}"`);
-  let ok = await knex('projects')
+  const ok = await knex('projects')
     .where('code', projectCode)
     .update({
       status: status
@@ -117,10 +117,10 @@ async function updateProjectStatus (projectCode, documents) {
   }
   */
 async function getProjects () {
-  let arrProjects = await knex('projects')
+  const arrProjects = await knex('projects')
     .select('*')
 
-  let mapProjects = new Map() // project id : <project record>
+  const mapProjects = new Map() // project id : <project record>
 
   arrProjects.forEach(projectRecord => {
     mapProjects.set(

@@ -118,8 +118,12 @@ export default {
       return `/api/exports?period_id=${period_id}`
     },
     documentCount (tableName) {
-      const records = this.groups[tableName]
-      return _.filter(records, r => r.type === tableName).length
+      if (tableName === 'subrecipient') {
+        return this.$store.state.subrecipients.length
+      } else {
+        const records = this.groups[tableName]
+        return _.filter(records, r => r.type === tableName).length
+      }
     },
     dataUrl (table) {
       return `/documents/${table.name}`
