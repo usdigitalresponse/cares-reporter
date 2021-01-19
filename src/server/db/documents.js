@@ -24,7 +24,7 @@ const {
 } = require('./uploads')
 
 async function documentsWithProjectCode (period_id) {
-  let periodUploadIDs = await getPeriodUploadIDs(period_id)
+  const periodUploadIDs = await getPeriodUploadIDs(period_id)
 
   return knex('documents')
     .select('documents.*', 'projects.code as project_code')
@@ -35,8 +35,8 @@ async function documentsWithProjectCode (period_id) {
 }
 
 function purgeDuplicateSubrecipients (arrRecords) {
-  let arrRecordsOut = []
-  let isDuplicate = {}
+  const arrRecordsOut = []
+  const isDuplicate = {}
 
   arrRecords.forEach(record => {
     switch (record.type) {
@@ -44,7 +44,7 @@ function purgeDuplicateSubrecipients (arrRecords) {
         // TODO - as of 20 12 01 we are not putting duplicate records into
         // the database, but many are already in there, so we need this
         // until we purge the database.
-        let id = String(
+        const id = String(
           record.content['duns number'] ||
           record.content['identification number'] ||
           ''
@@ -52,7 +52,7 @@ function purgeDuplicateSubrecipients (arrRecords) {
         if (isDuplicate[id]) {
           return
         } else {
-          record.content['zip'] = String(record.content['zip'])
+          record.content.zip = String(record.content.zip)
           record.content['identification number'] = id
           isDuplicate[id] = true
         }
@@ -68,8 +68,8 @@ function purgeDuplicateSubrecipients (arrRecords) {
 }
 
 async function documents (period_id) {
-  console.log(`documents()`)
-  let periodUploadIDs = await getPeriodUploadIDs(period_id)
+  console.log('documents()')
+  const periodUploadIDs = await getPeriodUploadIDs(period_id)
 
   return knex('documents')
     .select('*')
@@ -78,8 +78,8 @@ async function documents (period_id) {
 }
 
 async function documentsOfType (type, period_id) {
-  console.log(`documentsOfType()`)
-  let periodUploadIDs = await getPeriodUploadIDs(period_id)
+  console.log('documentsOfType()')
+  const periodUploadIDs = await getPeriodUploadIDs(period_id)
 
   return knex('documents')
     .select('*')
@@ -88,8 +88,8 @@ async function documentsOfType (type, period_id) {
 }
 
 async function documentsForAgency (agency_id, period_id) {
-  console.log(`documentsForAgency()`)
-  let periodUploadIDs = await getPeriodUploadIDs(period_id)
+  console.log('documentsForAgency()')
+  const periodUploadIDs = await getPeriodUploadIDs(period_id)
 
   let docs
   try {

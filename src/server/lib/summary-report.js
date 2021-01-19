@@ -69,9 +69,9 @@
     2.  Project ID
     3.  Subrecipient Legal Name
     4.  Award date
-    5.  Obligation Amount (column D), each period
+    5.  Obligation Amount (column B), each period
       a.  Same as grants.
-    6.  Current Quarter Obligation (column F), each period
+    6.  Current Quarter Obligation (column E), each period
       a.  Same as grants
     7.  Total Expenditure Amount (column I), each period
       a.  Same as grants
@@ -96,26 +96,22 @@
       a.  Formula: Cumulative Expenditure Amount
 
 */
-const { getCurrentReportingPeriodID } = require('../db/settings')
 const { getPeriodSummaries } = require('../db/period-summaries')
-const _ = require('lodash')
+// const knex = require('./connection')
 
 let log = () => {}
 if (process.env.VERBOSE) {
   log = console.log
 }
 
-module.exports = {generate: generateReport}
+module.exports = { generate: generateReport }
 
 /*  generateReport generates a fresh Summary Report spreadsheet
     and writes it out if successful.
     */
 async function generateReport () {
-  log(`generateReport ()`)
-  const nPeriods = await getCurrentReportingPeriodID()
-  if (_.isError(nPeriods)) {
-    throw nPeriods
-  }
+  log('generateReport ()')
+
   const outputSheetNames = [
     'Contracts',
     'Grants',
@@ -125,7 +121,7 @@ async function generateReport () {
     'Aggregate Awards < 50000',
     'Aggregate Payments Individual'
   ]
-  let sheetsOut = {}
+  const sheetsOut = {}
 
   const periodSummaries = []
   for (let i = 0; i < nPeriods; i++) {
@@ -168,28 +164,31 @@ async function generateReport () {
         Should put agency code and amount in summary records.
 
         select
-          a.code,
-          s.project_code,
+          s.reporting_period_id,
+          s.award_type,
+          a.code as Agency,
+          s.project_code as Project,
+          s.subrecipient_identification_number,
           r.legal_name,
           s.award_number,
-          s.subrecipient_identification_number,
-          s.id,
-          s.current_obligation
+          s.current_obligation,
+          s.current_expenditure
         from period_summaries as s
         left join projects as p on p.code = s.project_code
         left join agencies as a on a.id = p.agency_id
         left join subrecipients as r on
           r.identification_number = s.subrecipient_identification_number
+        order by subrecipient_identification_number
         ;
 
       */
   }
-  sheetsOut['Contracts'] = getContractsSheet(periodSummaries)
+  sheetsOut.Contracts = getContractsSheet(periodSummaries)
 }
 
 function getContractsSheet (periodSummaries) {
   console.dir(periodSummaries[0].periodSummaries[0])
-  console.dir(periodSummaries[1].errors)
+  console.dir(periodSummaries[0].errors)
 }
 
 /*                                  *  *  *                                   */

@@ -15,9 +15,9 @@ const { getPeriodSummaries } = require('../db')
 const reportingPeriods = require('../db/reporting-periods')
 
 router.get('/', requireUser, async function (req, res) {
-  let currentPeriodID = await reportingPeriods.getID()
-  let allPeriods = await reportingPeriods.getAll()
-  let reporting_periods = []
+  const currentPeriodID = await reportingPeriods.getID()
+  const allPeriods = await reportingPeriods.getAll()
+  const reporting_periods = []
 
   allPeriods.forEach(period => {
     if (period.id <= currentPeriodID) {
@@ -33,7 +33,7 @@ router.get('/summaries/', requireUser, async function (req, res) {
 })
 
 router.get('/close/', requireAdminUser, async (req, res) => {
-  console.log(`GET 2 /reporting_periods/close/`)
+  console.log('GET 2 /reporting_periods/close/')
 
   const user = await getUser(req.signedCookies.userId)
 
@@ -49,7 +49,7 @@ router.get('/close/', requireAdminUser, async (req, res) => {
 })
 
 router.get('/update/', requireAdminUser, async (req, res) => {
-  console.log(`GET 2 /reporting_periods/update/`)
+  console.log('GET 2 /reporting_periods/update/')
 
   const user = await getUser(req.signedCookies.userId)
   // const period = req.query.period_id;
@@ -67,7 +67,7 @@ router.get('/update/', requireAdminUser, async (req, res) => {
 })
 
 router.get('/regenerate/', requireAdminUser, async (req, res) => {
-  console.log(`GET 2 /reporting_periods/regenerate/`)
+  console.log('GET 2 /reporting_periods/regenerate/')
 
   const user = await getUser(req.signedCookies.userId)
   // const period = req.query.period_id;
