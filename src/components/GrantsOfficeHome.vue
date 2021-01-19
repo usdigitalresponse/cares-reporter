@@ -113,13 +113,17 @@ export default {
     titleize,
     /* eslint camelcase: 0 */
     downloadUrl () {
-      let period_id = this.$store.getters.viewPeriod.id || 0
+      const period_id = this.$store.getters.viewPeriod.id || 0
       // console.dir(this.$store.getters.viewPeriod);
       return `/api/exports?period_id=${period_id}`
     },
     documentCount (tableName) {
-      const records = this.groups[tableName]
-      return _.filter(records, r => r.type === tableName).length
+      if (tableName === 'subrecipient') {
+        return this.$store.state.subrecipients.length
+      } else {
+        const records = this.groups[tableName]
+        return _.filter(records, r => r.type === tableName).length
+      }
     },
     dataUrl (table) {
       return `/documents/${table.name}`

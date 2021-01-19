@@ -34,11 +34,6 @@ export default {
       }
     }
   },
-  watch: {
-    '$store.state.agencies': function (agencies) {
-      this.agencies = agencies
-    }
-  },
   computed: {
     agencies: function () {
       return this.$store.state.agencies

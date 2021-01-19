@@ -69,6 +69,7 @@ export default new Vuex.Store({
     uploads: [],
     agencies: [],
     projects: [],
+    subrecipients: [],
     reportingPeriods: [],
     messages: [],
     viewPeriodID: null
@@ -88,6 +89,9 @@ export default new Vuex.Store({
     },
     setProjects (state, projects) {
       state.projects = projects
+    },
+    setSubrecipients (state, subrecipients) {
+      state.subrecipients = Object.freeze(subrecipients)
     },
     setReportingPeriods (state, reportingPeriods) {
       state.reportingPeriods = reportingPeriods
@@ -165,6 +169,7 @@ export default new Vuex.Store({
       doFetch('agencies')
       doFetch('projects')
       doFetch('reporting_periods')
+      doFetch('subrecipients')
     },
     logout ({ commit }) {
       fetch('/api/sessions/logout').then(() => commit('setUser', null))
@@ -245,7 +250,7 @@ export default new Vuex.Store({
     viewPeriodID ({ commit }, period_id) {
       commit('setViewPeriodID', period_id)
       const doFetch = (attr, query) => {
-        let url = `/api/${attr}${query}`
+        const url = `/api/${attr}${query}`
         fetch(url, { credentials: 'include' })
           .then(r => r.json())
           .then(data => {
@@ -288,6 +293,9 @@ export default new Vuex.Store({
     documentGroups: state => {
       return _.groupBy(state.documents, 'type')
     },
+    // subrecipients: state => {
+    //   return 43
+    // },
     foreignKeyValues: state => column => {
       const ds = _.filter(
         state.documents,
