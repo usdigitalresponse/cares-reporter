@@ -25,9 +25,23 @@ const {
 
 async function documentsWithProjectCode (period_id) {
   let periodUploadIDs = await getPeriodUploadIDs(period_id)
+  const typesOfInterest = [
+    // 'subrecipient',
+    // 'projects',
+    'certification',
+    'cover',
+    'contracts',
+    'grants',
+    'loans',
+    'transfers',
+    'direct',
+    'aggregate awards < 50000',
+    'aggregate payments individual'
+  ]
 
   return knex('documents')
     .select('documents.*', 'projects.code as project_code')
+    .whereIn('type', typesOfInterest)
     .whereIn('upload_id', periodUploadIDs)
     .join('uploads', { 'documents.upload_id': 'uploads.id' })
     .join('projects', { 'uploads.project_id': 'projects.id' })
