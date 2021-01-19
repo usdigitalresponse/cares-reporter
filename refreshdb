@@ -21,7 +21,8 @@ dbname=${1}
 dbuser=postgres
 exampleDir=examples
 
-outpath=./${exampleDir}/${1}/sql/${2}
+datapath=./${exampleDir}/${1}/sql/${2}
+# ./examples/ri/sql/2020-12-28T19_23Z.clean.sql
 
 dropdb ${dbname}
 createdb --owner=${dbuser} ${dbname}
@@ -30,4 +31,5 @@ createdb --owner=${dbuser} ${dbname}
 
 echo Working...
 
-psql ${dbname} ${dbuser} < ${outpath}
+psql ${dbname} ${dbuser} < ${datapath}
+
