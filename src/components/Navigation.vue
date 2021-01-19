@@ -80,6 +80,11 @@
           >
         </li>
         <li class="nav-item" v-if="role === 'admin'">
+          <router-link :class="navLinkClass('/subrecipients')" to="/subrecipients"
+            >Sub Recipients</router-link
+          >
+        </li>
+        <li class="nav-item" v-if="role === 'admin'">
           <router-link :class="navLinkClass('/users')" to="/users"
             >Users</router-link
           >
@@ -120,7 +125,12 @@ export default {
       return this.$store.state.user !== null
     },
     tableNames: function () {
-      return this.$store.getters.tableNames
+      const tn = this.$store.getters.tableNames
+      const i = tn.indexOf('subrecipient')
+      if (i !== -1) {
+        tn.splice(i, 1)
+      }
+      return tn
     },
     periodNames: function () {
       return this.$store.getters.periodNames
