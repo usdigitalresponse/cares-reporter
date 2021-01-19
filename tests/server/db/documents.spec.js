@@ -65,7 +65,10 @@ describe('documents.spec.js - baseline success', () => {
     await setCurrentReportingPeriod(1)
     const result = await documentsWithProjectCode()
     // console.dir(result.length);
-    expect(result.length).to.equal(35)
+    // changed 21 01 18 when api/documents was changed to omit
+    // subrecipient and project records
+    // expect(result.length).to.equal(35)
+    expect(result.length).to.equal(19)
   })
 
   it('Returns no documents from another reporting period', async () => {
@@ -81,6 +84,9 @@ describe('documents.spec.js - baseline success', () => {
     await setCurrentReportingPeriod(2)
     const result = await documentsWithProjectCode(1)
     // console.dir(result);
-    expect(result.length).to.equal(35)
+    // changed 21 01 18 when api/documents was changed to omit
+    // subrecipient and project records
+    // expect(result.length).to.equal(35)
+    expect(result.length).to.equal(19)
   })
 })

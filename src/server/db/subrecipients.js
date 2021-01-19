@@ -26,13 +26,19 @@
 
 const knex = require('./connection')
 
+function subrecipients () {
+  return knex('subrecipients')
+    .select('*')
+    .orderBy('legal_name')
+}
+
 async function getSubRecipients () {
   let records = await knex('subrecipients')
     .select('*')
 
   records = records.map(record => respace(record))
 
-  let mapSubrecipients = new Map() // subrecipient id : <subrecipient record>
+  const mapSubrecipients = new Map() // subrecipient id : <subrecipient record>
   records.forEach(subrecipientRecord => {
     mapSubrecipients.set(
       subrecipientRecord['identification number'],
@@ -45,7 +51,7 @@ async function getSubRecipients () {
 
 async function getSubRecipientsByPeriod (period_id) {
   console.log(`getting subrecipients from period ${period_id}`)
-  let records = await knex('subrecipients')
+  const records = await knex('subrecipients')
     .select('*')
     .where('created_in_period', period_id)
   // console.dir(records)
@@ -67,9 +73,9 @@ async function setSubRecipient (record) {
 /* despace() replaces spaces with underscores in an object's keys
   */
 function despace (obj) {
-  let keys = Object.keys(obj)
-  let _keys = keys.map(key => key.trim().replace(/ /g, '_'))
-  let _obj = {}
+  const keys = Object.keys(obj)
+  const _keys = keys.map(key => key.trim().replace(/ /g, '_'))
+  const _obj = {}
   keys.forEach((k, i) => { _obj[_keys[i]] = obj[keys[i]] })
   return _obj
 }
@@ -77,9 +83,9 @@ function despace (obj) {
 /* respace() replaces underscores with spaces in an object's keys
   */
 function respace (_obj) {
-  let _keys = Object.keys(_obj)
-  let keys = _keys.map(_key => _key.replace(/_/g, ' '))
-  let obj = {}
+  const _keys = Object.keys(_obj)
+  const keys = _keys.map(_key => _key.replace(/_/g, ' '))
+  const obj = {}
   _keys.forEach((k, i) => { obj[keys[i]] = _obj[_keys[i]] })
   return obj
 }
@@ -87,7 +93,8 @@ function respace (_obj) {
 module.exports = {
   getSubRecipients,
   getSubRecipientsByPeriod,
-  setSubRecipient
+  setSubRecipient,
+  subrecipients
 }
 
 /*                                 *  *  *                                    */

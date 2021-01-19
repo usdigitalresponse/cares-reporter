@@ -44,11 +44,6 @@ export default {
       }
     }
   },
-  watch: {
-    '$store.state.projects': function (projects) {
-      this.projects = projects
-    }
-  },
   computed: {
     projects: function () {
       const byId = _.keyBy(this.$store.state.projects, 'id')
