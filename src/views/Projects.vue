@@ -44,13 +44,6 @@ export default {
       }
     }
   },
-  watch: {
-    // Not needed. Provokes an error on reload:
-    // [Vue warn]: Computed property "projects" was assigned to but it has no setter
-    // '$store.state.projects': function (projects) {
-    //   this.projects = projects
-    // }
-  },
   computed: {
     projects: function () {
       const byId = _.keyBy(this.$store.state.projects, 'id')
