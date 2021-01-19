@@ -110,7 +110,7 @@ async function isCurrent (periodID) {
 /* closeReportingPeriod()
   */
 async function closeReportingPeriod (user, period) {
-  let reporting_period_id = await getCurrentReportingPeriodID()
+  const reporting_period_id = await getCurrentReportingPeriodID()
 
   period = period || reporting_period_id
 
@@ -133,12 +133,12 @@ async function closeReportingPeriod (user, period) {
   }
 
   // throws if there is no report in the period
-  let latestTreasuryReportFileName = await treasury.latestReport(reporting_period_id)
+  const latestTreasuryReportFileName = await treasury.latestReport(reporting_period_id)
 
-  let errLog = await writeSummaries(reporting_period_id)
+  const errLog = await writeSummaries(reporting_period_id)
 
   if (errLog && errLog.length > 0) {
-    console.dir(errLog, {depth: 4})
+    console.dir(errLog, { depth: 4 })
     throw new Error(errLog[0])
   }
 
@@ -160,8 +160,8 @@ async function closeReportingPeriod (user, period) {
   This should never be used again!
   */
 async function updateSummaries (user, period) {
-  console.log(`updateSummaries`)
-  let errLog = await update(period)
+  console.log('updateSummaries')
+  const errLog = await update(period)
 
   if (errLog && errLog.length > 0) {
     throw new Error(errLog[0])
@@ -175,8 +175,8 @@ async function updateSummaries (user, period) {
   This should never be used again!
   */
 async function regenerateSummaries (user, period) {
-  console.log(`regenerateSummaries`)
-  let errLog = await regenerate(period)
+  console.log('regenerateSummaries')
+  const errLog = await regenerate(period)
 
   if (errLog && errLog.length > 0) {
     throw new Error(errLog[0])
