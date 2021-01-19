@@ -99,9 +99,9 @@
 const { getPeriodSummaries } = require('../db/period-summaries')
 const {
   getCurrentReportingPeriodID
-} = require('./settings')
+} = require('../db/settings')
 
-const knex = require('./connection')
+const knex = require('../db/connection')
 
 let log = () => {}
 if (process.env.VERBOSE) {

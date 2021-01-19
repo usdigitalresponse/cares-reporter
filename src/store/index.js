@@ -293,9 +293,6 @@ export default new Vuex.Store({
     documentGroups: state => {
       return _.groupBy(state.documents, 'type')
     },
-    // subrecipients: state => {
-    //   return 43
-    // },
     foreignKeyValues: state => column => {
       const ds = _.filter(
         state.documents,
