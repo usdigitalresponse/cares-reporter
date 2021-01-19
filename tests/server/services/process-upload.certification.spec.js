@@ -1,12 +1,12 @@
+const path = require('path')
 const { processUpload } = requireSrc(__filename)
 const expect = require('chai').expect
 const { makeUploadArgs } = require('./helpers')
 
-const dirRoot = `${__dirname}/../fixtures/`
-
+const dirRoot = requireSrc(path.resolve(__dirname, '../fixtures'))
 const {
   setCurrentReportingPeriod
-} = requireSrc(`${__dirname}/../db/settings`)
+} = requireSrc(path.resolve(__dirname, '../db/settings'))
 
 describe('process-upload', () => {
   describe('certification', async () => {

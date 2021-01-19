@@ -1,8 +1,9 @@
 const { processUpload } = requireSrc(__filename)
 const expect = require('chai').expect
 const { makeUploadArgs } = require('./helpers')
+const path = require('path')
 
-const dirRoot = `${__dirname}/../fixtures/`
+const dirRoot = requireSrc(path.resolve(__dirname, '../fixtures'))
 
 describe('process-upload', () => {
   describe('cover', () => {
@@ -17,7 +18,7 @@ describe('process-upload', () => {
       } catch (err) {
         console.dir(err)
       }
-      let valog = result.valog.getLog()
+      const valog = result.valog.getLog()
       // console.dir(valog);
       const err = valog[0] || {}
       expect(err.message).to.equal(
@@ -31,7 +32,7 @@ describe('process-upload', () => {
       const result = await processUpload(uploadArgs)
       const err = result.valog.getLog()[0] || {}
       expect(err.message).to.equal(
-        `The agency code "EOH" in the file name does not match the cover's agency code`
+        'The agency code "EOH" in the file name does not match the cover\'s agency code'
       )
       expect(err.row).to.equal(2)
     })
