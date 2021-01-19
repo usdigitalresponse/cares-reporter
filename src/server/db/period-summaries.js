@@ -40,7 +40,6 @@ if (process.env.VERBOSE) {
 }
 
 module.exports = {
-  closeReportingPeriod,
   getPeriodSummaries: getSummaries,
   getPriorPeriodSummaries,
   getReportedSubrecipientIds,
@@ -67,6 +66,22 @@ async function getReportedSubrecipientIds () {
     .distinct()
 
   return subrecipientIDs.map(r => r.subrecipient_identification_number)
+}
+
+async function updateSummaries () {
+  const currentReportingPeriod = getCurrentReportingPeriodID()
+  for ( let i=1; i<=currentReportingPeriod; i++) {
+
+  }
+  // console.dir(await knex('period_summaries').count('*'))
+  log('deleting.....')
+  await knex('period_summaries')
+    .where('reporting_period_id', reporting_period_id)
+    .del()
+  // console.dir(await knex('period_summaries').count('*'))
+  await writeSummaries(reporting_period_id)
+  // console.dir(await knex('period_summaries').count('*'))
+  return null
 }
 
 async function regenerateSummaries (reporting_period_id) {
@@ -245,37 +260,6 @@ async function getPriorPeriodSummaries (reporting_period_id) {
     return { periodSummaries: [] }
   }
   return getSummaries(result.id)
-}
-
-/* closeReportingPeriod() closes a reporting period by writing the period
-  summaries to the database.
-  */
-async function closeReportingPeriod (reporting_period_id) {
-  const errLog = []
-
-  let { periodSummaries, closed } = await getSummaries(reporting_period_id)
-
-  if (closed) {
-    return [`Reporting period ${reporting_period_id} is already closed`]
-  }
-
-  periodSummaries.forEach(async periodSummary => {
-    try {
-      await knex('period_summaries').insert(periodSummary)
-    } catch (err) {
-      errLog.push(err.detail)
-    }
-  })
-  if (errLog.length) {
-    return errLog
-  }
-
-  closed = (await getSummaries(reporting_period_id)).closed
-  if (!closed) {
-    return [`Failed to close reporting period ${reporting_period_id}`]
-  }
-
-  return null
 }
 
 async function updateSummaries (reporting_period_id) {
