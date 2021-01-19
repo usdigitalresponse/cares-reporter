@@ -83,7 +83,7 @@ function getFirstReportingPeriodStartDate () {
 function isClosed (period_id) {
   return getReportingPeriod(period_id)
     .then(period => {
-    // console.dir(period);
+      // console.dir(period);
       return Boolean(period.certified_at)
     })
 }

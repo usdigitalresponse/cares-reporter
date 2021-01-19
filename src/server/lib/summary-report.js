@@ -97,7 +97,11 @@
 
 */
 const { getPeriodSummaries } = require('../db/period-summaries')
-// const knex = require('./connection')
+const {
+  getCurrentReportingPeriodID
+} = require('./settings')
+
+const knex = require('./connection')
 
 let log = () => {}
 if (process.env.VERBOSE) {
@@ -111,6 +115,8 @@ module.exports = { generate: generateReport }
     */
 async function generateReport () {
   log('generateReport ()')
+  const currentReportingPeriod = getCurrentReportingPeriodID()
+  const nPeriods = currentReportingPeriod + 1
 
   const outputSheetNames = [
     'Contracts',
@@ -121,6 +127,26 @@ async function generateReport () {
     'Aggregate Awards < 50000',
     'Aggregate Payments Individual'
   ]
+
+  const query = `select
+      s.reporting_period_id,
+      s.award_type,
+      a.code as Agency,
+      s.project_code as Project,
+      s.subrecipient_identification_number,
+      r.legal_name,
+      s.award_number,
+      s.current_obligation,
+      s.current_expenditure
+    from period_summaries as s
+    left join projects as p on p.code = s.project_code
+    left join agencies as a on a.id = p.agency_id
+    left join subrecipients as r on
+      r.identification_number = s.subrecipient_identification_number
+    order by subrecipient_identification_number`
+
+  const result = await knex.raw(query)
+
   const sheetsOut = {}
 
   const periodSummaries = []
