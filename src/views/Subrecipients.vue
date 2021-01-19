@@ -39,9 +39,9 @@ export default {
   computed: {
     subrecipients: {
       get: function () {
-          return this.$store.state.subrecipients
-        },
-      set: function(subrecipients) {
+        return this.$store.state.subrecipients
+      },
+      set: function (subrecipients) {
       }
     }
   }
