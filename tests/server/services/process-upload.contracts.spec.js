@@ -1,11 +1,12 @@
 /* eslint no-unused-expressions: "off" */
+const path = require('path')
 
-let { processUpload } = requireSrc(__filename)
+const { processUpload } = requireSrc(__filename)
 
 const expect = require('chai').expect
 const { makeUploadArgs } = require('./helpers')
 
-const dirRoot = `${__dirname}/../fixtures/`
+const dirRoot = requireSrc(path.resolve(__dirname, '../fixtures'))
 
 describe('services/process-upload', () => {
   describe('contracts', () => {

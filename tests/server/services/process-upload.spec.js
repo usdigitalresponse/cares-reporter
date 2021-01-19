@@ -1,19 +1,19 @@
 /* eslint no-unused-expressions: "off" */
+const path = require('path')
 
 const fs = require('fs')
 const { processUpload } = requireSrc(__filename)
-const knex = requireSrc(`${__dirname}/../db/connection`)
+const knex = requireSrc(path.resolve(__dirname, '../db/connection'))
 const expect = require('chai').expect
 const util = require('util')
 const setTimeoutPromise = util.promisify(setTimeout)
 
 const {
   setCurrentReportingPeriod
-} = requireSrc(`${__dirname}/../db/settings`)
-
+} = requireSrc(path.resolve(__dirname, '../db/settings'))
 const { makeUploadArgs, resetUploadsAndDb } = require('./helpers')
 
-const dirRoot = `${__dirname}/../fixtures/`
+const dirRoot = path.resolve(__dirname, '../fixtures')
 
 describe('services/process_upload', () => {
   describe('process-upload.spec.js - baseline success', () => {
