@@ -36,11 +36,6 @@ export default {
       }
     }
   },
-  watch: {
-    // '$store.state.subrecipients': function (subrecipients) {
-    //   this.subrecipients = subrecipients
-    // }
-  },
   computed: {
     subrecipients: {
       get: function () {
