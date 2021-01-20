@@ -6,11 +6,11 @@ const { processUpload } = requireSrc(__filename)
 const expect = require('chai').expect
 const { makeUploadArgs } = require('./helpers')
 
-const dirRoot = requireSrc(path.resolve(__dirname, '../fixtures'))
+const dirFixtures = path.resolve(__dirname, '../fixtures')
 
 describe('services/process-upload', () => {
   describe('contracts', () => {
-    const dir = `${dirRoot}data-contracts/`
+    const dir = `${dirFixtures}/data-contracts/`
     it('fails with a bad subrecipient id', async () => {
       const uploadArgs = makeUploadArgs(
         `${dir}/EOHHS-075-09302020-bad_sub_id-v1.xlsx`

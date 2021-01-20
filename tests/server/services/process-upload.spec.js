@@ -13,14 +13,17 @@ const {
 } = requireSrc(path.resolve(__dirname, '../db/settings'))
 const { makeUploadArgs, resetUploadsAndDb } = require('./helpers')
 
-const dirRoot = path.resolve(__dirname, '../fixtures')
+const dirFixtures = path.resolve(__dirname, '../fixtures')
 
 describe('services/process_upload', () => {
   describe('process-upload.spec.js - baseline success', () => {
-    const dir = `${dirRoot}file-success/`
     it('processes without error', async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'file-success',
+          'EOHHS-075-09302020-simple-v1.xlsx'
+        )
       )
       const result = await processUpload(uploadArgs)
       expect(
@@ -31,7 +34,6 @@ describe('services/process_upload', () => {
     })
   })
   describe('filename failures', () => {
-    const dir = `${dirRoot}file-name/`
     const filenameTests = [
       {
         label: 'bad extension',
@@ -68,7 +70,13 @@ describe('services/process_upload', () => {
     filenameTests.forEach(ftest => {
       it(ftest.label, async () => {
         await setCurrentReportingPeriod(1)
-        const uploadArgs = makeUploadArgs(dir + ftest.file)
+        const uploadArgs = makeUploadArgs(
+          path.resolve(
+            dirFixtures,
+            'file-name',
+            ftest.file
+          )
+        )
         const result = await processUpload(uploadArgs)
         expect(result.valog.getLog()[0].message).to.match(ftest.expects)
       })
@@ -77,7 +85,11 @@ describe('services/process_upload', () => {
     it('fails when a duplicate file is uploaded', async () => {
       await resetUploadsAndDb()
       const uploadArgs = makeUploadArgs(
-        `${dirRoot}file-success/EOHHS-075-09302020-simple-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'file-success',
+          'EOHHS-075-09302020-simple-v1.xlsx'
+        )
       )
       const successResult = await processUpload(uploadArgs)
       expect(
@@ -92,10 +104,13 @@ describe('services/process_upload', () => {
   })
 
   describe('file structure failures', () => {
-    const dir = `${dirRoot}file-structure/`
     it('fails missing tab', async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}EOHHS-075-09302020-missingContractsTab-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'file-structure',
+          'EOHHS-075-09302020-missingContractsTab-v1.xlsx'
+        )
       )
       const result = await processUpload(uploadArgs)
       expect(result.valog.getLog()[0].message).to.match(/Missing tab/)
@@ -103,7 +118,11 @@ describe('services/process_upload', () => {
 
     it('fails missing column', async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}EOHHS-075-09302020-missingColumn-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'file-structure',
+          'EOHHS-075-09302020-missingColumn-v1.xlsx'
+        )
       )
       const result = await processUpload(uploadArgs)
       expect(result.valog.getLog()[0].message).to.match(/Missing column/)
@@ -113,9 +132,14 @@ describe('services/process_upload', () => {
   describe('database checks', () => {
     beforeEach(resetUploadsAndDb)
     it('replaces upload record on re-upload when the file is lost', async () => {
-      const dir = `${dirRoot}file-success/`
       const testFile = 'EOHHS-075-09302020-simple-v1.xlsx'
-      const uploadArgs = makeUploadArgs(`${dir}${testFile}`)
+      const uploadArgs = makeUploadArgs(
+        path.resolve(
+          dirFixtures,
+          'file-success',
+          testFile
+        )
+      )
 
       // first upload
       const result1 = await processUpload(uploadArgs)
@@ -132,9 +156,12 @@ describe('services/process_upload', () => {
 
     it('deletes old documents when new version is uploaded', async () => {
       // Do two uploads
-      const dir = `${dirRoot}file-success/`
       const uploadArgs1 = makeUploadArgs(
-        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'file-success',
+          'EOHHS-075-09302020-simple-v1.xlsx'
+        )
       )
       const result1 = await processUpload(uploadArgs1)
 
@@ -153,7 +180,11 @@ describe('services/process_upload', () => {
       // but a different cover page, rather than
       // a new version of the first report.
       const uploadArgs2 = makeUploadArgs(
-        `${dir}GOV-075-09302020-simple-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'file-success',
+          'GOV-075-09302020-simple-v1.xlsx'
+        )
       )
       const result2 = await processUpload(uploadArgs2)
 
@@ -170,7 +201,12 @@ describe('services/process_upload', () => {
       // Do the replacement of upload of v1 by uploading a new version of that file
       // simulated here by changing the filename.
       const uploadArgs3 = makeUploadArgs(
-        `${dir}EOHHS-075-09302020-simple-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'file-success',
+          'EOHHS-075-09302020-simple-v1.xlsx'
+        )
+
       )
       uploadArgs3.filename = uploadArgs3.filename.replace(/-v1/, '-v2')
       const result3 = await processUpload(uploadArgs3)
