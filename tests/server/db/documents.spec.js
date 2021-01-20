@@ -13,12 +13,12 @@ const {
   setCurrentReportingPeriod
 } = requireSrc(path.resolve(__dirname, '../db/settings'))
 
-const dirRoot = path.resolve(__dirname, '../fixtures/')
+const dirFixtures = path.resolve(__dirname, '../fixtures/')
 
 const expect = require('chai').expect
 
 describe('documents.spec.js - baseline success', () => {
-  const dir = path.resolve(dirRoot, 'file-success')
+  const dir = path.resolve(dirFixtures, 'file-success')
   it('Uploads a file in reporting period 1', async () => {
     const uploadArgs = makeUploadArgs(
       path.resolve(dir, 'OMB-1020-09302020-simple-v1.xlsx')
