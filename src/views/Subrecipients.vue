@@ -36,17 +36,12 @@ export default {
       }
     }
   },
-  watch: {
-    // '$store.state.subrecipients': function (subrecipients) {
-    //   this.subrecipients = subrecipients
-    // }
-  },
   computed: {
     subrecipients: {
       get: function () {
-          return this.$store.state.subrecipients
-        },
-      set: function(subrecipients) {
+        return this.$store.state.subrecipients
+      },
+      set: function (subrecipients) {
       }
     }
   }
