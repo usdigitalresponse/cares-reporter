@@ -48,41 +48,6 @@ router.get('/close/', requireAdminUser, async (req, res) => {
   })
 })
 
-router.get('/update/', requireAdminUser, async (req, res) => {
-  console.log('GET 2 /reporting_periods/update/')
-
-  const user = await getUser(req.signedCookies.userId)
-  // const period = req.query.period_id;
-  const period = 1
-
-  try {
-    await reportingPeriods.update(user, period)
-  } catch (err) {
-    return res.status(500).send(err.message)
-  }
-
-  res.json({
-    status: 'OK'
-  })
-})
-
-router.get('/regenerate/', requireAdminUser, async (req, res) => {
-  console.log('GET 2 /reporting_periods/regenerate/')
-
-  const user = await getUser(req.signedCookies.userId)
-  // const period = req.query.period_id;
-  const period = 1
-
-  try {
-    await reportingPeriods.regenerate(user, period)
-  } catch (err) {
-    return res.status(500).send(err.message)
-  }
-
-  res.json({
-    status: 'OK'
-  })
-})
 module.exports = router
 
 /*                                 *  *  *                                    */
