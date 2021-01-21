@@ -44,8 +44,7 @@ module.exports = {
   getPriorPeriodSummaries,
   getReportedSubrecipientIds,
   readSummaries, // used by tests
-  regenerateSummaries, // use once to fix dabase on period 1
-  updateSummaries, // use once to fix dabase on period 1
+  regenerate: regenerateSummaries,
   writeSummaries
 }
 
@@ -68,25 +67,9 @@ async function getReportedSubrecipientIds () {
   return subrecipientIDs.map(r => r.subrecipient_identification_number)
 }
 
-async function updateSummaries () {
-  const currentReportingPeriod = getCurrentReportingPeriodID()
-  for ( let i=1; i<=currentReportingPeriod; i++) {
-
-  }
-  // console.dir(await knex('period_summaries').count('*'))
-  log('deleting.....')
-  await knex('period_summaries')
-    .where('reporting_period_id', reporting_period_id)
-    .del()
-  // console.dir(await knex('period_summaries').count('*'))
-  await writeSummaries(reporting_period_id)
-  // console.dir(await knex('period_summaries').count('*'))
-  return null
-}
-
 async function regenerateSummaries (reporting_period_id) {
   // console.dir(await knex('period_summaries').count('*'))
-  log('deleting.....')
+  log(`deleting summaries for period ${reporting_period_id}`)
   await knex('period_summaries')
     .where('reporting_period_id', reporting_period_id)
     .del()
@@ -143,11 +126,14 @@ async function saveSummaries (periodSummaries) {
       const { rowCount } = await knex('period_summaries').insert(periodSummaries[i])
       count += rowCount
     } catch (err) {
+      console.dir(periodSummaries[i])
       errLog.push(err.message)
     }
   }
   log(`${count} records saved`)
-  // console.dir(errLog)
+  if (count !== periodSummaries.length) {
+    console.dir(errLog)
+  }
   return errLog
 }
 
@@ -224,9 +210,9 @@ async function generateSummaries (reporting_period_id) {
             award_type: document.type,
             subrecipient_identification_number: jsonRow['subrecipient id'],
             award_number: awardNumber,
-            award_amount: awardAmount,
-            current_obligation: currentObligation,
-            current_expenditure: currentExpenditure
+            award_amount: awardAmount || 0,
+            current_obligation: currentObligation || 0,
+            current_expenditure: currentExpenditure || 0
           })
         }
         break
@@ -260,62 +246,6 @@ async function getPriorPeriodSummaries (reporting_period_id) {
     return { periodSummaries: [] }
   }
   return getSummaries(result.id)
-}
-
-async function updateSummaries (reporting_period_id) {
-  const documents = await documentsWithProjectCode(reporting_period_id)
-  if (_.isError(documents)) {
-    return {
-      errors: [documents.message]
-    }
-  }
-  for (let i = 0; i < documents.length; i++) {
-    const document = documents[i]
-    const jsonRow = document.content
-
-    let awardNumber
-
-    switch (document.type) {
-      case 'contracts':
-        awardNumber = jsonRow['contract number']
-        break
-      case 'grants':
-        awardNumber = jsonRow['award number']
-        break
-      case 'loans':
-        awardNumber = jsonRow['loan number']
-        break
-      case 'transfers':
-        awardNumber = jsonRow['transfer number']
-        break
-      case 'direct':
-        // date needed in key for Airtable issue #92
-        awardNumber = `${jsonRow['subrecipient id']}:${jsonRow['obligation date']}`
-        break
-    }
-    switch (document.type) {
-      case 'contracts':
-      case 'grants':
-      case 'loans':
-      case 'transfers':
-      case 'direct': {
-        await knex('period_summaries')
-          .where({
-            reporting_period_id: reporting_period_id,
-            project_code: document.project_code,
-            award_type: document.type,
-            award_number: awardNumber
-          })
-          .update({
-            subrecipient_identification_number: jsonRow['subrecipient id']
-          })
-        break
-      }
-      default:
-        // ignore the other sheets
-        break
-    }
-  }
 }
 
 /*                                 *  *  *                                    */

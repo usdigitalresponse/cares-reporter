@@ -96,16 +96,20 @@
       a.  Formula: Cumulative Expenditure Amount
 
 */
-const { getPeriodSummaries } = require('../db/period-summaries')
-const {
-  getCurrentReportingPeriodID
-} = require('../db/settings')
-
 const knex = require('../db/connection')
+const _ = require('lodash')
+const XLSX = require('xlsx')
+
+const { getCurrentReportingPeriodID } = require('../db/settings')
+const { fixCellFormats } = require('../services/fix-cell-formats')
 
 let log = () => {}
 if (process.env.VERBOSE) {
   log = console.log
+}
+let dir = () => {}
+if (process.env.VERBOSE) {
+  dir = console.dir
 }
 
 module.exports = { generate: generateReport }
@@ -115,10 +119,178 @@ module.exports = { generate: generateReport }
     */
 async function generateReport () {
   log('generateReport ()')
-  const currentReportingPeriod = getCurrentReportingPeriodID()
-  const nPeriods = currentReportingPeriod + 1
 
-  const outputSheetNames = [
+  const lineData = await getLineData()
+  if (_.isError(lineData)) {
+    return lineData
+  }
+  log(`lineData.length = ${lineData.length}`)
+
+  const sheetData = await convertToSheets(lineData)
+  // dir(sheetData, { depth: 4 })
+  if (_.isError(sheetData)) {
+    return sheetData
+  }
+
+  const outputWorkBook = await composeWorkbook(sheetData)
+  if (_.isError(outputWorkBook)) {
+    return outputWorkBook
+  }
+
+  const filename = 'summary-report.xlsx'
+  return { filename, outputWorkBook }
+}
+
+/* getLineData() reads records from the period_summaries database and
+  converts them into an array of lineData records and an array of
+  errors.
+
+  A lineData record looks like this:
+
+    {
+      award_type: row.award_type,
+      agency: row.agency,
+      project: row.project,
+      legal_name: row.legal_name,
+      award_number: row.award_number,
+      period: [
+        { amount: row.award_amount,
+          obligation: row.current_obligation,
+          expenditure: row.current_expenditure
+        },
+        ...
+      ]
+    }
+  */
+async function getLineData () {
+  const lineData = []
+  //
+  const query = `select
+      s.reporting_period_id,
+      s.award_type,
+      a.code as Agency,
+      s.project_code as Project,
+      s.subrecipient_identification_number,
+      r.legal_name,
+      s.award_number,
+      s.award_amount,
+      s.current_obligation,
+      s.current_expenditure
+    from period_summaries as s
+    left join projects as p on p.code = s.project_code
+    left join agencies as a on a.id = p.agency_id
+    left join subrecipients as r on
+      r.identification_number = s.subrecipient_identification_number
+    order by
+      s.award_type,
+      a.code,
+      s.project_code,
+      s.subrecipient_identification_number,
+      s.reporting_period_id
+    ;`
+
+  let rawData
+  try {
+    rawData = await knex.raw(query)
+  } catch (err) {
+    return err
+  }
+  log(`${rawData.rows.length} rows:`)
+
+  let awardNumber = ''
+  let subrecipientID = ''
+  let line = { empty: null }
+  rawData.rows.forEach(row => {
+    if (!(row.award_number === awardNumber &&
+      row.subrecipient_identification_number === subrecipientID
+    )) {
+      lineData.push(line) // save the completed previous line
+      line = newLine(row)
+      awardNumber = row.award_number
+      subrecipientID = row.subrecipient_identification_number
+    }
+    line = addPeriod(line, row)
+  })
+  lineData.shift() // discard empty first line
+  return lineData
+
+  function newLine (row) {
+    return {
+      award_type: row.award_type,
+      agency: row.agency,
+      project: row.project,
+      legal_name: row.legal_name,
+      award_number: row.award_number,
+      period: []
+    }
+  }
+
+  function addPeriod (line, row) {
+    const period = Number(row.reporting_period_id)
+    line.period[period - 1] = {
+      amount: row.award_amount,
+      obligation: row.current_obligation,
+      expenditure: row.current_expenditure
+    }
+    return line
+  }
+}
+
+/*  convertToSheets() converts an array of line records to spreadsheet format
+*/
+async function convertToSheets (lineData) {
+  /* lineData is an array of row objects:
+    {
+      award_type: 'contracts',
+      agency: 'DOH01',
+      project: '440674',
+      legal_name: 'MERCURY SERVICE',
+      award_number: 'DOH0000060517',
+      period: [
+        { amount: '50000',
+          obligation: '50000.00',
+          expenditure: '50000.00'
+        } (or it can be null),
+        ...
+      ]
+    }
+  */
+  const nPeriods = await getCurrentReportingPeriodID()
+
+  const sheetData = {
+    contracts: [],
+    grants: [],
+    loans: [],
+    transfers: [],
+    direct: []
+  }
+  await addColumnTitles(sheetData)
+
+  lineData.forEach(row => {
+    let awardNumber = row.award_number
+    if (row.award_type === 'direct') { // get the date
+      awardNumber = Number(awardNumber.split(':').pop())
+    }
+    const aoaRow = [
+      row.agency,
+      row.project,
+      row.legal_name,
+      awardNumber
+    ]
+    for (let i = 0; i < nPeriods; i++) {
+      const period = row.period[i] || {}
+      aoaRow.push(Number(period.amount) || null)
+      aoaRow.push(Number(period.obligation) || null)
+      aoaRow.push(Number(period.expenditure) || null)
+    }
+    sheetData[row.award_type].push(aoaRow)
+  })
+  return sheetData
+}
+
+async function composeWorkbook (sheetData) {
+  const workbook = XLSX.utils.book_new()
+  const sheetNames = [
     'Contracts',
     'Grants',
     'Loans',
@@ -128,93 +300,53 @@ async function generateReport () {
     'Aggregate Payments Individual'
   ]
 
-  const query = `select
-      s.reporting_period_id,
-      s.award_type,
-      a.code as Agency,
-      s.project_code as Project,
-      s.subrecipient_identification_number,
-      r.legal_name,
-      s.award_number,
-      s.current_obligation,
-      s.current_expenditure
-    from period_summaries as s
-    left join projects as p on p.code = s.project_code
-    left join agencies as a on a.id = p.agency_id
-    left join subrecipients as r on
-      r.identification_number = s.subrecipient_identification_number
-    order by subrecipient_identification_number`
+  sheetNames.forEach(async sheetName => {
+    const sheetIn = sheetData[sheetName.toLowerCase()] || []
+    const sheetOut = XLSX.utils.aoa_to_sheet(sheetIn)
+    fixCellFormats(sheetOut, 2, '#,##0.00')
 
-  const result = await knex.raw(query)
+    try {
+      await XLSX.utils.book_append_sheet(
+        workbook, sheetOut, sheetName
+      )
+    } catch (err) {
+      console.dir(err)
+      return err
+    }
+  })
+  const outputWorkbook =
+    XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
 
-  const sheetsOut = {}
-
-  const periodSummaries = []
-  for (let i = 0; i < nPeriods; i++) {
-    periodSummaries[i] = await getPeriodSummaries(i + 1)
-    /*
-      returns an object:
-      { periodSummaries: [],
-        errors:[]
-      }
-
-      Each element in the periodSummaries array looks like this:
-
-      { id: 3,
-        reporting_period_id: 1,
-        project_code: '042505',
-        award_type: 'direct',
-        award_number: '8-21591:44089',
-        current_obligation: '55159.63',
-        current_expenditure: '55159.63',
-        subrecipient_identification_number: '8-21591'
-      }
-      the errors look like this:
-        'Multiple current quarter obligations for 490629:grants:AGEFHVAC - 150000'
-        where
-          490629 is the project_code,
-          grants is the award_type,
-          AGEFHVAC is the award_number
-
-      would like:
-        agency code
-          find project record from project_code
-            find agency_id in project record
-              find agency record from agency_id
-              find agency.code in agency record
-        subrecipient legal name
-          find subrecipient record from subrecipient_identification_number
-            find subrecipient.legal_name in subrecipient record
-        amount
-
-        Should put agency code and amount in summary records.
-
-        select
-          s.reporting_period_id,
-          s.award_type,
-          a.code as Agency,
-          s.project_code as Project,
-          s.subrecipient_identification_number,
-          r.legal_name,
-          s.award_number,
-          s.current_obligation,
-          s.current_expenditure
-        from period_summaries as s
-        left join projects as p on p.code = s.project_code
-        left join agencies as a on a.id = p.agency_id
-        left join subrecipients as r on
-          r.identification_number = s.subrecipient_identification_number
-        order by subrecipient_identification_number
-        ;
-
-      */
-  }
-  sheetsOut.Contracts = getContractsSheet(periodSummaries)
+  return outputWorkbook
 }
 
-function getContractsSheet (periodSummaries) {
-  console.dir(periodSummaries[0].periodSummaries[0])
-  console.dir(periodSummaries[0].errors)
+async function addColumnTitles (sheetData) {
+  const numbers = {
+    contracts: 'Contract Number',
+    grants: 'Grant Number',
+    loans: 'Loan Number',
+    transfers: 'Transfer Number',
+    direct: 'Payment Date'
+  }
+  const nPeriods = await getCurrentReportingPeriodID()
+  const line1 = [null, null, null, null]
+  const line2 = ['Agency', 'Project', 'Sub-recipient', 'numbers']
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`Period ${i}`)
+    line1.push(null)
+    line1.push(null)
+
+    line2.push('Amount')
+    line2.push('Obligation Amount')
+    line2.push('Expenditure Amount')
+  }
+  Object.keys(sheetData).forEach(sheetName => {
+    const l2 = line2.slice(0)
+    l2[3] = numbers[sheetName]
+    // log(`sheetName: ${sheetName}, numbers[sheetName]: ${numbers[sheetName]}`)
+    sheetData[sheetName].push(line1)
+    sheetData[sheetName].push(l2)
+  })
 }
 
 /*                                  *  *  *                                   */

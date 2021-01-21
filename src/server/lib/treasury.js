@@ -20,7 +20,7 @@ const { clean, cleanString } = require('../lib/spreadsheet')
 const FileInterface = require('../lib/server-disk-interface')
 const fileInterface = new FileInterface(process.env.TREASURY_DIRECTORY)
 
-const fixCellFormats = require('../services/fix-cell-formats')
+const { fixCellFormats } = require('../services/fix-cell-formats')
 
 const {
   categoryDescriptionSourceColumn,
@@ -911,8 +911,7 @@ function getAwardRecords (documents, mapUploadMetadata) {
 module.exports = {
   generateReport,
   getPriorReport,
-  latestReport,
-  writeOutputWorkbook
+  latestReport
 }
 
 /*                                  *  *  *                                   */
