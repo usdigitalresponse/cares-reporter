@@ -68,14 +68,15 @@ async function getReportedSubrecipientIds () {
 }
 
 async function regenerateSummaries (reporting_period_id) {
-  // console.dir(await knex('period_summaries').count('*'))
+  console.log('regenerateSummaries')
+  console.dir(await knex('period_summaries').count('*'))
   log(`deleting summaries for period ${reporting_period_id}`)
   await knex('period_summaries')
     .where('reporting_period_id', reporting_period_id)
     .del()
-  // console.dir(await knex('period_summaries').count('*'))
+  console.dir(await knex('period_summaries').count('*'))
   await writeSummaries(reporting_period_id)
-  // console.dir(await knex('period_summaries').count('*'))
+  console.dir(await knex('period_summaries').count('*'))
   return null
 }
 
@@ -132,6 +133,7 @@ async function saveSummaries (periodSummaries) {
   }
   log(`${count} records saved`)
   if (count !== periodSummaries.length) {
+    console.log('Error log from saveSummaries():')
     console.dir(errLog)
   }
   return errLog
@@ -208,7 +210,7 @@ async function generateSummaries (reporting_period_id) {
             reporting_period_id: reporting_period_id,
             project_code: document.project_code,
             award_type: document.type,
-            subrecipient_identification_number: jsonRow['subrecipient id'],
+            subrecipient_identification_number: String(jsonRow['subrecipient id']).trim(),
             award_number: awardNumber,
             award_amount: awardAmount || 0,
             current_obligation: currentObligation || 0,

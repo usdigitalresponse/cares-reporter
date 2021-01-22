@@ -102,6 +102,7 @@ const XLSX = require('xlsx')
 
 const { getCurrentReportingPeriodID } = require('../db/settings')
 const { fixCellFormats } = require('../services/fix-cell-formats')
+const periodSummaries = require('../db/period-summaries')
 
 let log = () => {}
 if (process.env.VERBOSE) {
@@ -118,7 +119,10 @@ module.exports = { generate: generateReport }
     and writes it out if successful.
     */
 async function generateReport () {
-  log('generateReport ()')
+  const currentPeriodID = await getCurrentReportingPeriodID()
+  log(`generateReport() for period ${currentPeriodID}`)
+
+  await periodSummaries.regenerate(currentPeriodID)
 
   const lineData = await getLineData()
   if (_.isError(lineData)) {
@@ -126,12 +130,23 @@ async function generateReport () {
   }
   log(`lineData.length = ${lineData.length}`)
 
-  const sheetData = await convertToSheets(lineData)
+  const sheetData = await convertToSheets(lineData, currentPeriodID)
   // dir(sheetData, { depth: 4 })
   if (_.isError(sheetData)) {
     return sheetData
   }
 
+  const aggregateAwardData = await getAggregateAwardData(currentPeriodID)
+  if (_.isError(aggregateAwardData)) {
+    return aggregateAwardData
+  }
+
+  log(`aggregateAwardData.length = ${aggregateAwardData.length}`)
+  sheetData['aggregate awards < 50000'] = await convertToAASheet(aggregateAwardData, currentPeriodID)
+  // const s = await convertToAASheet(aggregateAwardData)
+  // console.dir(s)
+
+  log('composing outputWorkbook')
   const outputWorkBook = await composeWorkbook(sheetData)
   if (_.isError(outputWorkBook)) {
     return outputWorkBook
@@ -186,6 +201,7 @@ async function getLineData () {
       a.code,
       s.project_code,
       s.subrecipient_identification_number,
+      s.award_number,
       s.reporting_period_id
     ;`
 
@@ -238,7 +254,7 @@ async function getLineData () {
 
 /*  convertToSheets() converts an array of line records to spreadsheet format
 */
-async function convertToSheets (lineData) {
+async function convertToSheets (lineData, nPeriods) {
   /* lineData is an array of row objects:
     {
       award_type: 'contracts',
@@ -255,7 +271,6 @@ async function convertToSheets (lineData) {
       ]
     }
   */
-  const nPeriods = await getCurrentReportingPeriodID()
 
   const sheetData = {
     contracts: [],
@@ -264,7 +279,7 @@ async function convertToSheets (lineData) {
     transfers: [],
     direct: []
   }
-  await addColumnTitles(sheetData)
+  await addColumnTitles(sheetData, nPeriods)
 
   lineData.forEach(row => {
     let awardNumber = row.award_number
@@ -288,6 +303,42 @@ async function convertToSheets (lineData) {
   return sheetData
 }
 
+/*  convertToAASheet() converts an array of line records to spreadsheet format
+*/
+async function convertToAASheet (lineData, nPeriods) {
+  /* lineData is an array of row objects:
+    {
+      agency: row.agency,
+      project: row.project,
+      funding_type: row['funding type'],
+      period: [
+        { obligation: '50000.00',
+          expenditure: '50000.00'
+        } (or it can be null),
+        ...
+      ]
+    }
+  */
+
+  const sheetData = []
+  await addAaColumnTitles(sheetData, nPeriods)
+
+  lineData.forEach(row => {
+    const aoaRow = [
+      row.agency,
+      row.project,
+      row.funding_type
+    ]
+    for (let i = 0; i < nPeriods; i++) {
+      const period = row.period[i] || {}
+      aoaRow.push(Number(period.obligation) || null)
+      aoaRow.push(Number(period.expenditure) || null)
+    }
+    sheetData.push(aoaRow)
+  })
+  return sheetData
+}
+
 async function composeWorkbook (sheetData) {
   const workbook = XLSX.utils.book_new()
   const sheetNames = [
@@ -302,6 +353,7 @@ async function composeWorkbook (sheetData) {
 
   sheetNames.forEach(async sheetName => {
     const sheetIn = sheetData[sheetName.toLowerCase()] || []
+
     const sheetOut = XLSX.utils.aoa_to_sheet(sheetIn)
     fixCellFormats(sheetOut, 2, '#,##0.00')
 
@@ -320,7 +372,7 @@ async function composeWorkbook (sheetData) {
   return outputWorkbook
 }
 
-async function addColumnTitles (sheetData) {
+async function addColumnTitles (sheetData, nPeriods) {
   const numbers = {
     contracts: 'Contract Number',
     grants: 'Grant Number',
@@ -328,7 +380,7 @@ async function addColumnTitles (sheetData) {
     transfers: 'Transfer Number',
     direct: 'Payment Date'
   }
-  const nPeriods = await getCurrentReportingPeriodID()
+
   const line1 = [null, null, null, null]
   const line2 = ['Agency', 'Project', 'Sub-recipient', 'numbers']
   for (let i = 1; i <= nPeriods; i++) {
@@ -347,6 +399,104 @@ async function addColumnTitles (sheetData) {
     sheetData[sheetName].push(line1)
     sheetData[sheetName].push(l2)
   })
+}
+
+async function addAaColumnTitles (sheetData, nPeriods) {
+  const line1 = [null, null, null]
+  const line2 = ['Agency', 'Project', 'Funding Type']
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`Period ${i}`)
+    line1.push(null)
+
+    line2.push('Obligation Amount')
+    line2.push('Expenditure Amount')
+  }
+  sheetData.push(line1)
+  sheetData.push(line2)
+}
+
+async function getAggregateAwardData (currentPeriodID) {
+  const lineData = []
+  const query = `select
+      a.code as Agency,
+      p.code as Project,
+      u.reporting_period_id,
+      d.content
+    from documents as d
+    left join uploads as u on d.upload_id = u.id
+    left join projects as p on p.id = u.project_id
+    left join agencies as a on a.id = u.agency_id
+    where d.type='aggregate awards < 50000'
+    order by
+      a.code,
+      p.code,
+      d.content->>'funding type'
+    ;`
+  let rawData
+  try {
+    rawData = await knex.raw(query)
+  } catch (err) {
+    console.dir(err)
+    return err
+  }
+
+  let projectCode = ''
+  let fundingType = ''
+  let line = { empty: null }
+
+  rawData.rows.forEach(rRow => {
+    if (!rRow.project) {
+      console.log('Empty row!')
+      console.dir(rRow)
+      return
+    }
+    const row = rRow.content
+    row.agency = rRow.agency
+    row.project = rRow.project
+    row.reporting_period_id = rRow.reporting_period_id
+
+    if (!(row.project === projectCode &&
+      row['funding type'] === fundingType
+    )) {
+      lineData.push(line) // save the completed previous line
+      line = newLine(row)
+      projectCode = row.project
+      fundingType = row['funding type']
+    }
+    addPeriod(line, row)
+  })
+  lineData.shift() // discard empty first line
+  return lineData
+
+  function newLine (row) {
+    if (!row.agency) {
+      console.dir(row)
+    }
+    console.log(`adding line: ${row.agency}:${row.project}:${row['funding type']}`)
+    return {
+      agency: row.agency,
+      project: row.project,
+      funding_type: row['funding type'],
+      period: []
+    }
+  }
+
+  function addPeriod (line, row) {
+    const period = Number(row.reporting_period_id)
+    // if (!row['updates this quarter?']) {
+    //   console.log('updates this quarter? is blank')
+    //   return
+    // }
+    // if (String(row['updates this quarter?']).toLowerCase() === 'yes') {
+    if (row['current quarter obligation'] ||
+      row['current quarter expenditure/payments']
+    ) {
+      line.period[period - 1] = {
+        obligation: Number(row['current quarter obligation']) || 0,
+        expenditure: Number(row['current quarter expenditure/payments']) || 0
+      }
+    }
+  }
 }
 
 /*                                  *  *  *                                   */
