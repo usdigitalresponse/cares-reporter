@@ -99,6 +99,7 @@
 const knex = require('../db/connection')
 const _ = require('lodash')
 const XLSX = require('xlsx')
+const { format } = require('date-fns')
 
 const { getCurrentReportingPeriodID } = require('../db/settings')
 const { fixCellFormats } = require('../services/fix-cell-formats')
@@ -108,10 +109,10 @@ let log = () => {}
 if (process.env.VERBOSE) {
   log = console.log
 }
-let dir = () => {}
-if (process.env.VERBOSE) {
-  dir = console.dir
-}
+// let dir = () => {}
+// if (process.env.VERBOSE) {
+//   dir = console.dir
+// }
 
 module.exports = { generate: generateReport }
 
@@ -144,6 +145,14 @@ async function generateReport () {
 
   sheetData['aggregate payments individual'] =
     await convertToAPSheet(aggregatePaymentData, currentPeriodID)
+
+  const projectSummaryData = await getProjectSummaryData()
+  if (_.isError(projectSummaryData)) {
+    return projectSummaryData
+  }
+
+  sheetData['project summaries'] =
+    await convertToProjectSummarySheet(projectSummaryData, currentPeriodID)
 
   log('composing outputWorkbook')
   const outputWorkBook = await composeWorkbook(sheetData)
@@ -581,23 +590,175 @@ async function addAPColumnTitles (sheetData, nPeriods) {
   sheetData.push(line2)
 }
 
-async function composeWorkbook (sheetData) {
-  const workbook = XLSX.utils.book_new()
-  const sheetNames = [
-    'Contracts',
-    'Grants',
-    'Loans',
-    'Transfers',
-    'Direct',
-    'Aggregate Awards < 50000',
-    'Aggregate Payments Individual'
+/* getProjectSummaryData()
+  */
+async function getProjectSummaryData () {
+  const rowsOut = []
+
+  const rawData = await getRawData()
+  if (_.isError(rawData)) {
+    return rawData
+  }
+  let projectCode = ''
+  let rowOut = { empty: null } // sentry
+
+  for (let i = 0; i < rawData.rows.length; i++) {
+    const rowIn = rawData.rows[i]
+
+    if (!rowIn.project) {
+      return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+    }
+
+    if (projectCode !== rowIn.project) {
+      projectCode = rowIn.project
+
+      rowsOut.push(rowOut) // save the completed previous rowOut
+      rowOut = {
+        agency: rowIn.agency,
+        project: rowIn.project,
+        name: rowIn.name,
+        status: rowIn.status,
+        period: []
+      }
+    }
+
+    if (rowIn.obligation || rowIn.expenditure) {
+      rowOut.period[Number(rowIn.reporting_period_id) - 1] = {
+        obligation: _.round((Number(rowIn.obligation) || 0), 2) || null,
+        expenditure: _.round((Number(rowIn.expenditure) || 0), 2) || null
+      }
+    }
+  }
+
+  rowsOut.shift() // discard { empty: null } sentry
+  return rowsOut
+
+  async function getRawData () {
+    try {
+      return knex.raw(`
+        select
+          a.code as Agency,
+          p.code as Project,
+          p.name as name,
+          p.status as status,
+          u.reporting_period_id,
+          d.content->>'current quarter obligation' as obligation,
+          d.content->>'current quarter expenditure/payments' as expenditure
+        from documents as d
+        left join uploads as u on d.upload_id = u.id
+        left join projects as p on p.id = u.project_id
+        left join agencies as a on a.id = u.agency_id
+        order by
+          a.code,
+          p.code
+        ;`
+      )
+    } catch (err) {
+      return err
+    }
+  }
+}
+
+/*  convertToProjectSummarySheet()
+  Columns are:
+    Agency Alpha Code
+    Project Identification Number
+    Project Title
+    Project Status
+    Airtable Approved Amount 1/4/21*
+    Cumulative Obligation Amount
+    9/30/20 Expenditure Total
+    12/31/20 Expenditure Total
+    3/31/21 Expenditure Total…
+    Cumulative Expenditures as of 12/31/20
+  */
+async function convertToProjectSummarySheet (apData, nPeriods) {
+  const sheetData = []
+  await addProjectSummaryColumnTitles(sheetData, nPeriods)
+
+  apData.forEach(row => {
+    const aoaRow = [
+      row.agency,
+      row.project,
+      row.name,
+      row.status,
+      null
+    ]
+
+    let sumObligation = 0
+    let sumExpense = 0
+    const expenseDetail = []
+    for (let i = 0; i < nPeriods; i++) {
+      const period = row.period[i] || {}
+      sumObligation += period.obligation || 0
+      sumExpense += period.expenditure || 0
+      expenseDetail.push(period.expenditure || null)
+    }
+
+    aoaRow.push(sumObligation)
+    aoaRow.splice(aoaRow.length, 0, ...expenseDetail)
+    aoaRow.push(sumExpense)
+
+    sheetData.push(aoaRow)
+  })
+  return sheetData
+}
+
+/*  addProjectSummaryColumnTitles()
+  Columns are:
+    Agency Alpha Code
+    Project Identification Number
+    Project Title
+    Project Status
+    Airtable Approved Amount 1/4/21*
+    Cumulative Obligation Amount
+    9/30/20 Expenditure Total
+    12/31/20 Expenditure Total
+    3/31/21 Expenditure Total…
+    Cumulative Expenditures as of 12/31/20
+  */
+async function addProjectSummaryColumnTitles (sheetData, nPeriods) {
+  const eds = await knex.raw(
+    'select end_date from reporting_periods order by id;'
+  )
+  const periodEnd = eds.rows.map(ed => format(new Date(ed.end_date), 'M/d/yy'))
+  periodEnd.unshift(null) // because the first period is period 1
+
+  const line1 = [
+    'Agency Alpha Code',
+    'Project Identification Number',
+    'Project Title',
+    'Project Status',
+    'Airtable Approved Amount',
+    'Cumulative Obligation Amount'
   ]
 
-  sheetNames.forEach(async sheetName => {
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`${periodEnd[i]} Expenditure Total`)
+  }
+  line1.push(`Cumulative Expenditures as of ${format(new Date(), 'M/d/yy')}`)
+  sheetData.push(line1)
+}
+
+async function composeWorkbook (sheetData) {
+  const workbook = XLSX.utils.book_new()
+  const sheets = [
+    ['Project Summaries', 1],
+    ['Contracts', 2],
+    ['Grants', 2],
+    ['Loans', 2],
+    ['Transfers', 2],
+    ['Direct', 2],
+    ['Aggregate Awards < 50000', 2],
+    ['Aggregate Payments Individual', 2]
+  ]
+
+  sheets.forEach(async spec => {
+    const sheetName = spec[0]
     const sheetIn = sheetData[sheetName.toLowerCase()] || []
 
     const sheetOut = XLSX.utils.aoa_to_sheet(sheetIn)
-    fixCellFormats(sheetOut, 2, '#,##0.00')
+    fixCellFormats(sheetOut, spec[1], '#,##0.00')
 
     try {
       await XLSX.utils.book_append_sheet(
