@@ -101,6 +101,9 @@ function isAmountColumn (columnName) {
   if (/^Current Quarter\b/i.exec(columnName)) {
     return true
   }
+  if (/Expenditure/.exec(columnName)) {
+    return true
+  }
 }
 
 /*  toRC() converts an A1-style cellref to {R:0,C:0} or null if the
