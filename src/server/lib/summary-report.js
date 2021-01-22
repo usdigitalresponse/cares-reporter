@@ -124,14 +124,7 @@ async function generateReport () {
 
   await periodSummaries.regenerate(currentPeriodID)
 
-  const lineData = await getLineData()
-  if (_.isError(lineData)) {
-    return lineData
-  }
-  log(`lineData.length = ${lineData.length}`)
-
-  const sheetData = await convertToSheets(lineData, currentPeriodID)
-  // dir(sheetData, { depth: 4 })
+  const sheetData = await getAwardSheets(currentPeriodID)
   if (_.isError(sheetData)) {
     return sheetData
   }
@@ -141,10 +134,16 @@ async function generateReport () {
     return aggregateAwardData
   }
 
-  log(`aggregateAwardData.length = ${aggregateAwardData.length}`)
-  sheetData['aggregate awards < 50000'] = await convertToAASheet(aggregateAwardData, currentPeriodID)
-  // const s = await convertToAASheet(aggregateAwardData)
-  // console.dir(s)
+  sheetData['aggregate awards < 50000'] =
+    await convertToAASheet(aggregateAwardData, currentPeriodID)
+
+  const aggregatePaymentData = await getAggregatePaymentData()
+  if (_.isError(aggregatePaymentData)) {
+    return aggregatePaymentData
+  }
+
+  sheetData['aggregate payments individual'] =
+    await convertToAPSheet(aggregatePaymentData, currentPeriodID)
 
   log('composing outputWorkbook')
   const outputWorkBook = await composeWorkbook(sheetData)
@@ -156,11 +155,21 @@ async function generateReport () {
   return { filename, outputWorkBook }
 }
 
-/* getLineData() reads records from the period_summaries database and
-  converts them into an array of lineData records and an array of
+async function getAwardSheets (currentPeriodID) {
+  const awardData = await getAwardData()
+  if (_.isError(awardData)) {
+    return awardData
+  }
+  log(`awardData.length = ${awardData.length}`)
+
+  return convertToSheets(awardData, currentPeriodID)
+}
+
+/* getAwardData() reads records from the period_summaries database and
+  converts them into an array of awardData records and an array of
   errors.
 
-  A lineData record looks like this:
+  A awardData record looks like this:
 
     {
       award_type: row.award_type,
@@ -177,85 +186,100 @@ async function generateReport () {
       ]
     }
   */
-async function getLineData () {
-  const lineData = []
+async function getAwardData () {
+  const rowsOut = []
   //
-  const query = `select
-      s.reporting_period_id,
-      s.award_type,
-      a.code as Agency,
-      s.project_code as Project,
-      s.subrecipient_identification_number,
-      r.legal_name,
-      s.award_number,
-      s.award_amount,
-      s.current_obligation,
-      s.current_expenditure
-    from period_summaries as s
-    left join projects as p on p.code = s.project_code
-    left join agencies as a on a.id = p.agency_id
-    left join subrecipients as r on
-      r.identification_number = s.subrecipient_identification_number
-    order by
-      s.award_type,
-      a.code,
-      s.project_code,
-      s.subrecipient_identification_number,
-      s.award_number,
-      s.reporting_period_id
-    ;`
 
-  let rawData
-  try {
-    rawData = await knex.raw(query)
-  } catch (err) {
-    return err
+  const rawData = await getRawData()
+  if (_.isError(rawData)) {
+    return rawData
   }
+
   log(`${rawData.rows.length} rows:`)
 
   let awardNumber = ''
   let subrecipientID = ''
-  let line = { empty: null }
-  rawData.rows.forEach(row => {
-    if (!(row.award_number === awardNumber &&
-      row.subrecipient_identification_number === subrecipientID
-    )) {
-      lineData.push(line) // save the completed previous line
-      line = newLine(row)
-      awardNumber = row.award_number
-      subrecipientID = row.subrecipient_identification_number
-    }
-    line = addPeriod(line, row)
-  })
-  lineData.shift() // discard empty first line
-  return lineData
+  let rowOut = { empty: null }
 
-  function newLine (row) {
+  for (let i = 0; i < rawData.rows.length; i++) {
+    const rowIn = rawData.rows[i]
+
+    if (!(rowIn.agency && rowIn.project)) {
+      return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+    }
+
+    if (awardNumber !== rowIn.award_number ||
+      subrecipientID !== rowIn.subrecipient_identification_number
+    ) {
+      awardNumber = rowIn.award_number
+      subrecipientID = rowIn.subrecipient_identification_number
+
+      rowsOut.push(rowOut) // save the completed previous rowOut
+      rowOut = newRowOut(rowIn)
+    }
+    rowOut = addPeriod(rowOut, rowIn)
+  }
+
+  rowsOut.shift() // discard { empty: null } sentry
+  return rowsOut
+
+  function newRowOut (rowIn) {
     return {
-      award_type: row.award_type,
-      agency: row.agency,
-      project: row.project,
-      legal_name: row.legal_name,
-      award_number: row.award_number,
+      award_type: rowIn.award_type,
+      agency: rowIn.agency,
+      project: rowIn.project,
+      legal_name: rowIn.legal_name,
+      award_number: rowIn.award_number,
       period: []
     }
   }
 
-  function addPeriod (line, row) {
-    const period = Number(row.reporting_period_id)
-    line.period[period - 1] = {
-      amount: row.award_amount,
-      obligation: row.current_obligation,
-      expenditure: row.current_expenditure
+  function addPeriod (rowOut, rowIn) {
+    const period = Number(rowIn.reporting_period_id)
+    rowOut.period[period - 1] = {
+      amount: _.round((Number(rowIn.award_amount) || 0), 2) || null,
+      obligation: _.round((Number(rowIn.current_obligation) || 0), 2) || null,
+      expenditure: _.round((Number(rowIn.current_expenditure) || 0), 2) || null
     }
-    return line
+    return rowOut
+  }
+
+  async function getRawData () {
+    try {
+      return knex.raw(`
+        select
+          s.reporting_period_id,
+          s.award_type,
+          a.code as Agency,
+          s.project_code as Project,
+          s.subrecipient_identification_number,
+          r.legal_name,
+          s.award_number,
+          s.award_amount,
+          s.current_obligation,
+          s.current_expenditure
+        from period_summaries as s
+        left join projects as p on p.code = s.project_code
+        left join agencies as a on a.id = p.agency_id
+        left join subrecipients as r on
+          r.identification_number = s.subrecipient_identification_number
+        order by
+          s.award_type,
+          a.code,
+          s.project_code,
+          s.subrecipient_identification_number,
+          s.award_number,
+          s.reporting_period_id
+        ;`
+      )
+    } catch (err) {
+      return err
+    }
   }
 }
 
-/*  convertToSheets() converts an array of line records to spreadsheet format
-*/
-async function convertToSheets (lineData, nPeriods) {
-  /* lineData is an array of row objects:
+/*  convertToSheets() converts an array of rowOut records to spreadsheet format
+  awardData is an array of row objects:
     {
       award_type: 'contracts',
       agency: 'DOH01',
@@ -270,8 +294,8 @@ async function convertToSheets (lineData, nPeriods) {
         ...
       ]
     }
-  */
-
+*/
+async function convertToSheets (awardData, nPeriods) {
   const sheetData = {
     contracts: [],
     grants: [],
@@ -281,7 +305,7 @@ async function convertToSheets (lineData, nPeriods) {
   }
   await addColumnTitles(sheetData, nPeriods)
 
-  lineData.forEach(row => {
+  awardData.forEach(row => {
     let awardNumber = row.award_number
     if (row.award_type === 'direct') { // get the date
       awardNumber = Number(awardNumber.split(':').pop())
@@ -303,10 +327,107 @@ async function convertToSheets (lineData, nPeriods) {
   return sheetData
 }
 
-/*  convertToAASheet() converts an array of line records to spreadsheet format
-*/
-async function convertToAASheet (lineData, nPeriods) {
-  /* lineData is an array of row objects:
+async function addColumnTitles (sheetData, nPeriods) {
+  const numbers = {
+    contracts: 'Contract Number',
+    grants: 'Grant Number',
+    loans: 'Loan Number',
+    transfers: 'Transfer Number',
+    direct: 'Payment Date'
+  }
+
+  const line1 = [null, null, null, null]
+  const line2 = ['Agency', 'Project', 'Sub-recipient', 'numbers']
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`Period ${i}`)
+    line1.push(null)
+    line1.push(null)
+
+    line2.push('Amount')
+    line2.push('Obligation Amount')
+    line2.push('Expenditure Amount')
+  }
+  Object.keys(sheetData).forEach(sheetName => {
+    const l2 = line2.slice(0)
+    l2[3] = numbers[sheetName]
+    // log(`sheetName: ${sheetName}, numbers[sheetName]: ${numbers[sheetName]}`)
+    sheetData[sheetName].push(line1)
+    sheetData[sheetName].push(l2)
+  })
+}
+
+async function getAggregateAwardData (currentPeriodID) {
+  const rowsOut = []
+
+  const rawData = await getRawData()
+  if (_.isError(rawData)) {
+    return rawData
+  }
+
+  let projectCode = ''
+  let fundingType = ''
+  let rowOut = { empty: null } // sentry
+
+  for (let i = 0; i < rawData.rows.length; i++) {
+    const rowIn = rawData.rows[i]
+
+    if (!(rowIn.agency && rowIn.project)) {
+      return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+    }
+
+    if (projectCode !== rowIn.project || fundingType !== rowIn.funding_type) {
+      projectCode = rowIn.project
+      fundingType = rowIn.funding_type
+
+      rowsOut.push(rowOut) // save the completed previous rowOut
+      rowOut = {
+        agency: rowIn.agency,
+        project: rowIn.project,
+        funding_type: rowIn.funding_type,
+        period: []
+      }
+    }
+
+    if (rowIn.obligation || rowIn.expenditure) {
+      rowOut.period[Number(rowIn.reporting_period_id) - 1] = {
+        obligation: _.round((Number(rowIn.obligation) || 0), 2) || null,
+        expenditure: _.round((Number(rowIn.expenditure) || 0), 2) || null
+      }
+    }
+  }
+
+  rowsOut.shift() // discard { empty: null } sentry
+  return rowsOut
+
+  async function getRawData () {
+    try {
+      return knex.raw(`
+        select
+          a.code as Agency,
+          p.code as Project,
+          u.reporting_period_id,
+          d.content->>'funding type' as funding_type,
+          d.content->>'current quarter obligation' as obligation,
+          d.content->>'current quarter expenditure/payments' as expenditure
+        from documents as d
+        left join uploads as u on d.upload_id = u.id
+        left join projects as p on p.id = u.project_id
+        left join agencies as a on a.id = u.agency_id
+        where d.type='aggregate awards < 50000'
+        order by
+          a.code,
+          p.code,
+          d.content->>'funding type'
+        ;`
+      )
+    } catch (err) {
+      return err
+    }
+  }
+}
+
+/*  convertToAASheet() converts an array of rowOut records to spreadsheet format
+  aaData is an array of row objects:
     {
       agency: row.agency,
       project: row.project,
@@ -319,11 +440,11 @@ async function convertToAASheet (lineData, nPeriods) {
       ]
     }
   */
-
+async function convertToAASheet (aaData, nPeriods) {
   const sheetData = []
-  await addAaColumnTitles(sheetData, nPeriods)
+  await addAAColumnTitles(sheetData, nPeriods)
 
-  lineData.forEach(row => {
+  aaData.forEach(row => {
     const aoaRow = [
       row.agency,
       row.project,
@@ -337,6 +458,127 @@ async function convertToAASheet (lineData, nPeriods) {
     sheetData.push(aoaRow)
   })
   return sheetData
+}
+
+async function addAAColumnTitles (sheetData, nPeriods) {
+  const line1 = [null, null, null]
+  const line2 = ['Agency', 'Project', 'Funding Type']
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`Period ${i}`)
+    line1.push(null)
+
+    line2.push('Obligation Amount')
+    line2.push('Expenditure Amount')
+  }
+  sheetData.push(line1)
+  sheetData.push(line2)
+}
+
+/*
+  Aggregate Payments Individual
+    1.  Agency Code
+    2.  Project ID[SLE(5]
+    3.  Current Quarter Obligation (column B), each period
+      a.  Formula: Cumulative Obligation Amount
+    4.  Current Quarter Expenditure (column C), each period
+      a.  Formula: Cumulative Expenditure Amount
+
+  */
+async function getAggregatePaymentData () {
+  const rowsOut = []
+
+  const rawData = await getRawData()
+  if (_.isError(rawData)) {
+    return rawData
+  }
+
+  let projectCode = ''
+  let rowOut = { empty: null } // sentry
+
+  for (let i = 0; i < rawData.rows.length; i++) {
+    const rowIn = rawData.rows[i]
+
+    if (!(rowIn.agency && rowIn.project)) {
+      return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+    }
+
+    if (projectCode !== rowIn.project) {
+      projectCode = rowIn.project
+
+      rowsOut.push(rowOut) // save the completed previous rowOut
+      rowOut = {
+        agency: rowIn.agency,
+        project: rowIn.project,
+        period: []
+      }
+    }
+
+    if (rowIn.obligation || rowIn.expenditure) {
+      rowOut.period[Number(rowIn.reporting_period_id) - 1] = {
+        obligation: _.round((Number(rowIn.obligation) || 0), 2) || null,
+        expenditure: _.round((Number(rowIn.expenditure) || 0), 2) || null
+      }
+    }
+  }
+
+  rowsOut.shift() // discard { empty: null } sentry
+  return rowsOut
+
+  async function getRawData () {
+    try {
+      return knex.raw(`
+        select
+          a.code as Agency,
+          p.code as Project,
+          u.reporting_period_id,
+          d.content->>'current quarter obligation' as obligation,
+          d.content->>'current quarter expenditure' as expenditure
+        from documents as d
+        left join uploads as u on d.upload_id = u.id
+        left join projects as p on p.id = u.project_id
+        left join agencies as a on a.id = u.agency_id
+        where d.type='aggregate payments individual'
+        order by
+          p.code
+        ;`
+      )
+    } catch (err) {
+      return err
+    }
+  }
+}
+
+async function convertToAPSheet (apData, nPeriods) {
+  const sheetData = []
+  await addAPColumnTitles(sheetData, nPeriods)
+
+  apData.forEach(row => {
+    const aoaRow = [
+      row.agency,
+      row.project
+    ]
+    for (let i = 0; i < nPeriods; i++) {
+      const period = row.period[i] || {}
+      aoaRow.push(period.obligation || null)
+      aoaRow.push(period.expenditure || null)
+    }
+    sheetData.push(aoaRow)
+  })
+  return sheetData
+}
+
+async function addAPColumnTitles (sheetData, nPeriods) {
+  const line1 = [null, null]
+  const line2 = ['Agency', 'Project']
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`Period ${i}`)
+    line1.push(null)
+
+    line2.push('Obligation Amount')
+    line2.push('Expenditure Amount')
+  }
+  sheetData.push(line1)
+  sheetData.push(line2)
 }
 
 async function composeWorkbook (sheetData) {
@@ -370,133 +612,6 @@ async function composeWorkbook (sheetData) {
     XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
 
   return outputWorkbook
-}
-
-async function addColumnTitles (sheetData, nPeriods) {
-  const numbers = {
-    contracts: 'Contract Number',
-    grants: 'Grant Number',
-    loans: 'Loan Number',
-    transfers: 'Transfer Number',
-    direct: 'Payment Date'
-  }
-
-  const line1 = [null, null, null, null]
-  const line2 = ['Agency', 'Project', 'Sub-recipient', 'numbers']
-  for (let i = 1; i <= nPeriods; i++) {
-    line1.push(`Period ${i}`)
-    line1.push(null)
-    line1.push(null)
-
-    line2.push('Amount')
-    line2.push('Obligation Amount')
-    line2.push('Expenditure Amount')
-  }
-  Object.keys(sheetData).forEach(sheetName => {
-    const l2 = line2.slice(0)
-    l2[3] = numbers[sheetName]
-    // log(`sheetName: ${sheetName}, numbers[sheetName]: ${numbers[sheetName]}`)
-    sheetData[sheetName].push(line1)
-    sheetData[sheetName].push(l2)
-  })
-}
-
-async function addAaColumnTitles (sheetData, nPeriods) {
-  const line1 = [null, null, null]
-  const line2 = ['Agency', 'Project', 'Funding Type']
-  for (let i = 1; i <= nPeriods; i++) {
-    line1.push(`Period ${i}`)
-    line1.push(null)
-
-    line2.push('Obligation Amount')
-    line2.push('Expenditure Amount')
-  }
-  sheetData.push(line1)
-  sheetData.push(line2)
-}
-
-async function getAggregateAwardData (currentPeriodID) {
-  const lineData = []
-  const query = `select
-      a.code as Agency,
-      p.code as Project,
-      u.reporting_period_id,
-      d.content
-    from documents as d
-    left join uploads as u on d.upload_id = u.id
-    left join projects as p on p.id = u.project_id
-    left join agencies as a on a.id = u.agency_id
-    where d.type='aggregate awards < 50000'
-    order by
-      a.code,
-      p.code,
-      d.content->>'funding type'
-    ;`
-  let rawData
-  try {
-    rawData = await knex.raw(query)
-  } catch (err) {
-    console.dir(err)
-    return err
-  }
-
-  let projectCode = ''
-  let fundingType = ''
-  let line = { empty: null }
-
-  rawData.rows.forEach(rRow => {
-    if (!rRow.project) {
-      console.log('Empty row!')
-      console.dir(rRow)
-      return
-    }
-    const row = rRow.content
-    row.agency = rRow.agency
-    row.project = rRow.project
-    row.reporting_period_id = rRow.reporting_period_id
-
-    if (!(row.project === projectCode &&
-      row['funding type'] === fundingType
-    )) {
-      lineData.push(line) // save the completed previous line
-      line = newLine(row)
-      projectCode = row.project
-      fundingType = row['funding type']
-    }
-    addPeriod(line, row)
-  })
-  lineData.shift() // discard empty first line
-  return lineData
-
-  function newLine (row) {
-    if (!row.agency) {
-      console.dir(row)
-    }
-    console.log(`adding line: ${row.agency}:${row.project}:${row['funding type']}`)
-    return {
-      agency: row.agency,
-      project: row.project,
-      funding_type: row['funding type'],
-      period: []
-    }
-  }
-
-  function addPeriod (line, row) {
-    const period = Number(row.reporting_period_id)
-    // if (!row['updates this quarter?']) {
-    //   console.log('updates this quarter? is blank')
-    //   return
-    // }
-    // if (String(row['updates this quarter?']).toLowerCase() === 'yes') {
-    if (row['current quarter obligation'] ||
-      row['current quarter expenditure/payments']
-    ) {
-      line.period[period - 1] = {
-        obligation: Number(row['current quarter obligation']) || 0,
-        expenditure: Number(row['current quarter expenditure/payments']) || 0
-      }
-    }
-  }
 }
 
 /*                                  *  *  *                                   */
