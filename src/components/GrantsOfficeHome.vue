@@ -126,7 +126,11 @@ export default {
       }
     },
     dataUrl (table) {
-      return `/documents/${table.name}`
+      if (table.name === 'subrecipient') {
+        return '/subrecipients'
+      } else {
+        return `/documents/${table.name}`
+      }
     },
     uploadUrl (upload) {
       return `/uploads/${upload.id || 0}`
