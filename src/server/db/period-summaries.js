@@ -6,13 +6,15 @@
 --------------------------------------------------------------------------------
   A period-summary record in postgres looks like this:
 
-    id                  | integer       |
-    reporting_period_id | integer       |
-    project_code        | text          |
-    award_type          | text          |
-    award_number        | text          |
-    current_obligation  | numeric(19,2) |
-    current_expenditure | numeric(19,2) |
+   id                                 | integer       |
+   reporting_period_id                | integer       |
+   project_code                       | text          |
+   award_type                         | text          |
+   award_number                       | text          |
+   award_amount                       | numeric(19,2) |
+   current_obligation                 | numeric(19,2) |
+   current_expenditure                | numeric(19,2) |
+   subrecipient_identification_number | text          |
 
   There is one summary for each line of each input spreadsheet (i.e. each
   record in the documents db table), and all it does is to pull some

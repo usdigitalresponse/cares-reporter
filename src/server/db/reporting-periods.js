@@ -39,6 +39,7 @@ const {
 module.exports = {
   close: closeReportingPeriod,
   get: getReportingPeriod,
+  getEndDates: getEndDates,
   getFirstStartDate: getFirstReportingPeriodStartDate,
 
   getID: getPeriodID,
@@ -49,7 +50,7 @@ module.exports = {
 
 /*  getAll() returns all the records from the reporting_periods table
   */
-function getAll () {
+async function getAll () {
   return knex('reporting_periods')
     .select('*')
     .orderBy('end_date', 'desc')
@@ -57,7 +58,7 @@ function getAll () {
 
 /* getReportingPeriod() returns a record from the reporting_periods table.
   */
-function getReportingPeriod (period_id) {
+async function getReportingPeriod (period_id) {
   if (!period_id) {
     return getAll()
   }
@@ -70,13 +71,13 @@ function getReportingPeriod (period_id) {
 
 /* getFirstReportingPeriodStartDate() returns earliest start date
   */
-function getFirstReportingPeriodStartDate () {
+async function getFirstReportingPeriodStartDate () {
   return knex('reporting_periods')
     .min('start_date')
     .then(r => r[0].min)
 }
 
-function isClosed (period_id) {
+async function isClosed (period_id) {
   return getReportingPeriod(period_id)
     .then(period => {
       console.log(`period ${period_id} certified: ${Boolean(period.certified_at)}`)
@@ -149,6 +150,14 @@ async function closeReportingPeriod (user, period) {
   await setCurrentReportingPeriod(reporting_period_id + 1)
 
   return null
+}
+
+/*  getEndDates()
+  */
+async function getEndDates () {
+  return await knex('reporting_periods')
+    .select('end_date')
+    .orderBy('id')
 }
 
 /*                                 *  *  *                                    */
