@@ -5,10 +5,11 @@ const router = express.Router()
 const _ = require('lodash')
 
 const { requireUser } = require('../access-helpers')
-const summaryReport = require('../lib/summary-report')
+const auditReport = require('../lib/audit-report')
 
 router.get('/', requireUser, async function (req, res) {
-  const report = await summaryReport.generate()
+  console.log('/api/audit-report GET')
+  const report = await auditReport.generate()
 
   if (_.isError(report)) {
     return res.status(500).send(report.message)
