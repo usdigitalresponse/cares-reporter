@@ -1,26 +1,35 @@
-const { processUpload } = requireSrc(__filename)
 const expect = require('chai').expect
+const path = require('path')
 const { makeUploadArgs } = require('./helpers')
 
-const dirRoot = `${__dirname}/../fixtures/`
+const { processUpload } = requireSrc(__filename)
+
+const dirFixtures = path.resolve(__dirname, '../fixtures')
 
 describe('services/process-upload', () => {
   describe('subrecipients', () => {
-    const dir = `${dirRoot}data-subrecipients/`
     it('fails when missing both project_id and duns', async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}/EOHHS-075-09302020-missing_id-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'data-subrecipients',
+          'EOHHS-075-09302020-missing_id-v1.xlsx'
+        )
       )
       const result = await processUpload(uploadArgs)
       const err = result.valog.getLog()[0] || {}
       expect(err.message).to.equal(
-        `Each subrecipient must have either an "identification number" or a "duns number"`
+        'Each subrecipient must have either an "identification number" or a "duns number"'
       )
       expect(err.row).to.equal(3)
     })
-    it(`fails when there is no duns number and "city name" is missing.`, async () => {
+    it('fails when there is no duns number and "city name" is missing.', async () => {
       const uploadArgs = makeUploadArgs(
-        `${dir}/EOHHS-075-09302020-missing_sub_city_name-v1.xlsx`
+        path.resolve(
+          dirFixtures,
+          'data-subrecipients',
+          'EOHHS-075-09302020-missing_sub_city_name-v1.xlsx'
+        )
       )
       const result = await processUpload(uploadArgs)
       const log = result.valog.getLog()

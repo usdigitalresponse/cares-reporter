@@ -7,13 +7,14 @@
   correctly formatted.
 */
 
-module.exports = fixCellFormats
+module.exports = {
+  fixCellFormats
+}
 
-function fixCellFormats (sheet) {
-  const { columns, dateColumns, amountColumns } = getColumns(sheet)
-
+function fixCellFormats (sheet, titleRow = 1, numberFormat = '0.00') {
+  const { columns, dateColumns, amountColumns } = getColumns(sheet, titleRow)
   dateColumns.forEach(dateColumn => {
-    let cellRefs = columns[dateColumn]
+    const cellRefs = columns[dateColumn]
     cellRefs.forEach(cellRef => {
       if (sheet[cellRef].t === 'n') {
         // this doesn't work, though according to
@@ -32,12 +33,12 @@ function fixCellFormats (sheet) {
   })
 
   amountColumns.forEach(amountColumn => {
-    let cellRefs = columns[amountColumn]
+    const cellRefs = columns[amountColumn]
     cellRefs.forEach(cellRef => {
       if (sheet[cellRef].t === 'n') {
         // see "Data Upload Service DataDictionary 09282020.xlsx"
         // sheet[cellRef].z = '#,##0.00;(#,##0.00)'
-        sheet[cellRef].z = '0.00'
+        sheet[cellRef].z = numberFormat
       }
     })
   })
@@ -47,18 +48,18 @@ function fixCellFormats (sheet) {
 /* getColumns() scans the cells in a sheet and organizes them into
   columns, plus it tries to identify which columns contain dates
   */
-function getColumns (sheet) {
-  let columns = []
-  let dateColumns = []
-  let amountColumns = []
+function getColumns (sheet, titleRow = 1) {
+  const columns = []
+  const dateColumns = []
+  const amountColumns = []
   Object.keys(sheet).forEach(cellRef => {
-    let rc = toRC(cellRef)
+    const rc = toRC(cellRef)
     if (rc) {
       if (!columns[rc.C]) {
         columns[rc.C] = []
       }
-      if (rc.R === 1) {
-        let columnName = sheet[cellRef].v
+      if (rc.R === titleRow) {
+        const columnName = sheet[cellRef].v
         if (isDateColumn(columnName)) {
           dateColumns.push(rc.C)
         } else if (isAmountColumn(columnName)) {
@@ -100,14 +101,17 @@ function isAmountColumn (columnName) {
   if (/^Current Quarter\b/i.exec(columnName)) {
     return true
   }
+  if (/Expenditure/.exec(columnName)) {
+    return true
+  }
 }
 
 /*  toRC() converts an A1-style cellref to {R:0,C:0} or null if the
   argument is not a valid cellRef
   */
 function toRC (cellRef) {
-  let rx = /^([A-Z]{1,2})(\d+)$/
-  let r = rx.exec(cellRef)
+  const rx = /^([A-Z]{1,2})(\d+)$/
+  const r = rx.exec(cellRef)
 
   return r ? { R: Number(r[2]), C: toDecimal(r[1]) } : null
 }
