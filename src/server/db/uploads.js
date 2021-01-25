@@ -8,24 +8,24 @@ const {
 
 async function uploads (period_id) {
   if (!period_id) {
-    console.log(`uploads()`)
+    console.log('uploads()')
     period_id = await getCurrentReportingPeriodID()
   }
   return knex('uploads')
     .select('*')
-    .where({ 'reporting_period_id': period_id })
+    .where({ reporting_period_id: period_id })
     .orderBy('uploads.created_at', 'desc')
 }
 
 async function uploadsForAgency (agency_id, period_id) {
   if (!period_id) {
-    console.log(`uploadsForAgency()`)
+    console.log('uploadsForAgency()')
     period_id = await getCurrentReportingPeriodID()
   }
 
   return knex('uploads')
     .select('*')
-    .where({ 'reporting_period_id': period_id })
+    .where({ reporting_period_id: period_id })
     .andWhere('agency_id', agency_id)
     .orderBy('created_at', 'desc')
 }
@@ -97,10 +97,10 @@ async function getPeriodUploadIDs (period_id) {
   try {
     rv = await knex('uploads')
       .select('id')
-      .where({ 'reporting_period_id': period_id })
+      .where({ reporting_period_id: period_id })
       .then(recs => recs.map(rec => rec.id))
   } catch (err) {
-    console.log(`knex threw in getPeriodUploadIDs()!`)
+    console.log('knex threw in getPeriodUploadIDs()!')
     console.dir(err)
   }
   return rv

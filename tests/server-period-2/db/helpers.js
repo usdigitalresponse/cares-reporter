@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 
 const projectRoot = process.cwd()
-const knex = require(path.resolve(projectRoot, `src/server/db/connection`))
+const knex = require(path.resolve(projectRoot, 'src/server/db/connection'))
 
 const makeUploadArgs = fixtureFile => {
   const filename = fixtureFile.match(/[^/]+$/)[0]

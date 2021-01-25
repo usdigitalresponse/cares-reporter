@@ -30,22 +30,22 @@ const _ = require('lodash')
 const expect = require('chai').expect
 
 const projectRoot = process.cwd()
-const knex = require(path.resolve(projectRoot, `src/server/db/connection`))
+const knex = require(path.resolve(projectRoot, 'src/server/db/connection'))
 const { getPeriodSummaries, readSummaries } =
-  require(path.resolve(projectRoot, `src/server/db`))
+  require(path.resolve(projectRoot, 'src/server/db'))
 const treasury =
-  require(path.resolve(projectRoot, `src/server/lib/treasury`))
+  require(path.resolve(projectRoot, 'src/server/lib/treasury'))
 
 const reportingPeriods =
-  require(path.resolve(projectRoot, `src/server/db/reporting-periods`))
+  require(path.resolve(projectRoot, 'src/server/db/reporting-periods'))
 
 describe('baseline success', () => {
-  it(`Delete the treasury report file`, async () => {
+  it('Delete the treasury report file', async () => {
     const treasuryDir = path.resolve(
       __dirname,
       '../mocha_uploads/treasury/'
     )
-    let treasuryFiles = fs.readdirSync(treasuryDir)
+    const treasuryFiles = fs.readdirSync(treasuryDir)
     for (let i = 0; i < treasuryFiles.length; i++) {
       fs.unlinkSync(path.resolve(treasuryDir, treasuryFiles[i]))
     }
@@ -56,7 +56,7 @@ describe('baseline success', () => {
 
     summaries = await readSummaries(period)
     if (summaries.length) {
-      throw new Error(`There should be no stored summaries for open periods`)
+      throw new Error('There should be no stored summaries for open periods')
     }
 
     summaries = await getPeriodSummaries(period)
@@ -84,7 +84,7 @@ describe('baseline success', () => {
 
     summaries = await readSummaries(period)
     if (summaries.length) {
-      throw new Error(`There should be no stored summaries for open periods`)
+      throw new Error('There should be no stored summaries for open periods')
     }
 
     summaries = await getPeriodSummaries(period)
@@ -92,7 +92,7 @@ describe('baseline success', () => {
     if (summaries.periodSummaries.length !== 0) {
       console.dir(summaries)
       // { periodSummaries: [], closed: false }
-      throw new Error(`Returned summaries from the wrong period`)
+      throw new Error('Returned summaries from the wrong period')
     }
   })
 
@@ -123,9 +123,9 @@ describe('baseline success', () => {
       `No Treasury report has been generated for period ${period}`
     )
 
-    let summaries = await readSummaries(period)
+    const summaries = await readSummaries(period)
     if (summaries.length) {
-      throw new Error(`There should be no stored summaries for open periods`)
+      throw new Error('There should be no stored summaries for open periods')
     }
   })
 
@@ -162,7 +162,7 @@ describe('baseline success', () => {
     let summaries = await readSummaries(period)
     if (summaries.length !== 0) {
       // console.dir(summaries);
-      throw new Error(`Summaries should not be stored for open periods`)
+      throw new Error('Summaries should not be stored for open periods')
     }
 
     summaries = await knex('period_summaries').select('*')
@@ -193,7 +193,7 @@ describe('baseline success', () => {
     let summaries = await readSummaries(period)
     if (summaries.length !== 3161) {
       // console.dir(summaries);
-      throw new Error(`Summaries should be stored for closed periods`)
+      throw new Error('Summaries should be stored for closed periods')
     }
 
     summaries = await knex('period_summaries').select('*')
