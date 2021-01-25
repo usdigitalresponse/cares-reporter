@@ -52,6 +52,9 @@ function refresh (el, binding, vnode, oldVnode) {
     requestAnimationFrame(() => {
       const htmlRows = rows.map(row => {
         const htmlCells = cols.map(col => {
+          if (col.href) {
+            return `<td><a href="${col.href(row)}">${col.label}</a></td>`
+          }
           return `<td>${row[col.name] || ''}</td>`
         })
         return `<tr>${htmlCells.join('')}</tr>`
