@@ -27,35 +27,30 @@ async function getAwardData (type) {
     contracts: {
       number: 'contract number',
       amount: 'contract amount',
-      obligation: 'current quarter obligation',
       expenditure: 'total expenditure amount'
     },
 
     grants: {
       number: 'award number',
       amount: 'award amount',
-      obligation: 'current quarter obligation',
       expenditure: 'total expenditure amount'
     },
 
     loans: {
       number: 'loan number',
       amount: 'loan amount',
-      obligation: 'current quarter obligation',
       expenditure: 'payment amount'
     },
 
     transfers: {
       number: 'transfer number',
       amount: 'award amount',
-      obligation: 'current quarter obligation',
       expenditure: 'total expenditure amount'
     },
 
     direct: {
       number: 'obligation date',
       amount: 'obligation amount',
-      obligation: 'current quarter obligation',
       expenditure: 'total expenditure amount'
     }
   }[type]
@@ -70,7 +65,7 @@ async function getAwardData (type) {
       d.type,
       r.legal_name,
       d.content->>'${q.amount}' as award_amount,
-      d.content->>'${q.obligation}' as current_obligation,
+      d.content->>'current quarter obligation' as current_obligation,
       d.content->>'${q.expenditure}' as current_expenditure
 
     from documents as d
@@ -154,7 +149,10 @@ async function getProjectSummaryData () {
         p.status as status,
         u.reporting_period_id,
         d.content->>'current quarter obligation' as obligation,
-        d.content->>'current quarter expenditure/payments' as expenditure
+        d.content->>'total expenditure amount' as expenditure,
+        d.content->>'payment amount' as l_expenditure,
+        d.content->>'current quarter expenditure/payments' as aa_expenditure,
+        d.content->>'current quarter expenditure' as ap_expenditure
       from documents as d
       left join uploads as u on d.upload_id = u.id
       left join projects as p on p.id = u.project_id
