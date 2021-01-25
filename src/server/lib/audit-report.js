@@ -186,6 +186,7 @@ async function addAwardSheetColumnTitles (sheet, type, nPeriods) {
     line2.push('Obligation Amount')
     line2.push('Expenditure Amount')
   }
+  line2.push('Errors')
   sheet.push(line1)
   sheet.push(line2)
 }
@@ -253,6 +254,7 @@ async function createAwardAggregateSheet (nPeriods) {
       line2.push('Obligation Amount')
       line2.push('Expenditure Amount')
     }
+    line2.push('Errors')
     sheet.push(line1)
     sheet.push(line2)
   }
@@ -346,6 +348,7 @@ async function createAggregatePaymentSheet (nPeriods) {
       line2.push('Obligation Amount')
       line2.push('Expenditure Amount')
     }
+    line2.push('Errors')
     sheet.push(line1)
     sheet.push(line2)
   }
@@ -465,7 +468,7 @@ function addErrorChecks (rowData, type, nPeriods) {
   for (let i = 0; i < rowData.length; i++) {
     const row = rowData[i]
     if (row.period.length < 2) {
-      return
+      continue
     }
     const last = row.period.length - 1
 
@@ -502,7 +505,7 @@ function addErrorChecks (rowData, type, nPeriods) {
           )
         }
         if ((current.amount || 0) !== sumObligation) {
-          errors.push(`Current Amount (${current.amount}) should equal Cumulative Obligation (${sumObligation}`)
+          errors.push(`Current Amount (${current.amount}) should equal Cumulative Obligation (${sumObligation})`)
         }
         break
 
@@ -515,6 +518,7 @@ function addErrorChecks (rowData, type, nPeriods) {
     }
     if (errors.length) {
       row.errors = errors.join('; ')
+      console.dir(row.errors)
     }
   }
 }
@@ -564,14 +568,26 @@ async function createProjectSummarySheet (nPeriods) {
           period: []
         }
       }
+      const expenditure = rowIn.expenditure ||
+        rowIn.l_expenditure ||
+        rowIn.aa_expenditure ||
+        rowIn.ap_expenditure ||
+        null
 
-      if (rowIn.obligation || rowIn.expenditure) {
-        const o = Number(rowIn.obligation)
-        const e = Number(rowIn.expenditure)
-        sumObligation = getAmount(sumObligation + o)
-        sumExpenditure = getAmount(sumExpenditure + e)
-        rowOut.period[Number(rowIn.reporting_period_id) - 1] = {
-          expenditure: getAmount(e) // can be null
+      if (rowIn.obligation) {
+        sumObligation = getAmount(sumObligation + Number(rowIn.obligation))
+      }
+      if (expenditure) {
+        sumExpenditure = getAmount(sumExpenditure + Number(expenditure))
+
+        const p = Number(rowIn.reporting_period_id) - 1
+        if (rowOut.period[p]) {
+          rowOut.period[p].expenditure =
+            getAmount(expenditure + rowOut.period[p].expenditure)
+        } else {
+          rowOut.period[p] = {
+            expenditure: getAmount(expenditure)
+          }
         }
       }
     }
