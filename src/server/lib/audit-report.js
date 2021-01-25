@@ -568,12 +568,11 @@ async function createProjectSummarySheet (nPeriods) {
           period: []
         }
       }
-      const expenditure = rowIn.expenditure ||
+      const expenditure = Number(rowIn.expenditure ||
         rowIn.l_expenditure ||
         rowIn.aa_expenditure ||
-        rowIn.ap_expenditure ||
-        null
-
+        rowIn.ap_expenditure
+      ) || null
       if (rowIn.obligation) {
         sumObligation = getAmount(sumObligation + Number(rowIn.obligation))
       }
