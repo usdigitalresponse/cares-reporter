@@ -33,16 +33,13 @@ const {
 } = require('./settings')
 
 const {
-  writeSummaries,
-  regenerateSummaries: regenerate,
-  updateSummaries: update
+  writeSummaries
 } = require('./period-summaries')
 
 module.exports = {
   close: closeReportingPeriod,
-  update: updateSummaries,
-  regenerate: regenerateSummaries,
   get: getReportingPeriod,
+  getEndDates: getEndDates,
   getFirstStartDate: getFirstReportingPeriodStartDate,
 
   getID: getPeriodID,
@@ -53,7 +50,7 @@ module.exports = {
 
 /*  getAll() returns all the records from the reporting_periods table
   */
-function getAll () {
+async function getAll () {
   return knex('reporting_periods')
     .select('*')
     .orderBy('end_date', 'desc')
@@ -61,7 +58,7 @@ function getAll () {
 
 /* getReportingPeriod() returns a record from the reporting_periods table.
   */
-function getReportingPeriod (period_id) {
+async function getReportingPeriod (period_id) {
   if (!period_id) {
     return getAll()
   }
@@ -74,16 +71,16 @@ function getReportingPeriod (period_id) {
 
 /* getFirstReportingPeriodStartDate() returns earliest start date
   */
-function getFirstReportingPeriodStartDate () {
+async function getFirstReportingPeriodStartDate () {
   return knex('reporting_periods')
     .min('start_date')
     .then(r => r[0].min)
 }
 
-function isClosed (period_id) {
+async function isClosed (period_id) {
   return getReportingPeriod(period_id)
     .then(period => {
-    // console.dir(period);
+      console.log(`period ${period_id} certified: ${Boolean(period.certified_at)}`)
       return Boolean(period.certified_at)
     })
 }
@@ -110,7 +107,7 @@ async function isCurrent (periodID) {
 /* closeReportingPeriod()
   */
 async function closeReportingPeriod (user, period) {
-  let reporting_period_id = await getCurrentReportingPeriodID()
+  const reporting_period_id = await getCurrentReportingPeriodID()
 
   period = period || reporting_period_id
 
@@ -133,12 +130,12 @@ async function closeReportingPeriod (user, period) {
   }
 
   // throws if there is no report in the period
-  let latestTreasuryReportFileName = await treasury.latestReport(reporting_period_id)
+  const latestTreasuryReportFileName = await treasury.latestReport(reporting_period_id)
 
-  let errLog = await writeSummaries(reporting_period_id)
+  const errLog = await writeSummaries(reporting_period_id)
 
   if (errLog && errLog.length > 0) {
-    console.dir(errLog, {depth: 4})
+    console.dir(errLog, { depth: 4 })
     throw new Error(errLog[0])
   }
 
@@ -155,33 +152,12 @@ async function closeReportingPeriod (user, period) {
   return null
 }
 
-/* updateSummaries() was added because we added a field (subrecipient id)
-  to the summary table after closing OH and RI 20 12 30.
-  This should never be used again!
+/*  getEndDates()
   */
-async function updateSummaries (user, period) {
-  console.log(`updateSummaries`)
-  let errLog = await update(period)
-
-  if (errLog && errLog.length > 0) {
-    throw new Error(errLog[0])
-  }
-
-  return null
-}
-
-/* regenerateSummaries() was added because there were some bogus records
-  in the summary table after closing OH and RI 20 12 30.
-  This should never be used again!
-  */
-async function regenerateSummaries (user, period) {
-  console.log(`regenerateSummaries`)
-  let errLog = await regenerate(period)
-
-  if (errLog && errLog.length > 0) {
-    throw new Error(errLog[0])
-  }
-  return null
+async function getEndDates () {
+  return await knex('reporting_periods')
+    .select('end_date')
+    .orderBy('id')
 }
 
 /*                                 *  *  *                                    */

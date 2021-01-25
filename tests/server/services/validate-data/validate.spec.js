@@ -32,7 +32,7 @@ describe('validation helpers', () => {
       projectId: 'DOH'
     },
     subrecipientsHash: {
-      '1010': {
+      1010: {
         name: 'Payee'
       }
     },
@@ -52,13 +52,15 @@ describe('validation helpers', () => {
           current_obligation: 100.0,
           current_expenditure: 10.00
         },
-        { project_code: '1',
+        {
+          project_code: '1',
           award_number: '1001',
           award_type: 'contracts',
           current_obligation: 200.0,
           current_expenditure: 20.00
         },
-        { project_code: '2',
+        {
+          project_code: '2',
           award_number: '2002',
           award_type: 'contracts',
           current_obligation: 200.0,
@@ -248,7 +250,7 @@ describe('validation helpers', () => {
       'whenUS conditional validation passes',
       whenUS('country', isValidZip)(
         98101,
-        { 'country': 'usa' },
+        { country: 'usa' },
         validateContext
       ),
       true
@@ -257,7 +259,7 @@ describe('validation helpers', () => {
       'whenUS conditional validation passes',
       whenUS('country', isValidZip)(
         98101,
-        { 'country': 'united states' },
+        { country: 'united states' },
         validateContext
       ),
       true
@@ -266,7 +268,7 @@ describe('validation helpers', () => {
       'whenUS conditional validation fails',
       whenUS('country', isValidZip)(
         981,
-        { 'country': 'usa' },
+        { country: 'usa' },
         validateContext
       ),
       false
@@ -275,7 +277,7 @@ describe('validation helpers', () => {
       'whenUS conditional validation fails',
       whenUS('country', isValidZip)(
         981,
-        { 'country': 'united states' },
+        { country: 'united states' },
         validateContext
       ),
       false
@@ -284,7 +286,7 @@ describe('validation helpers', () => {
       'whenUS conditional validation skipped',
       whenUS('country', isValidZip)(
         981,
-        { 'country': 'hk' },
+        { country: 'hk' },
         validateContext
       ),
       true
@@ -293,7 +295,7 @@ describe('validation helpers', () => {
       'whenUS conditional validation skipped',
       whenUS('country', isValidZip)(
         '',
-        { 'country': 'hk' },
+        { country: 'hk' },
         validateContext
       ),
       true
@@ -340,10 +342,10 @@ describe('validation helpers', () => {
   // isValidState() doesn't work in the testCases array,
   // because it has to run after beforeEach() has initialized
   // the dropdowns, so it has to be invoked inside an it() function.
-  it(`isValidState("WA") should return true`, () => {
+  it('isValidState("WA") should return true', () => {
     expect(isValidState('WA', {}, validateContext)).to.equal(true)
   })
-  it(`isValidState("ZZ") should return false`, () => {
+  it('isValidState("ZZ") should return false', () => {
     expect(isValidState('ZZ', {}, validateContext)).to.equal(false)
   })
 })
