@@ -2,7 +2,7 @@
   <div class="home">
     <div>
       <div class="row buttons mt-5">
-        <div class="col-4">
+        <div class="col-3">
           <a :href="downloadUrl()" class="btn btn-primary"
             >Download Treasury Report</a
           >
@@ -10,12 +10,17 @@
         <div class="closed" v-show="isClosed">
           This reporting period is closed.
         </div>
-        <div class="col-4" v-show="viewingCurrentPeriod">
+        <div class="col-3">
+          <a href="/api/audit_report" class="btn btn-primary"
+            >Download Audit Report</a
+          >
+        </div>
+        <div class="col-3" v-show="viewingCurrentPeriod">
           <div @click.prevent="startUpload" class="btn btn-secondary">
             Upload Agency Spreadsheet
           </div>
         </div>
-        <div class="col-4" v-show="viewingCurrentPeriod">
+        <div class="col-3" v-show="viewingCurrentPeriod">
           <a :href="downloadTemplateUrl" class="btn btn-secondary">
             Download Empty Template
           </a>
@@ -126,7 +131,11 @@ export default {
       }
     },
     dataUrl (table) {
-      return `/documents/${table.name}`
+      if (table.name === 'subrecipient') {
+        return '/subrecipients'
+      } else {
+        return `/documents/${table.name}`
+      }
     },
     uploadUrl (upload) {
       return `/uploads/${upload.id || 0}`

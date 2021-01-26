@@ -44,11 +44,11 @@ const processUpload = async ({
   })
 
   if (!valog.success()) {
-    log(`valog.success() is false`)
+    log('valog.success() is false')
     return { valog, upload: {} }
   }
 
-  let err = await updateProjectStatus(fileParts.projectId, documents)
+  const err = await updateProjectStatus(fileParts.projectId, documents)
   if (err) {
     valog.append(err.message)
     return { valog, upload: {} }
@@ -60,7 +60,7 @@ const processUpload = async ({
     valog.append(
       e.code === 'EEXIST'
         ? `The file ${filename} is already in the database. ` +
-          `Change the version number to upload again.`
+          'Change the version number to upload again.'
         : e.message
     )
   }

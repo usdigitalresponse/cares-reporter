@@ -4,19 +4,19 @@ if (process.env.VERBOSE) {
   log = console.dir
 }
 
-let path = require('path')
+const path = require('path')
 
 const fs = require('fs')
 const xlsx = require('xlsx')
 const _ = require('lodash')
 const { sheetToJson } = require('../lib/spreadsheet')
 
-let treasury = {
+const treasury = {
   template: null,
   sheets: null
 }
 
-let validation = {
+const validation = {
   template: null,
   sheets: null,
   dropdownValues: null
@@ -43,11 +43,14 @@ function getTreasuryTemplateSheets () {
 }
 
 function loadTreasuryTemplate () {
-  let xlsxTemplate = loadXlsxFile(process.env.TREASURY_TEMPLATE)
+  if (!process.env.TREASURY_TEMPLATE) {
+    throw new Error('Treasury template key missing from environment!')
+  }
+  const xlsxTemplate = loadXlsxFile(process.env.TREASURY_TEMPLATE)
   const objAoaSheets = {}
 
   _.keys(xlsxTemplate.Sheets).forEach(sheetName => {
-    const rawSheet = xlsxTemplate['Sheets'][sheetName]
+    const rawSheet = xlsxTemplate.Sheets[sheetName]
     objAoaSheets[sheetName] = sheetToJson(rawSheet, false)
   })
 
@@ -63,14 +66,14 @@ function getValidationTemplateSheets () {
 }
 
 function loadXlsxFile (fileName) {
-  let filePath = path.resolve(__dirname, `../data/${fileName}`)
+  const filePath = path.resolve(__dirname, `../data/${fileName}`)
   // console.log(`loadTreasuryTemplate: filePath is |${filePath}|`);
 
   return xlsx.read(fs.readFileSync(filePath), { type: 'buffer' })
 }
 
 function loadDropdownValues () {
-  let dropdownTab = validation.template.Sheets.Dropdowns
+  const dropdownTab = validation.template.Sheets.Dropdowns
   const dropdownSheet = xlsx.utils.sheet_to_json(dropdownTab, {
     header: 1,
     blankrows: false
@@ -93,7 +96,10 @@ function loadDropdownValues () {
 }
 
 function loadValidationTemplate () {
-  let xlsxTemplate = loadXlsxFile(process.env.VALIDATION_TEMPLATE)
+  if (!process.env.VALIDATION_TEMPLATE) {
+    throw new Error('Validation template key missing from environment!')
+  }
+  const xlsxTemplate = loadXlsxFile(process.env.VALIDATION_TEMPLATE)
   const objAoaSheets = {}
 
   _.keys(xlsxTemplate.Sheets).forEach(tabName => {
@@ -105,10 +111,10 @@ function loadValidationTemplate () {
 
   validation.template = xlsxTemplate
   validation.sheets = objAoaSheets
-  log(`Validation template loaded...`)
+  log('Validation template loaded...')
 
   validation.dropdownValues = loadDropdownValues()
-  log(`Dropdown values loaded...`)
+  log('Dropdown values loaded...')
   delete validation.sheets.Dropdowns
   return 'OK'
 }

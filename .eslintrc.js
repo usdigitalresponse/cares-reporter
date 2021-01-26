@@ -8,7 +8,7 @@ module.exports = {
     mocha: true
   },
 
-  extends: ['plugin:vue/essential'],
+  extends: ['standard', 'plugin:vue/essential'],
 
   globals: {
     requireSrc: 'writable'
