@@ -152,7 +152,7 @@ function consolidatePeriods (sqlRows, type) {
     }
     addPeriod(rowOut, rowIn)
   }
-
+  rowsOut.push(rowOut) // save the final rowOut
   rowsOut.shift() // discard { empty: null } sentry
   return rowsOut
 
@@ -251,6 +251,7 @@ async function createAwardAggregateSheet (nPeriods) {
         }
       }
     }
+    rowsOut.push(rowOut) // save the final rowOut
     rowsOut.shift() // discard { empty: null } sentry
     return rowsOut
   }
@@ -348,6 +349,7 @@ async function createAggregatePaymentSheet (nPeriods) {
         }
       }
     }
+    rowsOut.push(rowOut) // save the final rowOut
     rowsOut.shift() // discard { empty: null } sentry
     return rowsOut
   }
@@ -569,7 +571,6 @@ async function createProjectSummarySheet (nPeriods) {
 
       if (projectCode !== rowIn.project) {
         projectCode = rowIn.project
-
         rowOut.sumObligation = sumObligation
         rowOut.sumExpenditure = sumExpenditure
         rowsOut.push(rowOut) // save the completed previous rowOut
@@ -606,6 +607,9 @@ async function createProjectSummarySheet (nPeriods) {
         }
       }
     }
+    rowOut.sumObligation = sumObligation
+    rowOut.sumExpenditure = sumExpenditure
+    rowsOut.push(rowOut) // save the final rowOut
 
     rowsOut.shift() // discard { empty: null } sentry
     return rowsOut
