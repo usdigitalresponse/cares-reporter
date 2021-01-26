@@ -38,15 +38,29 @@ async function generateReport () {
   const nPeriods = await getCurrentReportingPeriodID()
   log(`generateReport() for ${nPeriods} periods`)
 
-  const sheets = {
-    contracts: await createAwardSheet('contracts', nPeriods),
-    grants: await createAwardSheet('grants', nPeriods),
-    loans: await createAwardSheet('loans', nPeriods),
-    transfers: await createAwardSheet('transfers', nPeriods),
-    direct: await createAwardSheet('direct', nPeriods),
-    'aggregate awards < 50000': await createAwardAggregateSheet(nPeriods),
-    'aggregate payments individual': await createAggregatePaymentSheet(nPeriods),
-    'project summaries': await createProjectSummarySheet(nPeriods)
+  const contracts = createAwardSheet('contracts', nPeriods)
+  const grants = createAwardSheet('grants', nPeriods)
+  const loans = createAwardSheet('loans', nPeriods)
+  const transfers = createAwardSheet('transfers', nPeriods)
+  const direct = createAwardSheet('direct', nPeriods)
+  const aa = createAwardAggregateSheet(nPeriods)
+  const ap = createAggregatePaymentSheet(nPeriods)
+  const ps = createProjectSummarySheet(nPeriods)
+
+  let sheets
+  try {
+    sheets = {
+      contracts: await contracts,
+      grants: await grants,
+      loans: await loans,
+      transfers: await transfers,
+      direct: await direct,
+      'aggregate awards < 50000': await aa,
+      'aggregate payments individual': await ap,
+      'project summaries': await ps
+    }
+  } catch (err) {
+    return err
   }
 
   for (const key in sheets) {
@@ -56,7 +70,6 @@ async function generateReport () {
   }
 
   const outputWorkBook = await composeWorkbook(sheets)
-
   if (_.isError(outputWorkBook)) {
     return outputWorkBook
   }
@@ -67,36 +80,34 @@ async function generateReport () {
 
 async function createAwardSheet (type, nPeriods) {
   log(`createAwardSheet(${type}, ${nPeriods})`)
-  const sqlData = await getAwardData(type)
-  if (_.isError(sqlData)) {
-    console.dir(sqlData)
-    return sqlData
-  }
-  log('sqlData.length is', sqlData.rows.length)
-  const rowData = consolidatePeriods(sqlData.rows, type)
-  log('rowData.length is', rowData.length)
-
-  addErrorChecks(rowData, type, nPeriods)
 
   const sheet = []
-  await addAwardSheetColumnTitles(sheet, type, nPeriods)
-  addDataRows(sheet, rowData)
+  try {
+    const sqlRows = await getAwardData(type)
+    const rowData = consolidatePeriods(sqlRows, type)
+    addErrorChecks(rowData, type, nPeriods)
+    await addAwardSheetColumnTitles(sheet, type, nPeriods)
+    addDataRows(rowData)
+  } catch (err) {
+    return err
+  }
 
   return sheet
 
-  function addDataRows (sheet, rowData) {
+  function addDataRows (rowData) {
     rowData.forEach(row => {
       const aoaRow = [
         row.agency,
         row.project,
         row.legal_name,
+        // force it to display as a date
         type === 'direct' ? Number(row.award_number) : row.award_number
       ]
       for (let i = 0; i < nPeriods; i++) {
         const period = row.period[i] || { amount: null, obligation: null, expenditure: null }
-        aoaRow.push(_.isNull(period.amount) ? null : period.amount)
-        aoaRow.push(_.isNull(period.obligation) ? null : period.obligation)
-        aoaRow.push(_.isNull(period.expenditure) ? null : period.expenditure)
+        aoaRow.push(period.amount)
+        aoaRow.push(period.obligation)
+        aoaRow.push(period.expenditure)
       }
       if (row.errors) {
         aoaRow.push(row.errors)
@@ -126,7 +137,7 @@ function consolidatePeriods (sqlRows, type) {
     // rowIn.subrecipient_id = rowIn.subrecipient_id || rowIn.subrecipient_identification_number
 
     if (!(rowIn.agency && rowIn.project)) {
-      return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+      throw new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
     }
 
     if (awardNumber !== rowIn.award_number ||
@@ -193,17 +204,17 @@ async function addAwardSheetColumnTitles (sheet, type, nPeriods) {
 
 async function createAwardAggregateSheet (nPeriods) {
   log(`createAwardAggregateSheet(${nPeriods})`)
-  const sqlData = await getAggregateAwardData()
-  if (_.isError(sqlData)) {
-    return sqlData
-  }
-  const rowData = consolidatePeriods(sqlData.rows)
-
-  addErrorChecks(rowData, 'Aggregate Awards < 50000', nPeriods)
 
   const sheet = []
-  addColumnTitles(sheet, nPeriods)
-  addDataRows(sheet, rowData, nPeriods)
+  try {
+    const sqlRows = await getAggregateAwardData()
+    const rowData = consolidatePeriods(sqlRows)
+    addErrorChecks(rowData, 'Aggregate Awards < 50000', nPeriods)
+    addColumnTitles(sheet, nPeriods)
+    addDataRows(sheet, rowData, nPeriods)
+  } catch (err) {
+    return err
+  }
   return sheet
 
   function consolidatePeriods (rowsIn) {
@@ -216,7 +227,7 @@ async function createAwardAggregateSheet (nPeriods) {
       const rowIn = rowsIn[i]
 
       if (!(rowIn.agency && rowIn.project)) {
-        return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+        throw new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
       }
 
       if (projectCode !== rowIn.project || fundingType !== rowIn.funding_type) {
@@ -291,17 +302,18 @@ async function createAwardAggregateSheet (nPeriods) {
 
   */
 async function createAggregatePaymentSheet (nPeriods) {
-  const sqlData = await getAggregatePaymentData()
-  if (_.isError(sqlData)) {
-    return sqlData
-  }
-  const rowData = consolidatePeriods(sqlData.rows)
-
-  addErrorChecks(rowData, 'Aggregate Payments Individual', nPeriods)
+  log(`createAggregatePaymentSheet(${nPeriods})`)
 
   const sheet = []
-  addColumnTitles(sheet, nPeriods)
-  addDataRows(sheet, rowData, nPeriods)
+  try {
+    const sqlRows = await getAggregatePaymentData()
+    const rowData = consolidatePeriods(sqlRows)
+    addErrorChecks(rowData, 'Aggregate Payments Individual', nPeriods)
+    addColumnTitles(sheet, nPeriods)
+    addDataRows(sheet, rowData, nPeriods)
+  } catch (err) {
+    return err
+  }
   return sheet
 
   function consolidatePeriods (rowsIn) {
@@ -313,7 +325,7 @@ async function createAggregatePaymentSheet (nPeriods) {
       const rowIn = rowsIn[i]
 
       if (!(rowIn.agency && rowIn.project)) {
-        return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+        throw new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
       }
 
       if (projectCode !== rowIn.project) {
@@ -526,15 +538,17 @@ function addErrorChecks (rowData, type, nPeriods) {
 /* createProjectSummarySheet()
   */
 async function createProjectSummarySheet (nPeriods) {
-  const sqlData = await getProjectSummaryData()
-  if (_.isError(sqlData)) {
-    return sqlData
-  }
-  const rowData = consolidateProjects(sqlData.rows)
+  log(`createProjectSummarySheet(${nPeriods})`)
 
   const sheet = []
-  await addColumnTitles(sheet, nPeriods)
-  addDataRows(sheet, rowData, nPeriods)
+  try {
+    const sqlRows = await getProjectSummaryData()
+    const rowData = consolidateProjects(sqlRows)
+    await addColumnTitles(sheet, nPeriods)
+    addDataRows(sheet, rowData, nPeriods)
+  } catch (err) {
+    return err
+  }
   return sheet
 
   function consolidateProjects (rowsIn) {
@@ -548,7 +562,7 @@ async function createProjectSummarySheet (nPeriods) {
       const rowIn = rowsIn[i]
 
       if (!rowIn.project) {
-        return new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
+        throw new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
       }
 
       if (projectCode !== rowIn.project) {
