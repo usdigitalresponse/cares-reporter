@@ -83,88 +83,76 @@ async function getAwardData (type) {
       u.reporting_period_id
     ;`
   // log(query)
-  try {
-    return knex.raw(query)
-  } catch (err) {
-    return err
-  }
+  const result = await knex.raw(query)
+  return result.rows
 }
 
 async function getAggregateAwardData () {
-  try {
-    return knex.raw(`
-      select
-        a.code as Agency,
-        p.code as Project,
-        u.reporting_period_id,
-        d.content->>'funding type' as funding_type,
-        d.content->>'current quarter obligation' as obligation,
-        d.content->>'current quarter expenditure/payments' as expenditure
-      from documents as d
-      left join uploads as u on d.upload_id = u.id
-      left join projects as p on p.id = u.project_id
-      left join agencies as a on a.id = u.agency_id
-      where d.type='aggregate awards < 50000'
-      order by
-        a.code,
-        p.code,
-        d.content->>'funding type'
-      ;`
-    )
-  } catch (err) {
-    return err
-  }
+  const result = await knex.raw(`
+    select
+      a.code as Agency,
+      p.code as Project,
+      u.reporting_period_id,
+      d.content->>'funding type' as funding_type,
+      d.content->>'current quarter obligation' as obligation,
+      d.content->>'current quarter expenditure/payments' as expenditure
+    from documents as d
+    left join uploads as u on d.upload_id = u.id
+    left join projects as p on p.id = u.project_id
+    left join agencies as a on a.id = u.agency_id
+    where d.type='aggregate awards < 50000'
+    order by
+      a.code,
+      p.code,
+      d.content->>'funding type'
+    ;`
+  )
+  return result.rows
 }
 
 async function getAggregatePaymentData () {
-  try {
-    return knex.raw(`
-      select
-        a.code as Agency,
-        p.code as Project,
-        u.reporting_period_id,
-        d.content->>'current quarter obligation' as obligation,
-        d.content->>'current quarter expenditure' as expenditure
-      from documents as d
-      left join uploads as u on d.upload_id = u.id
-      left join projects as p on p.id = u.project_id
-      left join agencies as a on a.id = u.agency_id
-      where d.type='aggregate payments individual'
-      order by
-        p.code
-      ;`
-    )
-  } catch (err) {
-    return err
-  }
+  const result = await knex.raw(`
+    select
+      a.code as Agency,
+      p.code as Project,
+      u.reporting_period_id,
+      d.content->>'current quarter obligation' as obligation,
+      d.content->>'current quarter expenditure' as expenditure
+    from documents as d
+    left join uploads as u on d.upload_id = u.id
+    left join projects as p on p.id = u.project_id
+    left join agencies as a on a.id = u.agency_id
+    where d.type='aggregate payments individual'
+    order by
+      p.code
+    ;`
+  )
+  return result.rows
 }
 
 async function getProjectSummaryData () {
-  try {
-    return knex.raw(`
-      select
-        a.code as Agency,
-        p.code as Project,
-        p.name as name,
-        p.status as status,
-        u.reporting_period_id,
-        d.content->>'current quarter obligation' as obligation,
-        d.content->>'total expenditure amount' as expenditure,
-        d.content->>'payment amount' as l_expenditure,
-        d.content->>'current quarter expenditure/payments' as aa_expenditure,
-        d.content->>'current quarter expenditure' as ap_expenditure
-      from documents as d
-      left join uploads as u on d.upload_id = u.id
-      left join projects as p on p.id = u.project_id
-      left join agencies as a on a.id = u.agency_id
-      order by
-        a.code,
-        p.code
-      ;`
-    )
-  } catch (err) {
-    return err
-  }
+  const result = await knex.raw(`
+    select
+      a.code as Agency,
+      p.code as Project,
+      p.name as name,
+      p.status as status,
+      u.reporting_period_id,
+      d.content->>'current quarter obligation' as obligation,
+      d.content->>'total expenditure amount' as expenditure,
+      d.content->>'payment amount' as l_expenditure,
+      d.content->>'current quarter expenditure/payments' as aa_expenditure,
+      d.content->>'current quarter expenditure' as ap_expenditure
+    from documents as d
+    left join uploads as u on d.upload_id = u.id
+    left join projects as p on p.id = u.project_id
+    left join agencies as a on a.id = u.agency_id
+    order by
+      a.code,
+      p.code
+    ;`
+  )
+  return result.rows
 }
 
 /*                                 *  *  *                                    */
