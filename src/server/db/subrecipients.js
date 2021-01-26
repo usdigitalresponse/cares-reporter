@@ -25,6 +25,13 @@
 /* eslint camelcase: 0 */
 
 const knex = require('./connection')
+const { getCurrentReportingPeriodID } = require('./settings')
+
+function subrecipients () {
+  return knex('subrecipients')
+    .select('*')
+    .orderBy('legal_name')
+}
 
 function subrecipients () {
   return knex('subrecipients')
@@ -90,11 +97,53 @@ function respace (_obj) {
   return obj
 }
 
+function subrecipientById (id) {
+  return knex('subrecipients')
+    .select('*')
+    .where({ id })
+    .then(r => r[0])
+}
+
+async function createSubrecipient (subrecipient) {
+  subrecipient.created_in_period = await getCurrentReportingPeriodID()
+  return knex
+    .insert(subrecipient)
+    .into('subrecipient')
+    .returning(['id'])
+    .then(response => {
+      return {
+        ...subrecipient,
+        id: response[0].id
+      }
+    })
+}
+
+function updateSubrecipient (subrecipient) {
+  return knex('subrecipients')
+    .where('id', subrecipient.id)
+    .update({
+      identification_number: subrecipient.identification_number,
+      duns_number: subrecipient.duns_number,
+      legal_name: subrecipient.legal_name,
+      address_line_1: subrecipient.address_line_1,
+      address_line_2: subrecipient.address_line_2,
+      address_line_3: subrecipient.address_line_3,
+      city_name: subrecipient.city_name,
+      state_code: subrecipient.state_code,
+      zip: subrecipient.zip,
+      country_name: subrecipient.country_name,
+      organization_type: subrecipient.organization_type
+    })
+}
+
 module.exports = {
   getSubRecipients,
   getSubRecipientsByPeriod,
   setSubRecipient,
-  subrecipients
+  subrecipients,
+  createSubrecipient,
+  updateSubrecipient,
+  subrecipientById
 }
 
 /*                                 *  *  *                                    */

@@ -4,22 +4,24 @@ const path = require('path')
 const {
   documentsWithProjectCode
 } = requireSrc(__filename)
-const { processUpload } = requireSrc(`${__dirname}/../services/process-upload`)
-
+const {
+  processUpload
+} = requireSrc(path.resolve(__dirname, '../services/process-upload')
+)
 const { makeUploadArgs } = require('../services/helpers')
 const {
   setCurrentReportingPeriod
-} = requireSrc(`${__dirname}/../db/settings`)
+} = requireSrc(path.resolve(__dirname, '../db/settings'))
 
-const dirRoot = path.resolve(__dirname, `../fixtures/`)
+const dirFixtures = path.resolve(__dirname, '../fixtures/')
 
 const expect = require('chai').expect
 
 describe('documents.spec.js - baseline success', () => {
-  const dir = path.resolve(dirRoot, `file-success`)
+  const dir = path.resolve(dirFixtures, 'file-success')
   it('Uploads a file in reporting period 1', async () => {
     const uploadArgs = makeUploadArgs(
-      path.resolve(dir, `OMB-1020-09302020-simple-v1.xlsx`)
+      path.resolve(dir, 'OMB-1020-09302020-simple-v1.xlsx')
     )
     await setCurrentReportingPeriod(1)
     const result = await processUpload(uploadArgs)
@@ -32,7 +34,7 @@ describe('documents.spec.js - baseline success', () => {
 
   it('Fails to upload a file in reporting period 2', async () => {
     const uploadArgs = makeUploadArgs(
-      path.resolve(dir, `GOV-075-09302020-simple-v1.xlsx`)
+      path.resolve(dir, 'GOV-075-09302020-simple-v1.xlsx')
     )
 
     await setCurrentReportingPeriod(2)
@@ -49,7 +51,7 @@ describe('documents.spec.js - baseline success', () => {
 
   it('Uploads a file in reporting period 2', async () => {
     const uploadArgs = makeUploadArgs(
-      path.resolve(dir, `EOHHS-075-12312020-simple-v1.xlsx`)
+      path.resolve(dir, 'EOHHS-075-12312020-simple-v1.xlsx')
     )
 
     await setCurrentReportingPeriod(2)

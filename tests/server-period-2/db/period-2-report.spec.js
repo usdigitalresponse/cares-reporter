@@ -14,11 +14,11 @@ require('dotenv').config()
 const dbname = 'rptest2'
 process.env.POSTGRES_URL = `postgres://localhost/${dbname}`
 // __dirname is the directory this file is in
-process.env.UPLOAD_DIRECTORY = path.resolve(__dirname, `../mocha_uploads`)
-process.env.TREASURY_DIRECTORY = path.resolve(__dirname, `../mocha_uploads/treasury`)
+process.env.UPLOAD_DIRECTORY = path.resolve(__dirname, '../mocha_uploads')
+process.env.TREASURY_DIRECTORY = path.resolve(__dirname, '../mocha_uploads/treasury')
 
 // process.cwd() is the directory that yarn is invoked in - the project root
-const treasury = require(path.resolve(process.cwd(), `src/server/lib/treasury`))
+const treasury = require(path.resolve(process.cwd(), 'src/server/lib/treasury'))
 
 describe('Generate a Treasury Report for Period 2', () => {
   it('Generates a Treasury Report Workbook for period 2', async () => {

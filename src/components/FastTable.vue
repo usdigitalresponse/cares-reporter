@@ -15,7 +15,7 @@
 <script>
 import FastBasicTable from './FastBasicTable.vue'
 import { titleize, singular } from '../helpers/form-helpers'
-import _ from 'lodash'
+
 const component = {
   name: 'Table',
   components: {
@@ -24,7 +24,7 @@ const component = {
   props: {
     table: Object,
     rows: Array,
-    user: Object,
+    user: Object
   },
   data: function () {
     const name = this.table ? this.table.name : ''
@@ -33,13 +33,13 @@ const component = {
       name,
       createUrl: `/create/${name}`,
       search: '',
-      createNewLabel,
+      createNewLabel
     }
   },
   computed: {
     columns: function () {
       return (this.table || {}).columns || []
-    },
+    }
   },
   watch: {
     table: function (table) {
@@ -51,7 +51,7 @@ const component = {
     titleize,
     filteredRows () {
       return this.rows
-    },
+    }
   }
 }
 
