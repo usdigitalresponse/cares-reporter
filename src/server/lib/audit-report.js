@@ -70,6 +70,7 @@ async function generateReport () {
   }
 
   const outputWorkBook = await composeWorkbook(sheets)
+
   if (_.isError(outputWorkBook)) {
     return outputWorkBook
   }
@@ -315,6 +316,7 @@ async function createAggregatePaymentSheet (nPeriods) {
   } catch (err) {
     return err
   }
+
   return sheet
 
   function consolidatePeriods (rowsIn) {

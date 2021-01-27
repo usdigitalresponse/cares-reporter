@@ -8,8 +8,6 @@
 */
 const knex = require('./connection')
 
-const _ = require('lodash')
-
 let log = () => {}
 if (process.env.VERBOSE) {
   log = console.log
@@ -82,7 +80,7 @@ async function getAwardData (type) {
       d.content->>'${q.number}',
       u.reporting_period_id
     ;`
-  // log(query)
+
   const result = await knex.raw(query)
   return result.rows
 }
