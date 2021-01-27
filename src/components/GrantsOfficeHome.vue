@@ -10,7 +10,7 @@
         <div class="closed" v-show="isClosed">
           This reporting period is closed.
         </div>
-        <div class="col-3">
+        <div class="col-3" v-show="viewingCurrentPeriod">
           <a href="/api/audit_report" class="btn btn-primary"
             >Download Audit Report</a
           >
