@@ -15,6 +15,7 @@
 <script>
 import FastBasicTable from './FastBasicTable.vue'
 import { titleize, singular } from '../helpers/form-helpers'
+
 const component = {
   name: 'Table',
   components: {
