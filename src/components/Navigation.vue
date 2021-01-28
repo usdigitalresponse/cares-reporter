@@ -89,6 +89,11 @@
             >Users</router-link
           >
         </li>
+        <li class="nav-item" v-if="role === 'admin'">
+          <router-link :class="navLinkClass('/reporting_periods')" to="/reporting_periods"
+            >Reporting Periods</router-link
+          >
+        </li>
       </ul>
     </div>
     <div class="messages">
