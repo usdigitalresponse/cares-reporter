@@ -33,12 +33,6 @@ function subrecipients () {
     .orderBy('legal_name')
 }
 
-function subrecipients () {
-  return knex('subrecipients')
-    .select('*')
-    .orderBy('legal_name')
-}
-
 async function getSubRecipients () {
   let records = await knex('subrecipients')
     .select('*')
