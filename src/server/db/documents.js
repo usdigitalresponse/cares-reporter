@@ -26,8 +26,7 @@ const {
 async function documentsWithProjectCode (period_id) {
   const periodUploadIDs = await getPeriodUploadIDs(period_id)
   const typesOfInterest = [
-    // 'subrecipient',
-    // 'projects',
+    'subrecipient',
     'certification',
     'cover',
     'contracts',
