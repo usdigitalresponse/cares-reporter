@@ -283,6 +283,20 @@ export default new Vuex.Store({
       }
       doFetch('documents', `?period_id=${period_id}`)
       doFetch('uploads', `?period_id=${period_id}`)
+    },
+    closeReportingPeriod ({ commit }, period_id) {
+      return fetch('/api/reporting_periods/close', { credentials: 'include' })
+        .then(r => {
+          if (r.ok) {
+            fetch('/api/reporting_periods', { credentials: 'include' })
+              .then(r => r.json())
+              .then(data => commit('setReportingPeriods', data.reporting_periods))
+            fetch('/api/application_settings', { credentials: 'include' })
+              .then(r => r.json())
+              .then(data => commit('setApplicationSettings', data.application_settings))
+          }
+          return r
+        })
     }
   },
   modules: {},
