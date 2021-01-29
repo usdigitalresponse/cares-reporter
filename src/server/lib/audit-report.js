@@ -565,7 +565,6 @@ async function createProjectSummarySheet (nPeriods) {
     const rowsOut = []
     let projectCode = ''
     let rowOut = { empty: null } // sentry
-    let sumObligation = 0
     let sumExpenditure = 0
 
     let obligations = {}
@@ -578,7 +577,7 @@ async function createProjectSummarySheet (nPeriods) {
       }
 
       if (projectCode !== rowIn.project) {
-        rowOut.sumObligation = sumObligations(obligations)
+        rowOut.sumObligation = sumObligations(projectCode, obligations)
         rowOut.sumExpenditure = sumExpenditure
         rowsOut.push(rowOut) // save the completed previous rowOut
         // console.dir(obligations, { depth: 4 })
@@ -586,7 +585,6 @@ async function createProjectSummarySheet (nPeriods) {
 
         obligations = {}
 
-        sumObligation = 0
         sumExpenditure = 0
         rowOut = {
           agency: rowIn.agency,
@@ -596,42 +594,42 @@ async function createProjectSummarySheet (nPeriods) {
           period: []
         }
       }
-      let an
+      let awardNumber
       switch (rowIn.type) {
         case 'contracts':
-          an = rowIn.contract_number
+          awardNumber = rowIn.contract_number
           break
         case 'grants':
-          an = rowIn.award_number
+          awardNumber = rowIn.award_number
           break
         case 'loans':
-          an = rowIn.loan_number
+          awardNumber = rowIn.loan_number
           break
         case 'transfers':
-          an = rowIn.transfer_number
+          awardNumber = rowIn.transfer_number
           break
         case 'direct':
-          an = `${rowIn.subrecipient_id}:${rowIn.obligation_date}`
+          awardNumber = `${rowIn.subrecipient_id}:${rowIn.obligation_date}`
           break
         case 'aggregate payments individual':
-          an = 'ap'
+          awardNumber = 'ap'
           break
         case 'aggregate awards < 50000':
-          an = 'aa'
+          awardNumber = 'aa'
           break
         default:
-          console.log(`Unrecognized record type ${rowIn.type}`)
+          console.dir(new Error(`Unrecognized record type ${rowIn.type}`))
           continue
       }
 
-      if (!obligations[an]) {
-        obligations[an] = []
+      if (!obligations[awardNumber]) {
+        obligations[awardNumber] = []
       }
       const p = Number(rowIn.reporting_period_id) - 1
-      if (!obligations[an][p]) {
-        obligations[an][p] = []
+      if (!obligations[awardNumber][p]) {
+        obligations[awardNumber][p] = []
       }
-      obligations[an][p].push(getAmount(rowIn.obligation))
+      obligations[awardNumber][p].push(getAmount(rowIn.obligation))
 
       const expenditure = getAmount(rowIn.expenditure ||
         rowIn.l_expenditure ||
@@ -654,7 +652,7 @@ async function createProjectSummarySheet (nPeriods) {
     }
 
     // save the final rowOut
-    rowOut.sumObligation = sumObligations(obligations)
+    rowOut.sumObligation = sumObligations(projectCode, obligations)
     rowOut.sumExpenditure = sumExpenditure
     rowsOut.push(rowOut)
 
@@ -673,11 +671,11 @@ async function createProjectSummarySheet (nPeriods) {
     aa: [ [ 0, 1380487.15, 0, 1076710, 0 ], [ 0, 1940000, 0, 0, 809868.87 ] ],
     ap: [ [ 2701820 ], [ 2327329.8 ] ]
   }
-  For all of them except aa records, we add only one value per period; the
+  For all of them except aa records, we use only one value per period; the
   rest are duplicates from multiple expenditure rows for that award.
   For aa records, we must add all of them.
 */
-  function sumObligations (obligations) {
+  function sumObligations (projectCode, obligations) {
     let sum = 0
     Object.keys(obligations).forEach(awardNumber => {
       // sum += obligations[awardNumber].reduce((acc, val) => acc + val)
@@ -686,12 +684,11 @@ async function createProjectSummarySheet (nPeriods) {
       switch (awardNumber) {
         case 'aa':
           x = _.flatten(arrAwardPeriods)
-            .reduce((acc, val) => {
-              return acc + (val || 0)
-            }, 0)
+            .reduce((acc, val) => acc + (val || 0), 0)
           if (isNaN(x)) {
-            console.log('AA', awardNumber)
-            console.dir(arrAwardPeriods)
+            console.dir(new Error(
+              `Bad obligation value in Aggregate Awards tab of project ${projectCode}: ${arrAwardPeriods}`
+            ))
           } else {
             sum += x
           }
@@ -699,11 +696,11 @@ async function createProjectSummarySheet (nPeriods) {
 
         case 'ap':
         default:
-          x = arrAwardPeriods
-            .reduce((acc, val) => acc + (val[0] || 0), 0)
+          x = arrAwardPeriods.reduce((acc, val) => acc + (val[0] || 0), 0)
           if (isNaN(x)) {
-            console.log('BB', awardNumber)
-            console.dir(arrAwardPeriods)
+            console.dir(new Error(
+              `Bad obligation value in project ${projectCode}, award number ${awardNumber}: ${arrAwardPeriods}`
+            ))
           } else {
             sum += x
           }
