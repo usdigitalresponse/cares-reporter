@@ -298,13 +298,28 @@ function getAggregateAwardsSheet (sheetRecords) {
   }
 
   sheetRecords.forEach(sourceRec => {
+    let category
     const sourceRow = sourceRec.content
-    let category = /Aggregate of (\w+)/.exec(sourceRow['funding type'])
-    if (category) {
-      category = category[1].toLowerCase()
-    } else {
-      console.log('Aggregate Awards record without a category!', sourceRow)
-      return
+    const fundingType = (sourceRow['funding type'] || '').toLowerCase()
+    switch (true) {
+      case Boolean(fundingType.match('grants')):
+        category = 'grants'
+        break
+      case Boolean(fundingType.match('contracts')):
+        category = 'contracts'
+        break
+      case Boolean(fundingType.match('loans')):
+        category = 'loans'
+        break
+      case Boolean(fundingType.match('transfers')):
+        category = 'transfers'
+        break
+      case Boolean(fundingType.match('direct')):
+        category = 'direct'
+        break
+      default:
+        console.log('Aggregate Awards record without a category!', sourceRow)
+        return
     }
     Object.keys(sourceRow).forEach(columnName => {
       switch (true) {

@@ -119,7 +119,6 @@ async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipientReferen
 module.exports = {
   getSubrecipientRecords,
   update: updateSubrecipientTable
-
 }
 
 /*                                  *  *  *                                   */
