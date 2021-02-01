@@ -129,8 +129,18 @@ async function saveSummaries (periodSummaries) {
       const { rowCount } = await knex('period_summaries').insert(periodSummaries[i])
       count += rowCount
     } catch (err) {
-      console.dir(periodSummaries[i])
-      errLog.push(err.message)
+      // the ID might be a DUNS number
+      const subrecipientID = periodSummaries[i].subrecipient_identification_number
+      periodSummaries[i].subrecipient_identification_number = `DUNS${subrecipientID}`
+      try {
+        const { rowCount: rc } = await knex('period_summaries').insert(periodSummaries[i])
+        count += rc
+      } catch (err1) {
+        // it wasn't a DUNS number - must be another error
+        periodSummaries[i].subrecipient_identification_number = subrecipientID
+        console.dir(periodSummaries[i])
+        errLog.push(err.message)
+      }
     }
   }
   log(`${count} records saved`)
