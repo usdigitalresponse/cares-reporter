@@ -32,7 +32,11 @@ export default {
           { name: 'zip', label: 'Zip' },
           { name: 'country_name', label: 'Country' },
           { name: 'organization_type', label: 'Organization Type' },
-          { href: (row) => `/subrecipients/${row.id}`, label: 'Edit' }
+          {
+            href: (row) => `/subrecipients/${row.id}`,
+            label: 'Edit',
+            hide: (row) => Boolean(row.created_in_period)
+          }
         ]
       }
     }
