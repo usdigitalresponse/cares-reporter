@@ -145,56 +145,58 @@ async function spreadsheetToDocuments (
     // but allow for checking of additional errors.
     if (!sheet) return
 
-    let sheetName = type.trim().toLowerCase()
+    const sheetName = type.trim().toLowerCase()
+    // Mark any columns not in the template to be ignored
+    const cols = sheet[0].map(col => {
+      return templateSheet[0].includes(col) ? col : 'ignore'
+    })
+    // Process data rows
+    sheet.slice(1).forEach((row, i) => {
+      if (row.length === 0) return
 
-    switch (sheetName) {
-      case 'subrecipient':
-      case 'certification':
-      case 'cover':
-      case 'projects':
-      case 'contracts':
-      case 'grants':
-      case 'loans':
-      case 'transfers':
-      case 'direct':
-      case 'aggregate awards < 50000':
-      case 'aggregate payments individual': {
-        // Process header row
-        // Mark any columns not in the template to be ignored
-        const cols = sheet[0].map(col => {
-          return templateSheet[0].includes(col) ? col : 'ignore'
-        })
-        // Process data rows
-        sheet.slice(1).forEach((row, i) => {
-          if (row.length === 0) return
-          let jsonRow = _.omit(_.zipObject(cols, row), ['ignore'])
+      const jsonRow = _.omit(_.zipObject(cols, row), ['ignore'])
 
-          if (sheetName === 'subrecipient' && jsonRow['duns number']) {
+      switch (sheetName) {
+        case 'subrecipient':
+          if (jsonRow['duns number']) {
             // populate the identification number field for easier deduplication
             jsonRow['identification number'] = `DUNS${jsonRow['duns number']}`
           }
+          break
 
-          if (sheetName === 'cover') {
-            // note in the database this field is called "code", and "id" is
-            // not this, but the numeric record id.
-            jsonRow['project id'] = zeroPad(jsonRow['project id'])
-          }
+        case 'projects':
+          jsonRow['project identification number'] =
+            zeroPad(jsonRow['project identification number'])
+          break
 
-          documents.push({
-            type,
-            user_id,
+        case 'contracts':
+        case 'grants':
+        case 'loans':
+        case 'transfers':
+        case 'direct':
+        case 'cover':
+          // note in the projects database table this field is called "code",
+          // and "id" is not this, but the numeric record id.
+          jsonRow['project id'] = zeroPad(jsonRow['project id'])
+          break
 
-            // changed 21 01 07
-            content: clean(jsonRow),
+        case 'certification':
+        case 'aggregate awards < 50000':
+        case 'aggregate payments individual':
+          break
 
-            sourceRow: i + 2 // one-based, not zero-based, and title row was omitted
-          })
-        })
+        default:
+          // ignore all other sheets
+          return
       }
-        break
 
-      default:
-    }
+      documents.push({
+        type,
+        user_id,
+        content: clean(jsonRow), // changed 21 01 07
+        sourceRow: i + 2 // one-based, not zero-based, and title row was omitted
+      })
+    })
   })
   return { documents, valog }
 }
@@ -217,7 +219,7 @@ function uploadFilename (filename) {
 /* clean() trims strings and rounds amounts
   */
 function clean (objRecord) {
-  let objCleaned = {}
+  const objCleaned = {}
   Object.keys(objRecord).forEach(key => {
     let val = objRecord[key] || null
 

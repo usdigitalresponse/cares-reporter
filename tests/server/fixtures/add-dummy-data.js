@@ -1,3 +1,6 @@
+const path = require('path')
+const fs = require('fs')
+
 const setupAgencies = knex => {
   return knex('agencies').insert([
     { name: 'Generic Government', code: 'GOV' },
@@ -9,8 +12,20 @@ const setupAgencies = knex => {
   })
 }
 
+function deleteTreasuryReports () {
+  const directory = process.env.TREASURY_DIRECTORY
+
+  const files = fs.readdirSync(directory)
+  for (const file of files) {
+    fs.unlink(path.join(directory, file), err => {
+      if (err) throw err
+    })
+  }
+}
+
 module.exports = {
-  setupAgencies
+  setupAgencies,
+  deleteTreasuryReports
 }
 
 // Run this file directly through node to set up dummy data for manual testing.

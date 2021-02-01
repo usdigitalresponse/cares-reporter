@@ -53,7 +53,11 @@ function refresh (el, binding, vnode, oldVnode) {
       const htmlRows = rows.map(row => {
         const htmlCells = cols.map(col => {
           if (col.href) {
-            return `<td><a href="${col.href(row)}">${col.label}</a></td>`
+            if (col.hide(row)) {
+              return '<td></td>'
+            } else {
+              return `<td><a href="${col.href(row)}">${col.label}</a></td>`
+            }
           }
           return `<td>${row[col.name] || ''}</td>`
         })
