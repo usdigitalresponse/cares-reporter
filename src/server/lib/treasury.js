@@ -576,14 +576,15 @@ async function writeOutputWorkbook (filename, workbook) {
   return fileInterface.writeFileCarefully(filename, workbook)
 }
 
-async function getNewFilename () {
+async function getNewFilename (period_id) {
   const timeStamp = new Date().toISOString().split('.')[0].split(':').join('')
   let {
     title: state,
-    current_reporting_period_id: period
+    current_reporting_period_id
   } = await applicationSettings()
+  period_id = period_id || current_reporting_period_id
   state = state.replace(/ /g, '-')
-  const filename = `${state}-Period-${period}-CRF-Report-to-OIG-V.${timeStamp}`
+  const filename = `${state}-Period-${period_id}-CRF-Report-to-OIG-V.${timeStamp}`
   log(`Filename is ${filename}`)
 
   if (process.env.AUDIT) {
@@ -654,7 +655,7 @@ async function generateReport (period_id) {
     return outputWorkBook
   }
 
-  const filename = await getNewFilename()
+  const filename = await getNewFilename(period_id)
   await writeOutputWorkbook(filename, outputWorkBook)
 
   return { filename, outputWorkBook }
