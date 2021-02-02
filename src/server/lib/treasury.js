@@ -1,3 +1,9 @@
+/*
+--------------------------------------------------------------------------------
+-                                 lib/treasury.js
+--------------------------------------------------------------------------------
+
+*/
 /* eslint camelcase: 0 */
 
 const XLSX = require('xlsx')
@@ -9,15 +15,14 @@ const {
 } = require('../db/settings')
 const { documentsWithProjectCode } = require('../db/documents')
 const { getProjects } = require('../db/projects')
-const { getSubRecipients, setSubRecipient } = require('../db/subrecipients')
 const { getUploadSummaries } = require('../db/uploads')
-const { getReportedSubrecipientIds } = require('../db/period-summaries')
 
 const { getTreasuryTemplateSheets } = require('../services/get-template')
 
-const { makeConfig } = require('../lib/config')
-const { clean, cleanString } = require('../lib/spreadsheet')
-const FileInterface = require('../lib/server-disk-interface')
+const { getSubrecipientRecords } = require('./subrecipients')
+const { makeConfig } = require('./config')
+const { clean, cleanString } = require('./spreadsheet')
+const FileInterface = require('./server-disk-interface')
 const fileInterface = new FileInterface(process.env.TREASURY_DIRECTORY)
 
 const { fixCellFormats } = require('../services/fix-cell-formats')
@@ -293,13 +298,28 @@ function getAggregateAwardsSheet (sheetRecords) {
   }
 
   sheetRecords.forEach(sourceRec => {
+    let category
     const sourceRow = sourceRec.content
-    let category = /Aggregate of (\w+)/.exec(sourceRow['funding type'])
-    if (category) {
-      category = category[1].toLowerCase()
-    } else {
-      console.log('Aggregate Awards record without a category!', sourceRow)
-      return
+    const fundingType = (sourceRow['funding type'] || '').toLowerCase()
+    switch (true) {
+      case Boolean(fundingType.match('grants')):
+        category = 'grants'
+        break
+      case Boolean(fundingType.match('contracts')):
+        category = 'contracts'
+        break
+      case Boolean(fundingType.match('loans')):
+        category = 'loans'
+        break
+      case Boolean(fundingType.match('transfers')):
+        category = 'transfers'
+        break
+      case Boolean(fundingType.match('direct')):
+        category = 'direct'
+        break
+      default:
+        console.log('Aggregate Awards record without a category!', sourceRow)
+        return
     }
     Object.keys(sourceRow).forEach(columnName => {
       switch (true) {
@@ -695,14 +715,6 @@ async function getGroups (period_id) {
 
   log(`Found ${documents.length} documents`)
 
-  // we need the subrecipients db table to be current before we get the
-  // award records. Should really be done on file upload, not here.
-  const mapSubrecipients = await updateSubrecipientTable(documents)
-
-  if (_.isError(mapSubrecipients)) {
-    return mapSubrecipients
-  }
-
   const {
     awardRecords,
     mapSubrecipientReferences,
@@ -719,114 +731,17 @@ async function getGroups (period_id) {
 
   const subrecipientRecords = await getSubrecipientRecords(
     mapUploadMetadata,
-    mapSubrecipients,
     mapSubrecipientReferences
   )
+  if (_.isError(subrecipientRecords)) {
+    return subrecipientRecords
+  }
   records.splice(records.length, 0, ...subrecipientRecords)
 
   groups = _.groupBy(records, 'type')
   log(`Found ${_.keys(groups).length} groups:`)
 
   return groups
-}
-
-async function getSubrecipientRecords (mapUploadMetadata, mapSubrecipients, mapSubrecipientReferences) {
-  const subrecipientRecords = []
-  const arrPriorPeriodSubrecipientIDs = await getReportedSubrecipientIds()
-  let previouslyReported = 0
-  let newThisPeriod = 0
-  let orphanSubrecipients = 0
-  let missingSubrecipients = 0
-
-  mapSubrecipientReferences.forEach((record, subrecipientID) => {
-    let type
-
-    if (mapSubrecipients.has(subrecipientID)) {
-      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1) {
-        newThisPeriod += 1
-        type = 'subrecipient'
-      } else {
-        previouslyReported += 1
-        type = 'prior_subrecipient'
-      }
-      subrecipientRecords.push({
-        type: type,
-        content: mapSubrecipients.get(subrecipientID)
-      })
-    } else if (process.env.AUDIT) {
-      missingSubrecipients += 1
-      subrecipientRecords.push({
-        type: 'missing_subrecipient',
-        subrecipient_id: subrecipientID,
-        tab: record.type,
-        upload_file: mapUploadMetadata.get(record.upload_id).filename
-      })
-    }
-  })
-
-  if (process.env.AUDIT) {
-    mapSubrecipients.forEach((record, subrecipientID) => {
-      if (arrPriorPeriodSubrecipientIDs.indexOf(subrecipientID) === -1 &&
-        !mapSubrecipientReferences.has(subrecipientID)) {
-        orphanSubrecipients += 1
-
-        subrecipientRecords.push({
-          type: 'orphan_subrecipient',
-          content: record
-        })
-      }
-    })
-  }
-  log(`${subrecipientRecords.length} subrecipient records`)
-  log(`Previously reported: ${previouslyReported}`)
-  log(`New this period: ${newThisPeriod}`)
-  log(`Missing: ${missingSubrecipients}`)
-  log(`Orphan: ${orphanSubrecipients}`)
-
-  return subrecipientRecords
-}
-
-/*  updateSubrecipientTable() adds new subrecipients to the database
-  */
-async function updateSubrecipientTable (documents) {
-  // get all the subrecipients currently in the subrecipients table
-  let mapSubrecipients
-  try {
-    mapSubrecipients = await getSubRecipients()
-  } catch (err) {
-    return err
-  }
-
-  documents.forEach(async record => {
-    switch (record.type) {
-      case 'subrecipient': {
-        const subrecipientIN = cleanString(record.content['identification number'])
-
-        // If an upload contains a new subrecipient, add it to the db table.
-        // Changes to existing subrecipients must be done by email request.
-        // (decided 20 12 07  States Call)
-        if (mapSubrecipients.has(subrecipientIN)) {
-          break
-        }
-
-        const recSubRecipient = clean(record.content)
-
-        // Not needed any more! It doesn't matter what period the record
-        // was created in. But we do need to know if this subrecipient has
-        // been reported in a previous reporting period
-        // - see period-summaries.js/getReportedSubrecipientIds()
-        // recSubRecipient['created in period'] = crpID
-
-        mapSubrecipients.set(subrecipientIN, recSubRecipient)
-        setSubRecipient(recSubRecipient) // no need to wait
-
-        break
-      }
-      default:
-        break
-    }
-  })
-  return mapSubrecipients
 }
 
 /* getAwardRecords() cleans and deduplicates records, and combines them as

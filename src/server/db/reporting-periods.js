@@ -36,6 +36,12 @@ const {
   writeSummaries
 } = require('./period-summaries')
 
+const subrecipients = require('./subrecipients')
+let log = () => {}
+if (process.env.VERBOSE) {
+  log = console.log
+}
+
 module.exports = {
   close: closeReportingPeriod,
   get: getReportingPeriod,
@@ -80,7 +86,7 @@ async function getFirstReportingPeriodStartDate () {
 async function isClosed (period_id) {
   return getReportingPeriod(period_id)
     .then(period => {
-      console.log(`period ${period_id} certified: ${Boolean(period.certified_at)}`)
+      log(`period ${period_id} certified: ${Boolean(period.certified_at)}`)
       return Boolean(period.certified_at)
     })
 }
@@ -110,7 +116,6 @@ async function closeReportingPeriod (user, period) {
   const reporting_period_id = await getCurrentReportingPeriodID()
 
   period = period || reporting_period_id
-
   if (period !== reporting_period_id) {
     throw new Error(
       `The current reporting period (${reporting_period_id}) is not period ${period}`
@@ -129,10 +134,17 @@ async function closeReportingPeriod (user, period) {
     }
   }
 
+  console.log(`closing period ${period}`)
   // throws if there is no report in the period
   const latestTreasuryReportFileName = await treasury.latestReport(reporting_period_id)
+  console.log(`Treasury Report ${latestTreasuryReportFileName}`)
 
   const errLog = await writeSummaries(reporting_period_id)
+
+  const err = await subrecipients.setPeriod(reporting_period_id)
+  if (err) {
+    errLog.unshift(err)
+  }
 
   if (errLog && errLog.length > 0) {
     console.dir(errLog, { depth: 4 })
