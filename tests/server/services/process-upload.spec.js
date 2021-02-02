@@ -176,14 +176,23 @@ describe('services/process_upload', () => {
 
       expect(afterFirstUpload).to.deep.equal([{ upload_id: result1.upload.id }])
 
-      // For the second upload use a file with similar content
-      // but a different cover page, rather than
-      // a new version of the first report.
+      // For the second upload use a file with similar content but a
+      // different cover page, rather than a new version of the first
+      // report.
+      // Note that a previous version of this test left the project number
+      // the same and changed the agency, and expected it to not overwrite
+      // the previously uploaded project 075 file.
+      // 21 02 01 This was erroneous - we want to key only on the project,
+      // because the states can move a project from one agency to another,
+      // and because the Treasury doesn't track the agency, only the
+      // project ID. So this upload now changes the projectID as well as
+      // the agency so that with the corrected behavior, it does not
+      // overwrite the just-uploaded file
       const uploadArgs2 = makeUploadArgs(
         path.resolve(
           dirFixtures,
           'file-success',
-          'GOV-075-09302020-simple-v1.xlsx'
+          'GOV-078-09302020-simple-v1.xlsx'
         )
       )
       const result2 = await processUpload(uploadArgs2)
@@ -198,15 +207,18 @@ describe('services/process_upload', () => {
         .orderBy('upload_id')
       expect(beforeReplace).to.deep.equal([{ upload_id: result1.upload.id }, { upload_id: result2.upload.id }])
 
-      // Do the replacement of upload of v1 by uploading a new version of that file
-      // simulated here by changing the filename.
+      // Do the replacement of upload of v1 by uploading a new version of that
+      // file simulated here by changing the filename.
+      // An upload overwrites a previous upload with a matching project ID
+      // and period - see src/server/db/deleteDocuments()
+      // So this should overwrite 'EOHHS-075-09302020-simple-v1.xlsx', even
+      // though the agency code is different.
       const uploadArgs3 = makeUploadArgs(
         path.resolve(
           dirFixtures,
           'file-success',
-          'EOHHS-075-09302020-simple-v1.xlsx'
+          'GOV-075-09302020-simple-v2.xlsx'
         )
-
       )
       uploadArgs3.filename = uploadArgs3.filename.replace(/-v1/, '-v2')
       const result3 = await processUpload(uploadArgs3)

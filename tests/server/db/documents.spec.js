@@ -34,7 +34,7 @@ describe('documents.spec.js - baseline success', () => {
 
   it('Fails to upload a file in reporting period 2', async () => {
     const uploadArgs = makeUploadArgs(
-      path.resolve(dir, 'GOV-075-09302020-simple-v1.xlsx')
+      path.resolve(dir, 'GOV-078-09302020-simple-v1.xlsx')
     )
 
     await setCurrentReportingPeriod(2)
