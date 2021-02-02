@@ -181,10 +181,15 @@ function consolidatePeriods (sqlRows, type) {
 
   function addPeriod (rowOut, rowIn) {
     const period = Number(rowIn.reporting_period_id)
-    rowOut.period[period - 1] = {
-      amount: getAmount(rowIn.award_amount),
-      obligation: getAmount(rowIn.current_obligation),
-      expenditure: getAmount(rowIn.current_expenditure)
+    const i = period - 1
+    if (rowOut.period[i]) {
+      rowOut.period[i].expenditure += getAmount(rowIn.current_expenditure)
+    } else {
+      rowOut.period[i] = {
+        amount: getAmount(rowIn.award_amount),
+        obligation: getAmount(rowIn.current_obligation),
+        expenditure: getAmount(rowIn.current_expenditure)
+      }
     }
   }
 }
