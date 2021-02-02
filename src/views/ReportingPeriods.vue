@@ -1,5 +1,10 @@
 <template>
   <div class="reporting-periods">
+    <div class="mb-4">
+      <router-link to="/new_reporting_period" class="btn btn-primary"
+        >Create New Reporting Period</router-link
+      >
+    </div>
     <h2>Reporting Periods</h2>
     <table class="mt-3 table table-striped">
       <thead class="thead-light">
@@ -8,13 +13,14 @@
           <th>Start Date</th>
           <th>End Date</th>
           <th>Certified At</th>
+          <th></th>
         </tr>
       </thead>
       <tbody :key="n" v-for="(p, n) in reportingPeriods">
         <tr :key="n">
           <td>{{ p.name }}</td>
-          <td>{{ p.start_date }}</td>
-          <td>{{ p.end_date }}</td>
+          <td>{{ formatDate(p.start_date) }}</td>
+          <td>{{ formatDate(p.end_date) }}</td>
           <td>
             <span v-if="isCurrentReportingPeriod(p)">
               <button
@@ -24,9 +30,12 @@
                   :disabled="certifying"
               >{{ certifyLabel }}</button>
             </span>
-            <span v-else>
-              {{ p.certified_at }}
+            <span v-else-if="p.certified_at">
+              {{ formatDate(p.certified_at) }}
             </span>
+          </td>
+          <td>
+            <a v-if="!p.certified_at" :href="`/reporting_periods/${p.id}`">Edit</a>
           </td>
         </tr>
       </tbody>
@@ -57,6 +66,8 @@
 </template>
 
 <script>
+const moment = require('moment')
+const _ = require('lodash')
 export default {
   name: 'ReportingPeriods',
   data: function () {
@@ -70,7 +81,7 @@ export default {
       return this.$store.state.user
     },
     reportingPeriods: function () {
-      return this.$store.state.reportingPeriods
+      return _.sortBy(this.$store.state.allReportingPeriods, ['start_date'])
     },
     currentReportingPeriodName () {
       return this.$store.getters.currentReportingPeriod.name
@@ -108,6 +119,9 @@ export default {
             this.certifying = false
           })
       }
+    },
+    formatDate (d) {
+      return moment(d).format('MM/DD/YYYY')
     }
   }
 }

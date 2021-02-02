@@ -26,6 +26,7 @@
 */
 const knex = require('./connection')
 const treasury = require('../lib/treasury')
+const { cleanString } = require('../lib/spreadsheet')
 
 const {
   getCurrentReportingPeriodID,
@@ -51,7 +52,10 @@ module.exports = {
   getID: getPeriodID,
   isCurrent,
   isClosed,
-  getAll
+  getAll,
+  createReportingPeriod,
+  updateReportingPeriod,
+  reportingPeriodById
 }
 
 /*  getAll() returns all the records from the reporting_periods table
@@ -170,6 +174,42 @@ async function getEndDates () {
   return await knex('reporting_periods')
     .select('end_date')
     .orderBy('id')
+}
+
+/*  reportingPeriodById()
+  */
+function reportingPeriodById (id) {
+  return knex('reporting_periods')
+    .select('*')
+    .where({ id })
+    .then(r => r[0])
+}
+
+/*  createReportingPeriod()
+  */
+async function createReportingPeriod (reportingPeriod) {
+  return knex
+    .insert(reportingPeriod)
+    .into('reporting_periods')
+    .returning(['id'])
+    .then(response => {
+      return {
+        ...reportingPeriod,
+        id: response[0].id
+      }
+    })
+}
+
+/*  updateReportingPeriod()
+  */
+function updateReportingPeriod (reportingPeriod) {
+  return knex('reporting_periods')
+    .where('id', reportingPeriod.id)
+    .update({
+      name: cleanString(reportingPeriod.name),
+      start_date: reportingPeriod.start_date,
+      end_date: reportingPeriod.end_date
+    })
 }
 
 /*                                 *  *  *                                    */

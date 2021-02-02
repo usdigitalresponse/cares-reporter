@@ -13,6 +13,7 @@ import Projects from '../views/Projects.vue'
 import ProjectUploads from '../views/ProjectUploads.vue'
 import Upload from '../views/Upload.vue'
 import FixSubrecipients from '../views/FixSubrecipients.vue'
+import ReportingPeriod from '../views/ReportingPeriod.vue'
 import ReportingPeriods from '../views/ReportingPeriods.vue'
 import Subrecipient from '../views/Subrecipient.vue'
 import Subrecipients from '../views/Subrecipients.vue'
@@ -102,6 +103,18 @@ const routes = [
     path: '/reporting_periods',
     name: 'ReportingPeriods',
     component: ReportingPeriods,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: '/new_reporting_period',
+    name: 'NewReportingPeriod',
+    component: ReportingPeriod,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: '/reporting_periods/:id',
+    name: 'ReportingPeriod',
+    component: ReportingPeriod,
     meta: { requiresLogin: true }
   },
   {
