@@ -76,8 +76,8 @@ async function getAwardData (type) {
     order by
       a.code,
       p.code,
-      d.content->>'subrecipient id',
       d.content->>'${q.number}',
+      d.content->>'subrecipient id',
       u.reporting_period_id
     ;`
 
@@ -136,6 +136,13 @@ async function getProjectSummaryData () {
       p.name as name,
       p.status as status,
       u.reporting_period_id,
+      d.type,
+      d.content->>'contract number' as contract_number,
+      d.content->>'award number' as award_number,
+      d.content->>'loan number' as loan_number,
+      d.content->>'transfer number' as transfer_number,
+      d.content->>'obligation date' as obligation_date,
+      d.content->>'subrecipient id' as subrecipient_id,
       d.content->>'current quarter obligation' as obligation,
       d.content->>'total expenditure amount' as expenditure,
       d.content->>'payment amount' as l_expenditure,
@@ -145,9 +152,25 @@ async function getProjectSummaryData () {
     left join uploads as u on d.upload_id = u.id
     left join projects as p on p.id = u.project_id
     left join agencies as a on a.id = u.agency_id
+    where d.type in (
+      'contracts',
+      'grants',
+      'loans',
+      'transfers',
+      'direct',
+      'aggregate awards < 50000',
+      'aggregate payments individual'
+    )
     order by
       a.code,
-      p.code
+      p.code,
+      subrecipient_id,
+      contract_number,
+      award_number,
+      loan_number,
+      transfer_number,
+      obligation_date,
+      reporting_period_id
     ;`
   )
   return result.rows
