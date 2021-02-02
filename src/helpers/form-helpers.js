@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import numeral from 'numeral'
+import moment from 'moment'
 
 export function titleize (s) {
   if (!s) {
@@ -74,6 +75,14 @@ export function validate (columns, record) {
           value = JSON.parse(value)
         } catch (e) {
           validationMessages.push(makeValidationMessage(column, e.message))
+        }
+      }
+      if (value && column.date) {
+        const d = moment(value)
+        if (!d.isValid()) {
+          validationMessages.push(
+            makeValidationMessage(column, 'must be a valid date')
+          )
         }
       }
     }

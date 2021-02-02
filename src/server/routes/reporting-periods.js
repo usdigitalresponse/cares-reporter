@@ -10,8 +10,7 @@ const express = require('express')
 const router = express.Router()
 
 const { requireUser, requireAdminUser } = require('../access-helpers')
-const { user: getUser } = require('../db')
-const { getPeriodSummaries } = require('../db')
+const { getPeriodSummaries, user: getUser } = require('../db')
 const reportingPeriods = require('../db/reporting-periods')
 
 router.get('/', requireUser, async function (req, res) {
@@ -25,7 +24,7 @@ router.get('/', requireUser, async function (req, res) {
     }
   })
 
-  return res.json({ reporting_periods })
+  return res.json({ reporting_periods, all_reporting_periods: allPeriods })
 })
 
 router.get('/summaries/', requireUser, async function (req, res) {
@@ -46,6 +45,50 @@ router.get('/close/', requireAdminUser, async (req, res) => {
   res.json({
     status: 'OK'
   })
+})
+
+function validateReportingPeriod(req, res, next) {
+  next()
+}
+
+router.post('/', requireAdminUser, validateReportingPeriod, function (req, res, next) {
+  console.log('POST /reporting_periods', req.body)
+  const { name, start_date, end_date } = req.body
+  const reportingPeriod = {
+    name,
+    start_date,
+    end_date
+  }
+  reportingPeriods.createReportingPeriod(reportingPeriod)
+    .then(result => res.json({ reportingPeriod: result }))
+    .catch(e => {
+      next(e)
+    })
+})
+
+router.put('/:id', requireAdminUser, validateReportingPeriod, async function (
+  req,
+  res,
+  next
+) {
+  console.log('PUT /reporting_periods/:id', req.body)
+  let reportingPeriod = await reportingPeriods.reportingPeriodById(req.params.id)
+  if (!reportingPeriod) {
+    res.status(400).send('Reporting period not found')
+    return
+  }
+  const { name, start_date, end_date } = req.body
+  project = {
+    ...reportingPeriod,
+    name,
+    start_date,
+    end_date
+  }
+  reportingPeriods.updateReportingPeriod(project)
+    .then(result => res.json({ reportingPeriod: result }))
+    .catch(e => {
+      next(e)
+    })
 })
 
 module.exports = router
