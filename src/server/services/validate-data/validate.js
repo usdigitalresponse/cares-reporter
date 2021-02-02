@@ -59,7 +59,7 @@ function isPositiveNumber (val) {
 }
 
 function isPositiveNumberOrZero (val) {
-  return _.isNumber(val) ? val >= 0 : _.isEmpty(val);
+  return _.isNumber(val) ? val >= 0 : _.isEmpty(val)
 }
 
 function isAtLeast50K (val) {
@@ -184,7 +184,7 @@ function cumulativeAmountIsLessThanOrEqual (key, filterPredicate) {
   return (val, content, { periodSummaries }) => {
     const currentPeriodAmount = Number(content[key]) || 0.0
     const previousPeriodsAmount = cumulativeAmount(key, content, periodSummaries, filterPredicate)
-    const b =  _.round(currentPeriodAmount + previousPeriodsAmount, 2) <= _.round(val, 2)
+    const b = _.round(currentPeriodAmount + previousPeriodsAmount, 2) <= _.round(val, 2)
     if (!b) {
       console.log('cumulativeAmountIsLessThanOrEqual:',
         key,
@@ -194,7 +194,7 @@ function cumulativeAmountIsLessThanOrEqual (key, filterPredicate) {
         'total:', currentPeriodAmount + previousPeriodsAmount)
       console.log('content:', JSON.stringify(content))
     }
-    return b;
+    return b
   }
 }
 
@@ -231,32 +231,32 @@ function matchesFilePart (key) {
 
 function numberIsLessThanOrEqual (key) {
   return (val, content) => {
-    const other = _.isNumber(content[key]) ? content[key] : 0.00;
+    const other = _.isNumber(content[key]) ? content[key] : 0.00
     const b = _.isNumber(val) && _.isNumber(other) && val <= other
     if (!b) {
-      console.log('numberIsLessThanOrEqual fails:', key, val, _.isNumber(val), other, _.isNumber(other), val <= other);
+      console.log('numberIsLessThanOrEqual fails:', key, val, _.isNumber(val), other, _.isNumber(other), val <= other)
     }
-    return b;
+    return b
   }
 }
 
 function numberIsGreaterThanOrEqual (key) {
   return (val, content) => {
-    const other = _.isNumber(content[key]) ? content[key] : 0.00;
+    const other = _.isNumber(content[key]) ? content[key] : 0.00
     return _.isNumber(val) && _.isNumber(other) && val >= other
   }
 }
 
 function dropdownIncludes (key) {
   return val => {
-    let allDropdowns = getDropdownValues()
+    const allDropdowns = getDropdownValues()
     if (!allDropdowns) {
       console.log(`DROPDOWN VALUES NOT INITIALIZED!! (${key})`)
       return false
     }
-    let dropdownValues = _.get(allDropdowns, key, [])
+    const dropdownValues = _.get(allDropdowns, key, [])
 
-    let rv = _.includes(dropdownValues, val.toLowerCase())
+    const rv = _.includes(dropdownValues, val.toLowerCase())
     log(`${key}:${val} is ${rv ? 'present' : 'missing'}`)
     // log(dropdownValues);
     return rv
@@ -331,8 +331,8 @@ function validateFields (requiredFields, content, tab, row, context = {}) {
           message || `Empty or invalid entry for ${key}: "{}"`,
           messageValue(val, options),
           content
-        );
-        console.log(finalMessage);
+        )
+        console.log(finalMessage)
         valog.push(
           new ValidationItem({
             message: finalMessage,
@@ -369,7 +369,7 @@ function validateSingleDocument (tab, validations, message) {
     if (documents && documents.length === 1) {
       const { content } = documents[0]
       const row = 2
-      let results = validateFields(validations, content, tab, row, validateContext)
+      const results = validateFields(validations, content, tab, row, validateContext)
       valog = valog.concat(results)
     } else {
       valog.push(new ValidationItem({ message, tab }))

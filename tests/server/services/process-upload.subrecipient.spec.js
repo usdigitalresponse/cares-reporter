@@ -8,7 +8,7 @@ const dirFixtures = path.resolve(__dirname, '../fixtures')
 
 describe('services/process-upload', () => {
   describe('subrecipients', () => {
-    it('fails when missing both project_id and duns', async () => {
+    it('fails when missing both subrecipient code and duns', async () => {
       const uploadArgs = makeUploadArgs(
         path.resolve(
           dirFixtures,

@@ -38,13 +38,13 @@ const validateUpload = async ({
   }
   const reportingPeriod = await reportingPeriods.get(reporting_period_id)
 
-  let valog = new ValidationLog()
+  const valog = new ValidationLog()
   const { valog: filenameValog, ...fileParts } =
     await parseFilename(filename, reportingPeriod)
 
   valog.append(filenameValog)
   if (!valog.success()) {
-    log(`failed to validate file name`)
+    log('failed to validate file name')
     return { valog, documents: {} }
   }
 
@@ -63,7 +63,7 @@ const validateUpload = async ({
     templateSheets
   )
   if (parseValog.length) {
-    log(`parseValog failed`)
+    log('parseValog failed')
   }
   valog.append(parseValog)
 
@@ -72,7 +72,7 @@ const validateUpload = async ({
     valog: docValog
   } = await spreadsheetToDocuments(spreadsheet, user_id, templateSheets)
   if (docValog.length) {
-    log(`docValog failed`)
+    log('docValog failed')
   }
   valog.append(docValog)
 
@@ -88,7 +88,7 @@ const validateUpload = async ({
     firstReportingPeriodStartDate
   )
   if (dataValog.length) {
-    log(`dataValog failed`)
+    log('dataValog failed')
     // console.dir(dataValog);
   }
   valog.append(dataValog)

@@ -15,12 +15,15 @@ const {
   createSubrecipient,
   updateSubrecipient
 } = require('../db/subrecipients')
+const {
+  put
+} = require('../lib/subrecipients')
 
-router.get('/', requireUser, function (req, res) {
+router.get('/', requireUser, function get (req, res) {
   subrecipients().then(subrecipients => res.json({ subrecipients }))
 })
 
-router.post('/', requireAdminUser, function (req, res, next) {
+router.post('/', requireAdminUser, function post (req, res, next) {
   console.log('POST /subrecipients', req.body)
   const {
     identification_number,
@@ -55,49 +58,39 @@ router.post('/', requireAdminUser, function (req, res, next) {
     })
 })
 
-router.put('/:id', requireAdminUser, async function (
+router.put('/:id', requireAdminUser, async function put (
   req,
   res,
   next
 ) {
-  console.log('PUT /subrecipiens/:id', req.body)
-  let subrecipient = await subrecipientById(req.params.id)
+  let subrecipient
+  const subrecipientID = (req.params || {}).id
+  if (!subrecipientID) {
+    return res.status(400).send('Requires a subrecipient ID')
+  }
+  try {
+    subrecipient = await subrecipientById(subrecipientID)
+  } catch (err) {
+    return res.status(500).send(err.message)
+  }
   if (!subrecipient) {
-    res.status(400).send('Subrecipient not found')
-    return
+    return res.status(404).send(`Subrecipient ${subrecipientID} not found`)
   }
-  const {
-    identification_number,
-    duns_number,
-    legal_name,
-    address_line_1,
-    address_line_2,
-    address_line_3,
-    city_name,
-    state_code,
-    zip,
-    country_name,
-    organization_type
-  } = req.body
-  subrecipient = {
-    ...subrecipient,
-    identification_number,
-    duns_number,
-    legal_name,
-    address_line_1,
-    address_line_2,
-    address_line_3,
-    city_name,
-    state_code,
-    zip,
-    country_name,
-    organization_type
+  if (subrecipient.created_in_period !== null) {
+    return res.status(403).send(`Subrecipient ${subrecipientID} not editable`)
   }
-  updateSubrecipient(subrecipient)
-    .then(result => res.json({ subrecipient: result }))
+
+  updateSubrecipient(subrecipient, req.body)
+    .then(result => {
+      return res.json({ subrecipient: result })
+    })
     .catch(e => {
+      console.log('error!!')
+      console.dir(e)
       next(e)
     })
 })
 
 module.exports = router
+
+/*                                  *  *  *                                   */

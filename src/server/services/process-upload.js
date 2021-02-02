@@ -19,6 +19,7 @@ const FileInterface = require('../lib/server-disk-interface')
 const fileInterface = new FileInterface()
 const { validateUpload } = require('./validate-upload')
 const { updateProjectStatus } = require('../db')
+const subrecipients = require('../lib/subrecipients')
 
 const processUpload = async ({
   filename,
@@ -97,8 +98,19 @@ const processUpload = async ({
       // Enhance the documents with the resulting upload.id. Note this needs
       // to be done here to get the upload and document insert operations into
       // the same transaction.
-      documents.forEach(doc => (doc.upload_id = upload.id))
-      const createResult = createDocuments(documents, trx)
+      const subs = []
+      const docs = []
+      documents.forEach(doc => {
+        doc.upload_id = upload.id
+
+        if (doc.type === 'subrecipient') {
+          subs.push(doc)
+        } else {
+          docs.push(doc)
+        }
+      })
+      subrecipients.update(subs)
+      const createResult = createDocuments(docs, trx)
       return createResult
     })
     // console.log(`Inserted ${(result || {}).rowCount} documents.`);
