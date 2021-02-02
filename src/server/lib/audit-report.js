@@ -726,8 +726,11 @@ async function createProjectSummarySheet (nPeriods) {
     })
     return sum
   }
-
+  
   async function addColumnTitles (sheet, nPeriods) {
+    let endDates = await reportingPeriods.getEndDates()
+    endDates = endDates.map(ed => format(new Date(ed.end_date), 'M/d/yy'))
+    endDates.unshift(null) // because the first period is period 1
     const line1 = [
       'Agency Alpha Code',
       'Project Identification Number',
