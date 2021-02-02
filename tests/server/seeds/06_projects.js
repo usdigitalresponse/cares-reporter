@@ -12,6 +12,10 @@ exports.seed = async function (knex) {
       {
         code: '1020',
         name: 'Workforce Stabilization Loan Program other projects'
+      },
+      {
+        code: '078',
+        name: 'Workforce Stabilization Loan Program'
       }
     ])
     .returning('id')
