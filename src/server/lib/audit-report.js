@@ -727,7 +727,7 @@ async function createProjectSummarySheet (nPeriods) {
     })
     return sum
   }
-  
+
   async function addColumnTitles (sheet, nPeriods) {
     let endDates = await reportingPeriods.getEndDates()
     endDates = endDates.map(ed => format(new Date(ed.end_date), 'M/d/yy'))
