@@ -78,7 +78,7 @@ export function validate (columns, record) {
         }
       }
       if (value && column.date) {
-        const d = moment(value)
+        const d = moment(value, 'MM/DD/YYYY')
         if (!d.isValid()) {
           validationMessages.push(
             makeValidationMessage(column, 'must be a valid date')

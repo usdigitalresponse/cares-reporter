@@ -12,6 +12,8 @@
           <th>Name</th>
           <th>Start Date</th>
           <th>End Date</th>
+          <th>Template</th>
+          <th></th>
           <th>Certified At</th>
           <th></th>
         </tr>
@@ -21,6 +23,10 @@
           <td>{{ p.name }}</td>
           <td>{{ formatDate(p.start_date) }}</td>
           <td>{{ formatDate(p.end_date) }}</td>
+          <td>{{ p.reporting_template }}</td>
+          <td>
+            <a v-if="!p.certified_at" :href="`/new_template/${p.id}`">Upload Template</a>
+          </td>
           <td>
             <span v-if="isCurrentReportingPeriod(p)">
               <button
