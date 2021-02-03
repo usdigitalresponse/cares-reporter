@@ -2,6 +2,7 @@
 
 import Vue from 'vue'
 import Vuex from 'vuex'
+import moment from 'moment'
 import _ from 'lodash'
 
 Vue.use(Vuex)
@@ -71,6 +72,7 @@ export default new Vuex.Store({
     projects: [],
     subrecipients: [],
     reportingPeriods: [],
+    allReportingPeriods: [],
     messages: [],
     viewPeriodID: null
   },
@@ -95,6 +97,9 @@ export default new Vuex.Store({
     },
     setReportingPeriods (state, reportingPeriods) {
       state.reportingPeriods = reportingPeriods
+    },
+    setAllReportingPeriods (state, allReportingPeriods) {
+      state.allReportingPeriods = allReportingPeriods
     },
     setApplicationSettings (state, applicationSettings) {
       state.applicationSettings = applicationSettings
@@ -158,6 +163,19 @@ export default new Vuex.Store({
     },
     setViewPeriodID (state, period_id) {
       state.viewPeriodID = period_id
+    },
+    addReportingPeriod (state, reportingPeriod) {
+      state.allReportingPeriods = _.sortBy([...state.allReportingPeriods, reportingPeriod], 'start_date')
+    },
+    updateReportingPeriod (state, reportingPeriod) {
+      state.reportingPeriods = _.chain(state.reportingPeriods)
+        .map(r => (reportingPeriod.id === r.id ? reportingPeriod : r))
+        .sortBy('start_date')
+        .value()
+      state.allReportingPeriods = _.chain(state.allReportingPeriods)
+        .map(r => (reportingPeriod.id === r.id ? reportingPeriod : r))
+        .sortBy('start_date')
+        .value()
     }
   },
   actions: {
@@ -169,6 +187,9 @@ export default new Vuex.Store({
           .then(data => {
             const mutation = _.camelCase(`set_${attr}`)
             commit(mutation, data[attr])
+            if (attr === 'reporting_periods') { // yuck
+              commit('setAllReportingPeriods', data.all_reporting_periods)
+            }
           })
       }
       doFetch('application_settings')
@@ -297,6 +318,24 @@ export default new Vuex.Store({
           }
           return r
         })
+    },
+    createReportingPeriod ({ commit }, reportingPeriod) {
+      return post('/api/reporting_periods', reportingPeriod).then(response => {
+        const r = {
+          ...reportingPeriod,
+          ...response.reportingPeriod
+        }
+        r.start_date = moment(r.start_date).format()
+        r.end_date = moment(r.end_date).format()
+        commit('addReportingPeriod', r)
+      })
+    },
+    updateReportingPeriod ({ commit }, reportingPeriod) {
+      reportingPeriod.start_date = moment(reportingPeriod.start_date).format()
+      reportingPeriod.end_date = moment(reportingPeriod.end_date).format()
+      return put(`/api/reporting_periods/${reportingPeriod.id}`, reportingPeriod).then(() => {
+        commit('updateReportingPeriod', reportingPeriod)
+      })
     }
   },
   modules: {},
