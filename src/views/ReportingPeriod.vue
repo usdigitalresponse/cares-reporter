@@ -48,9 +48,14 @@ export default {
     fields: function () {
       return [
         { name: 'name', required: true },
-        { name: 'start_date', required: true, date: true },
-        { name: 'end_date', required: true, date: true }
+        { name: 'start_date', label: 'Reporting Period Start Date', required: true, date: true },
+        { name: 'end_date', label: 'Reporting Period End Date', required: true, date: true },
+        { name: 'period_of_performance_end_date', required: true, date: true },
+        { name: 'crf_end_date', label: 'CRF End Date', required: true, date: true }
       ]
+    },
+    dateFields: function () {
+      return this.fields.filter(f => f.date).map(f => f.name)
     }
   },
   watch: {
@@ -60,13 +65,13 @@ export default {
   },
   methods: {
     findReportingPeriod (id) {
-      const r = _.find(this.$store.state.allReportingPeriods, { id }) || {}
+      const r = _.find(this.$store.state.allReportingPeriods, { id })
       if (r) {
-        return {
-          ...r,
-          start_date: this.formatDate(r.start_date),
-          end_date: this.formatDate(r.end_date)
-        }
+        const result = { ...r }
+        this.dateFields.forEach(f => {
+          result[f] = this.formatDate(result[f])
+        })
+        return result
       }
       return null
     },
@@ -75,6 +80,13 @@ export default {
         ...this.editReportingPeriod,
         ...reportingPeriod
       }
+      // convert everything back to sortable format
+      this.dateFields.forEach(f => {
+        const v = updatedReportingPeriod[f]
+        if (v) {
+          updatedReportingPeriod[f] = moment(v, 'MM/DD/YYYY').utc().format('YYYY-MM-DD')
+        }
+      })
       return this.$store
         .dispatch(
           this.isNew ? 'createReportingPeriod' : 'updateReportingPeriod',
@@ -90,7 +102,13 @@ export default {
       this.$router.push('/reporting_periods')
     },
     formatDate (d) {
-      return moment(d).format('MM/DD/YYYY')
+      if (d) {
+        const dt = moment(d)
+        if (dt.isValid()) {
+          return dt.format('MM/DD/YYYY')
+        }
+      }
+      return ''
     }
   }
 }

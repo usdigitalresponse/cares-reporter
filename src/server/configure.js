@@ -33,8 +33,7 @@ module.exports = app => {
   app.use('/api/uploads', require('./routes/uploads'))
   app.use('/api/users', require('./routes/users'))
   app.use('/api/validations', require('./routes/validations'))
-
-  app.use('/templates', express.static(resolve(__dirname, 'data')))
+  app.use('/templates', require('./routes/templates'))
 
   if (process.env.NODE_ENV !== 'development') {
     const staticMiddleware = express.static(publicPath, staticConf)
