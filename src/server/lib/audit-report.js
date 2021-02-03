@@ -20,6 +20,8 @@ const {
   getAwardData
 } = require('../db/audit-report')
 
+let endDates
+
 let log = () => {}
 if (process.env.VERBOSE) {
   log = console.log
@@ -35,6 +37,10 @@ module.exports = { generate: generateReport }
     and writes it out if successful.
     */
 async function generateReport () {
+  endDates = await reportingPeriods.getEndDates()
+  endDates = endDates.map(ed => format(new Date(ed.end_date), 'M/d/yy'))
+  endDates.unshift(null) // because the first period is period 1
+
   const nPeriods = await getCurrentReportingPeriodID()
   log(`generateReport() for ${nPeriods} periods`)
 
@@ -108,7 +114,13 @@ async function createAwardSheet (type, nPeriods) {
       for (let i = 0; i < nPeriods; i++) {
         const period = row.period[i] || { amount: null, obligation: null, expenditure: null }
         aoaRow.push(period.amount)
+      }
+      for (let i = 0; i < nPeriods; i++) {
+        const period = row.period[i] || { amount: null, obligation: null, expenditure: null }
         aoaRow.push(period.obligation)
+      }
+      for (let i = 0; i < nPeriods; i++) {
+        const period = row.period[i] || { amount: null, obligation: null, expenditure: null }
         aoaRow.push(period.expenditure)
       }
       if (row.errors) {
@@ -169,10 +181,15 @@ function consolidatePeriods (sqlRows, type) {
 
   function addPeriod (rowOut, rowIn) {
     const period = Number(rowIn.reporting_period_id)
-    rowOut.period[period - 1] = {
-      amount: getAmount(rowIn.award_amount),
-      obligation: getAmount(rowIn.current_obligation),
-      expenditure: getAmount(rowIn.current_expenditure)
+    const i = period - 1
+    if (rowOut.period[i]) {
+      rowOut.period[i].expenditure += getAmount(rowIn.current_expenditure)
+    } else {
+      rowOut.period[i] = {
+        amount: getAmount(rowIn.award_amount),
+        obligation: getAmount(rowIn.current_obligation),
+        expenditure: getAmount(rowIn.current_expenditure)
+      }
     }
   }
 }
@@ -187,20 +204,18 @@ async function addAwardSheetColumnTitles (sheet, type, nPeriods) {
     direct: 'Payment Date'
   }[type]
 
-  const line1 = [null, null, null, null]
-  const line2 = ['Agency', 'Project', 'Sub-recipient', awardNumber]
+  const line1 = ['Agency', 'Project', 'Sub-recipient', awardNumber]
   for (let i = 1; i <= nPeriods; i++) {
-    line1.push(`Period ${i}`)
-    line1.push(null)
-    line1.push(null)
-
-    line2.push('Amount')
-    line2.push('Obligation Amount')
-    line2.push('Expenditure Amount')
+    line1.push(`${endDates[i]} Amount`)
   }
-  line2.push('Errors')
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`${endDates[i]} Obligation Amount`)
+  }
+  for (let i = 1; i <= nPeriods; i++) {
+    line1.push(`${endDates[i]} Expenditure Amount`)
+  }
+  line1.push('Errors')
   sheet.push(line1)
-  sheet.push(line2)
 }
 
 async function createAwardAggregateSheet (nPeriods) {
@@ -258,19 +273,18 @@ async function createAwardAggregateSheet (nPeriods) {
   }
 
   function addColumnTitles (sheet, nPeriods) {
-    log(`createAwardAggregateSheet/addColumnTitles(${nPeriods} periods)`)
-    const line1 = [null, null, null]
-    const line2 = ['Agency', 'Project', 'Funding Type']
+    log(`createAwardAggregateSheet/addColumnTitles(${nPeriods})`)
+    const line1 = ['Agency', 'Project', 'Funding Type']
+    
     for (let i = 1; i <= nPeriods; i++) {
-      line1.push(`Period ${i}`)
-      line1.push(null)
-
-      line2.push('Obligation Amount')
-      line2.push('Expenditure Amount')
+      line1.push(`${endDates[i]} Obligation Amount`)
     }
-    line2.push('Errors')
+    for (let i = 1; i <= nPeriods; i++) {
+      line1.push(`${endDates[i]} Expenditure Amount`)
+    }
+
+    line1.push('Errors')
     sheet.push(line1)
-    sheet.push(line2)
   }
 
   function addDataRows (sheet, aaData, nPeriods) {
@@ -283,6 +297,9 @@ async function createAwardAggregateSheet (nPeriods) {
       for (let i = 0; i < nPeriods; i++) {
         const period = row.period[i] || {}
         aoaRow.push(period.obligation)
+      }
+      for (let i = 0; i < nPeriods; i++) {
+        const period = row.period[i] || {}
         aoaRow.push(period.expenditure)
       }
       if (row.errors) {
@@ -357,18 +374,16 @@ async function createAggregatePaymentSheet (nPeriods) {
   }
 
   function addColumnTitles (sheet, nPeriods) {
-    const line1 = [null, null]
-    const line2 = ['Agency', 'Project']
+    const line1 = ['Agency', 'Project']
     for (let i = 1; i <= nPeriods; i++) {
-      line1.push(`Period ${i}`)
-      line1.push(null)
-
-      line2.push('Obligation Amount')
-      line2.push('Expenditure Amount')
+      line1.push(`${endDates[i]} Obligation Amount`)
     }
-    line2.push('Errors')
+    for (let i = 1; i <= nPeriods; i++) {
+      line1.push(`${endDates[i]} Expenditure Amount`)
+    }
+
+    line1.push('Errors')
     sheet.push(line1)
-    sheet.push(line2)
   }
 
   function addDataRows (sheet, rowData, nPeriods) {
@@ -380,6 +395,9 @@ async function createAggregatePaymentSheet (nPeriods) {
       for (let i = 0; i < nPeriods; i++) {
         const period = row.period[i] || {}
         aoaRow.push(period.obligation)
+      }
+      for (let i = 0; i < nPeriods; i++) {
+        const period = row.period[i] || {}
         aoaRow.push(period.expenditure)
       }
       if (row.errors) {
@@ -590,6 +608,7 @@ async function createProjectSummarySheet (nPeriods) {
           agency: rowIn.agency,
           project: rowIn.project,
           name: rowIn.name,
+          description: rowIn.description,
           status: rowIn.status,
           period: []
         }
@@ -713,13 +732,13 @@ async function createProjectSummarySheet (nPeriods) {
     let endDates = await reportingPeriods.getEndDates()
     endDates = endDates.map(ed => format(new Date(ed.end_date), 'M/d/yy'))
     endDates.unshift(null) // because the first period is period 1
-
     const line1 = [
       'Agency Alpha Code',
       'Project Identification Number',
       'Project Title',
+      'Project Description',
       'Project Status',
-      'Airtable Approved Amount',
+      'Approved Amount',
       'Cumulative Obligation Amount'
     ]
 
@@ -736,6 +755,7 @@ async function createProjectSummarySheet (nPeriods) {
         row.agency,
         row.project,
         row.name,
+        row.description,
         row.status,
         null, // Airtable Approved Amount
         row.sumObligation
@@ -757,13 +777,13 @@ async function composeWorkbook (sheets) {
   const workbook = XLSX.utils.book_new()
   const sheetSpecs = [
     ['Project Summaries', 1],
-    ['Contracts', 2],
-    ['Grants', 2],
-    ['Loans', 2],
-    ['Transfers', 2],
-    ['Direct', 2],
-    ['Aggregate Awards < 50000', 2],
-    ['Aggregate Payments Individual', 2]
+    ['Contracts', 1],
+    ['Grants', 1],
+    ['Loans', 1],
+    ['Transfers', 1],
+    ['Direct', 1],
+    ['Aggregate Awards < 50000', 1],
+    ['Aggregate Payments Individual', 1]
   ]
   sheetSpecs.forEach(async spec => {
     const sheetName = spec[0]
