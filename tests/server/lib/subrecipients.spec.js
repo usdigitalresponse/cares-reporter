@@ -1,6 +1,6 @@
 /*
 --------------------------------------------------------------------------------
--                  tests/server/services/subrecipient.spec.js
+-                  tests/server/lib/subrecipients.spec.js
 --------------------------------------------------------------------------------
 
 Tests:
@@ -53,8 +53,9 @@ const { setupAgencies, deleteTreasuryReports } = require('../fixtures/add-dummy-
 
 let recordID = 13
 
-describe('Testing services/subrecipients', () => {
-  it('Reset the database', async () => {
+describe('Testing lib/subrecipients', () => {
+  it('Reset the database', async function () {
+    this.timeout(4000)
     await knex.destroy()
     const a = execFileSync('./tests/server/reset-dbx.sh')
     console.log(String.fromCharCode.apply(null, a))
