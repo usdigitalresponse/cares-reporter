@@ -56,7 +56,6 @@ let recordID = 13
 describe('Testing lib/subrecipients', () => {
   it('Reset the database', async function () {
     this.timeout(4000)
-
     await knex.destroy()
     const a = execFileSync('./tests/server/reset-dbx.sh')
     console.log(String.fromCharCode.apply(null, a))
