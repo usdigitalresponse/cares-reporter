@@ -58,11 +58,19 @@ function validateReportingPeriod(req, res, next) {
 
 router.post('/', requireAdminUser, validateReportingPeriod, function (req, res, next) {
   console.log('POST /reporting_periods', req.body)
-  const { name, start_date, end_date } = req.body
+  const {
+    name,
+    start_date,
+    end_date,
+    period_of_performance_end_date,
+    crf_end_date
+  } = req.body
   const reportingPeriod = {
     name,
     start_date,
-    end_date
+    end_date,
+    period_of_performance_end_date,
+    crf_end_date
   }
   reportingPeriods.createReportingPeriod(reportingPeriod)
     .then(result => res.json({ reportingPeriod: result }))
@@ -82,12 +90,20 @@ router.put('/:id', requireAdminUser, validateReportingPeriod, async function (
     res.status(404).send('Reporting period not found')
     return
   }
-  const { name, start_date, end_date } = req.body
+  const {
+    name,
+    start_date,
+    end_date,
+    period_of_performance_end_date,
+    crf_end_date
+  } = req.body
   reportingPeriod = {
     ...reportingPeriod,
     name,
     start_date,
-    end_date
+    end_date,
+    period_of_performance_end_date,
+    crf_end_date
   }
   reportingPeriods.updateReportingPeriod(reportingPeriod)
     .then(result => res.json({ reportingPeriod: result }))
