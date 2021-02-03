@@ -26,8 +26,7 @@ const {
 async function documentsWithProjectCode (period_id) {
   const periodUploadIDs = await getPeriodUploadIDs(period_id)
   const typesOfInterest = [
-    // 'subrecipient',
-    // 'projects',
+    'subrecipient',
     'certification',
     'cover',
     'contracts',
@@ -141,7 +140,7 @@ function createDocuments (documents, queryBuilder = knex) {
 async function deleteDocuments ({ agencyCode, projectId, reportingDate }) {
   const uploads = await knex('uploads')
     .select('id')
-    .where('filename', 'like', `${agencyCode}-${projectId}-${reportingDate}-%`)
+    .where('filename', 'like', `%-${projectId}-${reportingDate}-%`)
   const uploadIds = _.map(uploads, 'id')
   const delResult = await knex('documents')
     .del()

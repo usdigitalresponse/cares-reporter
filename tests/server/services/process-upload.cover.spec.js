@@ -35,7 +35,6 @@ describe('process-upload', () => {
           'data-cover',
           'EOHHS-075-09302020-bad-agency_code-v1.xlsx'
         )
-
       )
       const result = await processUpload(uploadArgs)
       const err = result.valog.getLog()[0] || {}

@@ -26,6 +26,7 @@
 */
 const knex = require('./connection')
 const treasury = require('../lib/treasury')
+const { cleanString } = require('../lib/spreadsheet')
 
 const {
   getCurrentReportingPeriodID,
@@ -36,6 +37,12 @@ const {
   writeSummaries
 } = require('./period-summaries')
 
+const subrecipients = require('./subrecipients')
+let log = () => {}
+if (process.env.VERBOSE) {
+  log = console.log
+}
+
 module.exports = {
   close: closeReportingPeriod,
   get: getReportingPeriod,
@@ -45,7 +52,10 @@ module.exports = {
   getID: getPeriodID,
   isCurrent,
   isClosed,
-  getAll
+  getAll,
+  createReportingPeriod,
+  updateReportingPeriod,
+  reportingPeriodById
 }
 
 /*  getAll() returns all the records from the reporting_periods table
@@ -80,7 +90,7 @@ async function getFirstReportingPeriodStartDate () {
 async function isClosed (period_id) {
   return getReportingPeriod(period_id)
     .then(period => {
-      console.log(`period ${period_id} certified: ${Boolean(period.certified_at)}`)
+      log(`period ${period_id} certified: ${Boolean(period.certified_at)}`)
       return Boolean(period.certified_at)
     })
 }
@@ -110,7 +120,6 @@ async function closeReportingPeriod (user, period) {
   const reporting_period_id = await getCurrentReportingPeriodID()
 
   period = period || reporting_period_id
-
   if (period !== reporting_period_id) {
     throw new Error(
       `The current reporting period (${reporting_period_id}) is not period ${period}`
@@ -129,10 +138,17 @@ async function closeReportingPeriod (user, period) {
     }
   }
 
+  console.log(`closing period ${period}`)
   // throws if there is no report in the period
   const latestTreasuryReportFileName = await treasury.latestReport(reporting_period_id)
+  console.log(`Treasury Report ${latestTreasuryReportFileName}`)
 
   const errLog = await writeSummaries(reporting_period_id)
+
+  const err = await subrecipients.setPeriod(reporting_period_id)
+  if (err) {
+    errLog.unshift(err)
+  }
 
   if (errLog && errLog.length > 0) {
     console.dir(errLog, { depth: 4 })
@@ -158,6 +174,45 @@ async function getEndDates () {
   return await knex('reporting_periods')
     .select('end_date')
     .orderBy('id')
+}
+
+/*  reportingPeriodById()
+  */
+function reportingPeriodById (id) {
+  return knex('reporting_periods')
+    .select('*')
+    .where({ id })
+    .then(r => r[0])
+}
+
+/*  createReportingPeriod()
+  */
+async function createReportingPeriod (reportingPeriod) {
+  return knex
+    .insert(reportingPeriod)
+    .into('reporting_periods')
+    .returning(['id'])
+    .then(response => {
+      return {
+        ...reportingPeriod,
+        id: response[0].id
+      }
+    })
+}
+
+/*  updateReportingPeriod()
+  */
+function updateReportingPeriod (reportingPeriod) {
+  return knex('reporting_periods')
+    .where('id', reportingPeriod.id)
+    .update({
+      name: cleanString(reportingPeriod.name),
+      start_date: reportingPeriod.start_date,
+      end_date: reportingPeriod.end_date,
+      period_of_performance_end_date: reportingPeriod.period_of_performance_end_date,
+      crf_end_date: reportingPeriod.crf_end_date,
+      reporting_template: reportingPeriod.reporting_template
+    })
 }
 
 /*                                 *  *  *                                    */
