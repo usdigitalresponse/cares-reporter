@@ -253,6 +253,22 @@ export default new Vuex.Store({
           return response
         })
     },
+    createTemplate ({ commit }, { reportingPeriodId, formData }) {
+      return postForm(`/api/reporting_periods/templates/${reportingPeriodId}`, formData)
+        .then(r => {
+          if (!r.ok) { throw new Error(`createUpload: ${r.statusText} (${r.status})`) }
+          return r.json()
+        })
+        .then(response => {
+          if (response.success && response.reportingPeriod) {
+            commit('updateReportingPeriod', response.reportingPeriod)
+            fetch('/api/application_settings', { credentials: 'include' })
+              .then(r => r.json())
+              .then(data => commit('setApplicationSettings', data.application_settings))
+          }
+          return response
+        })
+    },
     createProject ({ commit }, project) {
       return post('/api/projects', project).then(response => {
         const p = {

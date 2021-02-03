@@ -7,6 +7,7 @@ import Documents from '../views/Documents.vue'
 import Home from '../views/Home.vue'
 import ImportFile from '../views/ImportFile.vue'
 import Login from '../views/Login.vue'
+import NewTemplate from '../views/NewTemplate.vue'
 import NewUpload from '../views/NewUpload.vue'
 import Project from '../views/Project.vue'
 import Projects from '../views/Projects.vue'
@@ -43,6 +44,12 @@ const routes = [
     path: '/new_upload',
     name: 'NewUpload',
     component: NewUpload,
+    meta: { requiresLogin: true }
+  },
+  {
+    path: '/new_template/:id',
+    name: 'NewTemplate',
+    component: NewTemplate,
     meta: { requiresLogin: true }
   },
   {
