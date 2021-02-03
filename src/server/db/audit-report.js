@@ -134,6 +134,7 @@ async function getProjectSummaryData () {
       a.code as Agency,
       p.code as Project,
       p.name as name,
+      p.description as description,
       p.status as status,
       u.reporting_period_id,
       d.type,
