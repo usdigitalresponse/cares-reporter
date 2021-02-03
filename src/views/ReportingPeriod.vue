@@ -73,7 +73,7 @@ export default {
         })
         return result
       }
-      return null
+      return {}
     },
     onSave (reportingPeriod) {
       const updatedReportingPeriod = {
