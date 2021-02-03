@@ -9,6 +9,11 @@
 const express = require('express')
 const router = express.Router()
 
+const multer = require('multer')
+const multerUpload = multer({ storage: multer.memoryStorage() })
+const FileInterface = require('../lib/server-disk-interface')
+const fileInterface = new FileInterface()
+
 const { requireUser, requireAdminUser } = require('../access-helpers')
 const { getPeriodSummaries, user: getUser } = require('../db')
 const reportingPeriods = require('../db/reporting-periods')
@@ -74,22 +79,57 @@ router.put('/:id', requireAdminUser, validateReportingPeriod, async function (
   console.log('PUT /reporting_periods/:id', req.body)
   let reportingPeriod = await reportingPeriods.reportingPeriodById(req.params.id)
   if (!reportingPeriod) {
-    res.status(400).send('Reporting period not found')
+    res.status(404).send('Reporting period not found')
     return
   }
   const { name, start_date, end_date } = req.body
-  project = {
+  reportingPeriod = {
     ...reportingPeriod,
     name,
     start_date,
     end_date
   }
-  reportingPeriods.updateReportingPeriod(project)
+  reportingPeriods.updateReportingPeriod(reportingPeriod)
     .then(result => res.json({ reportingPeriod: result }))
     .catch(e => {
       next(e)
     })
 })
+
+router.post(
+  '/templates/:id',
+  requireUser,
+  multerUpload.single('template'),
+  async (req, res, next) => {
+    const id = req.params.id;
+    console.log(`POST /api/reporting_periods/${id}/templates`)
+    if (!req.file) {
+      res.status(400).send('File missing');
+      return
+    }
+    console.log('Filename:', req.file.originalname, 'size:', req.file.size)
+    let reportingPeriod = await reportingPeriods.reportingPeriodById(id)
+    if (!reportingPeriod) {
+      res.status(404).send('Reporting period not found')
+      return
+    }
+    try {
+      await fileInterface.writeFileCarefully(req.file.originalname, req.file.buffer)
+    } catch (e) {
+      res.json({
+        success: false,
+        errorMessage: e.code === 'EEXIST'
+          ? `The file ${req.file.originalname} already exists. `
+          : e.message
+      })
+      return
+    }
+    reportingPeriod.reporting_template = req.file.originalname;
+    return reportingPeriods.updateReportingPeriod(reportingPeriod)
+      .then(() => res.json({ success: true, reportingPeriod }))
+      .catch(e => next(e))
+  }
+)
 
 module.exports = router
 

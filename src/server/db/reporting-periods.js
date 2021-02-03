@@ -208,7 +208,8 @@ function updateReportingPeriod (reportingPeriod) {
     .update({
       name: cleanString(reportingPeriod.name),
       start_date: reportingPeriod.start_date,
-      end_date: reportingPeriod.end_date
+      end_date: reportingPeriod.end_date,
+      reporting_template: reportingPeriod.reporting_template
     })
 }
 
