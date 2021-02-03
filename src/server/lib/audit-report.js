@@ -275,6 +275,7 @@ async function createAwardAggregateSheet (nPeriods) {
   function addColumnTitles (sheet, nPeriods) {
     log(`createAwardAggregateSheet/addColumnTitles(${nPeriods})`)
     const line1 = ['Agency', 'Project', 'Funding Type']
+    
     for (let i = 1; i <= nPeriods; i++) {
       line1.push(`${endDates[i]} Obligation Amount`)
     }
@@ -728,6 +729,9 @@ async function createProjectSummarySheet (nPeriods) {
   }
 
   async function addColumnTitles (sheet, nPeriods) {
+    let endDates = await reportingPeriods.getEndDates()
+    endDates = endDates.map(ed => format(new Date(ed.end_date), 'M/d/yy'))
+    endDates.unshift(null) // because the first period is period 1
     const line1 = [
       'Agency Alpha Code',
       'Project Identification Number',
