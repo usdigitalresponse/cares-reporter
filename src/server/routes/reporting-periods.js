@@ -52,7 +52,7 @@ router.get('/close/', requireAdminUser, async (req, res) => {
   })
 })
 
-function validateReportingPeriod(req, res, next) {
+function validateReportingPeriod (req, res, next) {
   next()
 }
 
@@ -117,14 +117,14 @@ router.post(
   requireUser,
   multerUpload.single('template'),
   async (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     console.log(`POST /api/reporting_periods/${id}/templates`)
     if (!req.file) {
-      res.status(400).send('File missing');
+      res.status(400).send('File missing')
       return
     }
     console.log('Filename:', req.file.originalname, 'size:', req.file.size)
-    let reportingPeriod = await reportingPeriods.reportingPeriodById(id)
+    const reportingPeriod = await reportingPeriods.reportingPeriodById(id)
     if (!reportingPeriod) {
       res.status(404).send('Reporting period not found')
       return
@@ -140,7 +140,7 @@ router.post(
       })
       return
     }
-    reportingPeriod.reporting_template = req.file.originalname;
+    reportingPeriod.reporting_template = req.file.originalname
     return reportingPeriods.updateReportingPeriod(reportingPeriod)
       .then(() => res.json({ success: true, reportingPeriod }))
       .catch(e => next(e))
