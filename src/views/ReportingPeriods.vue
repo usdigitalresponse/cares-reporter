@@ -127,7 +127,7 @@ export default {
       }
     },
     formatDate (d) {
-      return moment(d).format('MM/DD/YYYY')
+      return moment(d).utc().format('MM/DD/YYYY')
     }
   }
 }
