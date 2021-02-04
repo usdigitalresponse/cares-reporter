@@ -31,12 +31,7 @@
 
 const knex = require('./connection')
 const { getCurrentReportingPeriodID } = require('./settings')
-
-function subrecipients () {
-  return knex('subrecipients')
-    .select('*')
-    .orderBy('legal_name')
-}
+const _ = require('lodash')
 
 function subrecipients () {
   return knex('subrecipients')
