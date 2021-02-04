@@ -31,12 +31,7 @@
 
 const knex = require('./connection')
 const { getCurrentReportingPeriodID } = require('./settings')
-
-function subrecipients () {
-  return knex('subrecipients')
-    .select('*')
-    .orderBy('legal_name')
-}
+const _ = require('lodash')
 
 function subrecipients () {
   return knex('subrecipients')
@@ -182,7 +177,8 @@ async function setPeriod (reporting_period_id) {
     ;`
 
   let result = await knex.raw(query)
-  result = result.rows.map(o => o.subrecipient_id)
+  result = result.rows.map(o => o.subrecipient_id.trim())
+  result = _.uniq(result) // because trim() may have found something
   const referenceCount = result.length
   const subIDs = `'${result.join("','")}'`
 
