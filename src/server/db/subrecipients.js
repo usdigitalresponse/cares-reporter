@@ -182,7 +182,8 @@ async function setPeriod (reporting_period_id) {
     ;`
 
   let result = await knex.raw(query)
-  result = result.rows.map(o => o.subrecipient_id)
+  result = result.rows.map(o => o.subrecipient_id.trim())
+  result = _.uniq(result) // because trim() may have found something
   const referenceCount = result.length
   const subIDs = `'${result.join("','")}'`
 
