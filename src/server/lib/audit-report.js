@@ -598,11 +598,9 @@ async function createProjectSummarySheet (nPeriods) {
         rowOut.sumObligation = sumObligations(projectCode, obligations)
         rowOut.sumExpenditure = sumExpenditure
         rowsOut.push(rowOut) // save the completed previous rowOut
-        // console.dir(obligations, { depth: 4 })
         projectCode = rowIn.project
 
         obligations = {}
-
         sumExpenditure = 0
         rowOut = {
           agency: rowIn.agency,
@@ -616,16 +614,16 @@ async function createProjectSummarySheet (nPeriods) {
       let awardNumber
       switch (rowIn.type) {
         case 'contracts':
-          awardNumber = rowIn.contract_number
+          awardNumber = `C-${rowIn.contract_number}`
           break
         case 'grants':
-          awardNumber = rowIn.award_number
+          awardNumber = `G-${rowIn.award_number}`
           break
         case 'loans':
-          awardNumber = rowIn.loan_number
+          awardNumber = `L-${rowIn.loan_number}`
           break
         case 'transfers':
-          awardNumber = rowIn.transfer_number
+          awardNumber = `T-${rowIn.transfer_number}`
           break
         case 'direct':
           awardNumber = `${rowIn.subrecipient_id}:${rowIn.obligation_date}`
@@ -680,20 +678,20 @@ async function createProjectSummarySheet (nPeriods) {
   }
 
   /* sumObligations() gets the sum of all the obligations for a project.
-  An obligations object contains one KV per award, plus a KV for Aggregate
-  Awards < 50,000, and a KV for Aggregate Payments Individual:
-  {
-    '1-27': [ [ 3176458.97, 3176458.97 ], [ 4217479.35 ] ],
-    '0091-VN': [ <1 empty item>, [ 60000 ] ],
-    DOH0000059186: [ [ 203310.63 ] ],
-    DOH0000058853: [ [ 2000000 ], [ 0 ] ],
-    aa: [ [ 0, 1380487.15, 0, 1076710, 0 ], [ 0, 1940000, 0, 0, 809868.87 ] ],
-    ap: [ [ 2701820 ], [ 2327329.8 ] ]
-  }
-  For all of them except aa records, we use only one value per period; the
-  rest are duplicates from multiple expenditure rows for that award.
-  For aa records, we must add all of them.
-*/
+    An obligations object contains one KV per award, plus a KV for Aggregate
+    Awards < 50,000, and a KV for Aggregate Payments Individual:
+    {
+      '1-27': [ [ 3176458.97, 3176458.97 ], [ 4217479.35 ] ],
+      '0091-VN': [ <1 empty item>, [ 60000 ] ],
+      DOH0000059186: [ [ 203310.63 ] ],
+      DOH0000058853: [ [ 2000000 ], [ 0 ] ],
+      aa: [ [ 0, 1380487.15, 0, 1076710, 0 ], [ 0, 1940000, 0, 0, 809868.87 ] ],
+      ap: [ [ 2701820 ], [ 2327329.8 ] ]
+    }
+    For all of them except aa records, we use only one value per period; the
+    rest are duplicates from multiple expenditure rows for that award.
+    For aa records, we must add all of them.
+  */
   function sumObligations (projectCode, obligations) {
     let sum = 0
     Object.keys(obligations).forEach(awardNumber => {
