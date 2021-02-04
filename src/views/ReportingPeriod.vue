@@ -105,7 +105,7 @@ export default {
       if (d) {
         const dt = moment(d)
         if (dt.isValid()) {
-          return dt.format('MM/DD/YYYY')
+          return dt.utc().format('MM/DD/YYYY')
         }
       }
       return ''
