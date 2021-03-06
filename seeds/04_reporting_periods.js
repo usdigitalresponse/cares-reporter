@@ -11,7 +11,8 @@ exports.seed = async function(knex) {
       open_date:"2020-12-01",
       close_date:"2020-12-01",
       review_period_start_date:"2020-12-16",
-      review_period_end_date:"2020-12-23"
+      review_period_end_date:"2020-12-23",
+      crf_end_date:"2021-09-30"
     },
     {
       name: "2",
@@ -21,7 +22,8 @@ exports.seed = async function(knex) {
       open_date:"2020-12-01",
       close_date:"2020-12-01",
       review_period_start_date:"2020-12-16",
-      review_period_end_date:"2020-12-23"
+      review_period_end_date:"2020-12-23",
+      crf_end_date:"2021-09-30"
     },
     {
       name: "3",
@@ -31,7 +33,8 @@ exports.seed = async function(knex) {
       open_date:"2020-12-25",
       close_date:"2021-01-11",
       review_period_start_date:"2021-01-12",
-      review_period_end_date:"2021-01-20"
+      review_period_end_date:"2021-01-20",
+      crf_end_date:"2021-09-30"
     },
     {
       name: "4",
@@ -41,7 +44,8 @@ exports.seed = async function(knex) {
       open_date:"2021-01-22",
       close_date:"2021-04-12",
       review_period_start_date:"2021-04-13",
-      review_period_end_date:"2021-04-20"
+      review_period_end_date:"2021-04-20",
+      crf_end_date:"2021-09-30"
     },
     {
       name: "5",
@@ -51,7 +55,8 @@ exports.seed = async function(knex) {
       open_date:"2021-04-22",
       close_date:"2021-07-12",
       review_period_start_date:"2021-07-13",
-      review_period_end_date:"2021-07-20"
+      review_period_end_date:"2021-07-20",
+      crf_end_date:"2021-09-30"
     },
     {
       name: "6",
@@ -61,7 +66,8 @@ exports.seed = async function(knex) {
       open_date:"2021-07-22",
       close_date:"2021-10-12",
       review_period_start_date:"2021-10-13",
-      review_period_end_date:"2021-10-20"
+      review_period_end_date:"2021-10-20",
+      crf_end_date:"2021-09-30"
     }
   ])
     .returning("id");
