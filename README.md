@@ -1,7 +1,7 @@
 # cares-reporter
 
 ## Developer documentation
-This readme.md page explains how to set up your development environment. Documentation for sysadmins is at https://github.com/usdigitalresponse/cares-reporter/wiki/Table-of-Contents.
+This readme.md page explains how to set up your development environment. Documentation for sysadmins is at https://github.com/usdigitalresponse/cares-reporter/wiki/Home.
 
 ## Project setup
 
