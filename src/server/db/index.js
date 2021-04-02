@@ -120,7 +120,7 @@ async function generatePasscode (email) {
   }
   const passcode = v4()
   const used = false
-  const expiryMinutes = parseInt(process.env.LOGIN_EXPIRY_MINUTES) || 30
+  const expiryMinutes = parseInt(process.env.LOGIN_EXPIRY_MINUTES || 30)
   const expires = new Date()
   expires.setMinutes(expires.getMinutes() + expiryMinutes)
   await knex('access_tokens').insert({
