@@ -21,18 +21,20 @@
     "prod": "NODE_ENV=production node src/server"
   },
   "dependencies": {
-    "@vue/cli": "^4.5.9",
-    "aws-sdk": "^2.824.0",
+    "@vue/cli": "^4.5.11",
+    "aws-sdk": "^2.849.0",
     "body-parser": "^1.19.0",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
-    "core-js": "^3.8.1",
-    "date-fns": "^2.16.1",
+    "core-js": "^3.9.0",
+    "date-fns": "^2.17.0",
     "dotenv": "^8.2.0",
     "eslint-config-standard": "^16.0.2",
     "express": "^4.17.1",
-    "knex": "^0.21.16",
-    "lodash": "^4.17.20",
+
+    "knex": "^0.21.18",
+    "lodash": "^4.17.21",
+
     "lodash-checkit": "^2.3.3",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
@@ -43,8 +45,8 @@
     "standard": "^16.0.3",
     "uuid": "^8.3.2",
     "vue": "^2.6.11",
-    "vue-router": "^3.4.9",
-    "vuex": "^3.6.0",
+    "vue-router": "^3.5.1",
+    "vuex": "^3.6.2",
     "xlsx": "^0.16.9"
   },
   "devDependencies": {
