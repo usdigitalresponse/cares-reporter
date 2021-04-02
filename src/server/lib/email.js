@@ -2,7 +2,7 @@ const AWS = require('aws-sdk')
 
 const ses = new AWS.SES({ region: process.env.SES_REGION })
 const fromEmail = process.env.NOTIFICATIONS_EMAIL
-const expiryMinutes = 30
+const expiryMinutes = process.env.LOGIN_EXPIRY_MINUTES || 30
 
 function sendPasscode (email, passcode, httpOrigin) {
   const params = {
