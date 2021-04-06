@@ -3211,10 +3211,10 @@ await-to-js@^2.0.1:
   resolved "https://registry.yarnpkg.com/await-to-js/-/await-to-js-2.1.1.tgz#c2093cd5a386f2bb945d79b292817bbc3f41b31b"
   integrity sha512-CHBC6gQGCIzjZ09tJ+XmpQoZOn4GdWePB4qUweCaKNJ0D3f115YdhmYVTZ4rMVpiJ3cFzZcTYK1VMYEICV4YXw==
 
-aws-sdk@^2.849.0:
-  version "2.864.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.864.0.tgz#934d526e6de5d6e5f7c4aa9258e3be60ee149e22"
-  integrity sha512-QbxIFgJLHP/v2snYC0udrQHQcRRPZjALv2pTvdVP78BBmM4YGuuI3U6YRMfHb/a41m2JDriXaqUA5+HSYmCm3w==
+aws-sdk@^2.865.0:
+  version "2.881.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.881.0.tgz#cda305c65f9c7198d0730464526c87f636cfdf3d"
+  integrity sha512-jPjk2kfWxXzn5D1tch8DezTZ9V904GGxohWE/IK2zhvxn1GOrL42HyJlHg5uvISL1Mkf6ner/RLLuIjl7vYHBA==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -8660,7 +8660,6 @@ knex@^0.21.18:
   version "0.21.19"
   resolved "https://registry.yarnpkg.com/knex/-/knex-0.21.19.tgz#df504a184eb29e286245839db0867e3ca161af00"
   integrity sha512-6etvrq9XI1Ck6mEc/XiXFGVpD1Lmj6v9XWojqZgEbOvyMbW7XRvgZ99yIhN/kaBH+43FEy3xv/AcbRaH+1pJtw==
-
   dependencies:
     colorette "1.2.1"
     commander "^6.2.0"
