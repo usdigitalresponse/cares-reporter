@@ -32,7 +32,7 @@
     "eslint-config-standard": "^16.0.2",
     "express": "^4.17.1",
 
-    "knex": "^0.21.18",
+    "knex": "^0.95.2",
     "lodash": "^4.17.21",
 
     "lodash-checkit": "^2.3.3",
