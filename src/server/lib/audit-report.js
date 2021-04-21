@@ -20,6 +20,11 @@ const {
   getAwardData
 } = require('../db/audit-report')
 
+const to$ = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD'
+}).format
+
 let endDates
 
 let log = () => {}
@@ -87,12 +92,12 @@ async function generateReport () {
 
 async function createAwardSheet (type, nPeriods) {
   log(`createAwardSheet(${type}, ${nPeriods})`)
-
+  let errorRows
   const sheet = []
   try {
     const sqlRows = await getAwardData(type)
     const rowData = consolidatePeriods(sqlRows, type)
-    addErrorChecks(rowData, type, nPeriods)
+    errorRows = addErrorChecks(rowData, type, nPeriods)
     await addAwardSheetColumnTitles(sheet, type, nPeriods)
     addDataRows(rowData)
   } catch (err) {
@@ -100,7 +105,7 @@ async function createAwardSheet (type, nPeriods) {
   }
   log(`${type} sheet completed`)
 
-  return sheet
+  return { errorRows: errorRows, sheet: sheet }
 
   function addDataRows (rowData) {
     rowData.forEach(row => {
@@ -152,11 +157,14 @@ function consolidatePeriods (sqlRows, type) {
     if (!(rowIn.agency && rowIn.project)) {
       throw new Error(`Bad database record: ${JSON.stringify(rowIn)}`)
     }
-
-    if (awardNumber !== rowIn.award_number ||
+    // 21 04 20 added the 'trim' because somehow some contract ids had
+    // gotten into the RI database with leading or trailing blanks:
+    // Project: 138, Contract: 3692045
+    // Project 194, Contract: 3696764
+    if (awardNumber !== rowIn.award_number.trim() ||
       (subrecipientID !== String(rowIn.subrecipient_id) && type === 'direct')
     ) {
-      awardNumber = rowIn.award_number
+      awardNumber = rowIn.award_number.trim()
       subrecipientID = String(rowIn.subrecipient_id)
 
       rowsOut.push(rowOut) // save the completed previous rowOut
@@ -220,19 +228,19 @@ async function addAwardSheetColumnTitles (sheet, type, nPeriods) {
 
 async function createAwardAggregateSheet (nPeriods) {
   log(`createAwardAggregateSheet(${nPeriods} periods)`)
-
+  let errorRows = 0
   const sheet = []
   try {
     const sqlRows = await getAggregateAwardData()
     const rowData = consolidatePeriods(sqlRows)
-    addErrorChecks(rowData, 'Aggregate Awards < 50000', nPeriods)
+    errorRows = addErrorChecks(rowData, 'Aggregate Awards < 50000', nPeriods)
     addColumnTitles(sheet, nPeriods)
     addDataRows(sheet, rowData, nPeriods)
   } catch (err) {
     return err
   }
   log('Award Aggregate sheet completed')
-  return sheet
+  return { errorRows: errorRows, sheet: sheet }
 
   function consolidatePeriods (rowsIn) {
     const rowsOut = []
@@ -323,12 +331,12 @@ async function createAwardAggregateSheet (nPeriods) {
   */
 async function createAggregatePaymentSheet (nPeriods) {
   log(`createAggregatePaymentSheet(${nPeriods})`)
-
+  let errorRows
   const sheet = []
   try {
     const sqlRows = await getAggregatePaymentData()
     const rowData = consolidatePeriods(sqlRows)
-    addErrorChecks(rowData, 'Aggregate Payments Individual', nPeriods)
+    errorRows = addErrorChecks(rowData, 'Aggregate Payments Individual', nPeriods)
     addColumnTitles(sheet, nPeriods)
     addDataRows(sheet, rowData, nPeriods)
   } catch (err) {
@@ -336,7 +344,7 @@ async function createAggregatePaymentSheet (nPeriods) {
   }
   log('Aggregate Payments sheet completed')
 
-  return sheet
+  return { errorRows: errorRows, sheet: sheet }
 
   function consolidatePeriods (rowsIn) {
     const rowsOut = []
@@ -501,6 +509,7 @@ async function createAggregatePaymentSheet (nPeriods) {
 
   */
 function addErrorChecks (rowData, type, nPeriods) {
+  let errorRows = 0
   for (let i = 0; i < rowData.length; i++) {
     const row = rowData[i]
     if (row.period.length < 2) {
@@ -520,28 +529,41 @@ function addErrorChecks (rowData, type, nPeriods) {
     // > 76973.90+53470.59
     // 130444.48999999999
     sumObligation = getAmount(sumObligation)
+    if (sumObligation < 0) {
+      errors.push(
+        `Cumulative Obligation (${to$(sumObligation)}) should not be negative.`
+      )
+    }
     sumExpenditure = getAmount(sumExpenditure)
     if (sumExpenditure > sumObligation) {
       errors.push(
-        `Cumulative Expenditure (${sumExpenditure}) should not be greater than Cumulative Obligation (${sumObligation})`
+        `Cumulative Expenditure (${to$(sumExpenditure)}) should not be greater than Cumulative Obligation (${to$(sumObligation)}).`
       )
     }
-
+    if (sumExpenditure < 0) {
+      errors.push(
+        `Cumulative Expenditure (${to$(sumExpenditure)}) should not be negative.`
+      )
+    }
     const current = row.period[last] || { amount: 0, obligation: 0 }
-    const prior = row.period[last - 1] || { amount: 0, obligation: 0 }
+    const prior = getPrior(row, last)
+
     switch (type) {
       case 'contracts':
       case 'grants':
       case 'transfers':
       case 'direct':
       case 'loans':
-        if ((current.amount || 0) !== getAmount(prior.amount + current.obligation)) {
+        if (((current.amount || 0) !== getAmount(prior.amount + current.obligation)) &&
+            // Rhode Island zeroed out some contracts without negating the amount
+            !(sumExpenditure === 0 && sumObligation === 0)
+        ) {
           errors.push(
-            `Current Amount (${current.amount}) should equal prior period Amount (${prior.amount}) plus Current Obligation (${current.obligation})`
+            `Current Amount (${to$(current.amount)}) should equal prior period Amount (${to$(prior.amount)}) plus Current Obligation (${to$(current.obligation)})`
           )
         }
         if ((current.amount || 0) !== sumObligation) {
-          errors.push(`Current Amount (${current.amount}) should equal Cumulative Obligation (${sumObligation})`)
+          errors.push(`Current Amount (${to$(current.amount)}) should equal Cumulative Obligation (${to$(sumObligation)})`)
         }
         break
 
@@ -553,10 +575,12 @@ function addErrorChecks (rowData, type, nPeriods) {
         break
     }
     if (errors.length) {
+      errorRows += 1
       row.errors = errors.join('; ')
       console.dir(row.errors)
     }
   }
+  return errorRows
 }
 
 /* createProjectSummarySheet()
@@ -576,7 +600,7 @@ async function createProjectSummarySheet (nPeriods) {
     return err
   }
   log('Project Summary Sheet completed.')
-  return sheet
+  return { errorRows: 0, sheet: sheet }
 
   function consolidateProjects (rowsIn) {
     log('consolidateProjects()')
@@ -783,9 +807,16 @@ async function composeWorkbook (sheets) {
     ['Aggregate Awards < 50000', 1],
     ['Aggregate Payments Individual', 1]
   ]
+
+  try {
+    await addErrorSheet(sheets, workbook, sheetSpecs)
+  } catch (err) {
+    return err
+  }
+
   sheetSpecs.forEach(async spec => {
     const sheetName = spec[0]
-    const sheetIn = sheets[sheetName.toLowerCase()] || []
+    const sheetIn = sheets[sheetName.toLowerCase()].sheet || []
     const sheetOut = XLSX.utils.aoa_to_sheet(sheetIn)
     fixCellFormats(sheetOut, spec[1], '#,##0.00')
 
@@ -808,6 +839,46 @@ async function composeWorkbook (sheets) {
 function getAmount (num) {
   if (_.isNull(num)) { return null }
   return _.round((Number(num) || 0), 2)
+}
+
+/* getPrior() scans back in time to the prior reported Amount.
+  This is needed because sometimes a project has no activity in a prior period,
+  in which case the Amount for that period is null, but in a previous period
+  there was a non-null amount, which is the amount we should report instead
+  of the null.
+
+  This correction is not needed for Obligations nor Expenditures.
+  */
+function getPrior (row, last) { // last is the ord of the latest period
+  let lastReportedAmount = 0
+  for (let i = last - 1; i >= 0; i--) {
+    if (row.period[i] && row.period[i].amount) {
+      lastReportedAmount = row.period[i].amount
+      break
+    }
+  }
+
+  return {
+    amount: lastReportedAmount,
+    obligation: (row.period[last - 1] || { obligation: 0 }).obligation
+  }
+}
+
+/* addErrorSheet() adds an error summary tab to the output workbook
+  */
+async function addErrorSheet (sheets, workbook, sheetSpecs) {
+  const errorSheet = [
+    ['Sheet', 'Errors'] // title row of output sheet
+  ]
+  sheetSpecs.forEach(async spec => {
+    const sheetName = spec[0]
+    const errorRows = sheets[sheetName.toLowerCase()].errorRows || 0
+    errorSheet.push([sheetName, errorRows])
+  })
+  const sheetOut = XLSX.utils.aoa_to_sheet(errorSheet)
+  return XLSX.utils.book_append_sheet(
+    workbook, sheetOut, 'Error Summary'
+  )
 }
 
 /*                                  *  *  *                                   */
