@@ -8660,6 +8660,7 @@ knex@^0.21.18:
   version "0.21.19"
   resolved "https://registry.yarnpkg.com/knex/-/knex-0.21.19.tgz#df504a184eb29e286245839db0867e3ca161af00"
   integrity sha512-6etvrq9XI1Ck6mEc/XiXFGVpD1Lmj6v9XWojqZgEbOvyMbW7XRvgZ99yIhN/kaBH+43FEy3xv/AcbRaH+1pJtw==
+
   dependencies:
     colorette "1.2.1"
     commander "^6.2.0"
