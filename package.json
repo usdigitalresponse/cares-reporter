@@ -27,11 +27,13 @@
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
     "core-js": "^3.10.0",
+
     "date-fns": "^2.18.0",
     "dotenv": "^8.2.0",
     "eslint-config-standard": "^16.0.2",
     "express": "^4.17.1",
     "fs-extra": "^9.1.0",
+
     "knex": "^0.95.4",
     "lodash": "^4.17.21",
     "lodash-checkit": "^2.3.3",
