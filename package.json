@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "serve:oh": "POSTGRES_URL=postgres://localhost/ohio AUDIT=true UPLOAD_DIRECTORY=\"./uploads/oh\" TREASURY_DIRECTORY=\"./treasury-reports/oh\" REPORTING_TEMPLATE=\"OBM Reporting Template.xlsx\" yarn serve",
-    "serve:ri": "POSTGRES_URL=postgres://localhost/ri AUDIT=true UPLOAD_DIRECTORY=\"./uploads/ri\" TREASURY_DIRECTORY=\"./treasury-reports/ri\" REPORTING_TEMPLATE=\"RICRF Reporting Workbook for Projects Not Previously Reported.xlsx\" yarn serve",
+    "serve:oh": "POSTGRES_URL=postgres://localhost/ohio UPLOAD_DIRECTORY=\"./uploads/oh\" TREASURY_DIRECTORY=\"./treasury-reports/oh\" REPORTING_TEMPLATE=\"OBM Reporting Template.xlsx\" yarn serve",
+    "serve:ri": "POSTGRES_URL=postgres://localhost/ri UPLOAD_DIRECTORY=\"./uploads/ri\" TREASURY_DIRECTORY=\"./treasury-reports/ri\" REPORTING_TEMPLATE=\"RICRF Reporting Workbook for Projects Not Previously Reported.xlsx\" yarn serve",
     "serve:rp1": "POSTGRES_URL=postgres://localhost/rptest AUDIT=true UPLOAD_DIRECTORY=\"./uploads/rp\" TREASURY_DIRECTORY=\"./treasury-reports/rp\" yarn serve",
     "serve:rp2": "POSTGRES_URL=postgres://localhost/rp2 AUDIT=true UPLOAD_DIRECTORY=\"./uploads/rp\" TREASURY_DIRECTORY=\"./treasury-reports/rp\" yarn serve",
     "reset:rptest": "dropdb rptest && createdb --owner=postgres rptest && psql rptest postgres < tests/server-periods/fixtures/rptest.sql",
@@ -31,10 +31,9 @@
     "dotenv": "^8.2.0",
     "eslint-config-standard": "^16.0.2",
     "express": "^4.17.1",
-
+    "fs-extra": "^9.1.0",
     "knex": "^0.95.4",
     "lodash": "^4.17.21",
-
     "lodash-checkit": "^2.3.3",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
@@ -68,7 +67,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "mocha": "^8.1.2",
     "prettier": "1.19.1",
-    "webpack": "4.0.0",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "webpack": "4.0.0"
   }
 }
