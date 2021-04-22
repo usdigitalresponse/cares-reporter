@@ -24,7 +24,6 @@ const { makeConfig } = require('./config')
 const { clean, cleanString } = require('./spreadsheet')
 const FileInterface = require('./server-disk-interface')
 const fileInterface = new FileInterface(process.env.TREASURY_DIRECTORY)
-
 const { fixCellFormats } = require('../services/fix-cell-formats')
 
 const {
@@ -633,13 +632,13 @@ async function latestReport (period_id) {
   }
 
   const fileNames = allFiles.sort() // ascending
-  fileNames.push('sentry')
+  fileNames.unshift('sentry')
 
   let filename
   let filePeriod
 
   do {
-    filename = fileNames.shift()
+    filename = fileNames.pop()
     filePeriod = (filename.match(/-Period-(\d+)-/) || [])[1]
   } while (fileNames.length && Number(filePeriod) !== Number(period_id))
 
