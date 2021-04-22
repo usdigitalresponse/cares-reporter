@@ -7,20 +7,23 @@ const { uploadFilename } = require('../lib/spreadsheet')
 
 const router = express.Router()
 
-function getAttachmentData(filename) {
-  // template might be in source code repo
+function getAttachmentData (filename) {
+  // 21 03 24  reversed order of search to handle when the user uploads a new
+  // template with the same name as the one in the source repo data/ directory
+
+  // template might have been uploaded by a user
   let path = resolve(__dirname, '../data', filename)
-  console.log('Checking path:', path);
+  console.log('Checking path:', path)
   if (fs.existsSync(path)) {
     return fs.readFileSync(path)
   }
-  // or it might have been uploaded by a user
+  // or it might be in source code repo
   path = uploadFilename(filename)
-  console.log('Checking path:', path);
+  console.log('Checking path:', path)
   if (fs.existsSync(path)) {
     return fs.readFileSync(path)
   }
-  return null;
+  return null
 }
 
 router.get('/:filename', (req, res) => {
