@@ -175,7 +175,7 @@ async function generateSummaries (reporting_period_id) {
     let awardNumber
     let awardAmount
     let currentExpenditure = jsonRow['total expenditure amount'] || 0
-    const currentObligation = jsonRow['current quarter obligation']
+    const currentObligation = jsonRow['current quarter obligation'] || 0
 
     switch (document.type) {
       case 'contracts':
@@ -188,7 +188,7 @@ async function generateSummaries (reporting_period_id) {
         break
       case 'loans':
         awardNumber = jsonRow['loan number']
-        awardAmount = jsonRow['loan amount'] || 0
+        awardAmount = jsonRow['loan amount']
         currentExpenditure = jsonRow['loan amount'] || 0
         break
       case 'transfers':
@@ -201,6 +201,7 @@ async function generateSummaries (reporting_period_id) {
         awardAmount = jsonRow['obligation amount']
         break
     }
+    awardAmount = awardAmount || 0
 
     switch (document.type) {
       case 'contracts':
@@ -213,7 +214,7 @@ async function generateSummaries (reporting_period_id) {
         if (rec) {
           if (currentObligation !== rec.current_obligation) {
             errLog.push(
-              `Multiple current quarter obligations for ${key} - ${currentObligation}`
+              `Multiple current quarter obligations for project: ${document.project_code}, tab: ${document.type}, award number: ${awardNumber} - ${currentObligation}, ${rec.current_obligation}`
             )
           }
           rec.current_expenditure += currentExpenditure
@@ -224,9 +225,9 @@ async function generateSummaries (reporting_period_id) {
             award_type: document.type,
             subrecipient_identification_number: String(jsonRow['subrecipient id']).trim(),
             award_number: awardNumber,
-            award_amount: awardAmount || 0,
-            current_obligation: currentObligation || 0,
-            current_expenditure: currentExpenditure || 0
+            award_amount: awardAmount,
+            current_obligation: currentObligation,
+            current_expenditure: currentExpenditure
           })
         }
         break
