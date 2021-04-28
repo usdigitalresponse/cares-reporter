@@ -1,0 +1,29 @@
+
+POSTGRES_URL=postgres://localhost/server_test
+
+COOKIE_SECRET="hellosailor"
+INITIAL_ADMIN_EMAILS="michael+admin@stanford.cc"
+INITIAL_AGENCY_EMAILS="michael+agency@stanford.cc"
+
+# agency data input template
+REPORTING_TEMPLATE="empty-template.xlsx"
+VALIDATION_TEMPLATE="validation-template.xlsx"
+
+# treasury data output template
+TREASURY_TEMPLATE="treasury-template.xlsx"
+
+# REPORTING_PERIODS="reporting-periods.xlsx"
+
+SAM_API_KEY=
+
+UPLOAD_DIRECTORY="./uploads"
+TREASURY_DIRECTORY="./uploads/treasury"
+
+NODEMAILER_HOST="smtp.gmail.com"
+NODEMAILER_PORT=465
+NOTIFICATIONS_EMAIL="caresreportertest@gmail.com"
+
+# Need a .env file with this filled in
+NOTIFICATIONS_EMAIL_PW=""
+
+
