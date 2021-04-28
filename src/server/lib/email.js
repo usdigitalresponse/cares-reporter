@@ -6,9 +6,10 @@
 */
 /* eslint camelcase: 0 */
 
-const aws = require('./email-aws')
-const nodemailer = require('./email-nodemailer')
-const transport = process.env.AWS_ACCESS_KEY_ID ? aws : nodemailer
+const transport = process.env.AWS_ACCESS_KEY_ID
+  ? require('./email-aws')
+  : require('./email-nodemailer')
+
 
 function sendPasscode (toAddress, passcode, httpOrigin) {
   const expiryMinutes = parseInt(process.env.LOGIN_EXPIRY_MINUTES) || 30
