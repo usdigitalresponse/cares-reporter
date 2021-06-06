@@ -63,7 +63,22 @@ yarn lint
 See [Vue Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Set up Notifications email account
-To send system notification emails, Cares-Reporter can use either AWS-SES or Nodemailer, which uses a regular email account to send notifications. Either way the account credentials are excluded from Git commits. Email settings are specified in the environment. For testing this is done in a .env file; for deployment it is done in the Environment tab of the Render.com dashboard.
+
+There is detailed documentation for email setup at https://github.com/usdigitalresponse/cares-reporter/wiki/Setting-up-Email-notifications.
+
+To send system notification emails, Cares-Reporter can use either AWS-SES or Nodemailer, which uses a regular email account to send notifications. Either way the account credentials are specified in the environment so as to exclude them from Git commits. For testing this is done in a .env file; for deployment it is done in the Environment tab of the Render.com dashboard.
+
+At runtime the system scans the environment for AWS credentials first, then if it can't find them, Nodemailer credentials.
+
+See the project Wiki on Github for how to set up the notification email service in the production environment. Read on to see how to set it up in your development environment for testing.
+
+The test environment uses an existing dedicated Gmail account - "caresreportertest@gmail.com."
+
+Before running the tests you need to add .env files to the tests/server-aws-ses and tests/server-nodemailer directories on your development system.
+
+1. Copy tests/server-nodemailer/env to tests/server-nodemailer/.env and populate the `NOTIFICATIONS_EMAIL_PW` key. Ask one of the other developers for this password.
+
+1. Copy tests/server-aws-ses/env to tests/server-aws-ses/.env and populate the `SES\_REGION`, `AWS\_ACCESS\_KEY\_ID` and `AWS\_SECRET\_ACCESS_KEY` keys. Ask one of the other developers for these keys.
 
 The tests are invoked from the project root directory with:
 
@@ -71,34 +86,5 @@ The tests are invoked from the project root directory with:
 
 `$ yarn test:server-aws-ses`
 
-These Yarn commands are specified in the package.json file. 
+These Yarn commands are specified in the package.json file.
 
-Setting up AWS is somewhat more complicated than setting up Nodemailer. The test environment tests both, but before running the tests you need to add .env files to the tests/server-aws-ses and tests/server-nodemailer directories on your development system. You can just rename the 'env' files in those directories and add the credentials.
-
-At runtime the system scans the environment for AWS credentials first, then if it can't find them, Nodemailer credentials.
-
-#### To use a regular email account
-The test environment uses an existing dedicated Gmail account - "caresreportertest@gmail.com." When a customer deploys Cares-Reporter in production they will need to supply their own email account. To use Nodemailer, add the following keys to the environment. 
-
-`NODEMAILER_HOST e.g. "smtp.gmail.com"`
-
-`NODEMAILER_PORT e.g. 465`
-
-`NOTIFICATIONS_EMAIL - this is the From: address for all notifications`
-
-`NOTIFICATIONS_EMAIL_PW - this is the password for the From: address`
-
-#### To use AWS-SES
-The test environment uses USDR's AWS credentials, but when a customer deploys Cares-Reporter in production, they will need to perform the following steps to implement AWS-SES.
-
-1. Set up a new email address on an existing mail server to use as the From: address for sending notifications (this will be the `NOTIFICATIONS_EMAIL` in the Render Service Environment).
-
-1. Verify that email for SES.
-
-1. Generate the IAM credentials for sending email (these will be the `SES\_REGION`, the `AWS\_ACCESS\_KEY\_ID` and the `AWS\_SECRET\_ACCESS_KEY` in the Render Service Environment).
-
-1. Submit an AWS customer support request to move the account out of SES Sandbox mode.
-
-1. Submit a separate ticket to request a fixed IP address for SES.
-
-1. Once those tickets are resolved, enter the credentials and email address to the execution environment.
