@@ -29,7 +29,7 @@
     "cookie-parser": "^1.4.5",
     "core-js": "^3.13.0",
 
-    "date-fns": "^2.20.0",
+    "date-fns": "^2.21.3",
     "dotenv": "^8.6.0",
     "eslint-config-standard": "^16.0.3",
     "express": "^4.17.1",
