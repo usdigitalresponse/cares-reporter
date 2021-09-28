@@ -27,7 +27,7 @@
     "body-parser": "^1.19.0",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
-    "core-js": "^3.15.0",
+    "core-js": "^3.16.0",
 
     "date-fns": "^2.23.0",
     "dotenv": "^8.6.0",
