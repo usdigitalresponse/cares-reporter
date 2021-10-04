@@ -10,7 +10,6 @@ const transport = process.env.AWS_ACCESS_KEY_ID
   ? require('./email-aws')
   : require('./email-nodemailer')
 
-
 function sendPasscode (toAddress, passcode, httpOrigin) {
   const expiryMinutes = parseInt(process.env.LOGIN_EXPIRY_MINUTES) || 30
   return transport.send({
